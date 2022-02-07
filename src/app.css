@@ -1,0 +1,91 @@
+@import '@fontsource/fira-mono';
+
+:root {
+	
+	font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	--font-mono: 'Fira Mono', monospace;
+
+	--w: #ffffff;
+	--off-bk: #333333;
+	--background-without-opacity: rgba(255, 255, 255, 0.7);
+	
+	--off-w: #FEF0D7;
+	
+	--lt-y: #FFDEAD;
+	--md-y: #D7AC74;
+
+	--dk-b: #1B3750;
+	--md-b: #2E5F8A;
+	--lt-b: #3B8391;
+
+	--dk-bg: #3B8391;
+	--lt-bg: #7DBDCA;
+
+	--md-o: #EC7357;
+	--md-p: #932851;
+	
+	--header-height: 3rem;
+	--footer-height: 5rem;
+	--corner: .333rem;
+	--outershadow: 2px 4px 2px rgba(0, 0, 0, 0.1);
+}
+
+body {
+	min-height: 100vh;
+	margin: 0;
+	background-color: var(--dk-bg);
+	background: linear-gradient(
+		180deg,
+		var(--dk-b) 0%,
+		var(--dk-bg) 55%,
+		var(--lt-bg) 80%
+	);
+}
+
+h1,
+h2,
+p {
+	font-weight: 400;
+	color: var(--off-bk);
+}
+
+p {
+	line-height: 1.5;
+}
+
+a ,
+a:visited {
+	color: var(--dk-bg);
+	text-decoration: none;
+	cursor: pointer
+}
+
+a:hover {
+	color: var(--lt-bg);
+}
+a:active,
+a.active {
+	color: var(--md-p);
+}
+h1 {
+	font-size: 2rem;
+	text-align: center;
+}
+
+h2 {
+	font-size: 1.5rem;
+	font-weight: 600;
+}
+
+button:focus:not(:focus-visible) {
+	outline: none;
+}
+h1, h2, h3, h4, h5, h6 {
+	margin: 0;
+	padding: 0;
+}
+
+p {
+	margin: 1rem 0;
+}
