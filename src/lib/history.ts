@@ -1,7 +1,7 @@
 import type { StrapiData } from "./types";
 
 export const cleanUrlSlug = (str: string) => str.replace(/[^A-Za-z0-9]/g, "-").toLowerCase();
-export const pushHistory = (url: string, slug: string) => {
+export const clientNavigate = (scroll: boolean) => (url: string, slug: string) => {
   history.pushState({}, "", `${url}/${cleanUrlSlug(slug)}`);
-  window.scrollTo({top: 0});
+  scroll && window.scrollTo({top: 0});
 };

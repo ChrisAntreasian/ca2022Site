@@ -5,16 +5,12 @@
 		const aid = parseInt(page.params.aid) || 1;
 		if (res.ok) {
 			const artPieces = await res.json();
-
+			const artPiece = artPieces.data.filter(_ => _.id === aid)[0];
 			return {
 				props: { 
 					artPieces,
-					aid
+					artPiece
 				},
-				stuff: {
-					artPieces,
-					aid
-				}
 			};
 		}
 		const { message } = await res.json();
@@ -25,10 +21,30 @@
 </script>
 
 <script lang="ts">
-	import type { IllustrationData, Id } from "./../../lib/types";
-	import { apiBaseUrl } from "./../_api";
-	export let artPieces: IllustrationData;
-	export let aid: Id;	
+	import type { StrapiArt } from "./../../lib/types";
+	import { beforeUpdate } from "svelte";
+	import { clientNavigate } from "./../../lib/history"
+	import Article from "./_Article.svelte";
+	import Nav from "./_Nav.svelte";
+
+	export let artPieces: StrapiArt;
+	export let artPiece: StrapiArt["data"][number];
+	
+	beforeUpdate(() =>{
+		const rem = 16;
+		const eh = 2 * rem;
+		const fh = 5 * rem;
+		const hh = 3 * rem;
+
+		const widgetH = window.outerHeight - fh - hh - eh;
+		document.documentElement.style.setProperty('--galleryHeight', `${widgetH / rem}rem`);
+	})
+	const clientNavigateS = clientNavigate(false);
+	const setArtPiece = (id: number) => (e: Event) => {
+		e.preventDefault();
+		artPiece = artPieces.data.filter(_ => _.id === id)[0];
+		clientNavigateS(`/illustration/${artPiece.id}`, artPiece.attributes.title);
+	}
 
 	//before load 
 		// get window height
@@ -45,56 +61,13 @@
 </svelte:head>
 
 <section>
-	<article>
-		{#each artPieces.data as art (art.id)}
-		{#if art.id === aid}
-			<figure>
-				<h3>{art.attributes.title}</h3>
-				<img src={`${apiBaseUrl}${art.attributes.image.data.attributes.url}`} alt={art.attributes.description} />
-				<figcaption>{art.attributes.description}</figcaption>
-			</figure>
-		{/if}
-	{/each}
-	</article>
-	<nav>
-		<ul>
-			{#each artPieces.data as art (art.id)}
-				<li>
-					<a class:active="{art.id === aid}" href="{`/illustration/${art.id}/${art.attributes.title.replace(" ", "-")}`}">
-						<img src={`${apiBaseUrl}${art.attributes.image.data.attributes.formats.thumbnail.url}`} alt={art.attributes.description} />
-					</a>
-				</li>
-			{/each}
-		</ul>
-	</nav>
+	<Article art={artPiece.attributes} />
+	<Nav artPiece={artPiece} artPieces={artPieces} setArtPiece={setArtPiece} />
 </section>
 
 <style>
-
-	article {
-    border: 0.25rem solid var(--md-p);
-		padding: 1rem;
-		background-color: white;
-		background: linear-gradient(white, var(--off-w));
-    border-top-left-radius: var(--corner);
-		border-top-right-radius: var(--corner);
-		filter: drop-shadow(var(--outershadow));
-		box-shadow: inset 0 0 1rem #f3f3f3;
-	}
-	nav {
-		color: var(--off-bk);
-		padding: 1rem 0;
-		background: var(--md-p);
-	}
-	ul {
-		display: flex;
-		list-style: none;
-		line-height: 2rem;
-		padding: 0;
-		font-weight: 600;
-		letter-spacing: 0.02rem;
-	}
-	ul img {
-		height: 6rem;
+	section {
+		position: relative;
+		height: var(--galleryHeight);
 	}
 </style>

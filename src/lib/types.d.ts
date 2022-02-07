@@ -37,7 +37,7 @@ type Image = {
 	width: number;
 }
 
-export type IllustrationData = StrapiData<{
+export type Art = {
 	title: string;
 	description: string;
 	image: {
@@ -53,4 +53,5 @@ export type IllustrationData = StrapiData<{
 			}
 		}
 	};
-}>
+}
+export type StrapiArt = StrapiData<Art>

@@ -27,7 +27,8 @@
 	
 	--header-height: 3rem;
 	--footer-height: 5rem;
-	--corner: .333rem;
+	--galleryHeight: 0rem
+	--corner: 0.333rem;
 	--outershadow: 2px 4px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -81,11 +82,19 @@ h2 {
 button:focus:not(:focus-visible) {
 	outline: none;
 }
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, figure {
 	margin: 0;
 	padding: 0;
 }
 
 p {
 	margin: 1rem 0;
+}
+
+article {
+	border: 0.25rem solid var(--md-p);
+    padding: 1rem;
+    background-color: white;
+    background: linear-gradient(white, var(--off-w));
+		filter: drop-shadow(var(--outershadow));
 }
