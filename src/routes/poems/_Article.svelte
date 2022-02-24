@@ -8,14 +8,21 @@
 </script>
 
 <article>
-	<h3>{poem.title}</h3>
-	<SvelteMarkdown source={poem.body} />
+	<div>
+		<h3>{poem.title}</h3>
+		<SvelteMarkdown source={poem.body} />
+	</div>
 </article>
 
 <style>
 	article {
+		padding: 2rem 0;
+		border-left: var(--border-md);
 		width: 75%;
-    border-top-left-radius: var(--corner);
-		border-bottom-left-radius: var(--corner);
+		display: flex;
+		justify-content: center;
+	}
+	div {
+		width: 66%
 	}
 </style>

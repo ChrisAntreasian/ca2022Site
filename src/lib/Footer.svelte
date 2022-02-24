@@ -5,9 +5,9 @@
 <footer>
 	<nav>
 		<ul>
-			<li class:active={$page.path === '/'}><a sveltekit:prefetch href="/">Home</a></li>
-			<li class:active={$page.path === '/illustration'}><a sveltekit:prefetch href="/illustration">Illustration</a></li>
-			<li class:active={$page.path === '/poems'}><a sveltekit:prefetch href="/poems">Poems</a></li>
+			<li class:active={$page.url.pathname === '/'}><a sveltekit:prefetch href="/">Home</a></li>
+			<li class:active={$page.url.pathname === '/illustration'}><a sveltekit:prefetch href="/illustration">Illustration</a></li>
+			<li class:active={$page.url.pathname === '/poems'}><a sveltekit:prefetch href="/poems">Poems</a></li>
 		</ul>
 	</nav>
 	<h4>
@@ -22,7 +22,9 @@
 		width: 100%;
 		height: var(--footer-height);
 		background: #ec7357;
-		border-top: 0.5rem solid var(--md-p);
+		/* border-top: 0.5rem solid var(--p-md); */
+		border-top: 0.5rem solid var(--b-md);
+
 	}
 
 	ul {

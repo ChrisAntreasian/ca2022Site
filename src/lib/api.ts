@@ -1,28 +1,20 @@
-import type { EndpointOutput, Request } from '@sveltejs/kit';
-import type { Locals } from '$lib/types';
+
+import qs from "qs";
 
 export const apiBaseUrl = 'http://localhost:1337';
 
-export async function api(
-	request: Request<Locals>,
-	resource: string,
-	data?: Record<string, unknown>
-): Promise<EndpointOutput> {
-	// user must have a cookie set
-	if (!request.locals.userid) {
-		return { status: 401 };
-	}
+type QuryProps = {
+	filters?: Record<string, any>,
+	populate?: string | string[]
+} 
 
-	const res = await fetch(`${apiBaseUrl}/api/${resource}`, {
-		method: request.method,
+export const queryStr = (_: QuryProps) => qs.stringify(_, { encodeValuesOnly: true });
+
+export const api = (method: string, resource: string, data?: Record<string, unknown>) =>
+	fetch(`${apiBaseUrl}/api/${resource}`, {
+		method,
 		headers: {
 			'content-type': 'application/json'
 		},
 		body: data && JSON.stringify(data)
 	});
-
-	return {
-		status: res.status,
-		body: await res.json()
-	};
-}

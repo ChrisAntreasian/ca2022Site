@@ -10,37 +10,48 @@
 	--off-bk: #333333;
 	--background-without-opacity: rgba(255, 255, 255, 0.7);
 	
-	--off-w: #FEF0D7;
+	--w-lt: #FAF3E7;
+	--w-md: #FEF0D7;
+	--w-dk: #E7DCC9;
 	
-	--lt-y: #FFDEAD;
-	--md-y: #D7AC74;
+	--y-lt: #FFDEAD;
+	--y-md: #D7AC74;
 
-	--dk-b: #1B3750;
-	--md-b: #2E5F8A;
-	--lt-b: #3B8391;
+	--b-dk: #1B3750;
+	--b-md: #2E5F8A;
+	--b-lt: #3B8391;
 
-	--dk-bg: #3B8391;
-	--lt-bg: #7DBDCA;
+	--bg-dk: #3B8391;
+	--bg-lt: #7DBDCA;
 
-	--md-o: #EC7357;
-	--md-p: #932851;
+	--o-md: #EC7357;
+	--p-md: #932851;
 	
+	--wrapper-width: 75rem;
+	--wrapper-width-lg: 87.5rem;
 	--header-height: 3rem;
-	--footer-height: 5rem;
-	--galleryHeight: 0rem
-	--corner: 0.333rem;
+	--footer-height: 4rem;
+	--gallery-height: 0rem;
+	--gallery-section-height: 0rem;
+	--gallery-details-height: 0rem;
+
+	--space-md: 0.333rem;
+	--space-lg: 0.667rem;
 	--outershadow: 2px 4px 2px rgba(0, 0, 0, 0.1);
+	--border-md: var(--space-md) solid var(--p-md);
+	--border-lg: var(--space-lg) solid var(--p-md);
+
 }
 
 body {
 	min-height: 100vh;
 	margin: 0;
-	background-color: var(--dk-bg);
+	background-color: var(--b-dkg);
 	background: linear-gradient(
 		180deg,
-		var(--dk-b) 0%,
-		var(--dk-bg) 55%,
-		var(--lt-bg) 80%
+		var(--b-dk) 0%,
+		var(--bg-dk) 55%,
+		var(--bg-lt) 80%
 	);
 }
 
@@ -57,18 +68,15 @@ p {
 
 a ,
 a:visited {
-	color: var(--dk-bg);
+	color: var(--bg-dk);
 	text-decoration: none;
 	cursor: pointer
 }
 
 a:hover {
-	color: var(--lt-bg);
+	color: var(--bg-lt);
 }
-a:active,
-a.active {
-	color: var(--md-p);
-}
+
 h1 {
 	font-size: 2rem;
 	text-align: center;
@@ -82,7 +90,7 @@ h2 {
 button:focus:not(:focus-visible) {
 	outline: none;
 }
-h1, h2, h3, h4, h5, h6, figure {
+h1, h2, h3, h4, h5, h6, figure, ul {
 	margin: 0;
 	padding: 0;
 }
@@ -92,9 +100,14 @@ p {
 }
 
 article {
-	border: 0.25rem solid var(--md-p);
-    padding: 1rem;
-    background-color: white;
-    background: linear-gradient(white, var(--off-w));
-		filter: drop-shadow(var(--outershadow));
+	padding: 2rem 1rem;
+	box-sizing: border-box;
+	background: var(--w-lt);
+	filter: drop-shadow(var(--outershadow));
+}
+section {
+	display: flex;
+	width: 100%;
+	margin-top: var(--header-height);
+
 }

@@ -1,10 +1,29 @@
-<script lang="ts">
+<script  context="module" lang="ts">
 	import Header from '$lib/Header.svelte';
 	import Footer from '$lib/Footer.svelte';
 	import '../app.css';
+	import type { Load } from '@sveltejs/kit';
+	import type { StrapiArt, Art } from "$lib/types";
+
+	export const load: Load = async ({ params, fetch, session, stuff }) => {
+		const res = await fetch('/json');
+		if (res.ok) {
+			const artResp: StrapiArt = await res.json();
+			const art = artResp.data[0].attributes
+			return {
+				props: { 
+					art: art
+				},
+			};
+		}
+	}
 </script>
 
-<Header />
+<script lang="ts">
+	export let art: Art;
+</script>
+
+<Header art={art}/>
 
 <main>
 	<slot />
@@ -18,9 +37,9 @@
 		display: flex;
 		flex-direction: column;
 		width: 100%;
-		max-width: 1200px;
-		margin: calc(var(--header-height) + 1.5rem) auto 0;
+		max-width: var(--wrapper-width);
 		box-sizing: border-box;
+		margin: 0 auto;
 	}
 
 </style>

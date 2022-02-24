@@ -1,9 +1,10 @@
 <script context="module" lang="ts">
 	import type { Load } from "@sveltejs/kit";
-	export const load: Load = async ({ page, fetch, session, stuff }) => {
+
+	export const load: Load = async ({ params, fetch }) => {
 		const res = await fetch("/poems.json");
-		const pid = parseInt(page.params.pid) || 5;
 		if (res.ok) {
+			const pid = parseInt(params.pid) || 5;
 			const poems = await res.json();
 			const poem = poems.data.filter(_ => _.id === pid)[0];
 			return {
@@ -51,5 +52,8 @@
 <style>
 	section {
 		display: flex;
+		width: 100%;
+		max-width: var(--wrapper-width);
+		margin-top: var(--header-height);
 	}
 </style>

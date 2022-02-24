@@ -1,40 +1,90 @@
+
 <script lang="ts">
+	import type { Art } from "./types";
 	import { page } from '$app/stores';
+	import { apiBaseUrl } from "./api";	
+	
+	import { tweened } from 'svelte/motion';
+  import { cubicOut } from 'svelte/easing';
+
+  export let art: Art;
+
+	const nameWidth = tweened(0, {
+		easing: cubicOut,
+    duration: 1200,
+  });
+	
+	const showName = () => {
+		nameWidth.set(24);
+	};
+	const hideName = () => {
+		nameWidth.set(0);
+	};
+
 </script>
 
 <header>
-	<h1>Christopher Antreasian</h1>
-	<nav>
-		<ul>
-			<li class:active={$page.path === '/'}>
-				<a sveltekit:prefetch href="/">Home</a>
-			</li>
-			<li class:active={$page.path === '/illustration'}>
-				<a sveltekit:prefetch href="/illustration">Illustration</a>
-			</li>
-			<li class:active={$page.path === '/poems'}>
-				<a sveltekit:prefetch href="/poems">Poems</a>
-			</li>
-		</ul>
-	</nav>
+	<div>
+		<div style={`width: ${$nameWidth}rem;`}>
+			<h1>Christopher Antreasian</h1>
+		</div>
+		<figure on:focus={showName} on:mouseover={showName} on:blur={hideName} on:mouseout={hideName}>
+			<img 
+				src={`${apiBaseUrl}${art.image.data.attributes.formats.thumbnail.url}`} 
+				alt={art.description} 
+			/>
+		</figure>
+		<nav>
+			<ul>
+				<li class:active={$page.url.pathname === '/'}>
+					<a sveltekit:prefetch href="/">Home</a>
+				</li>
+				<li class:active={$page.url.pathname === 'illustration'}>
+					<a sveltekit:prefetch href="/illustration">Illustration</a>
+				</li>
+				<li class:active={$page.url.pathname === '/poems'}>
+					<a sveltekit:prefetch href="/poems">Poems</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
 </header>
 
 <style>
+	figure {
+		position: absolute;
+		background: var(--b-lt);
+		border: 0.33rem solid var(--b-md);
+		border-radius: 50%;
+		overflow: hidden;
+		height: 4rem;
+		width: 4rem;
+		left: 0;
+		margin-left: -2rem;
+		margin-top: 0.5rem;
+		cursor: pointer;
+	}
+	img {
+		height: 4rem;
+		position: absolute;
+	}
 	header {
 		position: fixed;
 		display: flex;
-		justify-content: space-between;
+		justify-content: space-around;
 		position: fixed;
 		top: 0;
 		width: 100%;
 		height: var(--header-height);
 		background: #ec7357;
-		border-bottom: 0.5rem solid var(--md-p);
+		border-bottom: var(--border-md);
 		z-index: 100;
+		flex-grow: 1;
 	}
 	
 	h1 {
 		line-height: var(--header-height);
+		white-space: nowrap;
 	}
 	
 	nav {
@@ -71,5 +121,19 @@
 		letter-spacing: 0.1em;
 		text-decoration: none;
 		transition: color 0.2s linear;
+	}
+	div {
+		width: 100%;
+		max-width: var(--wrapper-width);
+		display: flex;
+		justify-content: flex-end;
+		position: relative;
+	}
+	div > div {
+		position: absolute;
+		height: 4rem;
+		width: 4rem;
+		left: 0;
+		overflow: hidden;
 	}
 </style>
