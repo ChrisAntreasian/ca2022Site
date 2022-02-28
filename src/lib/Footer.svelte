@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	
+	export let footerHeight: number;
 </script>
 
-<footer>
+<footer bind:clientHeight={footerHeight}>
 	<nav>
 		<ul>
 			<li class:active={$page.url.pathname === '/'}><a sveltekit:prefetch href="/">Home</a></li>
@@ -26,7 +28,10 @@
 		border-top: 0.5rem solid var(--b-md);
 
 	}
-
+	h4 {
+		line-height: var(--footer-height);
+		padding-right: 1rem;
+	}
 	ul {
 		padding: 0;
 		margin: 0;

@@ -3,11 +3,11 @@
 	import type { Art } from "./types";
 	import { page } from '$app/stores';
 	import { apiBaseUrl } from "./api";	
-	
 	import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
 
   export let art: Art;
+	export let headerHeight: number;
 
 	const nameWidth = tweened(0, {
 		easing: cubicOut,
@@ -23,7 +23,7 @@
 
 </script>
 
-<header>
+<header bind:clientHeight={headerHeight}>
 	<div>
 		<div style={`width: ${$nameWidth}rem;`}>
 			<h1>Christopher Antreasian</h1>
