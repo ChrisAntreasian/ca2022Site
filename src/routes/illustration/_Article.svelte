@@ -8,13 +8,16 @@
   import { apiBaseUrl } from "$lib/api";	
   import { rem } from "$lib/spacing";
   import Arrow from '$lib/Arrow.svelte';
-  import { afterUpdate, onMount } from "svelte";
+  import FullScreen from '$lib/fullscreen/FullScreen.svelte';
+
+  import { afterUpdate } from "svelte";
 
   export let art: StrapiArt["data"][number];
   export let imageWidth: number;
   export let detailsWidth: number;
   export let showMore: boolean;
   export let gallarySectionHeight: number;
+  
   export let paginationDetails: {
     length: number,
     position: number
@@ -36,7 +39,7 @@
     needsOverflow = detailsDiv.scrollHeight > detailsDiv.clientHeight;
     freshImage = false
   };
-  
+    
   afterNavigate(setOverflow);
   afterUpdate(() => {
     console.log("afterUpdate", freshImage)
@@ -53,6 +56,8 @@
         src={`${apiBaseUrl}${art.attributes.image.data.attributes.url}`} 
         alt={art.attributes.description} 
       />
+      <FullScreen img={art} />
+
     </div>
     <figcaption style={`width: ${detailsWidth}%`}>
       <div>
@@ -82,7 +87,6 @@
               {!showMore ? "read less" : "read more"}
             </div>
           {/if}
-          
           <div class="pagination">
             {#if paginationDetails.position !== 0 }
               <span on:click={() => paginateArtPiece(-1)}>
@@ -90,10 +94,10 @@
                 last
               </span>
             {/if}
-            {#if paginationDetails.position !== 0 && paginationDetails.position !== paginationDetails.length - 1 }
+            {#if paginationDetails.position !== 0 && paginationDetails.position + 1 !== paginationDetails.length }
               |
             {/if}
-            {#if paginationDetails.position !== paginationDetails.length - 1 }
+            {#if paginationDetails.position + 1  <= paginationDetails.length}
               <span on:click={() => paginateArtPiece(1)}>
                 next
                 <Arrow color="blue" size="small" direction="right" />
@@ -123,6 +127,7 @@
   .image-wrap {
     display: flex;
     justify-content: flex-end;
+    position: relative;
   }
   img {
     width: 100%;
@@ -168,29 +173,19 @@
     display: flex;
     justify-content: space-between;
   }
+
+  span,
   .readmore {
-    color: white;
-    font-weight: bold;
-    background: var(--bg-lt);
-    border-radius: var(--space-md);
-    height: 1.5rem;
-    padding: 0 0.5rem;
-    line-height: 1.5rem;
     cursor: pointer;
-    text-align: center;
-    margin-top:-0.25rem;
+    color: var(--bg-lt);  
   }
+  span:hover,
   .readmore:hover {
-    background: var(--b-lt);
-  }
-  span {
-    cursor: pointer;
-    color: var(--bg-lt);
-    
-  }
-  span:hover {
     color: var(--b-lt);
     border-color: var(--b-lt);
+  }
+  .readmore {
+    margin-top:-0.25rem;
   }
   span:first-of-type {
     padding-right: 0.25rem;

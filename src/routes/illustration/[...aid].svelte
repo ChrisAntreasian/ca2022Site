@@ -99,7 +99,7 @@
 		const index = artPieces.findIndex(_ => _.id == artPiece.id);
 		resetGallary();
 		setArtPiece(artPieces[index + n].id);
-		paginationDetails.position = artPieces[index + n].id
+		paginationDetails.position = index + n;
 	}
 	
 	const readMoreClick = (_: boolean) => () => {
