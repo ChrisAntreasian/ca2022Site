@@ -42,8 +42,6 @@
     
   afterNavigate(setOverflow);
   afterUpdate(() => {
-    console.log("afterUpdate", freshImage)
-    console.log("needs overflow? ", detailsDiv.scrollHeight > detailsDiv.clientHeight)
     if (freshImage ) setOverflow();
   });
  

@@ -1,45 +1,40 @@
 <script lang="ts">
   import type { StrapiArt } from "./../types";
 
+  import { scale, fade } from "svelte/transition";
+
   import fullscreen from "./fullscreen.svg"
   import { apiBaseUrl } from "$lib/api";	
+  import { rem } from "$lib/spacing";
 
   export let img: StrapiArt["data"][number];
 
-  import { tweened } from 'svelte/motion';
-  import { cubicOut } from "svelte/easing";
-  import { rem } from "$lib/spacing";
-
-  let displayed = false;
+  let displayBg = false;
+  let displayImg = false
   let imageHeight = 0;
-  const tween = {
-		easing: cubicOut,
-    duration: 700,
-  }
-  const bgOpacity = tweened(0, tween);
-  const imgOpacity = tweened(0, tween);
+
+  const transitionConfig = {duration: 400};
+
   const open = () => {
-    imageHeight = (window.innerHeight - (4 * rem)) / rem;
-    displayed = true;
-    bgOpacity.set(80);
-    imgOpacity.set(100);
+    imageHeight = (window.innerHeight - (2 * rem)) / rem;
+    displayBg = displayImg = true;
   }
-  const close = () => {
-    displayed = false;
-    bgOpacity.set(0);
-    imgOpacity.set(0);
-  }
+  const close = () => displayBg = displayImg = false;
+  
 </script>
 
 <div on:click={open} class="btn" >
   <img src={fullscreen} alt={"click for fullscreen"} /> 
 </div>
-<div class={`bg ${displayed? "displayed" : ""}`} style={`opacity: ${$bgOpacity / 100}`}> 
-</div>
-<div class={`wrap ${displayed ? "displayed": ""}`} style={`opacity: ${$imgOpacity / 100}`}>
-  <div on:click={close} class="btn close" >x</div>
-  <img style={`height: ${imageHeight}rem;`} src={`${apiBaseUrl}${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.alternativeText} />
-</div>
+{#if displayBg}
+  <div class="bg" transition:fade={transitionConfig}/>
+{/if}
+{#if displayImg}
+  <div class="wrap" transition:scale={transitionConfig}>
+    <div on:click={close} class="btn close" >x</div>
+    <img style={`height: ${imageHeight}rem;`} src={`${apiBaseUrl}${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.alternativeText} />
+  </div>
+{/if}
 
 <style>
   .bg {
@@ -48,15 +43,11 @@
     top: 0;
     bottom: 0;
     background: var(--off-bk);
-    display: none;
     justify-content: center;
     align-items: center;
-    opacity: 0;
     right: 0;
+    opacity: .85;
     z-index: 100;
-  }
-  .bg.displayed {
-    display: flex;
   }
   .btn {
     position: absolute;
@@ -80,19 +71,14 @@
     right: -6rem;
   }
   .btn:hover {
-    opacity: 1
+    opacity: 1;
   }
   .wrap {
-    display: none;
     position: fixed;
     z-index: 200;
-    top: 2rem;
+    top: 1rem;
     left: 50%;
-    transform: translate(-50%)
-
-  }
-  .wrap.displayed {
-    display:block;
+    transform: translate(-50%);
   }
 
 </style>
