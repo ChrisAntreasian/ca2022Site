@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { fade } from "svelte/transition";
   import type { StrapiArt} from "$lib/types";
 	import { cleanUrlSlug } from "$lib/history";
   import { apiBaseUrl } from "$lib/api";
@@ -99,12 +100,9 @@
 		display: flex;
 		list-style: none;
 		padding: 0;
-		font-weight: 600;
     align-items: center;
     position: absolute;
     transition: margin-left 0.4s ease-in-out, opacity 0.4s ease-in-out 0.2s;
-
-
 	}
 	ul img {
     transition: transform 0.2s ease-in-out;

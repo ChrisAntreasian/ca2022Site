@@ -1,5 +1,25 @@
 @import '@fontsource/fira-mono';
 
+@font-face {
+	font-family: "trashhand";
+	src: url("../static/fonts/TrashHand/TrashHand.ttf");
+}
+@font-face {
+	font-family: "josefin-light";
+	src: url("../static/fonts/josefin-sans/JosefinSans-Light.ttf");
+}
+@font-face {
+	font-family: "josefin-regular";
+	src: url("../static/fonts/josefin-sans/JosefinSans-Regular.ttf");
+}
+@font-face {
+	font-family: "josefin-bold";
+	src: url("../static/fonts/josefin-sans/JosefinSans-SemiBold.ttf");
+}
+@font-face {
+	font-family: "josefin-itallic";
+	src: url("../static/fonts/josefin-sans/JosefinSans-Italic.ttf");
+}
 :root {
 	
 	font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
@@ -10,6 +30,7 @@
 	--off-bk: #333333;
 	--background-without-opacity: rgba(255, 255, 255, 0.7);
 	
+	--w-xl: #FFF9EE;
 	--w-lt: #FAF3E7;
 	--w-md: #FEF0D7;
 	--w-dk: #E7DCC9;
@@ -25,7 +46,9 @@
 	--bg-lt: #7DBDCA;
 
 	--o-md: #EC7357;
+	--o-dk: #C9553B;
 	--p-md: #932851;
+	--p-dk: #5A0E2B;
 	
 	--wrapper-width: 75rem;
 	--wrapper-width-lg: 87.5rem;
@@ -40,37 +63,35 @@
 	--outershadow: 2px 4px 2px rgba(0, 0, 0, 0.1);
 	--border-md: var(--space-md) solid var(--p-md);
 	--border-lg: var(--space-lg) solid var(--p-md);
-
 }
 
 body {
+	font-size: 16px;
 	min-height: 100vh;
 	margin: 0;
-	background-color: var(--b-dkg);
-	background: linear-gradient(
-		180deg,
-		var(--b-dk) 0%,
-		var(--bg-dk) 55%,
-		var(--bg-lt) 80%
-	);
+	background: var(--bg-lt);
+	position: relative;
 }
-
+body:after {
+	content: "";
+	background: linear-gradient( 180deg, var(--b-dk) 0%, var(--bg-dk) 55%, var(--bg-lt) 80% );
+	position: absolute;
+	top: 0;
+	height: 30rem;
+	width: 100%;
+	z-index: -100;
+}
 h1,
 h2,
 p {
-	font-weight: 400;
 	color: var(--off-bk);
-}
-
-p {
-	line-height: 1.5;
 }
 
 a ,
 a:visited {
 	color: var(--bg-dk);
 	text-decoration: none;
-	cursor: pointer
+	cursor: pointer;
 }
 
 a:hover {
@@ -84,25 +105,43 @@ h1 {
 
 h2 {
 	font-size: 1.5rem;
-	font-weight: 600;
 }
-
+h3 {
+	font-size: 2rem;
+}
 button:focus:not(:focus-visible) {
 	outline: none;
+}
+h1, h2, h3, h4, h5 {
+	font-family: "trashhand";
+	letter-spacing: 0.1rem;
+	line-height: 2rem;
 }
 h1, h2, h3, h4, h5, h6, figure, ul {
 	margin: 0;
 	padding: 0;
 }
 
+p,
+span,
+a,
+div {
+	font-family: "josefin-regular";
+	line-height: 1.35rem;
+	font-size: 1.15rem;
+}
+li {
+	font-family: "josefin-regular";
+	font-size: 1.15rem;
+}
 p {
 	margin: 1rem 0;
 }
 
 article {
-	padding: 2rem 1rem;
+	padding: 1rem 1rem;
 	box-sizing: border-box;
-	background: var(--w-lt);
+	background: var(--w-xl);
 }
 section {
 	display: flex;

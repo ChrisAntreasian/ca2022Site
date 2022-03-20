@@ -23,8 +23,9 @@
 </script>
 
 <script lang="ts">
-	import type { StrapiPoem } from "./../../lib/types";
-	import { clientNavigate } from "./../../lib/history";
+	import { fade } from "svelte/transition";
+	import type { StrapiPoem } from "$lib/types";
+	import { clientNavigate } from "$lib/history";
 	import Article from "./_Article.svelte";
 	import Nav from "./_Nav.svelte";
 	
@@ -37,15 +38,14 @@
 		poem = poems.data.filter(_ => _.id === id)[0];
 		clientNavigateS(`/poems/${poem.id}`, poem.attributes.title);
 	}
-
 </script>
 
 <svelte:head>
 	<title>My Poems</title>
 </svelte:head>
 
-<section>
-	<Article poem={poem.attributes} />
+<section transition:fade={{duration: 300}}>
+	<Article poem={poem} />
 	<Nav poems={poems} poem={poem} setPoem={setPoem} />
 </section>
 

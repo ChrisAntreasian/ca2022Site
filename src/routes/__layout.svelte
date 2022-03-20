@@ -26,6 +26,7 @@
 	
 	export let headerHeight: number;
 	export let footerHeight: number;
+
 	setContext(
 		contextHeightKey,
 		{ 
@@ -39,7 +40,6 @@
 <main>
 	<slot />
 </main>
-
 <Footer bind:footerHeight={footerHeight} />
 
 <style>
@@ -51,6 +51,11 @@
 		box-sizing: border-box;
 		margin: 0 auto;
 		align-items: center;
+		max-width: var(--wrapper-width);
+		border-left: var(--space-md) solid var(--p-dk);
+		border-right: var(--space-md) solid var(--p-dk);
+		background: var(--w-xl)
+
 	}
 
 </style>

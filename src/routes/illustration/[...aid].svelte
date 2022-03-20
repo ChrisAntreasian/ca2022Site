@@ -33,33 +33,40 @@
 
 <script lang="ts">
 	import { afterUpdate, getContext } from "svelte";
-	import { clientNavigate } from "./../../lib/history";
-	import Article from "./_Article.svelte"
-	import Nav from "./_Nav.svelte"
-	import { contextHeightKey, rem } from '$lib/spacing';
 	import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
+  import { fade } from "svelte/transition";
+
 	import { afterNavigate } from '$app/navigation';
+
+	import { clientNavigate } from "$lib/history";
+	import { contextHeightKey, rem } from '$lib/spacing';
+
+	import Article from "./_Article.svelte"
+	import Nav from "./_Nav.svelte"
 
 	export let artPieces: StrapiArt["data"];
 	export let artPiece: StrapiArt["data"][number];
 
 	const { getHeaderHeight, getFooterHeight } = getContext(contextHeightKey);
-	const extraHeight = 3.25 * rem;
+	
+	const extraHeight = 3.5 * rem;
 	const navHeight = 6 * rem;
 
 	let gallarySectionHeight: number;
-  let windowWidth: number;
 
 	const initGalary = () => {
 		const footerHeight = getFooterHeight();
 		const headerHeight = getHeaderHeight();
 		const widgetH = window.outerHeight - footerHeight - headerHeight - extraHeight;
+		
 		gallarySectionHeight = Math.ceil((widgetH - navHeight - rem) / rem);
 		document.documentElement.style.setProperty('--gallery-height', `${widgetH / rem}rem`);
 		document.documentElement.style.setProperty('--gallery-section-height', `${gallarySectionHeight}rem`);
 	}
-	
+
+	let windowWidth: number;
+
 	afterUpdate(initGalary);
 	afterNavigate(initGalary);
 	$: if(windowWidth) initGalary();
@@ -74,6 +81,7 @@
 	
 	let showMore = true;
 	const clientNavigateS = clientNavigate(false);
+
 	const resetGallary = () => {
 		imageWidth.set(50);
 		detailsWidth.set(50);
@@ -83,6 +91,12 @@
 		artPiece = artPieces.filter(_ => _.id === id)[0];
 		clientNavigateS(`/illustration/${artPiece.id}`, artPiece.attributes.title);
 	}
+
+	let paginationDetails = {
+		length: artPieces.length,
+		position: 0
+	}
+
 	const navArtPieceClick = (id: number) => (e: Event) => {
 		e.preventDefault();
 		if (id == artPiece.id) return;
@@ -91,27 +105,21 @@
 		setArtPiece(id);
 		paginationDetails.position = artPieces.findIndex(_ => _.id == artPiece.id);
 	}
-	let paginationDetails = {
-		length: artPieces.length,
-		position: 0
-	}
+
 	const paginateArtPiece = (n: number) => {
 		const index = artPieces.findIndex(_ => _.id == artPiece.id);
 		resetGallary();
 		setArtPiece(artPieces[index + n].id);
 		paginationDetails.position = index + n;
 	}
-	
-	const readMoreClick = (_: boolean) => () => {
-    if (showMore) {
-      imageWidth.set(34);
-      detailsWidth.set(66)
-    } else {
-      imageWidth.set(50);
-      detailsWidth.set(50)
-    }
+
+	const readMoreClick = (_: boolean) => {
+		const d = showMore ? {img: 34, details: 66} : {img: 50, details: 50};
+		imageWidth.set(d.img);
+		detailsWidth.set(d.details)	
     showMore = _
   }
+
 </script>
 
 <svelte:head>
@@ -120,7 +128,7 @@
 
 <svelte:window bind:innerWidth={windowWidth} />
 
-<section>
+<section transition:fade={{duration: 300}}>
 	<Article 
 		art={artPiece} 
 		imageWidth={$imageWidth} 
@@ -130,6 +138,7 @@
 		gallarySectionHeight={gallarySectionHeight}
 		paginateArtPiece={paginateArtPiece}
 		paginationDetails={paginationDetails}
+		windowWidth={windowWidth}
 	/>
 
 	<Nav 

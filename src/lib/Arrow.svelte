@@ -56,6 +56,6 @@
   }
   .white:hover {
     border-style: solid;
-    border-color: white;
+    border-color:var(--w-xl);
   }
 </style>
