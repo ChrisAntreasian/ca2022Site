@@ -5,4 +5,4 @@ Built this silly thing with my blood and tears.
 
 React is ok, now for something completely different.
 
-Yay.
+Yay!
