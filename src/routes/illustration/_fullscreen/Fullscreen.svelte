@@ -27,7 +27,7 @@
   <img src={fullscreen} alt={"click for fullscreen"} /> 
 </div>
 {#if displayBg}
-  <div class="bg" transition:fade={transitionConfig}/>
+  <div class="bg-overlay" transition:fade={transitionConfig}/>
 {/if}
 {#if displayImg}
   <div class="wrap" transition:scale={transitionConfig}>
@@ -37,18 +37,6 @@
 {/if}
 
 <style>
-  .bg {
-    position: fixed;
-    width: 100%;
-    top: 0;
-    bottom: 0;
-    background: var(--off-bk);
-    justify-content: center;
-    align-items: center;
-    right: 0;
-    opacity: .85;
-    z-index: 100;
-  }
   .btn {
     position: absolute;
     height: 2rem;

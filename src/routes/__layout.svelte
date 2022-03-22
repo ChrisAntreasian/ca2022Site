@@ -2,6 +2,8 @@
 	import Header from '$lib/Header.svelte';
 	import Footer from '$lib/Footer.svelte';
 	import '../app.css';
+	import * as hamburger from "hamburgers/dist/hamburgers.css"
+
 	import type { Load } from '@sveltejs/kit';
 	import type { StrapiArt, Art } from "$lib/types";
 	import { setContext } from "svelte";

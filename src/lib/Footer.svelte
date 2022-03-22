@@ -25,7 +25,6 @@
 		bottom: 0;
 		display: flex;
 		justify-content: center;
-		width: 100%;
 		height: var(--footer-height);
 		background-image: linear-gradient(var(--o-md) 75%, var(--o-dk));
 		border-top: 0.5rem solid var(--b-dk);
@@ -36,7 +35,8 @@
 		font-family: "josefin-itallic";
 		letter-spacing: 0rem;
 		font-weight: normal;
-		font-size: 1rem
+		font-size: 1rem;
+		color: var(--b-dk);
 
 	}
 	ul {
@@ -81,4 +81,22 @@
 		justify-content: space-between;
 		width: 100%;
 	}
+	@media (max-width: 767.98px) { 
+		div {
+			flex-direction: column
+		}
+		footer {
+			height: auto;
+			padding: 1rem 0;
+		}
+		ul {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+		h4 {
+			margin-left: 1rem;
+			line-height: 1.5rem;
+			padding-top: 1rem;
+		}
+	 }
 </style>

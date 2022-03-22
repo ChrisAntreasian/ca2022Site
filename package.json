@@ -34,6 +34,7 @@
     "@fontsource/fira-mono": "^4.5.0",
     "@lukeed/uuid": "^2.0.0",
     "cookie": "^0.4.1",
+    "hamburgers": "^1.2.1",
     "qs": "^6.10.3",
     "svelte-markdown": "^0.2.1"
   }

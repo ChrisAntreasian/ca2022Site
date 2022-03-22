@@ -2,7 +2,7 @@
 
   import type { StrapiArt } from "$lib/types";
   
-  import { afterNavigate } from '$app/navigation';
+  import { afterNavigate, beforeNavigate } from '$app/navigation';
   import { fade } from "svelte/transition";
   import SvelteMarkdown from 'svelte-markdown'
 
@@ -25,12 +25,16 @@
   export let paginateArtPiece: (n: number) => void;
   export let readMoreClick: (_: boolean) => void;
   
+  let isBeforeNavigate = false;
+  beforeNavigate(() => { isBeforeNavigate = true });
+
   let headlineHeight: number;
   let metaHeight: number;
 
   let needsOverflow = false;
   let detailsDiv: HTMLDivElement;
   const setOverflow = () => {
+    if (isBeforeNavigate) return;
     needsOverflow = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
     
