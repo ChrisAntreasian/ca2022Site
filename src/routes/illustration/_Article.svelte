@@ -25,7 +25,7 @@
   export let paginateArtPiece: (n: number) => void;
   export let readMoreClick: (_: boolean) => void;
 
-  import { contextHeightKey } from "$lib/spacing";
+  import { contextHeightKey, mqBreakPoint } from "$lib/spacing";
 	import { getContext } from "svelte";
 
   let transitioning = false;
@@ -39,7 +39,7 @@
   let needsOverflow = false;
   let detailsDiv: HTMLDivElement;
   const setOverflow = () => {
-    if (isBeforeNavigate || !detailsDiv) return;
+    if (isBeforeNavigate || !detailsDiv || windowWidth < mqBreakPoint) return;
     needsOverflow = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
     
@@ -262,7 +262,7 @@
     .image,
     figcaption {
       width: 100% !important;
-      max-width:30rem;
+      max-width: 30rem;
     }
     figcaption,
     figure {
