@@ -17,9 +17,10 @@
 	src: url("../static/fonts/josefin-sans/JosefinSans-SemiBold.ttf");
 }
 @font-face {
-	font-family: "josefin-itallic";
+	font-family: "josefin-italic";
 	src: url("../static/fonts/josefin-sans/JosefinSans-Italic.ttf");
 }
+
 :root {
 	
 	font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
@@ -63,6 +64,8 @@
 	--outershadow: 2px 4px 2px rgba(0, 0, 0, 0.1);
 	--border-md: var(--space-md) solid var(--p-md);
 	--border-lg: var(--space-lg) solid var(--p-md);
+	--font-jsf:  "josefin-regular", Arial, Helvetica, sans-serif;
+	--font-th: "trashhand", Copperplate, Arial, Helvetica, sans-serif;
 }
 
 body {
@@ -72,6 +75,7 @@ body {
 	background: var(--bg-lt);
 	position: relative;
 }
+
 body:after {
 	content: "";
 	background: linear-gradient( 180deg, var(--b-dk) 0%, var(--bg-dk) 55%, var(--bg-lt) 80% );
@@ -80,11 +84,6 @@ body:after {
 	height: 30rem;
 	width: 100%;
 	z-index: -100;
-}
-h1,
-h2,
-p {
-	color: var(--off-bk);
 }
 
 a ,
@@ -96,6 +95,16 @@ a:visited {
 
 a:hover {
 	color: var(--bg-lt);
+}
+h1, h2, h3, h4, h5 {
+	color: var(--off-bk);
+	font-family: var(--font-th);
+	letter-spacing: 0.1rem;
+	line-height: 2rem;
+}
+h1, h2, h3, h4, h5, h6, figure, ul {
+	margin: 0;
+	padding: 0;
 }
 
 h1 {
@@ -109,31 +118,18 @@ h2 {
 h3 {
 	font-size: 2rem;
 }
-button:focus:not(:focus-visible) {
-	outline: none;
-}
-h1, h2, h3, h4, h5 {
-	font-family: "trashhand";
-	letter-spacing: 0.1rem;
-	line-height: 2rem;
-}
-h1, h2, h3, h4, h5, h6, figure, ul {
-	margin: 0;
-	padding: 0;
-}
 
-p,
-span,
-a,
-div {
-	font-family: "josefin-regular";
+p, span, a, div, li {
+	color: var(--off-bk);
+	font-family: var(--font-jsf);
 	line-height: 1.35rem;
 	font-size: 1.15rem;
 }
-li {
-	font-family: "josefin-regular";
-	font-size: 1.15rem;
+
+p, span, a, div {
+	line-height: 1.35rem;
 }
+
 p {
 	margin: 1rem 0;
 }
@@ -147,7 +143,6 @@ section {
 	display: flex;
 	width: 100%;
 	margin-top: var(--header-height);
-
 }
 
 .bg-overlay {
@@ -161,4 +156,11 @@ section {
 	right: 0;
 	opacity: .85;
 	z-index: 100;
+}
+.transition {
+	top: 0;
+	width: 100%;
+	position: absolute;
+	left: 50%;
+	transform: translate(-50%);
 }

@@ -8,7 +8,7 @@
 
   import { apiBaseUrl } from "$lib/api";	
   import { rem } from "$lib/spacing";
-  import Arrow from '$lib/Arrow.svelte';
+  import Arrow from '$lib/arrow/Arrow.svelte';
   import FullScreen from './_fullscreen/Fullscreen.svelte';
 
   export let art: StrapiArt["data"][number];
@@ -24,7 +24,12 @@
 
   export let paginateArtPiece: (n: number) => void;
   export let readMoreClick: (_: boolean) => void;
-  
+
+  import { contextHeightKey } from "$lib/spacing";
+	import { getContext } from "svelte";
+
+  let transitioning = false;
+
   let isBeforeNavigate = false;
   beforeNavigate(() => { isBeforeNavigate = true });
 
@@ -34,112 +39,135 @@
   let needsOverflow = false;
   let detailsDiv: HTMLDivElement;
   const setOverflow = () => {
-    if (isBeforeNavigate) return;
+    if (isBeforeNavigate || !detailsDiv) return;
     needsOverflow = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
     
   afterNavigate(setOverflow);
 	$: if(windowWidth) setOverflow();
 
+  let windowHeight;
+  const { getHeaderHeight, getFooterHeight } = getContext(contextHeightKey);
+
 </script>
 
-{#key art.id}
-  <article>
-    <figure
-      in:fade={{duration: 300, delay: 50}}
-      out:fade={{duration: 300}}
-      on:introend="{setOverflow}"
-      on:outrostart="{() => {
-        needsOverflow = false
-      }}"
-    >
-      <div class="image-wrap" style={`width: ${imageWidth}%`}>
-        <img 
-          src={`${apiBaseUrl}${art.attributes.image.data.attributes.url}`} 
-          alt={art.attributes.description} 
-        />
-        <FullScreen img={art} />
-      </div>
-      <figcaption style={`width: ${detailsWidth}%`}>
-        <div>
-          <h3 bind:clientHeight={headlineHeight}>{art.attributes.title}</h3>
-          <div class={`md-wrap ${!showMore ? "overflow" : needsOverflow ? "needs-overflow" : ""}`}>
-            <div 
-              bind:this={detailsDiv}
-              class={`md-content`}
-              style={`height: ${`${(gallarySectionHeight * rem - (4 * rem) - metaHeight - headlineHeight - (rem * 2)) / rem}rem;`}`}
-            >
-              <SvelteMarkdown source={art.attributes.description} />
-              {#if needsOverflow}
-                <div class="readmore" 
-                  transition:fade={{duration: 300}} 
-                  on:click={() => {
-                    readMoreClick(!showMore);
-                    detailsDiv.scrollTo({top: 0})
-                  }}
+<svelte:window bind:innerHeight={windowHeight} />
+
+  <article style={`
+    --min-height: ${(windowHeight - getHeaderHeight() - getFooterHeight() -2.66 * rem) / rem}rem;
+    --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem
+  `}>
+    <div class="wrap">
+      {#key art.id}
+        <figure 
+          class:transition={transitioning}
+          in:fade={{duration: 500}}
+          out:fade={{duration: 300}}
+          on:introend="{() => {
+            setOverflow()
+            transitioning = false;
+          }}"
+          on:outrostart="{() => {
+            needsOverflow = false;
+            transitioning = true;
+          }}"
+        >
+          <div class="image" style={`width: ${imageWidth}%`}>
+            <img 
+              src={`${apiBaseUrl}${art.attributes.image.data.attributes.url}`} 
+              alt={art.attributes.description} 
+            />
+            <FullScreen img={art} />
+          </div>
+          <figcaption style={`width: ${detailsWidth}%`}>
+            <div>
+              <h3 bind:clientHeight={headlineHeight}>{art.attributes.title}</h3>
+              <div class={`md-wrap ${!showMore ? "overflow" : needsOverflow ? "needs-overflow" : ""}`}>
+                <div 
+                  bind:this={detailsDiv}
+                  class={`md-content`}
+                  style={`height: ${`${(gallarySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem}rem;`}`}
                 >
-                  {!showMore ? "read less" : "read more"}
+                  <SvelteMarkdown source={art.attributes.description} />
+                  {#if needsOverflow}
+                    <div class="readmore" 
+                      transition:fade={{duration: 300}} 
+                      on:click={() => {
+                        readMoreClick(!showMore);
+                        detailsDiv.scrollTo({top: 0})
+                      }}
+                    >
+                      {!showMore ? "read less" : "read more"}
+                    </div>
+                  {/if}
                 </div>
-              {/if}
+                {#if showMore}
+                  <div 
+                    class="fade"
+                    transition:fade={{duration: 300}}
+                  />
+                {/if}
+              </div>
             </div>
-            {#if showMore}
-              <div 
-                class="fade"
-                transition:fade={{duration: 300}}
-              />
-            {/if}
-          </div>
-        </div>
-        <div class="details-foot" bind:clientHeight={metaHeight}>
-          <div>
-            <div class="meta">
-              <span>date: </span>
-              {new Date(art.attributes.createdDate).getFullYear()}
+            <div class="details" bind:clientHeight={metaHeight}>
+              <div>
+                <div class="meta">
+                  <span>date: </span>
+                  {new Date(art.attributes.createdDate).getFullYear()}
+                </div>
+                <div class="meta">
+                  <span>medium:</span>
+                  {art.attributes.medium}
+                </div>
+              </div>
+              <div>
+                <div class="pagination">
+                  {#if paginationDetails.position !== 0 }
+                    <span class="pagination-link last" on:click={() => paginateArtPiece(-1)}>
+                      <Arrow color="blue" size="small" direction="left" />
+                      last
+                    </span>
+                  {/if}
+                  {#if paginationDetails.position !== 0 && paginationDetails.position + 1 < paginationDetails.length}
+                    <span>|</span>
+                  {/if}
+                  {#if paginationDetails.position + 1 < paginationDetails.length}
+                    <span class="pagination-link next" on:click={() => paginateArtPiece(1)}>
+                      next
+                      <Arrow color="blue" size="small" direction="right" />
+                    </span>
+                  {/if}
+                </div>
+              </div>
             </div>
-            <div class="meta">
-              <span>medium:</span>
-              {art.attributes.medium}
-            </div>
-          </div>
-          <div>
-            <div class="pagination">
-              {#if paginationDetails.position !== 0 }
-                <span class="pagination-link" on:click={() => paginateArtPiece(-1)}>
-                  <Arrow color="blue" size="small" direction="left" />
-                  last
-                </span>
-              {/if}
-              {#if paginationDetails.position !== 0 && paginationDetails.position + 1 < paginationDetails.length}
-                <span>|</span>
-              {/if}
-              {#if paginationDetails.position + 1 < paginationDetails.length}
-                <span class="pagination-link" on:click={() => paginateArtPiece(1)}>
-                  next
-                  <Arrow color="blue" size="small" direction="right" />
-                </span>
-              {/if}
-            </div>
-          </div>
-        </div>
-      </figcaption>
-    </figure>
+          </figcaption>
+        </figure>
+      {/key}
+    </div>
   </article>
-{/key}
+
 
 <style>
   article {
     height: var(--gallery-section-height);
     width: 100%;
+    min-height: var(--min-height);
     max-width: var(--wrapper-width);
     display: flex;
     justify-content: center;
     position: absolute;
     padding-top: calc(var(--space-md) + 1rem);
   }
+  .wrap {
+    position: relative;
+    height: 100%;
+    width: 100%;
+  }
   figure {
+    height: 100%;
     display: flex;
   }
-  .image-wrap {
+  .image {
     display: flex;
     justify-content: flex-end;
     position: relative;
@@ -160,7 +188,6 @@
   .pagination {
     color: var(--off-bk);
     text-align: right;
-    margin-right: 0.25rem;
   }
   .md-wrap {
     position: relative
@@ -182,17 +209,23 @@
   .overflow .md-content{
     overflow: scroll;
   }
-  .meta {
+  .meta,
+  .meta span {
     margin-bottom: var(--space-sm);
-    font-family: "josefin-itallic";
+    font-family: "josefin-italic";
+    font-size: 1rem;
   }
-  .details-foot {
+  .details {
     font-size: 0.9rem;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
   }
-
+  .pagination,
+  .pagination-link {
+    display: flex;
+    align-items: center;
+  }
   .pagination-link,
   .readmore {
     cursor: pointer;
@@ -214,11 +247,38 @@
   .meta span {
     font-family: "josefin-bold";
   }
-  span:first-of-type {
+  .last {
     padding-right: 0.25rem;
   }
-  span:last-of-type {
+  .next {
     padding-left: 0.25rem;
+  }
+  @media (max-width: 767.98px) {
+    article {
+      height: auto;
+      position: relative;
+      min-height: var(--min-height-mobile);
+    }
+    .image,
+    figcaption {
+      width: 100% !important;
+      max-width:30rem;
+    }
+    figcaption,
+    figure {
+      flex-direction: column;
+    }
+    figure {
+      align-items: center;
+    }
+    figcaption {
+      align-items: flex-start;
+      margin-top: 1rem;
+      padding-left: 0;
+    }
+    .details {
+      width: 100%;
+    }
   }
 
 </style>

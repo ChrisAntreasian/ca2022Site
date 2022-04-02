@@ -40,7 +40,7 @@
 	import { afterNavigate } from '$app/navigation';
 
 	import { clientNavigate } from "$lib/history";
-	import { contextHeightKey, rem } from '$lib/spacing';
+	import { contextHeightKey, rem, mqBreakPoint } from "$lib/spacing";
 
 	import Article from "./_Article.svelte"
 	import Nav from "./_Nav.svelte"
@@ -56,6 +56,8 @@
 	let gallarySectionHeight: number;
 
 	const initGalary = () => {
+		if (!windowWidth || windowWidth <=  768) return;
+
 		const footerHeight = getFooterHeight();
 		const headerHeight = getHeaderHeight();
 		const widgetH = window.outerHeight - footerHeight - headerHeight - extraHeight;
@@ -97,20 +99,25 @@
 		position: 0
 	}
 
-	const navArtPieceClick = (id: number) => (e: Event) => {
-		e.preventDefault();
-		if (id == artPiece.id) return;
-
-		resetGallary()
+	const changeSelected = (id: number, position: number) => {
+		if (windowWidth < mqBreakPoint) {
+			window.scrollTo({top: 0});
+		} else {
+			resetGallary()
+		}
 		setArtPiece(id);
 		paginationDetails.position = artPieces.findIndex(_ => _.id == artPiece.id);
 	}
 
+	const navArtPieceClick = (id: number) => (e: Event) => {
+		e.preventDefault();
+		if (id == artPiece.id) return;
+		changeSelected(id, artPieces.findIndex(_ => _.id == artPiece.id));	
+	}
+
 	const paginateArtPiece = (n: number) => {
 		const index = artPieces.findIndex(_ => _.id == artPiece.id);
-		resetGallary();
-		setArtPiece(artPieces[index + n].id);
-		paginationDetails.position = index + n;
+		changeSelected(artPieces[index + n].id, index + n);
 	}
 
 	const readMoreClick = (_: boolean) => {
@@ -155,5 +162,10 @@
 		height: var(--gallery-height);
 		justify-content: center;
 		flex-shrink: 1;
+	}
+	@media (max-width: 767.98px) {
+		section {
+			height: auto;
+		}
 	}
 </style>

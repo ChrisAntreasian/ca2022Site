@@ -7,28 +7,28 @@
 	import { tweened } from "svelte/motion";
   import { cubicOut } from "svelte/easing";
 	import { fade } from "svelte/transition";
-
+	import { mqBreakPoint } from "./spacing";
+	
 	export let art: Art;
 	export let headerHeight: number;
 
-	let windowWidth: number;
 	let toggleMenuActive = false;
-	
-	const mqBreakPoint =  768;
+	const resetMenu = () => { toggleMenuActive = false }
+
+	let windowWidth: number;
 
 	const nameWidth = tweened(0, {
 		easing: cubicOut,
     duration: 1200,
   });
 
-	const defaultHWidth = windowWidth > mqBreakPoint ? 0 : 18
-	const showName = () => {
-		nameWidth.set(windowWidth > mqBreakPoint ? 24 : 18);
-	};
+	const showName = () => { nameWidth.set(windowWidth > mqBreakPoint ? 20 : 18) };
 
-	const hideName = () => { nameWidth.set(defaultHWidth) };
-	onMount(() => { nameWidth.set(defaultHWidth) }) 
-	const resetMenu = () => { toggleMenuActive = false }
+	const defaultHWidth = () => windowWidth > mqBreakPoint ? 0 : 18
+	const hideName = () => { nameWidth.set(defaultHWidth()) };
+	
+	onMount(() => { nameWidth.set(defaultHWidth()) })
+
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
@@ -75,43 +75,42 @@
 
 <style>
 	figure {
-		position: absolute;
-		background: var(--b-lt);
-		border: 0.33rem solid var(--b-md);
-		border-radius: 50%;
-		overflow: hidden;
 		height: 4rem;
 		width: 4rem;
+		position: absolute;
 		left: 0;
 		margin-left: -2rem;
 		margin-top: 0.5rem;
+		overflow: hidden;
 		cursor: pointer;
+		background: var(--b-lt);
+		border: 0.33rem solid var(--b-md);
+		border-radius: 50%;
 	}
 	img {
 		height: 4rem;
 		position: absolute;
 	}
 	header {
-		position: fixed;
+		width: 100%;
+		height: var(--header-height);
 		display: flex;
+		flex-grow: 1;
 		justify-content: space-around;
 		position: fixed;
 		top: 0;
-		width: 100%;
-		height: var(--header-height);
 		z-index: 100;
-		flex-grow: 1;
 	}
 	.header-bg {
-		background-image: linear-gradient(var(--o-md) 75%, var(--o-dk));
 		width: 100%;
 		height: var(--header-height);
-		position: absolute;
 		max-width: none;
+		position: absolute;
 		border-bottom: var(--space-md) solid var(--p-dk);
-
+		background-image: linear-gradient(var(--o-md) 75%, var(--o-dk));
 	}
 	h1 {
+		font-size: 1.5rem;
 		line-height: var(--header-height);
 		white-space: nowrap;
 	}
@@ -121,12 +120,12 @@
 		justify-content: center;
 	}
 	ul {
-		padding: 0;
-		margin: 0;
 		height: var(--header-height);
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		padding: 0;
+		margin: 0;
 		list-style: none;
 		background: var(--background);
 		background-size: contain;
@@ -138,13 +137,13 @@
 	}
 	
 	nav a {
-		display: flex;
 		height: 100%;
+		display: flex;
 		align-items: center;
 		padding: 0 1rem;
 		letter-spacing: 0.1em;
 		text-decoration: none;
-		font-family: "trashhand";
+		font-family: var(--font-th);
 		font-size: 1.33rem;
 		color: var(--b-dk);
 		transition: transform 0.33s;
@@ -156,7 +155,6 @@
 
 	}
 
-
 	.header-wrap {
 		width: 100%;
 		max-width: var(--wrapper-width);
@@ -165,9 +163,9 @@
 		position: relative;
 	}
 	.header-title {
-		position: absolute;
 		height: 4rem;
 		width: 4rem;
+		position: absolute;
 		left: 0;
 		overflow: hidden;
 	}
@@ -191,13 +189,6 @@
 	}
 
 	@media (max-width: 767.98px) { 
-		.header-bg {
-			z-index: 115;
-		}
-		figure,
-		.header-title {
-			z-index: 120;
-		}
 		.hamburger {
 			display: block;
 			z-index: 120;
@@ -206,23 +197,30 @@
 		.hamburger.is-active {
 			opacity: 1;
 		}
+		.header-bg {
+			z-index: 115;
+		}
+		figure,
+		.header-title {
+			z-index: 120;
+		}
 		h1 {
 			font-size: 1.2rem;
 		}
 		ul {
+			height: 100%;
+			width: 33.333%;
 			flex-direction: column;
 			align-items: flex-start;
-			background-image: linear-gradient(var(--o-dk), var(--o-md) 20%);
-			position: fixed;
-			height: 100%;
 			justify-content: flex-start;
-			border-left: var(--space-md) solid var(--p-dk);
-			padding: calc(var(--header-height) + 2rem + var(--space-md)) 2rem 0 1rem;
-			width: 33.333%;
+			position: fixed;
 			right: 0;
-			margin-right: calc(-33.333% + -3rem);
 			z-index: 110;
-			transition: margin-right 0.5s ease-in-out;   
+			margin-right: calc(-33.333% + -3rem);
+			padding: calc(var(--header-height) + 2rem + var(--space-md)) 2rem 0 1rem;
+			border-left: var(--space-md) solid var(--p-dk);
+			transition: margin-right 0.5s ease-in-out;
+			background-image: linear-gradient(var(--o-dk), var(--o-md) 20%);
 		}
 		.is-active ul {
 			margin-right: 0;

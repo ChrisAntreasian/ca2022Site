@@ -3,7 +3,7 @@
   import type { StrapiArt} from "$lib/types";
 	import { cleanUrlSlug } from "$lib/history";
   import { apiBaseUrl } from "$lib/api";
-  import Arrow from "$lib/Arrow.svelte"
+  import Arrow from "$lib/arrow/Arrow.svelte"
 
   export let artPieces: StrapiArt["data"]
 	export let artPiece: StrapiArt["data"][number];
@@ -18,7 +18,6 @@
 
   let activePage = 0;
   const paginate = (n: number) => {
-    console.log("paginate")
     activePage = activePage + n
   };
 
@@ -115,4 +114,35 @@
   li {
     margin: 0 1rem;
   }
+  @media (max-width: 767.98px) { 
+    nav {
+      display :none;
+
+      height: 100%;
+      position: absolute;
+      justify-content: flex-start;
+    }
+    .wrap {
+      flex-direction: column;
+    }
+    ul {
+      margin-left: 0 !important;
+      position: relative;
+      flex-wrap: wrap;
+      opacity: 1!important;
+    }
+    li {
+      width: 33%;
+      max-width: 10rem;
+      max-height: 10rem;
+    }
+    ul img {
+      height: auto;
+      object-fit: cover;
+    }
+    .next, .last {
+      display: none;
+    }
+  }
+
 </style>

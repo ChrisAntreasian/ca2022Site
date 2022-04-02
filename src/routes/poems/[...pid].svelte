@@ -56,4 +56,9 @@
 		max-width: var(--wrapper-width);
 		margin-top: var(--header-height);
 	}
+	@media (max-width: 767.98px) { 
+		section {
+			flex-direction: column;
+		}
+	}
 </style>

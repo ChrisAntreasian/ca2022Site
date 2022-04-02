@@ -27,7 +27,10 @@
   <img src={fullscreen} alt={"click for fullscreen"} /> 
 </div>
 {#if displayBg}
-  <div class="bg-overlay" transition:fade={transitionConfig}/>
+  <div class="bg-overlay" 
+    on:click={close}
+    transition:fade={transitionConfig}
+  />
 {/if}
 {#if displayImg}
   <div class="wrap" transition:scale={transitionConfig}>
@@ -68,5 +71,9 @@
     left: 50%;
     transform: translate(-50%);
   }
-
+  @media (max-width: 767.98px) {
+    .btn {
+      display: none;
+    }
+  }
 </style>
