@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { fade } from "svelte/transition";
   import type { StrapiArt} from "$lib/types";
 	import { cleanUrlSlug } from "$lib/history";
   import { apiBaseUrl } from "$lib/api";
@@ -8,6 +7,7 @@
   export let artPieces: StrapiArt["data"]
 	export let artPiece: StrapiArt["data"][number];
 	export let navArtPieceClick: (_: number) => (e: Event) => void;
+	let expanded = false;
 
   const itemsDisplayed = 10;
   const artPiecesOrdered: Array<StrapiArt["data"]> = artPieces.reduce((acc, curr: StrapiArt["data"][0], i, self) => 
@@ -22,18 +22,26 @@
   };
 
 </script>
-<nav>
-  <div class="wrap">
+<nav class="subnav">
+  <div class="subnav-wrap">
+    <div class="subnav-handle" on:click={() => { expanded = !expanded }}>
+      <h3>{artPiece.attributes.title}</h3>
+      <div class="subnav-icon">
+        <Arrow direction={expanded ? "bottom": "top"} color="white" size="medium" />
+      </div>
+    </div>
     {#if activePage !== 0}
       <div class="last" on:click={() => paginate(-1)}>
         <Arrow direction="left" color="white" size="large" />
       </div>
     {/if}
       {#each artPiecesOrdered as apo, i}
-        <ul style={`
-          margin-left: ${i * 200 - activePage * 200}%;
-          opacity: ${i === activePage ? 1 : 0}
-        `}>
+        <ul class:expanded={expanded} 
+          style={`
+            margin-left: ${i * 200 - activePage * 200}%;
+            opacity: ${i === activePage ? 1 : 0}
+          `}
+        >
           {#each apo as _ (_.id)}
             <li>
               <a 
@@ -60,10 +68,7 @@
 
 <style>
   nav {
-		color: var(--off-bk);
 		padding: 1rem 0 1rem;
-		background: var(--p-md);
-    border-top: var(--space-md) solid var(--b-md);
     width: 100%;
     position: absolute;
     bottom: 0;
@@ -74,7 +79,7 @@
     overflow: hidden;
     height: 4rem;
 	}
-  .wrap {
+  .subnav-wrap {
     width: var(--wrapper-width);
     display: flex;
     justify-content: center;
@@ -97,7 +102,6 @@
   }
   ul {
 		display: flex;
-		list-style: none;
 		padding: 0;
     align-items: center;
     position: absolute;
@@ -116,29 +120,33 @@
   }
   @media (max-width: 767.98px) { 
     nav {
-      display :none;
-
-      height: 100%;
-      position: absolute;
-      justify-content: flex-start;
+      height: auto;
+      position: fixed;
+      padding: 0;
     }
-    .wrap {
+    .subnav-wrap {
       flex-direction: column;
     }
     ul {
       margin-left: 0 !important;
       position: relative;
       flex-wrap: wrap;
+      justify-content: space-around;
       opacity: 1!important;
     }
     li {
-      width: 33%;
-      max-width: 10rem;
-      max-height: 10rem;
+      margin: 0;
+      padding: 0 0.5rem 1.5rem;
     }
     ul img {
       height: auto;
+      width: 100%;
       object-fit: cover;
+    }
+    li a {
+      width: 8rem;
+      height: 8rem;
+      display: flex;
     }
     .next, .last {
       display: none;

@@ -52,7 +52,6 @@
 </script>
 
 <svelte:window bind:innerHeight={windowHeight} />
-
   <article style={`
     --min-height: ${(windowHeight - getHeaderHeight() - getFooterHeight() -2.66 * rem) / rem}rem;
     --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem

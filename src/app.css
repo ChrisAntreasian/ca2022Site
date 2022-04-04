@@ -164,3 +164,59 @@ section {
 	left: 50%;
 	transform: translate(-50%);
 }
+
+/* Nav refactor */
+.subnav {
+	flex-grow: 1;
+	background: var(--p-md);
+
+}
+.subnav-wrap {
+	background-image: linear-gradient(var(--p-dk), var(--p-md));
+}	
+.subnav-handle  {
+	display: none;
+}
+ul {
+	list-style: none;
+}
+@media (max-width: 767.98px) {
+	.subnav-handle {
+		height: var(--header-height);
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+	}
+	.subnav {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		border-top: var(--space-md) solid var(--b-dk);
+		border-left: none;
+		cursor: pointer;
+
+	}
+	.subnav-icon {
+		padding-right: 1.5rem;
+	}
+	.subnav ul {
+		height: 0;
+		overflow: hidden;
+		transition: height 0.33s ease-in-out;
+	}
+	ul.expanded {
+		height: var(--nav-height);
+		overflow: scroll;
+	}
+	h3 {
+		display: block;
+		line-height: var(--header-height);
+		color: var(--w-xl);
+		font-size: 1.666rem;
+		padding-left: 1.5rem;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+}
