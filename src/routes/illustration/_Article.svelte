@@ -31,7 +31,6 @@
   let transitioning = false;
 
   let isBeforeNavigate = false;
-  beforeNavigate(() => { isBeforeNavigate = true });
 
   let headlineHeight: number;
   let metaHeight: number;
@@ -43,8 +42,10 @@
     needsOverflow = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
     
+  beforeNavigate(() => { isBeforeNavigate = true });
   afterNavigate(setOverflow);
-	$: if(windowWidth) setOverflow();
+
+  $: if(windowWidth) setOverflow();
 
   let windowHeight;
   const { getHeaderHeight, getFooterHeight } = getContext(contextHeightKey);
@@ -78,13 +79,13 @@
             />
             <FullScreen img={art} />
           </div>
-          <figcaption style={`width: ${detailsWidth}%`}>
+          <figcaption style={`--caption-width: ${detailsWidth}%`}>
             <div>
               <h3 bind:clientHeight={headlineHeight}>{art.attributes.title}</h3>
               <div class={`md-wrap ${!showMore ? "overflow" : needsOverflow ? "needs-overflow" : ""}`}>
                 <div 
                   bind:this={detailsDiv}
-                  class={`md-content`}
+                  class="md-content"
                   style={`height: ${`${(gallarySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem}rem;`}`}
                 >
                   <SvelteMarkdown source={art.attributes.description} />
@@ -182,7 +183,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 50%;
+    width: var( --caption-width);
   }
   .pagination {
     color: var(--off-bk);
@@ -272,11 +273,16 @@
     }
     figcaption {
       align-items: flex-start;
-      margin-top: 1rem;
       padding-left: 0;
+    }
+    .md-content {
+      height: auto;
     }
     .details {
       width: 100%;
+    }
+    h3 {
+      display: none;
     }
   }
 

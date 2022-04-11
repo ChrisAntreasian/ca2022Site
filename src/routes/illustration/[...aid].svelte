@@ -15,9 +15,10 @@
 				.sort((a, b) => a.attributes.order - b.attributes.order)
 				
 			const artPiece = artPieces.filter(_ => _.id === aid)[0];
-
+			const categoryTitle = resp.data[0].attributes.title;
 			return {
 				props: { 
+					categoryTitle,
 					artPieces,
 					artPiece
 				},
@@ -47,6 +48,7 @@
 
 	export let artPieces: StrapiArt["data"];
 	export let artPiece: StrapiArt["data"][number];
+	export let categoryTitle: StrapiArtCategory["data"][number]["attributes"]["title"];
 
 	const { getHeaderHeight, getFooterHeight } = getContext(contextHeightKey);
 	
@@ -98,13 +100,17 @@
 		length: artPieces.length,
 		position: 0
 	}
-
+	export let expanded = false;
+	const setExpanded = (exp: boolean) => {
+		expanded = exp;
+	}
 	const changeSelected = (id: number, position: number) => {
 		if (windowWidth < mqBreakPoint) {
 			window.scrollTo({top: 0});
 		} else {
 			resetGallary()
 		}
+		expanded = false;
 		setArtPiece(id);
 		paginationDetails.position = artPieces.findIndex(_ => _.id == artPiece.id);
 	}
@@ -152,6 +158,9 @@
 		artPiece={artPiece} 
 		artPieces={artPieces} 
 		navArtPieceClick={navArtPieceClick} 
+		expanded={expanded}
+		setExpanded={setExpanded}
+		categoryTitle={categoryTitle}
 	/>
 
 </section>

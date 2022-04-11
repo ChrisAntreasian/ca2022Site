@@ -1,7 +1,6 @@
 
 
 <script lang="ts">
-	import { fade } from "svelte/transition";
 	import Arrow from "$lib/arrow/Arrow.svelte";
 
   import type { StrapiPoem} from "../../lib/types";
@@ -10,9 +9,12 @@
 	export let poems: StrapiPoem;
 	export let poem: StrapiPoem["data"][number];
 	export let setPoem: (_: number) => (e: Event) => void;
+
 	let expanded = false;
 	let windowHeight;
-	$: navHeight = windowHeight * 0.666;
+
+	$: navHeight = windowHeight * 0.72;
+	
 </script>
 	
 <svelte:window bind:innerHeight={windowHeight} />
@@ -20,7 +22,7 @@
 <nav class="subnav">
 	<div class="subnav-wrap">
 		<div class="subnav-handle" on:click={() => { expanded = !expanded }}>
-			<h3>{poem.attributes.title}</h3>
+			<h3>{expanded ? "poetry" : poem.attributes.title}</h3>
 			<div class="subnav-action">
 				<Arrow direction={expanded ? "bottom": "top"} color="white" size="medium" />
 			</div>

@@ -27,8 +27,8 @@
     width: 3rem;
   }
   .large {
-    height: 5rem;
-    width: 5rem;
+    height: 4rem;
+    width: 4rem;
   }
   .right {
     transform: rotate(-90deg);
