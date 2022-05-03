@@ -2,23 +2,23 @@
 
 @font-face {
 	font-family: "trashhand";
-	src: url("../static/fonts/TrashHand/TrashHand.ttf");
+	src: url("./assets/fonts/TrashHand/TrashHand.ttf");
 }
 @font-face {
 	font-family: "josefin-light";
-	src: url("../static/fonts/josefin-sans/JosefinSans-Light.ttf");
+	src: url("./assets/fonts/josefin-sans/JosefinSans-Light.ttf");
 }
 @font-face {
 	font-family: "josefin-regular";
-	src: url("../static/fonts/josefin-sans/JosefinSans-Regular.ttf");
+	src: url("./assets/fonts/josefin-sans/JosefinSans-Regular.ttf");
 }
 @font-face {
 	font-family: "josefin-bold";
-	src: url("../static/fonts/josefin-sans/JosefinSans-SemiBold.ttf");
+	src: url("./assets/fonts/josefin-sans/JosefinSans-SemiBold.ttf");
 }
 @font-face {
 	font-family: "josefin-italic";
-	src: url("../static/fonts/josefin-sans/JosefinSans-Italic.ttf");
+	src: url("./assets/fonts/josefin-sans/JosefinSans-Italic.ttf");
 }
 
 :root {
