@@ -9,7 +9,7 @@
 	import { fade } from "svelte/transition";
 	import { mqBreakPoint } from "./spacing";
 	
-	export let art: Art;
+	export let logo: Art;
 	export let headerHeight: number;
 
 	let toggleMenuActive = false;
@@ -41,8 +41,8 @@
 		</div>
 		<figure on:focus={showName} on:mouseover={showName} on:blur={hideName} on:mouseout={hideName}>
 			<img 
-				src={`${apiBaseUrl}${art.image.data.attributes.formats.thumbnail.url}`} 
-				alt={art.description} 
+				src={`${apiBaseUrl}${logo.image.data.attributes.formats.thumbnail.url}`} 
+				alt={logo.description} 
 			/>
 		</figure>
 		<nav class:is-active={toggleMenuActive}>

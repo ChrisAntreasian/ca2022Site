@@ -2,30 +2,31 @@
 	import Header from '$lib/Header.svelte';
 	import Footer from '$lib/Footer.svelte';
 	import '../app.css';
-	import * as hamburger from "hamburgers/dist/hamburgers.css"
 
 	import type { Load } from '@sveltejs/kit';
-	import type { StrapiArt, Art } from "$lib/types";
+	import type { StrapiArt, Art, StrapiPageDetails, StrapiData, RichLink } from "$lib/types";
 	import { setContext } from "svelte";
 	import { contextHeightKey } from '$lib/spacing';
 
 	export const load: Load = async ({ params, fetch, session, stuff }) => {
-		const res = await fetch('/json');
+		const res = await fetch('/layout.json');
 		if (res.ok) {
+			
 			const artResp: StrapiArt = await res.json();
-			const art = artResp.data[0].attributes
+			const logo = artResp.data[0].attributes
+						
 			return {
 				props: { 
-					art: art
-				},
+					logo,
+				}
 			};
 		}
 	}
 </script>
 
 <script lang="ts">
-	export let art: Art;
-	
+	export let logo: Art;
+
 	export let headerHeight: number;
 	export let footerHeight: number;
 
@@ -38,7 +39,7 @@
 	)
 </script>
 
-<Header art={art} bind:headerHeight={headerHeight} />
+<Header {logo} bind:headerHeight={headerHeight} />
 <main>
 	<slot />
 </main>
@@ -57,7 +58,5 @@
 		border-left: var(--space-md) solid var(--p-dk);
 		border-right: var(--space-md) solid var(--p-dk);
 		background: var(--w-xl)
-
 	}
-
 </style>

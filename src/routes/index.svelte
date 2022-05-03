@@ -1,32 +1,61 @@
 <script context="module" lang="ts">
+
+import type { Load } from '@sveltejs/kit';
+import type { StrapiPage, Art, StrapiPageDetails, StrapiData, RichLink } from "$lib/types";
+
+	
 	export const prerender = true;
+
+
+	export const load: Load = async ({ params, fetch, session, stuff }) => {
+		const res = await fetch('/json');
+		if (res.ok) {
+			const introIds = [3, 4];
+			const resp: StrapiPage = await res.json();
+			const attrs = resp.data[0].attributes;
+			
+			console.log(resp)
+			
+			return {
+				props: { 
+					richLinks: attrs.rich_links.data,
+					...attrs.page_details.data.reduce((
+						acc: { intro: StrapiPageDetails, links: StrapiPageDetails, }, 
+						d: StrapiPageDetails[0]
+					) => {
+						if (introIds.includes(d.id)) {
+							acc.intro.push(d)
+						}
+						acc.intro.push(d)
+						return acc;
+					}, { intro: [], links: [] })
+				},
+			};
+		}
+	}
 </script>
 
 <script lang="ts">
-	import Counter from '$lib/Counter.svelte';
+	// export let intro: StrapiPageDetails;
+	// export let links: StrapiPageDetails;
+	// export let richLinks: StrapiData<RichLink>["data"]
 </script>
 
 <svelte:head>
 	<title>Home</title>
 </svelte:head>
 
+<section class="intro">
+	<figure>
+
+	</figure>
+</section>
+
 <section>
-	<h1>
-		<div class="welcome">
-			<picture>
-				<source srcset="svelte-welcome.webp" type="image/webp" />
-				<img src="svelte-welcome.png" alt="Welcome" />
-			</picture>
-		</div>
+	
+</section>
+<section class="affiliates">
 
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/index.svelte</strong>
-	</h2>
-
-	<Counter />
 </section>
 
 <style>
@@ -38,22 +67,4 @@
 		flex: 1;
 	}
 
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
 </style>

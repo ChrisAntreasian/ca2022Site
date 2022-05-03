@@ -1,7 +1,6 @@
 import qs from "qs";
 import { api } from "../../lib/api";
 import type { RequestHandler } from "@sveltejs/kit";
-import type { Locals } from "$lib/types";
 
 const q = (pg: number) =>  qs.stringify({
 	filters: {
@@ -16,7 +15,7 @@ const q = (pg: number) =>  qs.stringify({
   ],
 });
 
-export const get: RequestHandler<Locals> = async (request) => {
+export const get: RequestHandler<{}> = async (request) => {
 	const response = await api(request.request.method, `art-categories?${q(1)}`);
 	if (response.status === 404) {
 		return { body: [] };
