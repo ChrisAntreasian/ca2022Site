@@ -4,7 +4,7 @@
 	import '../app.css';
 
 	import type { Load } from '@sveltejs/kit';
-	import type { StrapiArt, Art, StrapiPageDetails, StrapiData, RichLink } from "$lib/types";
+	import type { StrapiArt, Art, StrapiPageDetails, StrapiDataArr, RichLink } from "$lib/types";
 	import { setContext } from "svelte";
 	import { contextHeightKey } from '$lib/spacing';
 

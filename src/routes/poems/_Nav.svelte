@@ -3,8 +3,8 @@
 <script lang="ts">
 	import Arrow from "$lib/arrow/Arrow.svelte";
 
-  import type { StrapiPoem} from "../../lib/types";
-	import { cleanUrlSlug } from "./../../lib/history";
+  import type { StrapiPoem} from "$lib/types";
+	import { cleanUrlSlug } from "$lib/history";
 
 	export let poems: StrapiPoem;
 	export let poem: StrapiPoem["data"][number];

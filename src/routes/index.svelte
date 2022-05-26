@@ -1,70 +1,73 @@
 <script context="module" lang="ts">
 
-import type { Load } from '@sveltejs/kit';
-import type { StrapiPage, Art, StrapiPageDetails, StrapiData, RichLink } from "$lib/types";
+	import type { Load } from '@sveltejs/kit';
+	import type { StrapiPage, StrapiPageDetails, RichLink, WithId, ImageData, IntroDetails } from "$lib/types";
+	import { apiBaseUrl } from "$lib/api";	
 
-	
 	export const prerender = true;
-
-
+	
 	export const load: Load = async ({ params, fetch, session, stuff }) => {
 		const res = await fetch('/json');
 		if (res.ok) {
-			const introIds = [3, 4];
+			const introIds = [5, 3, 4];
 			const resp: StrapiPage = await res.json();
-			const attrs = resp.data[0].attributes;
-			
-			console.log(resp)
-			
-			return {
+			const attrs = resp.data[0].attributes;		
+			const props: {
+				props: {
+					richLinks: Array<WithId<RichLink>>,
+					intro: IntroDetails,
+					links: StrapiPageDetails,
+				}
+			} = {
 				props: { 
 					richLinks: attrs.rich_links.data,
 					...attrs.page_details.data.reduce((
-						acc: { intro: StrapiPageDetails, links: StrapiPageDetails, }, 
+						acc: { 
+							intro: IntroDetails, 
+							links: StrapiPageDetails, 
+						}, 
 						d: StrapiPageDetails[0]
 					) => {
-						if (introIds.includes(d.id)) {
-							acc.intro.push(d)
+						console.log(d.attributes)
+						if (d.id === 5) {
+							acc.intro.image = d.attributes.image;
 						}
-						acc.intro.push(d)
+						if (introIds.includes(d.id)) {
+							acc.intro.details.push(d);
+						} else {
+							acc.links.push(d)
+						}
 						return acc;
-					}, { intro: [], links: [] })
+					}, { 
+						intro: {
+							details: [],
+							image: {} as ImageData
+						}, 
+						links: [] 
+					})
 				},
 			};
+			return props;
 		}
 	}
 </script>
 
 <script lang="ts">
-	// export let intro: StrapiPageDetails;
-	// export let links: StrapiPageDetails;
-	// export let richLinks: StrapiData<RichLink>["data"]
+	import { cleanUrlSlug } from "$lib/history";
+  import RL from "./_modules/RichLink.svelte";
+  import Intro from "./_modules/Intro.svelte";
+	import Links from "./_modules/Links.svelte"
+
+	export let intro: IntroDetails;
+	export let links: StrapiPageDetails;
+	export let richLinks: Array<WithId<RichLink>>;
 </script>
 
 <svelte:head>
 	<title>Home</title>
 </svelte:head>
 
-<section class="intro">
-	<figure>
+	<Intro intro={intro} />
+	<Links links={links} />
+	<RL richLinks={richLinks} />
 
-	</figure>
-</section>
-
-<section>
-	
-</section>
-<section class="affiliates">
-
-</section>
-
-<style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 1;
-	}
-
-</style>

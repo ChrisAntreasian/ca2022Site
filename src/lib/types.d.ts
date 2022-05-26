@@ -24,7 +24,7 @@ type StrapiBase = {
 	featured: boolean;
 }
 
-type Image = StrapiBase & {
+type ImageBase = StrapiBase & {
 	ext: string
 	height: number;
 	mime: string;
@@ -33,6 +33,29 @@ type Image = StrapiBase & {
 	url: string;
 	width: number;
 }
+type ImageAttrs = ImageBase & {
+	alternativeText: string;
+	caption: string;
+	formats: {
+		"small": ImageBase,
+		"medium": ImageBase;
+		"thumbnail": ImageBase;
+	}	
+};
+
+type ImageData = {
+	data: {
+		attributes: ImageBase & {
+			alternativeText: string;
+			caption: string;
+			formats: {
+				"small": ImageBase,
+				"medium": ImageBase;
+				"thumbnail": ImageBase;
+			}	
+		}
+	}
+};
 
 type Art = StrapiBase & {
 	title: string;
@@ -40,59 +63,60 @@ type Art = StrapiBase & {
 	createdDate: string;
 	medium: string;
 	order: number;
-	image: {
-		data: {
-			attributes: Image & {
-				alternativeText: string;
-				caption: string;
-				formats: {
-					"small": Image,
-					"medium": Image;
-					"thumbnail": Image;
-				}	
-			}
-		}
-	};
-}
+	image: ImageData;
+};
 
+export type WithId<A> = {
+	id: number;
+	attributes: A
+}
+type StrapiDataArr<A> = {
+	data: Array<WithId<A>>;
+}
 type StrapiData<A> = {
-	data: Array<{
-			id: number;
-			attributes: A
-		}>;
+	data: WithId<A>;
 }
 
 type PageDetails = StrapiBase & {
 	title: string;
 	description: string;
-	art_categories: StrapiData<ArtCategory>
-	poems: StrapiData<Poem>
+	art_categories: StrapiDataArr<ArtCategory>;
+	poems: StrapiDataArr<Poem>;
+	link: string;
+	art_piece: StrapiData<Art>;
+	image: ImageData;
 }
-
-export type StrapiArt = StrapiData<Art>;
+export type IntroDetails = {
+	details: StrapiPageDetails,
+	image: ImageData,
+}
+export type StrapiArt = StrapiDataArr<Art>;
 
 type RichLink = {
 	title: string;
 	body: string;
-	image: StrapiArt;
+	image: ImageData
 	link: string;
 }
 
 type ArtCategory = StrapiBase & {
 	title: string;
 	art_pieces: StrapiArt;
-	omit: StrapiData<{ title: string, description: string }>,
+	omit: StrapiDataArr<{ title: string, description: string }>,
 };
 
-type Page = StrapiBase & {
-	title: string,
-	art_pieces: StrapiArt;
-	page_details: StrapiData<PageDetails>;
-	rich_links: StrapiData<RichLink>;
-}
-export type StrapiPageDetails = StrapiData<PageDetails>["data"];
+export type StrapiPage = StrapiDataArr<
+	StrapiBase & {
+		title: string,
+		art_pieces: StrapiArt;
+		page_details: StrapiDataArr<PageDetails>;
+		rich_links: StrapiDataArr<RichLink>
+	}
+>;
 
-type StrapiApiResp<A> = StrapiData<A> & StrapiMeta;
+export type StrapiPageDetails = StrapiDataArr<PageDetails>["data"];
+
+type StrapiApiResp<A> = StrapiDataArr<A> & StrapiMeta;
 
 export type StrapiPage = StrapiApiResp<Page>
 export type StrapiPoem = StrapiApiResp<Poem>;
