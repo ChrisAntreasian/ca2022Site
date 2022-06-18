@@ -2,7 +2,6 @@
 
 	import type { Load } from '@sveltejs/kit';
 	import type { StrapiPage, StrapiPageDetails, RichLink, WithId, ImageData, IntroDetails } from "$lib/types";
-	import { apiBaseUrl } from "$lib/api";	
 
 	export const prerender = true;
 	
@@ -53,7 +52,6 @@
 </script>
 
 <script lang="ts">
-	import { cleanUrlSlug } from "$lib/history";
   import RL from "./_modules/RichLink.svelte";
   import Intro from "./_modules/Intro.svelte";
 	import Links from "./_modules/Links.svelte"
