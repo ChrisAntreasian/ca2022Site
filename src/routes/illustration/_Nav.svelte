@@ -42,11 +42,13 @@
   let windowHeight;
   $: navHeight = windowHeight * 0.72;
 
+  let windowWidth;
+
 </script>
 
-<svelte:window bind:innerHeight={windowHeight} />
+<svelte:window bind:innerHeight={windowHeight} bind:outerWidth={windowWidth} />
 
-<nav class="subnav" bind:clientWidth={subnavWidth}>
+<nav class="subnav" bind:clientWidth={subnavWidth} style={`--window-width: ${windowWidth / rem}rem`}>
   <div class="subnav-wrap" >
     <div class="subnav-handle" on:click={() => setExpanded(!expanded)}>
       <h3>{expanded ? categoryTitle: artPiece.attributes.title}</h3>
@@ -93,18 +95,21 @@
 
 <style>
   nav {
-    width: 100%;
+    width: var(--window-width);
+    height: 6rem;
+
     position: absolute;
     bottom: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: var(--nav-height);
     overflow: hidden;
-    height: 6rem;
+    background-image: linear-gradient(var(--p-dk), var(--p-md));
+
+
 	}
   .subnav-wrap {
-    width: var(--wrapper-width);
+    width: calc(var(--wrapper-width) - 9rem);
     height: 100%;
     display: flex;
     justify-content: center;
@@ -192,6 +197,7 @@
   @media (max-width: 767.98px) { 
     nav {
       height: auto;
+      width: auto;
       position: fixed;
       padding: 0;
     }

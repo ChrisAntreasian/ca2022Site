@@ -86,10 +86,7 @@ type PageDetails = StrapiBase & {
 	art_piece: StrapiData<Art>;
 	image: ImageData;
 }
-export type IntroDetails = {
-	details: StrapiPageDetails,
-	image: ImageData,
-}
+
 export type StrapiArt = StrapiDataArr<Art>;
 
 type RichLink = {

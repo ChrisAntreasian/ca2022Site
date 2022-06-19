@@ -88,7 +88,12 @@
                   class="md-content"
                   style={`height: ${`${(gallarySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem}rem;`}`}
                 >
-                  <SvelteMarkdown source={art.attributes.description} />
+                  <span class="md-content-desktop">
+                    <SvelteMarkdown source={art.attributes.description} />
+                  </span>
+                  <span class="md-content-mobile">
+                    <SvelteMarkdown source={`${art.attributes.title} ${art.attributes.description}`} />
+                  </span>
                   {#if needsOverflow}
                     <div class="readmore" 
                       transition:fade={{duration: 300}} 
@@ -195,6 +200,9 @@
   .md-content {
     overflow: hidden;
   }
+  .md-content-mobile {
+    display: none;
+  } 
   .needs-overflow .fade {
     position: absolute;
     bottom: 0;
@@ -282,6 +290,12 @@
       width: 100%;
     }
     h3 {
+      display: none;
+    }
+    .md-content-mobile {
+      display: block;
+    }
+    .md-content-desktop {
       display: none;
     }
   }
