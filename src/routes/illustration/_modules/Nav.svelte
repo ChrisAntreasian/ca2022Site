@@ -210,6 +210,7 @@
       flex-direction: column;
       padding: 0;
     }
+
     .subnav-wrap::before,
     .subnav-wrap::after {
       display: none;
@@ -227,8 +228,7 @@
     }
 
     li {
-      margin: 0;
-      padding: 0 0.5rem 1.5rem;
+      margin: 1.5rem 0.5rem;
     }
   
     li a {
