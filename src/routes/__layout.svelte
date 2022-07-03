@@ -1,6 +1,6 @@
 <script  context="module" lang="ts">
-	import Header from '$lib/Header.svelte';
-	import Footer from '$lib/Footer.svelte';
+	import Header from './_modules/Header.svelte';
+	import Footer from './_modules/Footer.svelte';
 	import '../app.css';
 
 	import type { Load } from '@sveltejs/kit';

@@ -1,14 +1,14 @@
 
 <script lang="ts">
-	import type { Art } from "./types";
+	import type { Art } from "$lib/types";
 	import { page } from "$app/stores";
-	import { apiBaseUrl } from "./api";	
+	import { apiBaseUrl } from "$lib/api";	
 	import { onMount } from "svelte";
 	import { tweened } from "svelte/motion";
   import { cubicOut } from "svelte/easing";
 	import { fade } from "svelte/transition";
-	import { mqBreakPoint } from "./spacing";
-	
+	import { mqBreakPoint } from "$lib/spacing";
+	import 'hamburgers/dist/hamburgers.css';
 	export let logo: Art;
 	export let headerHeight: number;
 
