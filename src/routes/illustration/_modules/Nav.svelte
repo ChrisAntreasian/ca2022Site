@@ -70,13 +70,13 @@
         `}
       >
         {#each artPieces as _, i}
-          <li>
+          <li class:active={_.id === artPiece.id}>
             <a
               on:click={navArtPieceClick(_.id)}
               href="{`/illustration/${_.id}/${cleanUrlSlug(_.attributes.title)}`}"
               class:active="{_.id === artPiece.id}" 
             >
-              <img class:active={_.id === artPiece.id}
+              <img 
                 src={`${apiBaseUrl}${_.attributes.image.data.attributes.formats.thumbnail.url}`} 
                 alt={_.attributes.description} 
               />
@@ -97,7 +97,6 @@
   nav {
     width: var(--window-width);
     height: 6rem;
-
     position: absolute;
     bottom: 0;
     display: flex;
@@ -172,23 +171,28 @@
       opacity 0.4s ease-in-out 0.2s
     ;
 	}
-	ul img {
-    transition: transform 0.2s ease-in-out;
+	li img {
     height: auto;
     width: 100%;
     object-fit: cover;
-	}
-  ul img:hover,
-  ul img.active {
-    transform: scale(1.15);
+    border-radius: 0.333rem;
   }
   li {
     margin-right: 1rem;
+    border-radius: 0.333rem;
+    transition: transform 0.2s ease-in-out;
   }
   li:last-of-type {
     margin-left: 0;
   }
-
+  li:hover,
+  li.active {
+    transform: scale(1.15);
+  }
+  li.active {
+    outline: 0.25rem solid var(--y-md);
+  }
+  
   li a {
     width: 5rem;
     height: 4rem;

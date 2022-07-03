@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { StrapiArt } from "../../../lib/types";
+  import type { StrapiArt } from "../../../../lib/types";
 
   import { scale, fade } from "svelte/transition";
 

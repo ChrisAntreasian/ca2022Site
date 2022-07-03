@@ -122,18 +122,16 @@ h3 {
 p, span, a, div, li {
 	color: var(--off-bk);
 	font-family: var(--font-jsf);
-	line-height: 1.35rem;
+	line-height: 1.5rem;
 	font-size: 1.15rem;
-}
-
-p, span, a, div {
-	line-height: 1.35rem;
 }
 
 p {
 	margin: 1rem 0;
 }
-
+p:last-of-type {
+	margin-bottom: 0;
+}
 article {
 	padding: 1rem 1rem;
 	box-sizing: border-box;
@@ -169,7 +167,9 @@ section {
 .subnav {
 	flex-grow: 1;
 	background: var(--p-md);
-
+}
+.subnav-aside { 
+	border-left: var(--space-md) solid var(--y-md);
 }
 .subnav-wrap {
 	background-image: linear-gradient(var(--p-dk), var(--p-md));
@@ -228,11 +228,20 @@ section.home {
 }
 @media (max-width: 767.98px) { 
 	section.home {
-		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 		flex: 1;
 	}
-
+}
+section.w-sidebar {
+	display: flex;
+	width: 100%;
+	max-width: var(--wrapper-width);
+	margin-top: var(--header-height);
+}
+@media (max-width: 767.98px) { 
+	section.w-sidebar {
+		flex-direction: column;
+	}
 }

@@ -43,8 +43,8 @@
 	import { clientNavigate } from "$lib/history";
 	import { contextHeightKey, rem, mqBreakPoint } from "$lib/spacing";
 
-	import Article from "./_Article.svelte"
-	import Nav from "./_Nav.svelte"
+	import Article from "./_modules/Article.svelte"
+	import Nav from "./_modules/Nav.svelte"
 
 	export let artPieces: StrapiArt["data"];
 	export let artPiece: StrapiArt["data"][number];

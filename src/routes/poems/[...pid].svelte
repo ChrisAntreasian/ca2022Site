@@ -26,8 +26,8 @@
 	import { fade } from "svelte/transition";
 	import type { StrapiPoem } from "$lib/types";
 	import { clientNavigate } from "$lib/history";
-	import Article from "./_Article.svelte";
-	import Nav from "./_Nav.svelte";
+	import Article from "./_modules/Article.svelte";
+	import Nav from "./_modules/Nav.svelte";
 	
 	export let poems: StrapiPoem;
 	export let poem: StrapiPoem["data"][number];
@@ -44,21 +44,7 @@
 	<title>My Poems</title>
 </svelte:head>
 
-<section transition:fade={{duration: 300}}>
+<section class="w-sidebar" transition:fade={{duration: 300}}>
 	<Article poem={poem} />
 	<Nav poems={poems} poem={poem} setPoem={setPoem} />
 </section>
-
-<style>
-	section {
-		display: flex;
-		width: 100%;
-		max-width: var(--wrapper-width);
-		margin-top: var(--header-height);
-	}
-	@media (max-width: 767.98px) { 
-		section {
-			flex-direction: column;
-		}
-	}
-</style>

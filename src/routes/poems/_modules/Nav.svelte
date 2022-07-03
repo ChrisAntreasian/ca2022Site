@@ -19,7 +19,7 @@
 	
 <svelte:window bind:innerHeight={windowHeight} />
 
-<nav class="subnav">
+<nav class="subnav subnav-aside">
 	<div class="subnav-wrap">
 		<div class="subnav-handle" on:click={() => { expanded = !expanded }}>
 			<h3>{expanded ? "poetry" : poem.attributes.title}</h3>
@@ -46,9 +46,6 @@
 </nav>
 
 <style>
-	nav {
-		border-left: var(--space-md) solid var(--b-dk);
-	}
 	ul {
 		line-height: 2rem;
 		letter-spacing: 0.01rem;

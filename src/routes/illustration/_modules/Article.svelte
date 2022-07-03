@@ -9,7 +9,7 @@
   import { apiBaseUrl } from "$lib/api";	
   import { rem } from "$lib/spacing";
   import Arrow from '$lib/arrow/Arrow.svelte';
-  import FullScreen from './_fullscreen/Fullscreen.svelte';
+  import FullScreen from './fullscreen/Fullscreen.svelte';
 
   export let art: StrapiArt["data"][number];
   export let imageWidth: number;

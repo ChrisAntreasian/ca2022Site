@@ -5,10 +5,11 @@
 
 	export const prerender = true;
 	
+	const introIds = [5, 3, 4];
+
 	export const load: Load = async ({ params, fetch, session, stuff }) => {
 		const res = await fetch('/json');
 		if (res.ok) {
-			const introIds = [5, 3, 4];
 			const resp: StrapiPage = await res.json();
 			const attrs = resp.data[0].attributes;		
 			const props: {
@@ -44,7 +45,7 @@
 
 <script lang="ts">
   import Intro from "./_modules/Intro.svelte";
-	import Links from "./_modules/Links.svelte"
+	import Nav from "./_modules/Nav.svelte"
 
 	export let intro: StrapiPageDetails;
 	export let links: StrapiPageDetails;
@@ -54,6 +55,8 @@
 	<title>Home</title>
 </svelte:head>
 
-<Intro intro={intro} />
-<Links links={links} />
+<section class="w-sidebar">
+	<Intro intro={intro} />
+	<Nav links={links} />
+</section>
 
