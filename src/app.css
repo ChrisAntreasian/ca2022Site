@@ -183,6 +183,7 @@ ul {
 @media (max-width: 767.98px) {
 	.bnav-aside {
 		border-top: var(--space-md) solid var(--y-md);
+		border-left: none;
 	}	
 	.subnav {
 		position: fixed;
@@ -190,7 +191,6 @@ ul {
 		left: 0;
 		right: 0;
 		border-top: var(--space-md) solid var(--y-md);
-		border-left: none;
 		cursor: pointer;
 	}
 	.subnav-handle {

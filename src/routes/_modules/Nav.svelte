@@ -7,7 +7,7 @@
 	export let links: StrapiPageDetails;
 </script>
 
-<aside class="bnav bnav-aside subnav">
+<aside class="bnav bnav-aside">
 	<nav class="subnav-list">
   {#each links as ni}
 		{#if ni.attributes.title === "My poetry"}
