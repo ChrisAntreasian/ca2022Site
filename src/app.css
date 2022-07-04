@@ -164,11 +164,11 @@ section {
 }
 
 /* Nav refactor */
-.subnav {
+.bnav {
 	flex-grow: 1;
 	background: var(--p-md);
 }
-.subnav-aside { 
+.bnav-aside { 
 	border-left: var(--space-md) solid var(--y-md);
 }
 .subnav-wrap {
@@ -181,12 +181,9 @@ ul {
 	list-style: none;
 }
 @media (max-width: 767.98px) {
-	.subnav-handle {
-		height: var(--header-height);
-		width: 100%;
-		display: flex;
-		justify-content: space-between;
-	}
+	.bnav-aside {
+		border-top: var(--space-md) solid var(--y-md);
+	}	
 	.subnav {
 		position: fixed;
 		bottom: 0;
@@ -195,6 +192,12 @@ ul {
 		border-top: var(--space-md) solid var(--y-md);
 		border-left: none;
 		cursor: pointer;
+	}
+	.subnav-handle {
+		height: var(--header-height);
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
 	}
 	.subnav-icon {
 		padding-right: 1.5rem;

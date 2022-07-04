@@ -19,7 +19,7 @@
 	
 <svelte:window bind:innerHeight={windowHeight} />
 
-<nav class="subnav subnav-aside">
+<nav class="bnav bnav-aside subnav">
 	<div class="subnav-wrap">
 		<div class="subnav-handle" on:click={() => { expanded = !expanded }}>
 			<h3>{expanded ? "poetry" : poem.attributes.title}</h3>

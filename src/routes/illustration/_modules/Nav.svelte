@@ -51,7 +51,7 @@
   bind:innerWidth={windowWidth} 
 />
 
-  <nav class="subnav" bind:clientWidth={subnavWidth} style={`--window-width: ${windowWidth / rem}rem`}>  
+  <nav class="bnav subnav" bind:clientWidth={subnavWidth} style={`--window-width: ${windowWidth / rem}rem`}>  
     <div class="subnav-wrap">
     <div class="subnav-handle" on:click={() => setExpanded(!expanded)}>
       <h3>{expanded ? categoryTitle: artPiece.attributes.title}</h3>
@@ -227,6 +227,15 @@
       margin-left: 0 !important;
       justify-content: space-around;
       opacity: 1!important;
+    }
+    .subnav ul {
+      height: 0;
+      overflow: hidden;
+      transition: height 0.33s ease-in-out;
+    }
+    ul.expanded {
+      height: var(--nav-height);
+      overflow: scroll;
     }
     .subnav ul.expanded {
       height: var(--nav-height);

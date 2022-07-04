@@ -7,7 +7,7 @@
 	export let links: StrapiPageDetails;
 </script>
 
-<aside class="subnav subnav-aside">
+<aside class="bnav bnav-aside subnav">
 	<nav class="subnav-list">
   {#each links as ni}
 		{#if ni.attributes.title === "My poetry"}
@@ -89,7 +89,9 @@
 	.rich-link {
 		display: flex;
 	}
-
+	.rich-link:last-of-type {
+		margin-bottom: 0;
+	}
 	.details {
 		flex-basis: 60%;
 	}
@@ -111,6 +113,17 @@
 		height: 150%;
 		margin-top:-3%;
 		margin-right:-15%;
+	}
+	@media (max-width: 767.98px) { 
+		.subnav {
+			position: relative;
+		}
+		.subnav-list {
+			padding: 1rem 1.5rem;
+		}
+		.rich-link {
+			margin-bottom: 1.5rem;
+		}
 	}
 
 </style>
