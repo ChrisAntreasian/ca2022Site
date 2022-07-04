@@ -46,10 +46,13 @@
 
 </script>
 
-<svelte:window bind:innerHeight={windowHeight} bind:outerWidth={windowWidth} />
+<svelte:window 
+  bind:innerHeight={windowHeight} 
+  bind:innerWidth={windowWidth} 
+/>
 
-<nav class="subnav" bind:clientWidth={subnavWidth} style={`--window-width: ${windowWidth / rem}rem`}>
-  <div class="subnav-wrap" >
+  <nav class="subnav" bind:clientWidth={subnavWidth} style={`--window-width: ${windowWidth / rem}rem`}>  
+    <div class="subnav-wrap">
     <div class="subnav-handle" on:click={() => setExpanded(!expanded)}>
       <h3>{expanded ? categoryTitle: artPiece.attributes.title}</h3>
       <div class="subnav-icon">
@@ -95,7 +98,7 @@
 
 <style>
   nav {
-    width: var(--window-width);
+    width: 100%;
     height: 6rem;
     position: absolute;
     bottom: 0;
@@ -104,11 +107,13 @@
     align-items: center;
     overflow: hidden;
     background-image: linear-gradient(var(--p-dk), var(--p-md));
-
-
 	}
+  .subnav {
+    width: var(--window-width);
+    border-top: var(--space-md) solid var(--y-md);
+  }
   .subnav-wrap {
-    width: calc(var(--wrapper-width) - 9rem);
+    width: calc(var(--wrapper-width) - 7rem);
     height: 100%;
     display: flex;
     justify-content: center;
@@ -190,7 +195,7 @@
     transform: scale(1.15);
   }
   li.active {
-    outline: 0.25rem solid var(--y-md);
+    outline: 0.2rem solid var(--y-md);
   }
   
   li a {

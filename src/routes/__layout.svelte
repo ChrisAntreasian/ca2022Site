@@ -56,7 +56,7 @@
 		align-items: center;
 		max-width: var(--wrapper-width);
 		border-left: var(--space-md) solid var(--p-dk);
-		border-right: var(--space-md) solid var(--p-dk);
+		border-right: var(--space-md) solid var(--b-dk);
 		background: var(--w-xl)
 	}
 </style>
