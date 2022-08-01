@@ -7,7 +7,6 @@
 	export let links: StrapiPageDetails;
 </script>
 
-<aside class="bnav bnav-aside">
 	<nav class="subnav-list">
   {#each links as ni}
 		{#if ni.attributes.title === "My poetry"}
@@ -21,7 +20,7 @@
 					<p>{ni.attributes.description}</p>
 				</div>
 				<div>
-					<h5>My favorites</h5>
+					<h4>My favorites</h4>
 					<ul>
 						{#each ni.attributes.poems.data as _}
 							<li>
@@ -53,21 +52,14 @@
 			</div>
 		{/if}
 	{/each}
-		</nav>
-	</aside>
+</nav>
 
 <style>
-	aside {
-		flex-basis: 50%;
-	}
-	img {
-		max-width: 15rem;
-	}
 	h2 a {
 		font-size: 2rem;
 		font-family: var(--font-th);
 	}
-	h5 {
+	h4 {
 		margin-left: 1rem;
 	}
 	nav { 		
@@ -78,15 +70,8 @@
 		margin-bottom: 2rem;
 		padding: 1rem;
 		background: var(--w-xl);
-		/* border-top: var(--space-md) solid var(--p-dk);
-		border-right: var(--space-md) solid var(--p-dk);
-		border-bottom: var(--space-md) solid var(--b-dk);
-		border-left: var(--space-md) solid var(--b-dk); */
 		border: var(--space-md) solid var(--y-md);
 		border-radius: 0.666rem;
-	}
-
-	.rich-link {
 		display: flex;
 	}
 	.rich-link:last-of-type {
@@ -99,31 +84,35 @@
 		margin-bottom: 0.75rem;
 	}
 	.q.rich-link div {
-		flex-basis: 90%;
+		flex-basis: 85%;
 	}
 	.p.rich-link ul{
 		flex-basis: 40%;
 		margin-top: 0.5rem;
 		padding-left: 1rem;
 	}
-	.rich-link img {
+	img {
 		position: absolute;
 		top: 0;
 		right: 0;
 		height: 150%;
-		margin-top:-3%;
-		margin-right:-15%;
+		transform: translateX(50%);
+		max-width: 15rem;
+		z-index: 1; 
 	}
-	@media (max-width: 767.98px) { 
-		.subnav {
-			position: relative;
+	@media (max-width: 767.98px) {
+		.q.rich-link div {
+			flex-basis: 90%;
 		}
 		.subnav-list {
-			padding: 1rem 1.5rem;
+			padding: 1rem 0.75rem;
 		}
 		.rich-link {
 			margin-bottom: 1.5rem;
 		}
+	}
+	@media (max-width: 767.98px) {
+		
 	}
 
 </style>
