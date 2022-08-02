@@ -1,6 +1,6 @@
 <script lang="ts">
   import { cleanUrlSlug } from "$lib/history";
-	import { apiBaseUrl } from "$lib/api";
+	import { apiBaseUrl } from "$api/api.config";
 	import { safeImageString } from "$lib/image";	
   import type { StrapiPageDetails } from "$lib/types";
 

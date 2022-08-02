@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { apiBaseUrl } from "$lib/api";	
+	import { apiBaseUrl } from "$api/api.config";
   import type { Art, StrapiPageDetails, WithId } from "$lib/types";
 
 	export let intro: StrapiPageDetails;

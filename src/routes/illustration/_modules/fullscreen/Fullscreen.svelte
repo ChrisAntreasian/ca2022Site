@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { StrapiArt } from "../../../../lib/types";
+  import type { StrapiArt } from "$lib/types";
 
   import { scale, fade } from "svelte/transition";
 
   import fullscreen from "./fullscreen.svg"
-  import { apiBaseUrl } from "$lib/api";	
+  import { apiBaseUrl } from "$api/api.config";	
   import { rem } from "$lib/spacing";
 
   export let img: StrapiArt["data"][number];

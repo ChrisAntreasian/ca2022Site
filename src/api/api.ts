@@ -1,7 +1,6 @@
 
 import qs from "qs";
-
-export const apiBaseUrl = 'http://localhost:1337';
+import { apiBaseUrl } from "./api.config"
 
 type QuryProps = {
 	filters?: Record<string, any>,

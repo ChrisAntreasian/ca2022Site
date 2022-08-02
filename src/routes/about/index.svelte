@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
 
 	import type { Load } from '@sveltejs/kit';
-	import type { StrapiPage, StrapiPageDetails, RichLink, WithId, StrapiArt, Art } from "$lib/types";
+	import type { StrapiPage, StrapiPageDetails, RichLink, WithId, Art } from "$lib/types";
 
 	export const prerender = true;
 	

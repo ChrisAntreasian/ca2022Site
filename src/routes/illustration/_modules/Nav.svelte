@@ -4,7 +4,7 @@
 
   import type { StrapiArt} from "$lib/types";
 	import { cleanUrlSlug } from "$lib/history";
-  import { apiBaseUrl } from "$lib/api";
+  import { apiBaseUrl } from "$api/api.config";;
   import { wrapperWidth, rem, toRem, fromRem } from "$lib/spacing";
 
   import Arrow from "$lib/arrow/Arrow.svelte"

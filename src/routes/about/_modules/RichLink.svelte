@@ -1,7 +1,7 @@
 	
 <script lang="ts">
 	import type { RichLink, WithId } from "$lib/types"; 
-	import { apiBaseUrl } from "$lib/api";	
+	import { apiBaseUrl } from "$api/api.config";	
 
 	export let richLinks: Array<WithId<RichLink>>;
 </script>

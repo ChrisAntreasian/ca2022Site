@@ -6,7 +6,7 @@
   import { fade } from "svelte/transition";
   import SvelteMarkdown from 'svelte-markdown'
 
-  import { apiBaseUrl } from "$lib/api";	
+  import { apiBaseUrl } from "$api/api.config";
   import { rem } from "$lib/spacing";
   import Arrow from '$lib/arrow/Arrow.svelte';
   import FullScreen from './fullscreen/Fullscreen.svelte';

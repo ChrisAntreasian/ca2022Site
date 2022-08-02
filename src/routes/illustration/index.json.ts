@@ -1,5 +1,5 @@
 import qs from "qs";
-import { api } from "../../lib/api";
+import { api } from "$api/api";
 import type { RequestHandler } from "@sveltejs/kit";
 
 const q = (pg: number) =>  qs.stringify({

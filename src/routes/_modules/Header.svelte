@@ -2,7 +2,7 @@
 <script lang="ts">
 	import type { Art } from "$lib/types";
 	import { page } from "$app/stores";
-	import { apiBaseUrl } from "$lib/api";	
+	import { apiBaseUrl } from "$api/api.config"
 	import { onMount } from "svelte";
 	import { tweened } from "svelte/motion";
   import { cubicOut } from "svelte/easing";

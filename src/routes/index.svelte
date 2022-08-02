@@ -48,7 +48,7 @@
 </svelte:head>
 
 <script lang="ts">
-  import { apiBaseUrl } from "$lib/api";
+  import { apiBaseUrl } from "$api/api.config";
 	import { safeImageString } from "$lib/image";	
   import { getContext } from "svelte";
 	import { contextHeightKey, rem } from "$lib/spacing";

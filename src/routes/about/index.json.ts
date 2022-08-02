@@ -1,4 +1,4 @@
-import { api, queryStr } from "../../lib/api";
+import { api, queryStr } from "$api/api";
 import type { RequestHandler } from "@sveltejs/kit";
 
 const pQ =  queryStr({ 
@@ -12,7 +12,6 @@ const pQ =  queryStr({
 		"art_pieces",
 		"art_pieces.image",
 		"art_pieces.image.media",
-
 	]
 });
 
