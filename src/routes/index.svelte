@@ -2,8 +2,6 @@
 
 	import type { Load } from '@sveltejs/kit';
 	import type { StrapiPage, StrapiPageDetails, ImageData } from "$lib/types";
-
-	export const prerender = true;
 	
 	const introIds = [5, 3, 4];
 

@@ -6,7 +6,7 @@
 		if (res.ok) {
 			const pid = parseInt(params.pid) || 5;
 			const poems = await res.json();
-			const poem = poems.data.filter(_ => _.id === pid)[0];
+			const poem = poems.data.filter((_: WithId<Poem>) => _.id === pid)[0];
 			return {
 				props: { 
 					poems,
@@ -24,7 +24,7 @@
 
 <script lang="ts">
 	import { fade } from "svelte/transition";
-	import type { StrapiPoem } from "$lib/types";
+	import type { Poem, StrapiPoem, WithId } from "$lib/types";
 	import { clientNavigate } from "$lib/history";
 	import Article from "./_modules/Article.svelte";
 	import Nav from "./_modules/Nav.svelte";

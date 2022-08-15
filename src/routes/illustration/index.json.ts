@@ -15,7 +15,7 @@ const q = (pg: number) =>  qs.stringify({
   ],
 });
 
-export const get: RequestHandler<{}> = async (request) => {
+export const GET: RequestHandler<{}> = async (request) => {
 	const response = await api(request.request.method, `art-categories?${q(1)}`);
 	if (response.status === 404) {
 		return { body: [] };

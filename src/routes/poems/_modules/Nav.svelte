@@ -11,7 +11,7 @@
 	export let setPoem: (_: number) => (e: Event) => void;
 
 	let expanded = false;
-	let windowHeight;
+	let windowHeight: number;
 
 	$: navHeight = windowHeight * 0.72;
 	

@@ -15,7 +15,7 @@ const pQ =  queryStr({
 	]
 });
 
-export const get: RequestHandler<{}> = async (request) => {
+export const GET: RequestHandler<{}> = async (request) => {
 	const r = await api(request.request.method, `pages?${pQ}`);
 	return r;
 };

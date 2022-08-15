@@ -2,8 +2,6 @@
 
 	import type { Load } from '@sveltejs/kit';
 	import type { StrapiPage, StrapiPageDetails, RichLink, WithId, Art } from "$lib/types";
-
-	export const prerender = true;
 	
 	export const load: Load = async ({ params, fetch, session, stuff }) => {
 		const res = await fetch('/about.json');
