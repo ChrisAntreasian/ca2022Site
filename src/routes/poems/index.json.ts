@@ -1,4 +1,4 @@
-import { api } from '$api/api';
+import { api } from '$lib/api';
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler<{}> = async (request) => {

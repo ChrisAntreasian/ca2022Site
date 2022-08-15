@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
 
 	import type { Load } from '@sveltejs/kit';
-	import type { StrapiPage, StrapiPageDetails, ImageData } from "$lib/types";
+	import type { StrapiPage, StrapiPageDetails } from "$lib/types";
 	
 	const introIds = [5, 3, 4];
 
@@ -46,7 +46,7 @@
 </svelte:head>
 
 <script lang="ts">
-  import { apiBaseUrl } from "$api/api.config";
+	import { s3Bucket } from '$lib/api';
 	import { safeImageString } from "$lib/image";	
   import { getContext } from "svelte";
 	import { contextHeightKey, rem } from "$lib/spacing";
@@ -72,7 +72,7 @@
 				</div>
 				{#if sec.attributes.art_piece}
 					<img 
-						src={`${apiBaseUrl}${safeImageString("medium")(sec.attributes.image)}`} 
+						src={`${s3Bucket}${safeImageString("medium")(sec.attributes.image)}`} 
 						alt={sec.attributes.title} 
 					/>
 				{/if}

@@ -1,6 +1,7 @@
+
 <script lang="ts">
-  import { cleanUrlSlug } from "$lib/history";
-	import { apiBaseUrl } from "$api/api.config";
+	import { s3Bucket } from '$lib/api';
+	import { cleanUrlSlug } from "$lib/history";
 	import { safeImageString } from "$lib/image";	
   import type { StrapiPageDetails } from "$lib/types";
 
@@ -45,7 +46,7 @@
 				</div>
 				{#if ni.attributes.art_piece}
 					<img 
-						src={`${apiBaseUrl}${safeImageString("small")(ni.attributes.art_piece.data.attributes.image)}`} 
+						src={`${s3Bucket}${safeImageString("small")(ni.attributes.art_piece.data.attributes.image)}`} 
 						alt={ni.attributes.art_piece.data.attributes.title} 
 					/>
 				{/if}

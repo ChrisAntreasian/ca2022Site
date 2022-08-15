@@ -1,4 +1,4 @@
-import { api, queryStr } from "$api/api";
+import { api, queryStr } from "$lib/api";
 import type { RequestHandler } from "@sveltejs/kit";
 
 const pQ =  queryStr({ 

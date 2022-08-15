@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { apiBaseUrl } from "$api/api.config";
+	import { s3Bucket } from '$lib/api';
   import type { Art, StrapiPageDetails, WithId } from "$lib/types";
 
 	export let intro: StrapiPageDetails;
@@ -16,7 +16,7 @@
     {/each}
     {#each images as img }
       <figure>
-        <img src={`${apiBaseUrl}${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.name} />
+        <img src={`${s3Bucket}${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.name} />
       </figure>
     {/each}
   </div>

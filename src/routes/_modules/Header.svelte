@@ -1,8 +1,9 @@
 
 <script lang="ts">
+	import { s3Bucket } from '$lib/api';
+
 	import type { Art } from "$lib/types";
 	import { page } from "$app/stores";
-	import { apiBaseUrl } from "$api/api.config"
 	import { onMount } from "svelte";
 	import { tweened } from "svelte/motion";
   import { cubicOut } from "svelte/easing";
@@ -41,7 +42,7 @@
 		</div>
 		<figure on:focus={showName} on:mouseover={showName} on:blur={hideName} on:mouseout={hideName}>
 			<img 
-				src={`${apiBaseUrl}${logo.image.data.attributes.formats.thumbnail.url}`} 
+				src={`${s3Bucket}${logo.image.data.attributes.formats.thumbnail.url}`} 
 				alt={logo.description} 
 			/>
 		</figure>

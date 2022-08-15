@@ -1,7 +1,8 @@
 	
 <script lang="ts">
+	import { s3Bucket } from '$lib/api';
+
 	import type { RichLink, WithId } from "$lib/types"; 
-	import { apiBaseUrl } from "$api/api.config";	
 
 	export let richLinks: Array<WithId<RichLink>>;
 </script>
@@ -12,7 +13,7 @@
 		<h4>{rl.attributes.title.split(":")[0]}: </h4>
 		{#if rl.attributes.image}
 			<img 
-				src={`${apiBaseUrl}${rl.attributes.image.data.attributes.formats 
+				src={`${s3Bucket}${rl.attributes.image.data.attributes.formats 
 					? rl.attributes.image.data.attributes.formats.small.url 
 					:rl.attributes.image.data.attributes.url}`}
 				alt={rl.attributes.image.data.attributes.alternativeText} />

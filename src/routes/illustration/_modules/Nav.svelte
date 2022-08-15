@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { s3Bucket } from '$lib/api';
+
   import { afterUpdate } from "svelte";
 	import { afterNavigate } from '$app/navigation';
 
   import type { StrapiArt} from "$lib/types";
 	import { cleanUrlSlug } from "$lib/history";
-  import { apiBaseUrl } from "$api/api.config";;
   import { wrapperWidth, rem, toRem, fromRem } from "$lib/spacing";
 
   import Arrow from "$lib/arrow/Arrow.svelte"
@@ -39,10 +40,10 @@
     activeItemIndex = aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
   };
 
-  let windowHeight;
+  let windowHeight: number;
   $: navHeight = windowHeight * 0.72;
 
-  let windowWidth;
+  let windowWidth: number;
 
 </script>
 
@@ -80,7 +81,7 @@
               class:active="{_.id === artPiece.id}" 
             >
               <img 
-                src={`${apiBaseUrl}${_.attributes.image.data.attributes.formats.thumbnail.url}`} 
+                src={`${s3Bucket}${_.attributes.image.data.attributes.formats.thumbnail.url}`} 
                 alt={_.attributes.description} 
               />
             </a>

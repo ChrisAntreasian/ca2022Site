@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { s3Bucket } from '$lib/api';
+
   import type { StrapiArt } from "$lib/types";
 
   import { scale, fade } from "svelte/transition";
 
   import fullscreen from "./fullscreen.svg"
-  import { apiBaseUrl } from "$api/api.config";	
   import { rem } from "$lib/spacing";
 
   export let img: StrapiArt["data"][number];
@@ -35,7 +36,7 @@
 {#if displayImg}
   <div class="wrap" transition:scale={transitionConfig}>
     <div on:click={close} class="btn close" >x</div>
-    <img style={`height: ${imageHeight}rem;`} src={`${apiBaseUrl}${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.alternativeText} />
+    <img style={`height: ${imageHeight}rem;`} src={`${s3Bucket}${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.alternativeText} />
   </div>
 {/if}
 

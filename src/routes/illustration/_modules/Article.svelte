@@ -1,12 +1,10 @@
 <script lang="ts">
-
-  import type { StrapiArt } from "$lib/types";
-  
+	import { s3Bucket } from '$lib/api';
+  import type { StrapiArt } from "$lib/types";  
   import { afterNavigate, beforeNavigate } from '$app/navigation';
   import { fade } from "svelte/transition";
   import SvelteMarkdown from 'svelte-markdown'
 
-  import { apiBaseUrl } from "$api/api.config";
   import { rem } from "$lib/spacing";
   import Arrow from '$lib/arrow/Arrow.svelte';
   import FullScreen from './fullscreen/Fullscreen.svelte';
@@ -24,7 +22,6 @@
 
   export let paginateArtPiece: (n: number) => void;
   export let readMoreClick: (_: boolean) => void;
-
   import { contextHeightKey, mqBreakPoint } from "$lib/spacing";
 	import { getContext } from "svelte";
 
@@ -47,7 +44,7 @@
 
   $: if(windowWidth) setOverflow();
 
-  let windowHeight;
+  let windowHeight: number;
   const { getHeaderHeight, getFooterHeight } = getContext(contextHeightKey);
 
 </script>
@@ -74,7 +71,7 @@
         >
           <div class="image" style={`width: ${imageWidth}%`}>
             <img 
-              src={`${apiBaseUrl}${art.attributes.image.data.attributes.url}`} 
+              src={`${s3Bucket}${art.attributes.image.data.attributes.url}`} 
               alt={art.attributes.description} 
             />
             <FullScreen img={art} />
