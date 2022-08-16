@@ -34,6 +34,10 @@
     "typescript": "^4.7.4",
     "vite": "^3.0.0"
   },
+  "engines": {    
+    "node": "16.x",
+    "npm": "8.x"
+  },
   "type": "module",
   "dependencies": {
     "@fontsource/fira-mono": "^4.5.0",

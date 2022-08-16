@@ -7,7 +7,7 @@ const config = {
   extensions: ['.svelte', '.md'],
 	preprocess: preprocess(),
   kit: {
-    adapter: node({ envPrefix: { port: process.env.PORT } }),
+    adapter: node(),
   },
 };
 
