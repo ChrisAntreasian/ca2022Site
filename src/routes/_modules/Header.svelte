@@ -42,9 +42,9 @@
 			<h1>Christopher Antreasian</h1>
 		</div>
 		<figure on:focus={showName} on:mouseover={showName} on:blur={hideName} on:mouseout={hideName}>
-			<!-- <img 
+			<img 
 				src={`${s3Bucket}${logo.image.data.attributes.formats.thumbnail.url}`} 
-				alt={logo.description}  -->
+				alt={logo.description} 
 			/>
 		</figure>
 		<nav class:is-active={toggleMenuActive}>
