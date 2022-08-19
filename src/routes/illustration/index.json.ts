@@ -2,9 +2,9 @@ import qs from "qs";
 import { api } from "$lib/api";
 import type { RequestHandler } from "@sveltejs/kit";
 
-const q = (pg: number) =>  qs.stringify({
+const q = qs.stringify({
 	filters: {
-		id: { $in: 1 },
+		id: { $in: 3 },
 	},
   populate: [
 		"omit",
@@ -16,7 +16,7 @@ const q = (pg: number) =>  qs.stringify({
 });
 
 export const GET: RequestHandler<{}> = async (request) => {
-	const response = await api(request.request.method, `art-categories?${q(1)}`);
+	const response = await api(request.request.method, `art-categories?${q}`);
 	if (response.status === 404) {
 		return { body: [] };
 	}

@@ -13,9 +13,10 @@
 			let artPieces = resp.data[0].attributes.art_pieces.data
 				.filter(_ =>	!omitIds.includes(_.id))
 				.sort((a, b) => a.attributes.order - b.attributes.order)
-				
+
 			const artPiece = artPieces.filter(_ => _.id === aid)[0];
 			const categoryTitle = resp.data[0].attributes.title;
+
 			return {
 				props: { 
 					categoryTitle,
@@ -104,7 +105,7 @@
 	const setExpanded = (exp: boolean) => {
 		expanded = exp;
 	}
-	const changeSelected = (id: number, position: number) => {
+	const changeSelected = (id: number) => {
 		if (windowWidth < mqBreakPoint) {
 			window.scrollTo({top: 0});
 		} else {
@@ -118,19 +119,19 @@
 	const navArtPieceClick = (id: number) => (e: Event) => {
 		e.preventDefault();
 		if (id == artPiece.id) return;
-		changeSelected(id, artPieces.findIndex(_ => _.id == artPiece.id));	
+		changeSelected(id);	
 	}
 
 	const paginateArtPiece = (n: number) => {
 		const index = artPieces.findIndex(_ => _.id == artPiece.id);
-		changeSelected(artPieces[index + n].id, index + n);
+		changeSelected(artPieces[index + n].id);
 	}
 
 	const readMoreClick = (_: boolean) => {
 		const d = showMore ? {img: 34, details: 66} : {img: 50, details: 50};
 		imageWidth.set(d.img);
-		detailsWidth.set(d.details)	
-    showMore = _
+		detailsWidth.set(d.details);
+    showMore = _;
   }
 
 </script>
