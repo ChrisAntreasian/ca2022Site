@@ -51,6 +51,7 @@
   import { getContext } from "svelte";
 	import { contextHeightKey, rem } from "$lib/spacing";
 	import Nav from "./_modules/Nav.svelte"
+import { stringify } from 'qs';
 
 	export let intro: StrapiPageDetails;
 	export let links: StrapiPageDetails;
@@ -70,9 +71,9 @@
 					<h2 class="d-only">{sec.attributes.title}</h2>
 					<p>{sec.attributes.description}</p>
 				</div>
-				{#if sec.attributes.art_piece}
+				{#if sec.attributes.image}
 					<img 
-						src={`${s3Bucket}${safeImageString("medium")(sec.attributes.image)}`} 
+						src={`${s3Bucket}${safeImageString("original")(sec.attributes.image)}`} 
 						alt={sec.attributes.title} 
 					/>
 				{/if}
