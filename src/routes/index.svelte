@@ -51,7 +51,6 @@
   import { getContext } from "svelte";
 	import { contextHeightKey, rem } from "$lib/spacing";
 	import Nav from "./_modules/Nav.svelte"
-import { stringify } from 'qs';
 
 	export let intro: StrapiPageDetails;
 	export let links: StrapiPageDetails;
