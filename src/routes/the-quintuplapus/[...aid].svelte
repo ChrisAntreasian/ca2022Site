@@ -1,9 +1,9 @@
 <script context="module" lang="ts">
 	import type { Load } from '@sveltejs/kit';
-	import type { StrapiArtCategory, StrapiArt } from "./../../lib/types";
+	import type { StrapiArtCategory, StrapiArt } from "../../lib/types";
 	
 	export const load: Load = async ({ params, fetch, session, stuff }) => {
-		const res = await fetch('/illustration.json');
+		const res = await fetch('/the-quintuplapus.json');
 		const aid = parseInt(params.aid) || 2;
 
 		if (res.ok) {
@@ -94,7 +94,7 @@
 	}	
 	const setArtPiece = (id:number) => {
 		artPiece = artPieces.filter(_ => _.id === id)[0];
-		clientNavigateS(`/illustration/${artPiece.id}`, artPiece.attributes.title);
+		clientNavigateS(`/the-quintuplapus/${artPiece.id}`, artPiece.attributes.title);
 	}
 
 	let paginationDetails = {
@@ -137,7 +137,7 @@
 </script>
 
 <svelte:head>
-	<title>Illustration</title>
+	<title>The Quintuplapus</title>
 </svelte:head>
 
 <svelte:window bind:innerWidth={windowWidth} />

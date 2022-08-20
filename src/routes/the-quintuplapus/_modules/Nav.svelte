@@ -77,7 +77,7 @@
           <li class:active={_.id === artPiece.id}>
             <a
               on:click={navArtPieceClick(_.id)}
-              href="{`/illustration/${_.id}/${cleanUrlSlug(_.attributes.title)}`}"
+              href="{`/the-quintuplapus/${_.id}/${cleanUrlSlug(_.attributes.title)}`}"
               class:active="{_.id === artPiece.id}" 
             >
               <img 
