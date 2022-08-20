@@ -5,7 +5,7 @@
 	
 	const introIds = [5, 3, 4];
 
-	export const load: Load = async ({ params, fetch, session, stuff }) => {
+	export const load: Load = async ({ fetch }) => {
 		const res = await fetch('/json');
 		if (res.ok) {
 			const resp: StrapiPage = await res.json();

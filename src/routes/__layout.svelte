@@ -4,20 +4,21 @@
 	import '../app.css';
 
 	import type { Load } from '@sveltejs/kit';
-	import type { StrapiArt, Art, StrapiPageDetails, StrapiDataArr, RichLink } from "$lib/types";
+	import type { PageDetails, StrapiApiResp, StrapiImageData } from "$lib/types";
 	import { setContext } from "svelte";
 	import { contextHeightKey } from '$lib/spacing';
 
-	export const load: Load = async ({ params, fetch, session, stuff }) => {
+	export const load: Load = async ({ fetch }) => {
 		const res = await fetch('/layout.json');
 		if (res.ok) {
 			
-			const artResp: StrapiArt = await res.json();
-			const logo = artResp.data[0].attributes
-						
+			const dets: StrapiApiResp<PageDetails> = await res.json();
+			const logo = dets.data[0].attributes.image;
+
 			return {
 				props: { 
-					logo,
+					logo: dets.data[0].attributes.image,
+					title: dets.data[0].attributes.title
 				}
 			};
 		}
@@ -25,7 +26,8 @@
 </script>
 
 <script lang="ts">
-	export let logo: Art;
+	export let logo: StrapiImageData;
+	export let title: string;
 
 	export let headerHeight: number;
 	export let footerHeight: number;
@@ -39,7 +41,7 @@
 	)
 </script>
 
-<Header {logo} bind:headerHeight={headerHeight} />
+<Header {logo} {title} bind:headerHeight={headerHeight} />
 <main>
 	<slot />
 </main>

@@ -43,7 +43,7 @@ type ImageAttrs = ImageBase & {
 	}	
 };
 
-type ImageData = {
+export type StrapiImageData = {
 	data: {
 		attributes: ImageBase & {
 			alternativeText: string;
@@ -63,7 +63,7 @@ type Art = StrapiBase & {
 	createdDate: string;
 	medium: string;
 	order: number;
-	image: ImageData;
+	image: StrapiImageData;
 };
 
 export type WithId<A> = {
@@ -84,7 +84,7 @@ type PageDetails = StrapiBase & {
 	poems: StrapiDataArr<Poem>;
 	link: string;
 	art_piece: StrapiData<Art>;
-	image: ImageData;
+	image: StrapiImageData;
 }
 
 export type StrapiArt = StrapiDataArr<Art>;
@@ -92,7 +92,7 @@ export type StrapiArt = StrapiDataArr<Art>;
 type RichLink = {
 	title: string;
 	body: string;
-	image: ImageData
+	image: StrapiImageData
 	link: string;
 }
 

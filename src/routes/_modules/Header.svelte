@@ -2,7 +2,7 @@
 <script lang="ts">
 	import { s3Bucket } from '$lib/api';
 
-	import type { Art } from "$lib/types";
+	import type { StrapiImageData } from "$lib/types";
 	import { page } from "$app/stores";
 	import { onMount } from "svelte";
 	import { tweened } from "svelte/motion";
@@ -10,8 +10,10 @@
 	import { fade } from "svelte/transition";
 	import { mqBreakPoint } from "$lib/spacing";
 	import 'hamburgers/dist/hamburgers.css';
+	import { safeImageString } from '$lib/image';
 	
-	export let logo: Art;
+	export let logo: StrapiImageData;
+	export let title: string;
 	export let headerHeight: number;
 
 	let toggleMenuActive = false;
@@ -39,12 +41,12 @@
 	<div class="header-bg"></div>
 	<div class="header-wrap">
 		<div class="header-title" style={`width: ${$nameWidth}rem;`}>
-			<h1>Christopher Antreasian</h1>
+			<h1>{title}</h1>
 		</div>
 		<figure on:focus={showName} on:mouseover={showName} on:blur={hideName} on:mouseout={hideName}>
 			<img 
-				src={`${s3Bucket}${logo.image.data.attributes.formats.thumbnail.url}`} 
-				alt={logo.description} 
+				src={`${s3Bucket}${safeImageString("thumbnail")(logo)}`} 
+				alt={title} 
 			/>
 		</figure>
 		<nav class:is-active={toggleMenuActive}>

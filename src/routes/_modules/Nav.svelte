@@ -10,7 +10,7 @@
 
 	<nav class="subnav-list">
   {#each links as ni}
-		{#if ni.attributes.title === "My poetry"}
+		{#if ni.attributes.title === "My Poetry"}
 			<div class="rich-link p">
 				<div class="details">
 					<h2>
@@ -21,7 +21,7 @@
 					<p>{ni.attributes.description}</p>
 				</div>
 				<div>
-					<h4>My favorites</h4>
+					<h4>My Favorites</h4>
 					<ul>
 						{#each ni.attributes.poems.data as _}
 							<li>
@@ -44,10 +44,10 @@
 					</h2>
 					<p>{ni.attributes.description}</p>
 				</div>
-				{#if ni.attributes.art_piece}
+				{#if ni.attributes.image}
 					<img 
-						src={`${s3Bucket}${safeImageString("small")(ni.attributes.art_piece.data.attributes.image)}`} 
-						alt={ni.attributes.art_piece.data.attributes.title} 
+						src={`${s3Bucket}${safeImageString("small")(ni.attributes.image)}`} 
+						alt={ni.attributes.title} 
 					/>
 				{/if}
 			</div>

@@ -1,12 +1,16 @@
 import { api, queryStr } from "$lib/api";
 import type { RequestHandler } from "@sveltejs/kit";
 
-const q = queryStr({ 
-  filters: { id: { $in: 1 } },
-  populate: "*"
+const pQ =  queryStr({ 
+  filters: { id: { $in: 6 } },
+  populate: [
+		"image",
+		"image.media",
+		"image.media",
+	]
 });
 export const GET: RequestHandler<{}> = async (request) => {
-	const response = await api(request.request.method, `art-pieces?${q}`);
+	const response = await api(request.request.method, `page-slugs?${pQ}`);
 	if (response.status === 404) {
 		return { body: [] };
 	}
