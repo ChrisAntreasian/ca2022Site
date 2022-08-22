@@ -1,3 +1,5 @@
+
+// @migration task: Check imports
 import { api, queryStr } from "$lib/api";
 import type { RequestHandler } from "@sveltejs/kit";
 
@@ -17,5 +19,6 @@ const pQ =  queryStr({
 
 export const GET: RequestHandler<{}> = async (request) => {
 	const r = await api(request.request.method, `pages?${pQ}`);
+	throw new Error("@migration task: Migrate this return statement (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292701)");
 	return r;
 };

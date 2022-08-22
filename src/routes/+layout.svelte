@@ -1,31 +1,35 @@
 <script  context="module" lang="ts">
-	import Header from './_modules/Header.svelte';
-	import Footer from './_modules/Footer.svelte';
-	import '../app.css';
+	throw new Error("@migration task: Check code was safely removed (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292722)");
 
-	import type { Load } from '@sveltejs/kit';
-	import type { PageDetails, StrapiApiResp, StrapiImageData } from "$lib/types";
-	import { setContext } from "svelte";
-	import { contextHeightKey } from '$lib/spacing';
+	// import Header from './_modules/Header.svelte';
+	// import Footer from './_modules/Footer.svelte';
+	// import '../app.css';
 
-	export const load: Load = async ({ fetch }) => {
-		const res = await fetch('/layout.json');
-		if (res.ok) {
-			
-			const dets: StrapiApiResp<PageDetails> = await res.json();
-			const logo = dets.data[0].attributes.image;
+	// import type { Load } from '@sveltejs/kit';
+	// import type { PageDetails, StrapiApiResp, StrapiImageData } from "$lib/types";
+	// import { setContext } from "svelte";
+	// import { contextHeightKey } from '$lib/spacing';
 
-			return {
-				props: { 
-					logo: dets.data[0].attributes.image,
-					title: dets.data[0].attributes.title
-				}
-			};
-		}
-	}
+	// export const load: Load = async ({ fetch }) => {
+	// 	const res = await fetch('/layout.json');
+	// 	if (res.ok) {
+	// 		
+	// 		const dets: StrapiApiResp<PageDetails> = await res.json();
+	// 		const logo = dets.data[0].attributes.image;
+
+	// 		return {
+	// 			props: { 
+	// 				logo: dets.data[0].attributes.image,
+	// 				title: dets.data[0].attributes.title
+	// 			}
+	// 		};
+	// 	}
+	// }
 </script>
 
 <script lang="ts">
+	throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
+
 	export let logo: StrapiImageData;
 	export let title: string;
 

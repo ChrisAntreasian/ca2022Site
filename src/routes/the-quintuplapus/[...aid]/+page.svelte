@@ -1,39 +1,43 @@
 <script context="module" lang="ts">
-	import type { Load } from '@sveltejs/kit';
-	import type { StrapiArtCategory, StrapiArt } from "../../lib/types";
-	
-	export const load: Load = async ({ params, fetch, session, stuff }) => {
-		const res = await fetch('/the-quintuplapus.json');
-		const aid = parseInt(params.aid) || 2;
+	throw new Error("@migration task: Check code was safely removed (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292722)");
 
-		if (res.ok) {
-			const resp: StrapiArtCategory = await res.json();
-			const omitIds = resp.data[0].attributes.omit.data.map(_ => _.id)
-			
-			let artPieces = resp.data[0].attributes.art_pieces.data
-				.filter(_ =>	!omitIds.includes(_.id))
-				.sort((a, b) => a.attributes.order - b.attributes.order)
+	// import type { Load } from '@sveltejs/kit';
+	// import type { StrapiArtCategory, StrapiArt } from "../../../lib/types";
+	// 
+	// export const load: Load = async ({ params, fetch, session, stuff }) => {
+	// 	const res = await fetch('/the-quintuplapus.json');
+	// 	const aid = parseInt(params.aid) || 2;
 
-			const artPiece = artPieces.filter(_ => _.id === aid)[0];
-			const categoryTitle = resp.data[0].attributes.title;
+	// 	if (res.ok) {
+	// 		const resp: StrapiArtCategory = await res.json();
+	// 		const omitIds = resp.data[0].attributes.omit.data.map(_ => _.id)
+	// 		
+	// 		let artPieces = resp.data[0].attributes.art_pieces.data
+	// 			.filter(_ =>	!omitIds.includes(_.id))
+	// 			.sort((a, b) => a.attributes.order - b.attributes.order)
 
-			return {
-				props: { 
-					categoryTitle,
-					artPieces,
-					artPiece
-				},
-			};
-		}
+	// 		const artPiece = artPieces.filter(_ => _.id === aid)[0];
+	// 		const categoryTitle = resp.data[0].attributes.title;
 
-		const { message } = await res.json();
-		return {
-			error: new Error(message)
-		};
-	};
+	// 		return {
+	// 			props: { 
+	// 				categoryTitle,
+	// 				artPieces,
+	// 				artPiece
+	// 			},
+	// 		};
+	// 	}
+
+	// 	const { message } = await res.json();
+	// 	return {
+	// 		error: new Error(message)
+	// 	};
+	// };
 </script>
 
 <script lang="ts">
+	throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
+
 	import { afterUpdate, getContext } from "svelte";
 	import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
@@ -44,8 +48,8 @@
 	import { clientNavigate } from "$lib/history";
 	import { contextHeightKey, rem, mqBreakPoint } from "$lib/spacing";
 
-	import Article from "./_modules/Article.svelte"
-	import Nav from "./_modules/Nav.svelte"
+	import Article from "../_modules/Article.svelte"
+	import Nav from "../_modules/Nav.svelte"
 
 	export let artPieces: StrapiArt["data"];
 	export let artPiece: StrapiArt["data"][number];

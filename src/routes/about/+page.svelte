@@ -1,29 +1,33 @@
 <script context="module" lang="ts">
+	throw new Error("@migration task: Check code was safely removed (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292722)");
 
-	import type { Load } from '@sveltejs/kit';
-	import type { StrapiPage, StrapiPageDetails, RichLink, WithId, Art } from "$lib/types";
-	
-	export const load: Load = async ({ params, fetch, session, stuff }) => {
-		const res = await fetch('/about.json');
-		if (res.ok) {
-			
-			const resp: StrapiPage = await res.json();
-			
-			const attrs = resp.data[0].attributes;		
-			console.log(attrs.art_pieces)
-			const props = {
-				props: { 
-					images: attrs.art_pieces.data,
-					richLinks: attrs.rich_links.data,
-					intro: attrs.page_details.data
-				},
-			};
-			return props;
-		}
-	}
+
+	// import type { Load } from '@sveltejs/kit';
+	// import type { StrapiPage, StrapiPageDetails, RichLink, WithId, Art } from "$lib/types";
+	// 
+	// export const load: Load = async ({ params, fetch, session, stuff }) => {
+	// 	const res = await fetch('/about.json');
+	// 	if (res.ok) {
+	// 		
+	// 		const resp: StrapiPage = await res.json();
+	// 		
+	// 		const attrs = resp.data[0].attributes;		
+	// 		console.log(attrs.art_pieces)
+	// 		const props = {
+	// 			props: { 
+	// 				images: attrs.art_pieces.data,
+	// 				richLinks: attrs.rich_links.data,
+	// 				intro: attrs.page_details.data
+	// 			},
+	// 		};
+	// 		return props;
+	// 	}
+	// }
 </script>
 
 <script lang="ts">
+	throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
+
   import RL from "./_modules/RichLink.svelte";
   import Intro from "./_modules/Intro.svelte";
 	export let intro: StrapiPageDetails;
