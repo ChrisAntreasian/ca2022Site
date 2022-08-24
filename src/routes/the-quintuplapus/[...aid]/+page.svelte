@@ -1,42 +1,5 @@
-<script context="module" lang="ts">
-	throw new Error("@migration task: Check code was safely removed (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292722)");
-
-	// import type { Load } from '@sveltejs/kit';
-	// import type { StrapiArtCategory, StrapiArt } from "../../../lib/types";
-	// 
-	// export const load: Load = async ({ params, fetch, session, stuff }) => {
-	// 	const res = await fetch('/the-quintuplapus.json');
-	// 	const aid = parseInt(params.aid) || 2;
-
-	// 	if (res.ok) {
-	// 		const resp: StrapiArtCategory = await res.json();
-	// 		const omitIds = resp.data[0].attributes.omit.data.map(_ => _.id)
-	// 		
-	// 		let artPieces = resp.data[0].attributes.art_pieces.data
-	// 			.filter(_ =>	!omitIds.includes(_.id))
-	// 			.sort((a, b) => a.attributes.order - b.attributes.order)
-
-	// 		const artPiece = artPieces.filter(_ => _.id === aid)[0];
-	// 		const categoryTitle = resp.data[0].attributes.title;
-
-	// 		return {
-	// 			props: { 
-	// 				categoryTitle,
-	// 				artPieces,
-	// 				artPiece
-	// 			},
-	// 		};
-	// 	}
-
-	// 	const { message } = await res.json();
-	// 	return {
-	// 		error: new Error(message)
-	// 	};
-	// };
-</script>
 
 <script lang="ts">
-	throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
 
 	import { afterUpdate, getContext } from "svelte";
 	import { tweened } from 'svelte/motion';
@@ -50,10 +13,9 @@
 
 	import Article from "../_modules/Article.svelte"
 	import Nav from "../_modules/Nav.svelte"
-
-	export let artPieces: StrapiArt["data"];
-	export let artPiece: StrapiArt["data"][number];
-	export let categoryTitle: StrapiArtCategory["data"][number]["attributes"]["title"];
+	import type { PageServerData } from "./$types";
+	
+	export let data: PageServerData;  
 
 	const { getHeaderHeight, getFooterHeight } = getContext(contextHeightKey);
 	
@@ -97,12 +59,12 @@
 		showMore = true;
 	}	
 	const setArtPiece = (id:number) => {
-		artPiece = artPieces.filter(_ => _.id === id)[0];
-		clientNavigateS(`/the-quintuplapus/${artPiece.id}`, artPiece.attributes.title);
+		data.artPiece = data.artPieces.filter(_ => _.id === id)[0];
+		clientNavigateS(`/the-quintuplapus/${data.artPiece.id}`, data.artPiece.attributes.title);
 	}
 
 	let paginationDetails = {
-		length: artPieces.length,
+		length: data.artPieces.length,
 		position: 0
 	}
 	export let expanded = false;
@@ -117,18 +79,18 @@
 		}
 		expanded = false;
 		setArtPiece(id);
-		paginationDetails.position = artPieces.findIndex(_ => _.id == artPiece.id);
+		paginationDetails.position = data.artPieces.findIndex(_ => _.id === data.artPiece.id);
 	}
 
 	const navArtPieceClick = (id: number) => (e: Event) => {
 		e.preventDefault();
-		if (id == artPiece.id) return;
+		if (id == data.artPiece.id) return;
 		changeSelected(id);	
 	}
 
 	const paginateArtPiece = (n: number) => {
-		const index = artPieces.findIndex(_ => _.id == artPiece.id);
-		changeSelected(artPieces[index + n].id);
+		const index = data.artPieces.findIndex(_ => _.id == data.artPiece.id);
+		changeSelected(data.artPieces[index + n].id);
 	}
 
 	const readMoreClick = (_: boolean) => {
@@ -148,7 +110,7 @@
 
 <section transition:fade={{duration: 300}}>
 	<Article 
-		art={artPiece} 
+		art={data.artPiece} 
 		imageWidth={$imageWidth} 
 		detailsWidth={$detailsWidth} 
 		showMore={showMore} 
@@ -160,14 +122,13 @@
 	/>
 
 	<Nav 
-		artPiece={artPiece} 
-		artPieces={artPieces} 
+		artPiece={data.artPiece} 
+		artPieces={data.artPieces} 
 		navArtPieceClick={navArtPieceClick} 
 		expanded={expanded}
 		setExpanded={setExpanded}
-		categoryTitle={categoryTitle}
+		categoryTitle={data.categoryTitle}
 	/>
-
 </section>
 
 <style>

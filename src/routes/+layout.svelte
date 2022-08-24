@@ -1,41 +1,18 @@
-<script  context="module" lang="ts">
-	throw new Error("@migration task: Check code was safely removed (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292722)");
 
-	// import Header from './_modules/Header.svelte';
-	// import Footer from './_modules/Footer.svelte';
-	// import '../app.css';
+<script lang="ts">	
 
-	// import type { Load } from '@sveltejs/kit';
-	// import type { PageDetails, StrapiApiResp, StrapiImageData } from "$lib/types";
-	// import { setContext } from "svelte";
-	// import { contextHeightKey } from '$lib/spacing';
+	import { setContext } from "svelte";
+	import { contextHeightKey } from '$lib/spacing';
+	
+	import Header from './_modules/Header.svelte';
+	import Footer from './_modules/Footer.svelte';
 
-	// export const load: Load = async ({ fetch }) => {
-	// 	const res = await fetch('/layout.json');
-	// 	if (res.ok) {
-	// 		
-	// 		const dets: StrapiApiResp<PageDetails> = await res.json();
-	// 		const logo = dets.data[0].attributes.image;
-
-	// 		return {
-	// 			props: { 
-	// 				logo: dets.data[0].attributes.image,
-	// 				title: dets.data[0].attributes.title
-	// 			}
-	// 		};
-	// 	}
-	// }
-</script>
-
-<script lang="ts">
-	throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
-
-	export let logo: StrapiImageData;
-	export let title: string;
+	import type { LayoutServerData } from "./$types";
 
 	export let headerHeight: number;
 	export let footerHeight: number;
-
+	export let data: LayoutServerData;
+	
 	setContext(
 		contextHeightKey,
 		{ 
@@ -45,7 +22,7 @@
 	)
 </script>
 
-<Header {logo} {title} bind:headerHeight={headerHeight} />
+<Header logo={data.logo} title={data.title} bind:headerHeight={headerHeight} />
 <main>
 	<slot />
 </main>

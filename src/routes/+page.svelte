@@ -1,74 +1,28 @@
-<script context="module" lang="ts">
-	throw new Error("@migration task: Check code was safely removed (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292722)");
-
-
-	// import type { Load } from '@sveltejs/kit';
-	// import type { StrapiPage, StrapiPageDetails } from "$lib/types";
-	// 
-	// const introIds = [5, 3, 4];
-
-	// export const load: Load = async ({ fetch }) => {
-	// 	const res = await fetch('/json');
-	// 	if (res.ok) {
-	// 		const resp: StrapiPage = await res.json();
-	// 		const attrs = resp.data[0].attributes;		
-	// 		const props: {
-	// 			props: {
-	// 				intro: StrapiPageDetails,
-	// 				links: StrapiPageDetails,
-	// 			}
-	// 		} = {
-	// 			props: { 
-	// 				...attrs.page_details.data.reduce((
-	// 					acc: { 
-	// 						intro: StrapiPageDetails, 
-	// 						links: StrapiPageDetails, 
-	// 					}, 
-	// 					d: StrapiPageDetails[0]
-	// 				) => {
-	// 					if (introIds.includes(d.id)) {
-	// 						acc.intro.push(d);
-	// 					} else {
-	// 						acc.links.push(d)
-	// 					}
-	// 					return acc;
-	// 				}, { 
-	// 					intro: [], 
-	// 					links: [] 
-	// 				})
-	// 			},
-	// 		};
-	// 		return props;
-	// 	}
-	// }
-</script>
-
-<svelte:head>
-	<title>Home</title>
-</svelte:head>
-
 <script lang="ts">
-	throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
 
 	import { s3Bucket } from '$lib/api';
 	import { safeImageString } from "$lib/image";	
   import { getContext } from "svelte";
 	import { contextHeightKey, rem } from "$lib/spacing";
 	import Nav from "./_modules/Nav.svelte"
+	import type { PageServerData} from "./$types";
 
-	export let intro: StrapiPageDetails;
-	export let links: StrapiPageDetails;
+	export let data: PageServerData;  
 
 	const { getHeaderHeight, getFooterHeight } = getContext(contextHeightKey);
   let windowHeight: number;
 </script>
 
+<svelte:head>
+	<title>Home</title>
+</svelte:head>
+
 <svelte:window bind:innerHeight={windowHeight} />
 <section class="w-sidebar">
-	{#each intro as sec}<div class="m-only m-headline"><h2>{sec.attributes.title}</h2></div>{/each}
+	{#each data.intro as sec}<div class="m-only m-headline"><h2>{sec.attributes.title}</h2></div>{/each}
 
 	<article class="home" style={`--min-height: ${(windowHeight - getHeaderHeight() - getFooterHeight()) / rem}rem`}>
-		{#each intro as sec}
+		{#each data.intro as sec}
 			<div class="intro-segment">
 				<div>
 					<h2 class="d-only">{sec.attributes.title}</h2>
@@ -85,7 +39,7 @@
 		</article>
 
 		<aside class="bnav bnav-aside">
-			<Nav links={links} />
+			<Nav links={data.links} />
 		</aside>
 </section>
 

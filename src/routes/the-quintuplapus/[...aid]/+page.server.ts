@@ -1,10 +1,27 @@
 import { error } from '@sveltejs/kit';
-import type { PageLoad } from '@sveltejs/kit';
-import type { StrapiArtCategory, StrapiArt } from "../../../lib/types";
+import type { PageServerLoad } from './$types';
+import type { StrapiArtCategory } from "../../../lib/types";
+import qs from "qs";
+import { api, handleGetResponse } from '$lib/api';
 
-throw new Error("@migration task: Migrate the load function input (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292693)");
-export const load: PageLoad = async ({ params, fetch, session, stuff }) => {
-	const res = await fetch('/the-quintuplapus.json');
+const q = qs.stringify({
+	filters: {
+		id: { $in: 3 },
+	},
+  populate: [
+		"omit",
+		"featured",
+    "art_pieces",
+    "art_pieces.image",
+		"art_pieces.image.media",
+  ],
+});
+
+export const load: PageServerLoad = async ({ params }) => {
+	const response = await api("GET", `art-categories?${q}`);
+	const res = handleGetResponse(response);
+
+	// const res = await fetch('/the-quintuplapus.json');
 	const aid = parseInt(params.aid) || 2;
 
 	if (res.ok) {
