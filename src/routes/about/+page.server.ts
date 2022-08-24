@@ -20,7 +20,7 @@ const pQ =  queryStr({
 
 export const load: PageServerLoad = async () => {
 	const response = await api("GET", `pages?${pQ}`);
-	const res = handleGetResponse(response);
+	const res = await handleGetResponse(response);
 
 	if (res.ok) {
 		const resp: StrapiPage = await res.json();

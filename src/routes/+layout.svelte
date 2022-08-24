@@ -1,5 +1,6 @@
 
 <script lang="ts">	
+	import '../app.css';
 
 	import { setContext } from "svelte";
 	import { contextHeightKey } from '$lib/spacing';

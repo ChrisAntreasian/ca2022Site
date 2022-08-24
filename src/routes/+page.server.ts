@@ -4,7 +4,6 @@ import type { StrapiPage, StrapiPageDetails } from "$lib/types";
 import { error } from '@sveltejs/kit';
 
 import { api, handleGetResponse, queryStr } from "$lib/api";
-import type { RequestHandler } from '../../.svelte-kit/types/src/routes/json/$types';
 
 const pQ =  queryStr({ 
   filters: { id: { $in: 1 } },
@@ -23,7 +22,7 @@ const introIds = [5, 3, 4];
 
 export const load: PageServerLoad = async () => {
 	const response = await api("GET", `pages?${pQ}`);
-	const res = handleGetResponse(response);
+	const res = await handleGetResponse(response);
 
 	if (res.ok) {
 		const resp: StrapiPage = await res.json();

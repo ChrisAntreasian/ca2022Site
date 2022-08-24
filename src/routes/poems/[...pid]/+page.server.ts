@@ -6,7 +6,7 @@ import { api, handleGetResponse } from '$lib/api';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const response = await api("GET", `poems`);
-	const res = handleGetResponse(response);
+	const res = await handleGetResponse(response);
 
 	if (res.ok) {
 		const pid = parseInt(params.pid) || 5;

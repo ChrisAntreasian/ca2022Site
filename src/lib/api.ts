@@ -1,7 +1,7 @@
 
 
 import { error } from "@sveltejs/kit";
-import qs from "qs";
+import * as qs from "qs";
 
 type QuryProps = {
 	filters?: Record<string, any>,
@@ -13,20 +13,24 @@ export const s3Bucket = import.meta.env.VITE_S3_BUCKET;
 
 export const queryStr = (_: QuryProps) => qs.stringify(_, { encodeValuesOnly: true });
 
-export const api = (method: "GET" | "POST", resource: string, data?: Record<string, unknown>) =>
-	fetch(`${baseApi}/api/${resource}`, {
+export const  api = async (method: "GET" | "POST", resource: string, data?: Record<string, unknown>) => {
+	const d = await fetch(`${baseApi}/api/${resource}`, {
 		method,
 		headers: {
 			'content-type': 'application/json'
 		},
 		body: data && JSON.stringify(data)
 	});
+	return d;
+}
 
-export const handleGetResponse = (response: Response) => {
+export const handleGetResponse = async (response: Response) => {
 	if (response.status === 404) {
 		throw error(404, "Not Found");
 	}
-	return new Response(JSON.stringify(response.body), {
+
+	const resp = await response.json()
+	return new Response(JSON.stringify(resp), {
 		headers: {
 			'content-type': 'application/json; charset=utf-8'
 		}

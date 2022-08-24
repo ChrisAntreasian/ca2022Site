@@ -1,5 +1,3 @@
-import '../app.css';
-
 import type { LayoutServerLoad } from './$types';
 import type { PageDetails, StrapiApiResp } from "$lib/types";
 
@@ -16,10 +14,10 @@ const pQ =  queryStr({
 });
 
 export const load: LayoutServerLoad = async () => {
-	const response = await api("GET", `page-slugs?${pQ}`);
-	const res = handleGetResponse(response);
-	if (res.ok) {
-		
+	const response = await api("GET", `page-slugs?${pQ}`);	
+	const res = await handleGetResponse(response);
+
+	if (res.ok) {		
 		const details: StrapiApiResp<PageDetails> = await res.json();
 		return { 
 			logo: details.data[0].attributes.image,
