@@ -1,4 +1,3 @@
-
 import type { PageServerLoad } from './$types';
 import type { StrapiPage, StrapiPageDetails } from "$lib/types";
 import { error } from '@sveltejs/kit';
