@@ -25,7 +25,8 @@ export const load: PageServerLoad = async () => {
 
 	if (res.ok) {
 		const resp: StrapiPage = await res.json();
-		const attrs = resp.data[0].attributes;		
+		const attrs = resp.data[0].attributes;
+
 		return {
 			...attrs.page_details.data.reduce((
 				acc: { 
