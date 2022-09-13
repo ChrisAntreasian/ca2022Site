@@ -17,7 +17,7 @@ const pQ =  queryStr({
 	]
 });
 
-const introIds = [5, 3, 4];
+const introIds = [5];
 
 export const load: PageServerLoad = async () => {
 	const response = await api("GET", `pages?${pQ}`);
