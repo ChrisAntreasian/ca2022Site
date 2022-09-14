@@ -1,5 +1,7 @@
 
 <script lang="ts">
+	import 'hamburgers/dist/hamburgers.css';
+
 	import { s3Bucket } from '$lib/api';
 
 	import type { StrapiImageData } from "$lib/types";
@@ -9,7 +11,6 @@
   import { cubicOut } from "svelte/easing";
 	import { fade } from "svelte/transition";
 	import { mqBreakPoint } from "$lib/spacing";
-	import 'hamburgers/dist/hamburgers.css';
 	import { safeImageString } from '$lib/image';
 	
 	export let logo: StrapiImageData;
