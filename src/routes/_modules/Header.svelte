@@ -6,34 +6,27 @@
 
 	import type { StrapiImageData } from "$lib/types";
 	import { page } from "$app/stores";
-	import { onMount } from "svelte";
-	import { tweened } from "svelte/motion";
-  import { cubicOut } from "svelte/easing";
 	import { fade } from "svelte/transition";
-	import { mqBreakPoint } from "$lib/spacing";
 	import { safeImageString } from '$lib/image';
 	
 	export let logo: StrapiImageData;
 	export let title: string;
+	export let mobileTitle: string;
 	export let headerHeight: number;
 
 	let toggleMenuActive = false;
+
+	const headlinesDict = {
+		"/": "",
+		"/the-quintuplapus": ": The Quintuplapus",
+		"/poems": ": Poetry"
+	}
+
+	$: headlineBit =  !($page.url.pathname in headlinesDict) ? "" : `${headlinesDict[$page.url.pathname]}`;
 	const resetMenu = () => { toggleMenuActive = false }
 
 	let windowWidth: number;
-
-	const nameWidth = tweened(0, {
-		easing: cubicOut,
-    duration: 1200,
-  });
-
-	const showName = () => { nameWidth.set(windowWidth > mqBreakPoint ? 20 : 18) };
-
-	const defaultHWidth = () => windowWidth > mqBreakPoint ? 0 : 18
-	const hideName = () => { nameWidth.set(defaultHWidth()) };
 	
-	onMount(() => { nameWidth.set(defaultHWidth()) })
-
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
@@ -41,10 +34,10 @@
 <header bind:clientHeight={headerHeight}>
 	<div class="header-bg"></div>
 	<div class="header-wrap">
-		<div class="header-title" style={`width: ${$nameWidth}rem;`}>
-			<h1>{title}</h1>
+		<div class="header-title">
+			<h1><span class="desktop-title">{title}</span><span class="mobile-title">{mobileTitle}</span>{headlineBit}</h1>
 		</div>
-		<figure on:focus={showName} on:mouseover={showName} on:blur={hideName} on:mouseout={hideName}>
+		<figure>
 			<img 
 				src={`${s3Bucket}${safeImageString("thumbnail")(logo)}`} 
 				alt={title} 
@@ -59,13 +52,13 @@
 				/>
 			{/if}
 			<ul>
-				<li class:active={$page.url.pathname === '/'}>
+				<li class:active={$page.url.pathname === "/"}>
 					<a on:click={resetMenu} sveltekit:prefetch href="/">Home</a>
 				</li>
-				<li class:active={$page.url.pathname === 'the-quintuplapus'}>
+				<li class:active={$page.url.pathname === "the-quintuplapus"}>
 					<a on:click={resetMenu} sveltekit:prefetch href="/the-quintuplapus">The Quintuplapus</a>
 				</li>
-				<li class:active={$page.url.pathname === '/poems'}>
+				<li class:active={$page.url.pathname === "/poems"}>
 					<a on:click={resetMenu} sveltekit:prefetch href="/poems">Poems</a>
 				</li>
 			</ul>
@@ -119,6 +112,15 @@
 		line-height: var(--header-height);
 		white-space: nowrap;
 	}
+	h1 span {
+		font-family: var(--font-th);
+	}
+	.mobile-title {
+		display: none;
+	}
+	.desktop-title {
+		display: inline;
+	}
 	
 	nav {
 		display: flex;
@@ -164,15 +166,13 @@
 		width: 100%;
 		max-width: var(--wrapper-width);
 		display: flex;
-		justify-content: flex-end;
+		justify-content: space-between;
 		position: relative;
 	}
 	.header-title {
 		height: 4rem;
-		width: 4rem;
-		position: absolute;
-		left: 0;
-		overflow: hidden;
+		justify-self: flex-start;
+		margin-left: 3rem;
 	}
 	.hamburger {
 		padding: 0.333rem 1rem 0 0;
@@ -211,6 +211,12 @@
 		}
 		h1 {
 			font-size: 1.2rem;
+		}
+		.mobile-title {
+			display: inline;
+		}
+		.desktop-title {
+			display: none;
 		}
 		ul {
 			height: 100%;

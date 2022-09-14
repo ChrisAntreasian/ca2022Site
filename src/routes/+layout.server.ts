@@ -13,6 +13,11 @@ const pQ =  queryStr({
 	]
 });
 
+const mkMobileString = (_: string) => {
+	const derp = _.split(" ")
+	return `${derp[0].charAt(0)}. ${derp[1]}`
+}
+
 export const load: LayoutServerLoad = async () => {
 	const response = await api("GET", `page-slugs?${pQ}`);	
 	const res = await handleGetResponse(response);
@@ -21,7 +26,8 @@ export const load: LayoutServerLoad = async () => {
 		const details: StrapiApiResp<PageDetails> = await res.json();
 		return { 
 			logo: details.data[0].attributes.image,
-			title: details.data[0].attributes.title
+			title: details.data[0].attributes.title,
+			mobileTitle: mkMobileString(details.data[0].attributes.title)
 		};
 	}
 

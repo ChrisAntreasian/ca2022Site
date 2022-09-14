@@ -85,7 +85,7 @@
 		margin-bottom: 0.75rem;
 	}
 	.q.rich-link div {
-		flex-basis: 85%;
+		flex-basis: 88%;
 	}
 	.p.rich-link ul{
 		flex-basis: 40%;
@@ -96,7 +96,8 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		height: 150%;
+		height: 280px;
+		margin-top: 0.5rem;
 		transform: translateX(50%);
 		max-width: 15rem;
 		z-index: 1; 
@@ -112,8 +113,10 @@
 			margin-bottom: 1.5rem;
 		}
 	}
-	@media (max-width: 767.98px) {
-		
+	@media (max-width: 650px) {
+		.q.rich-link div {
+			flex-basis: 82%;
+		}
 	}
 
 </style>

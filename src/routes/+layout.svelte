@@ -23,7 +23,13 @@
 	)
 </script>
 
-<Header logo={data.logo} title={data.title} bind:headerHeight={headerHeight} />
+<Header 
+	logo={data.logo} 
+	title={data.title}
+	mobileTitle={data.mobileTitle}
+	bind:headerHeight={headerHeight} 
+/>
+
 <main>
 	<slot />
 </main>
