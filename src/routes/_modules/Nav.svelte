@@ -14,7 +14,7 @@
 			<div class="rich-link p">
 				<div class="details">
 					<h2>
-						<a href={ni.attributes.link}>
+						<a sveltekit:prefetch href={ni.attributes.link}>
 							{ni.attributes.title}
 						</a>
 					</h2>
@@ -38,7 +38,7 @@
 			<div class="rich-link q">
 				<div>
 					<h2>
-						<a href={ni.attributes.link}>
+						<a sveltekit:prefetch href={ni.attributes.link}>
 							{ni.attributes.title}
 						</a>
 					</h2>
@@ -68,12 +68,12 @@
 	}
 	.rich-link {
 		position: relative;
+		display: flex;
 		margin-bottom: 2rem;
 		padding: 1rem;
 		background: var(--w-xl);
 		border: var(--space-md) solid var(--y-md);
 		border-radius: 0.666rem;
-		display: flex;
 	}
 	.rich-link:last-of-type {
 		margin-bottom: 0;
@@ -96,7 +96,7 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		height: 280px;
+		height: 17.5rem;
 		margin-top: 0.5rem;
 		transform: translateX(50%);
 		max-width: 15rem;

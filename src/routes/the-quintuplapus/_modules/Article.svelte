@@ -9,6 +9,9 @@
   import Arrow from '$lib/arrow/Arrow.svelte';
   import FullScreen from './fullscreen/Fullscreen.svelte';
 
+  import { contextHeightKey, mqBreakPoint } from "$lib/spacing";
+	import { getContext } from "svelte";
+
   export let art: StrapiArt["data"][number];
   export let imageWidth: number;
   export let detailsWidth: number;
@@ -22,9 +25,8 @@
 
   export let paginateArtPiece: (n: number) => void;
   export let readMoreClick: (_: boolean) => void;
-  import { contextHeightKey, mqBreakPoint } from "$lib/spacing";
-	import { getContext } from "svelte";
 
+  
   let transitioning = false;
 
   let isBeforeNavigate = false;
@@ -34,6 +36,7 @@
 
   let needsOverflow = false;
   let detailsDiv: HTMLDivElement;
+
   const setOverflow = () => {
     if (isBeforeNavigate || !detailsDiv || windowWidth < mqBreakPoint) return;
     needsOverflow = detailsDiv.scrollHeight > detailsDiv.clientHeight;
@@ -45,13 +48,16 @@
   $: if(windowWidth) setOverflow();
 
   let windowHeight: number;
-  const { getHeaderHeight, getFooterHeight } = getContext(contextHeightKey);
+  
+  const { getHeaderHeight, getFooterHeight }: {
+    getHeaderHeight: () => number, 
+    getFooterHeight: () => number
+  } = getContext(contextHeightKey);
 
 </script>
 
 <svelte:window bind:innerHeight={windowHeight} />
   <article style={`
-    --min-height: ${(windowHeight - getHeaderHeight() - getFooterHeight() -2.66 * rem) / rem}rem;
     --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem
   `}>
     <div class="wrap">

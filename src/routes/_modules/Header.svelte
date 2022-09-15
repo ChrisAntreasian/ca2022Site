@@ -89,9 +89,12 @@
 		height: 4rem;
 		position: absolute;
 	}
-	header {
+	header,
+	.header-bg {
 		width: 100%;
 		height: var(--header-height);
+	}
+	header {
 		display: flex;
 		flex-grow: 1;
 		justify-content: space-around;
@@ -100,8 +103,6 @@
 		z-index: 100;
 	}
 	.header-bg {
-		width: 100%;
-		height: var(--header-height);
 		max-width: none;
 		position: absolute;
 		border-bottom: var(--space-md) solid var(--p-dk);

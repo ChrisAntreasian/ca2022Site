@@ -9,7 +9,7 @@
 	import { afterNavigate } from '$app/navigation';
 
 	import { clientNavigate } from "$lib/history";
-	import { contextHeightKey, rem, mqBreakPoint } from "$lib/spacing";
+	import { contextHeightKey, rem, mqBreakPoint, type LayoutElemH } from "$lib/spacing";
 
 	import Article from "../_modules/Article.svelte"
 	import Nav from "../_modules/Nav.svelte"
@@ -17,7 +17,7 @@
 	
 	export let data: PageServerData;  
 
-	const { getHeaderHeight, getFooterHeight } = getContext(contextHeightKey);
+	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
 	
 	const extraHeight = 3.5 * rem;
 	const navHeight = 6 * rem;
@@ -32,6 +32,7 @@
 		const widgetH = window.outerHeight - footerHeight - headerHeight - extraHeight;
 		
 		gallarySectionHeight = Math.ceil((widgetH - navHeight - rem) / rem);
+	
 		document.documentElement.style.setProperty('--gallery-height', `${widgetH / rem}rem`);
 		document.documentElement.style.setProperty('--gallery-section-height', `${gallarySectionHeight}rem`);
 	}
@@ -40,6 +41,7 @@
 
 	afterUpdate(initGalary);
 	afterNavigate(initGalary);
+
 	$: if(windowWidth) initGalary();
 
 	const transitionDetails = {
@@ -67,10 +69,13 @@
 		length: data.artPieces.length,
 		position: 0
 	}
+	
 	export let expanded = false;
+
 	const setExpanded = (exp: boolean) => {
 		expanded = exp;
 	}
+
 	const changeSelected = (id: number) => {
 		if (windowWidth < mqBreakPoint) {
 			window.scrollTo({top: 0});

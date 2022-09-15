@@ -6,3 +6,5 @@ export const mqBreakPoint =  768;
 
 export const fromRem = (_: number) => _ * rem;
 export const toRem = (_: number) => _ / rem;
+
+export type LayoutElemH = { getHeaderHeight: () => number, getFooterHeight: () => number }; 

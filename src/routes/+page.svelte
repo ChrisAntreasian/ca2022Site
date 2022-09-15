@@ -3,13 +3,13 @@
 	import { s3Bucket } from '$lib/api';
 	import { safeImageString } from "$lib/image";	
   import { getContext } from "svelte";
-	import { contextHeightKey, rem } from "$lib/spacing";
+	import { contextHeightKey, rem, type LayoutElemH } from "$lib/spacing";
 	import Nav from "./_modules/Nav.svelte"
 	import type { PageServerData} from "./$types";
 
 	export let data: PageServerData;  
 
-	const { getHeaderHeight, getFooterHeight } = getContext(contextHeightKey);
+	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
   let windowHeight: number;
 </script>
 
