@@ -14,8 +14,8 @@ const pQ =  queryStr({
 });
 
 const mkMobileString = (_: string) => {
-	const derp = _.split(" ")
-	return `${derp[0].charAt(0)}. ${derp[1]}`
+	const a = _.split(" ")
+	return `${a[0].charAt(0)}. ${a[1]}`
 }
 
 export const load: LayoutServerLoad = async () => {

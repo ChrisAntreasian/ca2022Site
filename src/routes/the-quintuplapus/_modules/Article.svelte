@@ -28,12 +28,9 @@
 
   
   let transitioning = false;
-
   let isBeforeNavigate = false;
-
   let headlineHeight: number;
   let metaHeight: number;
-
   let needsOverflow = false;
   let detailsDiv: HTMLDivElement;
 
@@ -49,7 +46,7 @@
 
   let windowHeight: number;
   
-  const { getHeaderHeight, getFooterHeight }: {
+  const { getHeaderHeight }: {
     getHeaderHeight: () => number, 
     getFooterHeight: () => number
   } = getContext(contextHeightKey);
