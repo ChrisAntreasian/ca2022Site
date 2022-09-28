@@ -8,6 +8,8 @@
 	export let data: PageServerData;
 	
 	const clientNavigateS = clientNavigate(true);
+	
+	// needs analytics
 	const setPoem = (id: number) => (e: Event) => {
 		e.preventDefault();
 		data.poem = data.poems.data.filter(_ => _.id === id)[0];

@@ -6,6 +6,7 @@
   import type { StrapiPageDetails } from "$lib/types";
 
 	export let links: StrapiPageDetails;
+	// a tags need analytics
 </script>
 
 	<nav class="subnav-list">

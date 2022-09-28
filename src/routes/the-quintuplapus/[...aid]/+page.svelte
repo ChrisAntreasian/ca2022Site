@@ -14,6 +14,7 @@
 	import Article from "../_modules/Article.svelte"
 	import Nav from "../_modules/Nav.svelte"
 	import type { PageServerData } from "./$types";
+	import { captureBehavior, captureDetails } from "$lib/api";
 	
 	export let data: PageServerData;  
 
@@ -71,7 +72,6 @@
 	}
 	
 	export let expanded = false;
-
 	const setExpanded = (exp: boolean) => {
 		expanded = exp;
 	}
@@ -86,15 +86,28 @@
 		setArtPiece(id);
 		paginationDetails.position = data.artPieces.findIndex(_ => _.id === data.artPiece.id);
 	}
-
+	
+	// needs analytics
 	const navArtPieceClick = (id: number) => (e: Event) => {
 		e.preventDefault();
 		if (id == data.artPiece.id) return;
+		captureBehavior(
+			"click thumbnail", 
+			captureDetails({ id: id, name: data.artPiece.attributes.title })
+		);
 		changeSelected(id);	
 	}
 
+	// needs analytics
 	const paginateArtPiece = (n: number) => {
 		const index = data.artPieces.findIndex(_ => _.id == data.artPiece.id);
+		captureBehavior(
+			"click paginate", 
+			captureDetails(
+				{ id: index + n, name: data.artPieces[index + n].attributes.title },
+				{ direction: n > 0 ? "next" : "last" }
+			)
+		);
 		changeSelected(data.artPieces[index + n].id);
 	}
 
@@ -103,6 +116,12 @@
 		imageWidth.set(d.img);
 		detailsWidth.set(d.details);
     showMore = _;
+		captureBehavior(
+			"click readmore", 
+			captureDetails(
+				{ id: data.artPiece.id, name: data.artPiece.attributes.title },
+			)
+		);
   }
 
 </script>

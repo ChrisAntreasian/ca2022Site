@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	
 	export let footerHeight: number;
+	// needs analytics
 </script>
 
 <footer bind:clientHeight={footerHeight}>

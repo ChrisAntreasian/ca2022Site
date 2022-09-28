@@ -23,6 +23,8 @@
 	}
 
 	$: headlineBit =  !($page.url.pathname in headlinesDict) ? "" : `${headlinesDict[$page.url.pathname]}`;
+	
+	// needs analytics
 	const resetMenu = () => { toggleMenuActive = false }
 
 	let windowWidth: number;

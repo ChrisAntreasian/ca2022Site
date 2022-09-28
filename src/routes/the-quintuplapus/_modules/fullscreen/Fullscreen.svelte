@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { s3Bucket } from '$lib/api';
+	import { captureBehavior, captureDetails, s3Bucket } from '$lib/api';
 
   import type { StrapiArt } from "$lib/types";
 
@@ -15,13 +15,17 @@
   let imageHeight = 0;
 
   const transitionConfig = {duration: 400};
-
+  const mkCaptureDetails =captureDetails({ id: img.id, name: img.attributes.title });
   const open = () => {
+    captureBehavior("click open fullscreen", mkCaptureDetails );
     imageHeight = (window.innerHeight - (2 * rem)) / rem;
     displayBg = displayImg = true;
   }
-  const close = () => displayBg = displayImg = false;
-  
+  const close = () => {
+    captureBehavior("click close fullscreen",  mkCaptureDetails);
+    displayBg = displayImg = false
+  };
+
 </script>
 
 <div on:click={open} class="btn" >
