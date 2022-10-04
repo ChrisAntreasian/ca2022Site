@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { captureBehavior, captureDetails, s3Bucket } from '$lib/api';
+	import { captureBehavior, captureDetails } from '$lib/api';
 
   import type { StrapiArt } from "$lib/types";
 
@@ -40,7 +40,7 @@
 {#if displayImg}
   <div class="wrap" transition:scale={transitionConfig}>
     <div on:click={close} class="btn close" >x</div>
-    <img style={`height: ${imageHeight}rem;`} src={`${s3Bucket}${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.alternativeText} />
+    <img style={`height: ${imageHeight}rem;`} src={`${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.alternativeText} />
   </div>
 {/if}
 

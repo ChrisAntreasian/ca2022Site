@@ -1,6 +1,5 @@
 <script lang="ts">
 
-	import { s3Bucket } from '$lib/api';
 	import { safeImageString } from "$lib/image";	
   import { getContext } from "svelte";
 	import { contextHeightKey, rem, type LayoutElemH } from "$lib/spacing";
@@ -30,7 +29,7 @@
 				</div>
 				{#if sec.attributes.image}
 					<img 
-						src={`${s3Bucket}${safeImageString("original")(sec.attributes.image)}`} 
+						src={`${safeImageString("original")(sec.attributes.image)}`} 
 						alt={sec.attributes.title} 
 					/>
 				{/if}

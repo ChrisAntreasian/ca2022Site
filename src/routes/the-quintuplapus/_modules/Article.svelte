@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { s3Bucket } from '$lib/api';
   import type { StrapiArt } from "$lib/types";  
   import { afterNavigate, beforeNavigate } from '$app/navigation';
   import { fade } from "svelte/transition";
@@ -74,7 +73,7 @@
         >
           <div class="image" style={`width: ${imageWidth}%`}>
             <img 
-              src={`${s3Bucket}${art.attributes.image.data.attributes.url}`} 
+              src={`${art.attributes.image.data.attributes.url}`} 
               alt={art.attributes.description} 
             />
             <FullScreen img={art} />

@@ -43,7 +43,7 @@
   "dependencies": {
     "@fontsource/fira-mono": "^4.5.0",
     "@lukeed/uuid": "^2.0.0",
-    "cookie": "^0.4.1",
+    "cookie": "^0.4.2",
     "hamburgers": "^1.2.1",
     "mixpanel": "^0.17.0",
     "qs": "^6.10.3",

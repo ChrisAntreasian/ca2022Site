@@ -9,7 +9,6 @@ type QuryProps = {
 } 
 
 export const baseApi = import.meta.env.VITE_BASE_API;
-export const s3Bucket = import.meta.env.VITE_S3_BUCKET;
 
 export const queryStr = (_: QuryProps) => qs.stringify(_, { encodeValuesOnly: true });
 
@@ -48,7 +47,7 @@ export const captureDetails = (
 });
 
 export const captureBehavior = async (eKey: string, props: any) => {
-	await fetch('/api/mixpanel', {
+	await fetch('/api/mixpanel/collect', {
 		method: 'POST',
 		body: JSON.stringify({ eKey, props }),
 		headers: {

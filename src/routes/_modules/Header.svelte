@@ -2,8 +2,6 @@
 <script lang="ts">
 	import 'hamburgers/dist/hamburgers.css';
 
-	import { s3Bucket } from '$lib/api';
-
 	import type { StrapiImageData } from "$lib/types";
 	import { page } from "$app/stores";
 	import { fade } from "svelte/transition";
@@ -41,7 +39,7 @@
 		</div>
 		<figure>
 			<img 
-				src={`${s3Bucket}${safeImageString("thumbnail")(logo)}`} 
+				src={`s${safeImageString("thumbnail")(logo)}`} 
 				alt={title} 
 			/>
 		</figure>
