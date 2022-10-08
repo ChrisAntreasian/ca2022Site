@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { s3Bucket } from '$lib/api';
 
   import { afterUpdate } from "svelte";
 	import { afterNavigate } from '$app/navigation';
@@ -73,7 +72,7 @@
           --nav-offset: ${toRem(activeItemIndex * thubmnailWidth) * -1}rem;
         `}
       >
-        {#each artPieces as _, i}
+        {#each artPieces as _}
           <li class:active={_.id === artPiece.id}>
             <a
               on:click={navArtPieceClick(_.id)}
@@ -81,7 +80,7 @@
               class:active="{_.id === artPiece.id}" 
             >
               <img 
-                src={`${s3Bucket}${_.attributes.image.data.attributes.formats.thumbnail.url}`} 
+                src={`${_.attributes.image.data.attributes.formats.thumbnail.url}`} 
                 alt={_.attributes.description} 
               />
             </a>
