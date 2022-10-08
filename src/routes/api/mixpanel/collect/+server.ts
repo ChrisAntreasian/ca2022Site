@@ -1,6 +1,6 @@
 import * as mixpanel from "mixpanel";
 
-var mxpInst = mixpanel.init("2ddda4b2dad575ea21a3f79baaba7bfd");
+const mxpInst = mixpanel.init(import.meta.env.VITE_MIXPANEL_PROJECT_TOKEN);
 
 export async function POST({ request }) {
   const { eKey, props }: { eKey: string, props: any } = await request.json();
