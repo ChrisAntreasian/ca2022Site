@@ -35,23 +35,3 @@ export const handleGetResponse = async (response: Response) => {
 		}
 	});
 }
-
-export const captureDetails = (
-	{ id, name }: { id:number, name: string }, 
-	d: Record<string, string> = {}
-) => ({
-	...d,
-	page: "The Quintuplapus",
-	resourceId: id,
-	resourceName: name
-});
-
-export const captureBehavior = async (eKey: string, props: any) => {
-	await fetch('/api/mixpanel/collect', {
-		method: 'POST',
-		body: JSON.stringify({ eKey, props }),
-		headers: {
-			'content-type': 'application/json'
-		}
-	});
-}

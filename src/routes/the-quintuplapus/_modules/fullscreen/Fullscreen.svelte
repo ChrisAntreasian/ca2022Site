@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { captureBehavior, captureDetails } from '$lib/api';
 
   import type { StrapiArt } from "$lib/types";
 
@@ -7,15 +6,19 @@
 
   import fullscreen from "./fullscreen.svg"
   import { rem } from "$lib/spacing";
+	import { captureDetails, contextAnalyticsKey, type AnalyticsContext } from "$lib/analytics";
+	import { getContext } from "svelte";
 
   export let img: StrapiArt["data"][number];
+
+	const { captureBehavior }: AnalyticsContext = getContext(contextAnalyticsKey);
 
   let displayBg = false;
   let displayImg = false
   let imageHeight = 0;
 
   const transitionConfig = {duration: 400};
-  const mkCaptureDetails =captureDetails({ id: img.id, name: img.attributes.title });
+  const mkCaptureDetails = captureDetails({ id: img.id, name: img.attributes.title });
   const open = () => {
     captureBehavior("click open fullscreen", mkCaptureDetails );
     imageHeight = (window.innerHeight - (2 * rem)) / rem;

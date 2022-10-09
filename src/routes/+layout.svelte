@@ -1,6 +1,7 @@
 
 <script lang="ts">	
 	import '../app.css';
+	import { page } from "$app/stores";
 
 	import { setContext } from "svelte";
 	import { contextHeightKey } from '$lib/spacing';
@@ -9,16 +10,24 @@
 	import Footer from './_modules/Footer.svelte';
 
 	import type { LayoutServerData } from "./$types";
+	import { browser } from '$app/environment';
+	import { captureBehavior, contextAnalyticsKey } from '$lib/analytics';
 
 	export let headerHeight: number;
 	export let footerHeight: number;
 	export let data: LayoutServerData;
-	
+
 	setContext(
 		contextHeightKey,
 		{ 
 			getHeaderHeight: () => headerHeight, 
 			getFooterHeight: () => footerHeight
+		}
+	)
+	$:setContext(
+		contextAnalyticsKey,
+		{
+			captureBehavior: captureBehavior(window.navigator.userAgent)($page.url.pathname)
 		}
 	)
 </script>
