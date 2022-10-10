@@ -8,6 +8,7 @@
   import { wrapperWidth, rem, toRem, fromRem } from "$lib/spacing";
 
   import Arrow from "$lib/arrow/Arrow.svelte"
+	import { captureBehavior } from "$lib/analytics";
 
   export let artPieces: StrapiArt["data"]
 	export let artPiece: StrapiArt["data"][number];
@@ -19,9 +20,9 @@
   export let categoryTitle: string;
 
   const thubmnailWidth = fromRem(6);
-  
   let subnavWidth: number;
   let itemsPerPage = 0;
+
   const initNav = () => {
     itemsPerPage = Math.floor(
       (subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem)
@@ -30,20 +31,41 @@
 
   afterUpdate(initNav);
 	afterNavigate(initNav);
-
 	$: if(subnavWidth) initNav();
 
+  let windowHeight: number;
+  let windowWidth: number;
+  $: navHeight = windowHeight * 0.72;
+
   let activeItemIndex = 0;
+  let scrollLogged = false;
+
   const paginate = (n: number) => { 
     const aii = activeItemIndex + (n * (itemsPerPage - 1))
     activeItemIndex = aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
+    captureBehavior(
+			`click slider ${n > 0 ? "next" : "last"}`, 
+			{
+        activeIndex: activeItemIndex,
+        itemsPerPage: itemsPerPage
+      }
+		);
   };
-
-  let windowHeight: number;
-  $: navHeight = windowHeight * 0.72;
-
-  let windowWidth: number;
-
+  const handleNavArtPieceClick = (id: number) => {
+    navArtPieceClick(id);
+    scrollLogged = false;
+  }
+  const handleMNavClick = () => {
+    setExpanded(!expanded)
+    captureBehavior("click expand mobile nav", {expanded: expanded});
+    scrollLogged = false
+  }
+  const scrollMNav = () => {
+    if (!scrollLogged) {
+      captureBehavior("scroll mobile nav");
+      scrollLogged = true;
+    }
+  }
 </script>
 
 <svelte:window 
@@ -53,7 +75,7 @@
 
   <nav class="bnav subnav" bind:clientWidth={subnavWidth} style={`--window-width: ${windowWidth / rem}rem`}>  
     <div class="subnav-wrap">
-    <div class="subnav-handle" on:click={() => setExpanded(!expanded)}>
+    <div class="subnav-handle" on:click={handleMNavClick}>
       <h3>{expanded ? categoryTitle: artPiece.attributes.title}</h3>
       <div class="subnav-icon">
         <Arrow direction={expanded ? "bottom": "top"} color="white" size="medium" />
@@ -66,6 +88,7 @@
     {/if}
     <div class="subnav-content">
       <ul 
+        on:scroll={scrollMNav}
         class:expanded={expanded} 
         style={`
           --nav-height: ${toRem(navHeight)}rem;
@@ -75,7 +98,7 @@
         {#each artPieces as _}
           <li class:active={_.id === artPiece.id}>
             <a
-              on:click={navArtPieceClick(_.id)}
+              on:click={() => handleNavArtPieceClick(_.id)}
               href="{`/the-quintuplapus/${_.id}/${cleanUrlSlug(_.attributes.title)}`}"
               class:active="{_.id === artPiece.id}" 
             >

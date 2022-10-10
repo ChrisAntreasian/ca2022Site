@@ -1,12 +1,15 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from "$app/stores";
+	import mixpanel from "mixpanel-browser";
 	
 	export let footerHeight: number;
-	// needs analytics
+	
+	mixpanel.track_links(".footer-wrap a", "click footer link");
+	
 </script>
 
 <footer bind:clientHeight={footerHeight}>
-	<div class="wrap">
+	<div class="footer-wrap">
 		<nav>
 			<ul>
 				<li class:active={$page.url.pathname === '/'}><a sveltekit:prefetch href="/">Home</a></li>
@@ -33,7 +36,7 @@
 		background-image: linear-gradient(var(--o-md) 75%, var(--o-dk));
 		border-top: 0.5rem solid var(--b-dk);
 	}
-	.wrap {
+	.footer-wrap {
 		max-width: var(--wrapper-width);
 		display: flex;
 		justify-content: space-between;

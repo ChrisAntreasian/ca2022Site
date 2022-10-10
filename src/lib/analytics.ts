@@ -11,15 +11,7 @@ export const captureDetails = (
 	resourceName: name
 });
 
-export const captureBehavior = async (eKey: string, props: any) => {
+export const captureBehavior = async (eKey: string, props?: any) => {
 	const details: Record<string, any> = {...props};
   mixpanel.track(eKey, details);
-  // console.log(details);
-	// await fetch('/api/mixpanel/collect', {
-	// 	method: 'POST',
-	// 	body: JSON.stringify({ eKey,  details } ),
-	// 	headers: {
-	// 		'content-type': 'application/json'
-	// 	}
-	// });
 }

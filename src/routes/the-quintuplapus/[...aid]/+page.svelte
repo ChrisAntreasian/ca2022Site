@@ -91,16 +91,17 @@
 	const navArtPieceClick = (id: number) => (e: Event) => {
 		e.preventDefault();
 		if (id == data.artPiece.id) return;
+		changeSelected(id);	
 		captureBehavior(
 			"click thumbnail", 
 			captureDetails({ id: id, name: data.artPiece.attributes.title })
 		);
-		changeSelected(id);	
 	}
 
 	// needs analytics
 	const paginateArtPiece = (n: number) => {
 		const index = data.artPieces.findIndex(_ => _.id == data.artPiece.id);
+		changeSelected(data.artPieces[index + n].id);
 		captureBehavior(
 			"click paginate", 
 			captureDetails(
@@ -108,7 +109,6 @@
 				{ direction: n > 0 ? "next" : "last" }
 			)
 		);
-		changeSelected(data.artPieces[index + n].id);
 	}
 
 	const readMoreClick = (_: boolean) => {

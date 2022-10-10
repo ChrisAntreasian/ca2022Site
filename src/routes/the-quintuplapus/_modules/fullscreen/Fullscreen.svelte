@@ -18,13 +18,13 @@
   const transitionConfig = {duration: 400};
   const mkCaptureDetails = captureDetails({ id: img.id, name: img.attributes.title });
   const open = () => {
-    captureBehavior("click open fullscreen", mkCaptureDetails );
     imageHeight = (window.innerHeight - (2 * rem)) / rem;
     displayBg = displayImg = true;
+    captureBehavior("click open fullscreen", mkCaptureDetails );
   }
   const close = () => {
-    captureBehavior("click close fullscreen",  mkCaptureDetails);
     displayBg = displayImg = false
+    captureBehavior("click close fullscreen",  mkCaptureDetails);
   };
 
 </script>

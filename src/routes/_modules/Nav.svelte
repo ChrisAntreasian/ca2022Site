@@ -3,9 +3,13 @@
 	import { cleanUrlSlug } from "$lib/history";
 	import { safeImageString } from "$lib/image";	
   import type { StrapiPageDetails } from "$lib/types";
-
+	import * as mixpanel from "mixpanel-browser";
+	
 	export let links: StrapiPageDetails;
-	// a tags need analytics
+
+	mixpanel.track_links(".q a", "click quintuplapus home link");
+	mixpanel.track_links(".p h2 a", "click poems home link");
+	mixpanel.track_links(".p ul a", "click favorite poem home link");
 </script>
 
 	<nav class="subnav-list">
