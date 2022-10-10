@@ -14,12 +14,11 @@
 	import Article from "../_modules/Article.svelte"
 	import Nav from "../_modules/Nav.svelte"
 	import type { PageServerData } from "./$types";
-	import { captureDetails, contextAnalyticsKey, type AnalyticsContext } from "$lib/analytics";
+	import { captureDetails, captureBehavior } from "$lib/analytics";
 	
 	export let data: PageServerData;  
 
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
-	const { captureBehavior }: AnalyticsContext = getContext(contextAnalyticsKey);
 
 	const extraHeight = 3.5 * rem;
 	const navHeight = 6 * rem;

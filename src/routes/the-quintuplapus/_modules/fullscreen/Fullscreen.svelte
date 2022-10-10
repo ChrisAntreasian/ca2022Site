@@ -6,12 +6,10 @@
 
   import fullscreen from "./fullscreen.svg"
   import { rem } from "$lib/spacing";
-	import { captureDetails, contextAnalyticsKey, type AnalyticsContext } from "$lib/analytics";
-	import { getContext } from "svelte";
+	import { captureDetails, captureBehavior } from "$lib/analytics";
 
   export let img: StrapiArt["data"][number];
 
-	const { captureBehavior }: AnalyticsContext = getContext(contextAnalyticsKey);
 
   let displayBg = false;
   let displayImg = false
