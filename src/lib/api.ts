@@ -9,11 +9,10 @@ type QuryProps = {
 } 
 
 export const baseApi = import.meta.env.VITE_BASE_API;
-export const s3Bucket = import.meta.env.VITE_S3_BUCKET;
 
 export const queryStr = (_: QuryProps) => qs.stringify(_, { encodeValuesOnly: true });
 
-export const  api = async (method: "GET" | "POST", resource: string, data?: Record<string, unknown>) => {
+export const mkRequest = async (method: "GET" | "POST", resource: string, data?: Record<string, unknown>) => {
 	const d = await fetch(`${baseApi}/api/${resource}`, {
 		method,
 		headers: {

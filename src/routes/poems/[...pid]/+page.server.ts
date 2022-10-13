@@ -2,12 +2,11 @@ import type { Poem, StrapiPoem, WithId } from '$lib/types';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-import { api, handleGetResponse } from '$lib/api';
+import { mkRequest, handleGetResponse } from '$lib/api';
 
 export const load: PageServerLoad = async ({ params }) => {
-	const response = await api("GET", `poems`);
+	const response = await mkRequest("GET", `poems`);
 	const res = await handleGetResponse(response);
-
 	if (res.ok) {
 		const pid = parseInt(params.pid) || 5;
 		const poems: StrapiPoem = await res.json();

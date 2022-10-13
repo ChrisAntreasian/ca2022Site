@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { s3Bucket } from '$lib/api';
 
   import type { StrapiArt } from "$lib/types";
 
@@ -7,21 +6,27 @@
 
   import fullscreen from "./fullscreen.svg"
   import { rem } from "$lib/spacing";
+	import { captureDetails, captureBehavior } from "$lib/analytics";
 
   export let img: StrapiArt["data"][number];
+
 
   let displayBg = false;
   let displayImg = false
   let imageHeight = 0;
 
   const transitionConfig = {duration: 400};
-
+  const mkCaptureDetails = captureDetails({ id: img.id, name: img.attributes.title });
   const open = () => {
     imageHeight = (window.innerHeight - (2 * rem)) / rem;
     displayBg = displayImg = true;
+    captureBehavior("click open fullscreen", mkCaptureDetails );
   }
-  const close = () => displayBg = displayImg = false;
-  
+  const close = () => {
+    displayBg = displayImg = false
+    captureBehavior("click close fullscreen",  mkCaptureDetails);
+  };
+
 </script>
 
 <div on:click={open} class="btn" >
@@ -36,7 +41,7 @@
 {#if displayImg}
   <div class="wrap" transition:scale={transitionConfig}>
     <div on:click={close} class="btn close" >x</div>
-    <img style={`height: ${imageHeight}rem;`} src={`${s3Bucket}${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.alternativeText} />
+    <img style={`height: ${imageHeight}rem;`} src={`${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.alternativeText} />
   </div>
 {/if}
 

@@ -1,13 +1,13 @@
 
 <script lang="ts">
-	import 'hamburgers/dist/hamburgers.css';
-
-	import { s3Bucket } from '$lib/api';
+	import "hamburgers/dist/hamburgers.css";
+	import mixpanel from "mixpanel-browser";
 
 	import type { StrapiImageData } from "$lib/types";
 	import { page } from "$app/stores";
 	import { fade } from "svelte/transition";
-	import { safeImageString } from '$lib/image';
+	import { safeImageString } from "$lib/image";
+	import { captureBehavior } from "$lib/analytics";
 	
 	export let logo: StrapiImageData;
 	export let title: string;
@@ -23,10 +23,23 @@
 	}
 
 	$: headlineBit =  !($page.url.pathname in headlinesDict) ? "" : `${headlinesDict[$page.url.pathname]}`;
+	
 	const resetMenu = () => { toggleMenuActive = false }
 
 	let windowWidth: number;
 	
+	const headlineClick = () => {
+		resetMenu();
+		captureBehavior("click header headline");
+	}
+	
+	const logoClick = () => {
+		resetMenu();
+		captureBehavior("click header logo");
+	}
+
+	mixpanel.track_links(".header-links a", "click header link");
+
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
@@ -35,13 +48,17 @@
 	<div class="header-bg"></div>
 	<div class="header-wrap">
 		<div class="header-title">
-			<h1><span class="desktop-title">{title}</span><span class="mobile-title">{mobileTitle}</span>{headlineBit}</h1>
+			<a on:click={headlineClick} sveltekit:prefetch href="/">
+				<h1><span class="desktop-title">{title}</span><span class="mobile-title">{mobileTitle}</span>{headlineBit}</h1>
+			</a>
 		</div>
 		<figure>
-			<img 
-				src={`${s3Bucket}${safeImageString("thumbnail")(logo)}`} 
-				alt={title} 
-			/>
+			<a on:click={logoClick} sveltekit:prefetch href="/">
+				<img 
+					src={`${safeImageString("thumbnail")(logo)}`} 
+					alt={title} 
+				/>
+			</a>
 		</figure>
 		<nav class:is-active={toggleMenuActive}>
 			{#if toggleMenuActive}
@@ -51,7 +68,7 @@
 					transition:fade={{duration: 200}} 
 				/>
 			{/if}
-			<ul>
+			<ul class="header-links">
 				<li class:active={$page.url.pathname === "/"}>
 					<a on:click={resetMenu} sveltekit:prefetch href="/">Home</a>
 				</li>

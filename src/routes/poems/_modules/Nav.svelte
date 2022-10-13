@@ -5,6 +5,8 @@
 
   import type { StrapiPoem} from "$lib/types";
 	import { cleanUrlSlug } from "$lib/history";
+	import { toRem } from "$lib/spacing";
+	import { captureBehavior, captureDetails } from "$lib/analytics";
 
 	export let poems: StrapiPoem;
 	export let poem: StrapiPoem["data"][number];
@@ -12,30 +14,47 @@
 
 	let expanded = false;
 	let windowHeight: number;
+  let scrollLogged = false;
 
 	$: navHeight = windowHeight * 0.72;
-	
+	const handleLinkClick = (_: StrapiPoem["data"][number]) => {
+		if (_.id == poem.id) return;
+		setPoem(_.id);
+		expanded = false;
+		captureBehavior("click poem", captureDetails({ id: _.id, name: _.attributes.title }));
+		scrollLogged = false;
+	}
+
+	const handleMNavHandle = () => {
+    expanded = !expanded
+    captureBehavior("click expand mobile nav", {expanded: expanded});
+		scrollLogged = false;
+  }
+
+	const scrollMNav = () => {
+    if (!scrollLogged) {
+      captureBehavior("scroll mobile nav");
+      scrollLogged = true;
+    }
+  }
 </script>
 	
 <svelte:window bind:innerHeight={windowHeight} />
 
 <nav class="bnav bnav-aside subnav">
 	<div class="subnav-wrap">
-		<div class="subnav-handle" on:click={() => { expanded = !expanded }}>
+		<div class="subnav-handle" on:click={handleMNavHandle}>
 			<h3>{expanded ? "poetry" : poem.attributes.title}</h3>
 			<div class="subnav-action">
 				<Arrow direction={expanded ? "bottom": "top"} color="white" size="medium" />
 			</div>
 		</div>
-		<ul class:expanded={expanded} style="--nav-height: {navHeight}px">
+		<ul on:scroll={scrollMNav} class:expanded={expanded} style="--nav-height: {toRem(navHeight)}rem">
 			{#each poems.data as _ (_.id)}
 				<li class:active={_.id === poem.id}>
-					<a on:click={() => {
-							if (_.id == poem.id) return;
-							setPoem(_.id);
-							expanded = false;
-						}} 
+					<a 
 						href={`/poems/${_.id}/${cleanUrlSlug(_.attributes.title)}`}
+						on:click={() => handleLinkClick(_)}
 					>
 						{_.attributes.title}
 					</a>

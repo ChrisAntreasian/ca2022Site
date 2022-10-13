@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import type { StrapiArtCategory } from "../../../lib/types";
 import * as qs from "qs";
-import { api, handleGetResponse } from '$lib/api';
+import { mkRequest, handleGetResponse } from '$lib/api';
 
 const q = qs.stringify({
 	filters: {
@@ -18,7 +18,7 @@ const q = qs.stringify({
 });
 
 export const load: PageServerLoad = async ({ params }) => {
-	const response = await api("GET", `art-categories?${q}`);
+	const response = await mkRequest("GET", `art-categories?${q}`);
 	const res = await handleGetResponse(response);
 
 	// const res = await fetch('/the-quintuplapus.json');

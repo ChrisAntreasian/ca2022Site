@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { s3Bucket } from '$lib/api';
   import type { StrapiArt } from "$lib/types";  
   import { afterNavigate, beforeNavigate } from '$app/navigation';
   import { fade } from "svelte/transition";
@@ -28,12 +27,9 @@
 
   
   let transitioning = false;
-
   let isBeforeNavigate = false;
-
   let headlineHeight: number;
   let metaHeight: number;
-
   let needsOverflow = false;
   let detailsDiv: HTMLDivElement;
 
@@ -49,7 +45,7 @@
 
   let windowHeight: number;
   
-  const { getHeaderHeight, getFooterHeight }: {
+  const { getHeaderHeight }: {
     getHeaderHeight: () => number, 
     getFooterHeight: () => number
   } = getContext(contextHeightKey);
@@ -77,7 +73,7 @@
         >
           <div class="image" style={`width: ${imageWidth}%`}>
             <img 
-              src={`${s3Bucket}${art.attributes.image.data.attributes.url}`} 
+              src={`${art.attributes.image.data.attributes.url}`} 
               alt={art.attributes.description} 
             />
             <FullScreen img={art} />

@@ -102,7 +102,7 @@ type ArtCategory = StrapiBase & {
 	omit: StrapiDataArr<{ title: string, description: string }>,
 };
 
-export type StrapiPage = StrapiDataArr<
+export type StrapiPage = StrapiData<
 	StrapiBase & {
 		title: string,
 		art_pieces: StrapiArt;
@@ -115,6 +115,5 @@ export type StrapiPageDetails = StrapiDataArr<PageDetails>["data"];
 
 type StrapiApiResp<A> = StrapiDataArr<A> & StrapiMeta;
 
-export type StrapiPage = StrapiApiResp<Page>
 export type StrapiPoem = StrapiApiResp<Poem>;
 export type StrapiArtCategory = StrapiApiResp<ArtCategory>;

@@ -14,11 +14,12 @@
 	import Article from "../_modules/Article.svelte"
 	import Nav from "../_modules/Nav.svelte"
 	import type { PageServerData } from "./$types";
+	import { captureDetails, captureBehavior } from "$lib/analytics";
 	
 	export let data: PageServerData;  
 
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
-	
+
 	const extraHeight = 3.5 * rem;
 	const navHeight = 6 * rem;
 
@@ -71,7 +72,6 @@
 	}
 	
 	export let expanded = false;
-
 	const setExpanded = (exp: boolean) => {
 		expanded = exp;
 	}
@@ -86,16 +86,29 @@
 		setArtPiece(id);
 		paginationDetails.position = data.artPieces.findIndex(_ => _.id === data.artPiece.id);
 	}
-
+	
+	// needs analytics
 	const navArtPieceClick = (id: number) => (e: Event) => {
 		e.preventDefault();
 		if (id == data.artPiece.id) return;
 		changeSelected(id);	
+		captureBehavior(
+			"click thumbnail", 
+			captureDetails({ id: id, name: data.artPiece.attributes.title })
+		);
 	}
 
+	// needs analytics
 	const paginateArtPiece = (n: number) => {
 		const index = data.artPieces.findIndex(_ => _.id == data.artPiece.id);
 		changeSelected(data.artPieces[index + n].id);
+		captureBehavior(
+			"click paginate", 
+			captureDetails(
+				{ id: index + n, name: data.artPieces[index + n].attributes.title },
+				{ direction: n > 0 ? "next" : "last" }
+			)
+		);
 	}
 
 	const readMoreClick = (_: boolean) => {
@@ -103,6 +116,12 @@
 		imageWidth.set(d.img);
 		detailsWidth.set(d.details);
     showMore = _;
+		captureBehavior(
+			"click readmore", 
+			captureDetails(
+				{ id: data.artPiece.id, name: data.artPiece.attributes.title },
+			)
+		);
   }
 
 </script>

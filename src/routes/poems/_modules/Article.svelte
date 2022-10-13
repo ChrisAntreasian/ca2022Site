@@ -5,7 +5,7 @@
 	import SvelteMarkdown from 'svelte-markdown'
 
   import type { StrapiPoem } from "$lib/types";
-	import { contextHeightKey, rem } from "$lib/spacing";
+	import { contextHeightKey, rem, type LayoutElemH } from "$lib/spacing";
 	import { getContext } from "svelte";
 
 	export let poem: StrapiPoem["data"][number];
@@ -13,7 +13,7 @@
 	let fadeOut = false;
 	let windowHeight: number;
 
-	const { getHeaderHeight } = getContext(contextHeightKey);
+	const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
 
 </script>
 

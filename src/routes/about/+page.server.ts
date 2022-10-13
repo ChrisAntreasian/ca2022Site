@@ -2,7 +2,7 @@
 import type { PageServerLoad } from './$types';
 import type { StrapiPage } from "$lib/types";
 import { error } from '@sveltejs/kit';
-import { api, handleGetResponse, queryStr } from "$lib/api";
+import { mkRequest, handleGetResponse, queryStr } from "$lib/api";
 
 const pQ =  queryStr({ 
   filters: { id: { $in: 2 } },
@@ -19,7 +19,7 @@ const pQ =  queryStr({
 });
 
 export const load: PageServerLoad = async () => {
-	const response = await api("GET", `pages?${pQ}`);
+	const response = await mkRequest("GET", `pages?${pQ}`);
 	const res = await handleGetResponse(response);
 
 	if (res.ok) {
