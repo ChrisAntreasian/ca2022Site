@@ -1,7 +1,6 @@
 
 <script lang="ts">
 	import "hamburgers/dist/hamburgers.css";
-	import mixpanel from "mixpanel-browser";
 
 	import type { StrapiImageData } from "$lib/types";
 	import { page } from "$app/stores";
@@ -38,7 +37,10 @@
 		captureBehavior("click header logo");
 	}
 
-	mixpanel.track_links(".header-links a", "click header link");
+	const clickNav = (_: string) => {
+		resetMenu();
+		captureBehavior(`click header nav ${_}`);
+	}
 
 </script>
 
@@ -70,13 +72,13 @@
 			{/if}
 			<ul class="header-links">
 				<li class:active={$page.url.pathname === "/"}>
-					<a on:click={resetMenu} sveltekit:prefetch href="/">Home</a>
+					<a on:click={() => clickNav("Home")} sveltekit:prefetch href="/">Home</a>
 				</li>
 				<li class:active={$page.url.pathname === "the-quintuplapus"}>
-					<a on:click={resetMenu} sveltekit:prefetch href="/the-quintuplapus">The Quintuplapus</a>
+					<a on:click={() => clickNav("The Quintuplapus")} sveltekit:prefetch href="/the-quintuplapus">The Quintuplapus</a>
 				</li>
 				<li class:active={$page.url.pathname === "/poems"}>
-					<a on:click={resetMenu} sveltekit:prefetch href="/poems">Poems</a>
+					<a on:click={() => clickNav("Poems")} sveltekit:prefetch href="/poems">Poems</a>
 				</li>
 			</ul>
 		</nav>

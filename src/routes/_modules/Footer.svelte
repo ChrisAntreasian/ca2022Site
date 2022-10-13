@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { page } from "$app/stores";
-	import mixpanel from "mixpanel-browser";
+	import { captureClickThis } from "$lib/analytics";
 	
 	export let footerHeight: number;
-	
-	mixpanel.track_links(".footer-wrap a", "click footer link");
-	
+
+	const navClick = captureClickThis("footer nav");
+
 </script>
 
 <footer bind:clientHeight={footerHeight}>
 	<div class="footer-wrap">
 		<nav>
 			<ul>
-				<li class:active={$page.url.pathname === '/'}><a sveltekit:prefetch href="/">Home</a></li>
-				<li class:active={$page.url.pathname === '/the-quintuplapus'}><a sveltekit:prefetch href="/the-quintuplapus">The Quintuplapus</a></li>
-				<li class:active={$page.url.pathname === '/poems'}><a sveltekit:prefetch href="/poems">Poems</a></li>
+				<li on:click={() => navClick("Home")} class:active={$page.url.pathname === '/'}><a sveltekit:prefetch href="/">Home</a></li>
+				<li on:click={() => navClick("The Quintuplapus")} class:active={$page.url.pathname === '/the-quintuplapus'}><a sveltekit:prefetch href="/the-quintuplapus">The Quintuplapus</a></li>
+				<li on:click={() => navClick("Poems")} class:active={$page.url.pathname === '/poems'}><a sveltekit:prefetch href="/poems">Poems</a></li>
 			</ul>
 		</nav>
 		<div class="details">

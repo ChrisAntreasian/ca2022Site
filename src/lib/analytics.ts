@@ -15,3 +15,6 @@ export const captureBehavior = async (eKey: string, props?: any) => {
 	const details: Record<string, any> = {...props};
   mixpanel.track(eKey, details);
 }
+export const captureClickThis = (a: string) => (b: string) => {
+	captureBehavior(`click ${a} ${b}`);
+}

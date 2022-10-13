@@ -1,15 +1,14 @@
 
 <script lang="ts">
+	import { captureClickThis } from "$lib/analytics";
 	import { cleanUrlSlug } from "$lib/history";
 	import { safeImageString } from "$lib/image";	
   import type { StrapiPageDetails } from "$lib/types";
 	import * as mixpanel from "mixpanel-browser";
 	
 	export let links: StrapiPageDetails;
+	const navClick = captureClickThis("home section");
 
-	mixpanel.track_links(".q a", "click quintuplapus home link");
-	mixpanel.track_links(".p h2 a", "click poems home link");
-	mixpanel.track_links(".p ul a", "click favorite poem home link");
 </script>
 
 	<nav class="subnav-list">
@@ -18,7 +17,7 @@
 			<div class="rich-link p">
 				<div class="details">
 					<h2>
-						<a sveltekit:prefetch href={ni.attributes.link}>
+						<a on:click={() => navClick("Poems")} sveltekit:prefetch href={ni.attributes.link}>
 							{ni.attributes.title}
 						</a>
 					</h2>
@@ -29,7 +28,7 @@
 					<ul>
 						{#each ni.attributes.poems.data as _}
 							<li>
-								<a href={`poems/${_.id}/${cleanUrlSlug(_.attributes.title)}`}>
+								<a on:click={() => navClick(`poem ${_.attributes.title}`)} href={`poems/${_.id}/${cleanUrlSlug(_.attributes.title)}`}>
 									{_.attributes.title}
 								</a>
 							</li>
@@ -42,7 +41,7 @@
 			<div class="rich-link q">
 				<div>
 					<h2>
-						<a sveltekit:prefetch href={ni.attributes.link}>
+						<a on:click={() => navClick("The Quintuplapus")} sveltekit:prefetch href={ni.attributes.link}>
 							{ni.attributes.title}
 						</a>
 					</h2>
