@@ -5,15 +5,16 @@
 
   import type { StrapiArt} from "$lib/types";
 	import { cleanUrlSlug } from "$lib/history";
+  import { captureBehavior } from "$lib/analytics";
+
   import { wrapperWidth, rem, toRem, fromRem } from "$lib/spacing";
 
   import Arrow from "$lib/arrow/Arrow.svelte"
-	import { captureBehavior } from "$lib/analytics";
 
   export let artPieces: StrapiArt["data"]
 	export let artPiece: StrapiArt["data"][number];
 	export let navArtPieceClick: (_: number) => (e: Event) => void;
-	
+
   export let expanded: boolean;
   export let setExpanded: (_:boolean) => void;
 

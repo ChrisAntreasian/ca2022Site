@@ -55,7 +55,7 @@
 		<figure>
 			<a on:click={logoClick} sveltekit:prefetch href="/">
 				<img 
-					src={`s${safeImageString("thumbnail")(logo)}`} 
+					src={`${safeImageString("thumbnail")(logo)}`} 
 					alt={title} 
 				/>
 			</a>
