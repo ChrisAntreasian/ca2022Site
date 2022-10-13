@@ -87,7 +87,6 @@
 		paginationDetails.position = data.artPieces.findIndex(_ => _.id === data.artPiece.id);
 	}
 	
-	// needs analytics
 	const navArtPieceClick = (id: number) => (e: Event) => {
 		e.preventDefault();
 		if (id == data.artPiece.id) return;
@@ -98,7 +97,6 @@
 		);
 	}
 
-	// needs analytics
 	const paginateArtPiece = (n: number) => {
 		const index = data.artPieces.findIndex(_ => _.id == data.artPiece.id);
 		changeSelected(data.artPieces[index + n].id);
