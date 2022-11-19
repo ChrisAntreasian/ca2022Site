@@ -4,24 +4,11 @@ import { writeFs } from "$lib/file";
 
 import { handleGetResponse, mkRequest } from "$lib/api";
 
-import * as qs from "qs";
-import type { StrapiArtCategory } from '$lib/types';
+import type { StrapiPoem } from '$lib/types';
 
-const q = qs.stringify({
-	filters: {
-		id: { $in: 3 },
-	},
-  populate: [
-		"omit",
-		"featured",
-    "art_pieces",
-    "art_pieces.image",
-		"art_pieces.image.media",
-  ],
-});
 
-const fetchData = async () => {
-  const response = await mkRequest("GET", `art-categories?${q}`);
+export const fetchData = async () => {
+  const response = await mkRequest("GET", `poems`);
 	return await handleGetResponse(response);
 }
 
@@ -34,11 +21,11 @@ export const load: PageServerLoad = async ({ params }) => {
 
   const res = await fetchData();
   if (res.ok) {
-    const out: StrapiArtCategory = await res.json()
-    const data = await writeFs<StrapiArtCategory>("quintuplapus", out);
+    const out: StrapiPoem = await res.json()
+    const data = await writeFs<StrapiPoem>("poems", out);
 
     return {
-      title: "The Quintuplapus",
+      title: "Poems",
       data
     }; 
   }

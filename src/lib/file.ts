@@ -1,3 +1,4 @@
+import { error } from "@sveltejs/kit";
 import * as fs from "fs";
 
 const dataPath = './src/data';
@@ -14,10 +15,7 @@ export const writeFs = async<A>(fn: string, d: A) => {
     return out.data;
 
   } catch (err) {
-    console.log(err);
-  }
-}
+    throw error(500, "Failed to write the data.");
 
-export const readFs = async (fn: string) => {
-  // TODO
+  }
 }
