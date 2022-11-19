@@ -7,7 +7,7 @@
   <h3>{title} Built Successfully</h3>
   <pre> 
     <code>
-    {JSON.stringify(data, undefined, 2)}
+      {JSON.stringify(data, undefined, 2)}
     </code>
   </pre>
 </section>

@@ -2,7 +2,7 @@ import * as fs from "fs";
 
 const dataPath = './src/data';
 
-export const writeFs = async (fn: string, d: Record<string, any>) => {
+export const writeFs = async<A>(fn: string, d: A) => {
   try {
     const out = {
       name: fn,
