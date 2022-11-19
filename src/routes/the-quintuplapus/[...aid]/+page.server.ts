@@ -1,27 +1,11 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import type { StrapiArtCategory } from "../../../lib/types";
-import * as qs from "qs";
-import { mkRequest, handleGetResponse } from '$lib/api';
+import { fetchData } from '../_modules/api';
 
-const q = qs.stringify({
-	filters: {
-		id: { $in: 3 },
-	},
-  populate: [
-		"omit",
-		"featured",
-    "art_pieces",
-    "art_pieces.image",
-		"art_pieces.image.media",
-  ],
-});
 
 export const load: PageServerLoad = async ({ params }) => {
-	const response = await mkRequest("GET", `art-categories?${q}`);
-	const res = await handleGetResponse(response);
-
-	// const res = await fetch('/the-quintuplapus.json');
+	const res = await fetchData()
 	const aid = parseInt(params.aid) || 2;
 
 	if (res.ok) {
