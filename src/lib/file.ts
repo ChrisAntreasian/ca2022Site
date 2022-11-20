@@ -1,7 +1,7 @@
 import { error } from "@sveltejs/kit";
 import * as fs from "fs";
 
-const dataPath = 'src/data';
+const dataPath = 'src/assets/data';
 
 type DataFile<A> = {
   name: string,
