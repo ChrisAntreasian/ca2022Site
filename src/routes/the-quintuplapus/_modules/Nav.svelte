@@ -11,8 +11,8 @@
 
   import Arrow from "$lib/arrow/Arrow.svelte"
 
-  export let artPieces: StrapiArt["data"]
-	export let artPiece: StrapiArt["data"][number];
+  export let artPieces;
+	export let artPiece;
 	export let navArtPieceClick: (_: number) => (e: Event) => void;
 
   export let expanded: boolean;
