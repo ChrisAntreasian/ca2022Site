@@ -4,13 +4,8 @@ import path from "path";
 /** @type {import('vite').UserConfig} */
 const config = {
 	plugins: [
-		sveltekit(),	
+		sveltekit(),
 	],
-	resolve: {
-		alias: {
-			$data: path.resolve("./src/data")
-		}
-	}
 };
 
 export default config;

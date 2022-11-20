@@ -10,7 +10,6 @@
   <a sveltekit:prefetch href={rl.attributes.link}>
 		<h4>{rl.attributes.title.split(":")[0]}: </h4>
 		{#if rl.attributes.image}
-		{console.log(rl.attributes.image)}
 			<img 
 				src={`${rl.attributes.image.data.attributes.formats 
 					? rl.attributes.image.data.attributes.formats.small.url 
