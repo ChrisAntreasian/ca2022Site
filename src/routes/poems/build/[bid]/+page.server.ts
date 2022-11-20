@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from "./$types";
-import { writeFs } from "$lib/file";
+import { dataKey, writeFs } from "$lib/file";
 
 import { handleGetResponse, mkRequest } from "$lib/api";
 
@@ -14,7 +14,7 @@ export const fetchData = async () => {
 
 const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params,routeId }) => {
   if (params.bid !== VITE_BUILD_KEY || VITE_ENV !== "develop" ) {
     throw error(403, "Permission denied.");
   }
@@ -22,7 +22,7 @@ export const load: PageServerLoad = async ({ params }) => {
   const res = await fetchData();
   if (res.ok) {
     const out: StrapiPoem = await res.json()
-    const data = await writeFs<StrapiPoem>("poems", out);
+    const data = await writeFs<StrapiPoem>(dataKey(routeId), out);
 
     return {
       title: "Poems",

@@ -1,13 +1,11 @@
 import type { PageServerLoad } from './$types';
-import { readData } from '$lib/file';
+import { readData, dataKey } from '$lib/file';
 import type { StrapiArtCategory } from '$lib/types';
 
-
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, routeId }) => {
 	
 	const aid = parseInt(params.aid) || 2;
-	
-	const d = await readData<StrapiArtCategory>("quintuplapus");
+	const d = await readData<StrapiArtCategory>(dataKey(routeId));
 	const atttributes = d.data[0].attributes;
 
 	const omitIds = atttributes.omit.data.map(_ => _.id)

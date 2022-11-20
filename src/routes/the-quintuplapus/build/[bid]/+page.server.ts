@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from "./$types";
-import { writeFs } from "$lib/file";
+import { dataKey, writeFs } from "$lib/file";
 
 import { handleGetResponse, mkRequest } from "$lib/api";
 
@@ -27,7 +27,7 @@ const fetchData = async () => {
 
 const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, routeId, url }) => {
   if (params.bid !== VITE_BUILD_KEY || VITE_ENV !== "develop" ) {
     throw error(403, "Permission denied.");
   }
@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ params }) => {
   const res = await fetchData();
   if (res.ok) {
     const out: StrapiArtCategory = await res.json()
-    const data = await writeFs<StrapiArtCategory>("quintuplapus", out);
+    const data = await writeFs<StrapiArtCategory>(dataKey(routeId), out);
 
     return {
       title: "The Quintuplapus",

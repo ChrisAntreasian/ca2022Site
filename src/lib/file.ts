@@ -9,6 +9,8 @@ type DataFile<A> = {
   data: A
 }
 
+export const dataKey = (rid: string) => rid.split("/")[0];
+
 export const writeFs = async<A>(fn: string, d: A) => {
   try {
     const out: DataFile<A> = {
