@@ -11,7 +11,7 @@
   import { contextHeightKey, mqBreakPoint } from "$lib/spacing";
 	import { getContext } from "svelte";
 
-  export let art: StrapiArt["data"][number];
+  export let art;
   export let imageWidth: number;
   export let detailsWidth: number;
   export let showMore: boolean;

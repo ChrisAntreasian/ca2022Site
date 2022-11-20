@@ -1,47 +1,25 @@
-import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import type { StrapiArtCategory } from "../../../lib/types";
-import * as qs from "qs";
-import { mkRequest, handleGetResponse } from '$lib/api';
+import { readData, dataKey } from '$lib/file';
+import type { StrapiArtCategory } from '$lib/types';
 
-const q = qs.stringify({
-	filters: {
-		id: { $in: 3 },
-	},
-  populate: [
-		"omit",
-		"featured",
-    "art_pieces",
-    "art_pieces.image",
-		"art_pieces.image.media",
-  ],
-});
-
-export const load: PageServerLoad = async ({ params }) => {
-	const response = await mkRequest("GET", `art-categories?${q}`);
-	const res = await handleGetResponse(response);
-
-	// const res = await fetch('/the-quintuplapus.json');
+export const load: PageServerLoad = async ({ params, routeId }) => {
+	
 	const aid = parseInt(params.aid) || 2;
+	const d = await readData<StrapiArtCategory>(dataKey(routeId));
+	const atttributes = d.data[0].attributes;
 
-	if (res.ok) {
-		const resp: StrapiArtCategory = await res.json();
-		const omitIds = resp.data[0].attributes.omit.data.map(_ => _.id)
-		
-		let artPieces = resp.data[0].attributes.art_pieces.data
-			.filter(_ =>	!omitIds.includes(_.id))
-			.sort((a, b) => a.attributes.order - b.attributes.order)
+	const omitIds = atttributes.omit.data.map(_ => _.id)
 
-		const artPiece = artPieces.filter(_ => _.id === aid)[0];
-		const categoryTitle = resp.data[0].attributes.title;
+	let artPieces = atttributes.art_pieces.data
+		.filter(_ =>	!omitIds.includes(_.id))
+		.sort((a, b) => a.attributes.order - b.attributes.order)
 
-		return { 
-			categoryTitle,
-			artPieces,
-			artPiece
-		};
-	}
+	const artPiece = artPieces.filter(_ => _.id === aid)[0];
+	const categoryTitle = atttributes.title;
 
-	const { message } = await res.json();
-	throw error(500, message);
+	return  { 
+		categoryTitle,
+		artPieces,
+		artPiece
+	};
 };
