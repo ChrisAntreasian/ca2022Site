@@ -8,7 +8,7 @@
 	import { contextHeightKey, rem, type LayoutElemH } from "$lib/spacing";
 	import { getContext } from "svelte";
 
-	export let poem: StrapiPoem["data"][number];
+	export let poem;
 	
 	let fadeOut = false;
 	let windowHeight: number;

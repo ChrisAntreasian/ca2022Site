@@ -8,8 +8,8 @@
 	import { toRem } from "$lib/spacing";
 	import { captureBehavior, captureDetails } from "$lib/analytics";
 
-	export let poems: StrapiPoem;
-	export let poem: StrapiPoem["data"][number];
+	export let poems;
+	export let poem;
 	export let setPoem: (_: number) => (e: Event) => void;
 
 	let expanded = false;

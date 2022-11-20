@@ -9,7 +9,6 @@ type DataFile<A> = {
   data: A
 }
 
-export const dataKey = (rid: string) => rid.split("/")[0];
 
 export const writeFs = async<A>(fn: string, d: A) => {
   try {
@@ -27,13 +26,24 @@ export const writeFs = async<A>(fn: string, d: A) => {
   }
 }
 
-export const readData = async <A>(n: string) => {
-  try {
-    const f = await fs.promises.readFile(`./${dataPath}/${n}.json`, "utf-8");
-    const d: A = JSON.parse(f).data;
-    return d;
+const routeKeys = ["landing", "layout", "poems", "the-quintuplapus"];
+type RouteKeyU = typeof routeKeys[number];
 
-  } catch (e) {
-    throw error(500, "Failed to read the data.");
+const dataRoutes: Record<RouteKeyU, Promise<DataFile<any>>> = {
+  "landing": import("../../src/data/landing.json"),
+  "layout": import("../../src/data/layout.json"),
+  "poems": import("../../src/data/poems.json"),
+  "the-quintuplapus": import("../../src/data/the-quintuplapus.json")
+};
+
+const keyGuard = (s: string): s is RouteKeyU => routeKeys.includes(s);
+
+export const mkKey = (rid: string): RouteKeyU => {
+  const k = rid.split("/")[0];
+  if (keyGuard(k)) {
+    return k;
   }
-}
+  throw error(500, "Data key does not exist");
+};
+
+export const readData = async <A>(n: RouteKeyU): Promise<DataFile<A>> => await dataRoutes[n];

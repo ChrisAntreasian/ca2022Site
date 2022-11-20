@@ -1,12 +1,11 @@
 import type { PageServerLoad } from './$types';
-import type { StrapiPage, StrapiPageDetails } from "$lib/types";
-// import { readData } from '$lib/file';
+import type { StrapiPageDetails } from "$lib/types";
 import * as D from "$data/landing.json"
 
 const introIds = [5];
 
 export const load: PageServerLoad = async () => {
-		const d = D.data; //await readData<StrapiPage>("landing");
+		const d = D.data;
 		const attrs = d.data[0].attributes;
 
 		return {
