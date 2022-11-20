@@ -6,6 +6,11 @@ const config = {
 	plugins: [
 		sveltekit(),
 	],
+	resolve: {
+		alias: {
+			$data: path.resolve("./src/data")
+		}
+	}
 };
 
 export default config;

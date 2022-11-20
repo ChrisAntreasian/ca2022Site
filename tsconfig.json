@@ -6,7 +6,9 @@
 		"resolveJsonModule": true,
 		"paths": {
 			"$lib":["src/lib"],
-  		"$lib/*":["src/lib/*"]
+  		"$lib/*":["src/lib/*"],
+			"$data": ["./src/data"],
+			"$data/*": ["./src/data/*"]
 		}
 	}
 }

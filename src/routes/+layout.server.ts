@@ -1,6 +1,7 @@
 import type { LayoutServerLoad } from './$types';
-import { readData } from '$lib/file';
-import type { PageDetails, StrapiApiResp } from '$lib/types';
+// import { readData } from '$lib/file';
+// import type { PageDetails, StrapiApiResp } from '$lib/types';
+import * as D from "$data/layout.json"
 
 const shortenString = (_: string) => {
 	const a = _.split(" ")
@@ -8,7 +9,8 @@ const shortenString = (_: string) => {
 }
 
 export const load: LayoutServerLoad = async () => {	
-	const d = await readData<StrapiApiResp<PageDetails>>("layout");
+	const d = D.data; // await readData<StrapiApiResp<PageDetails>>("layout");
+
 	return { 
 		logo: d.data[0].attributes.image,
 		title: d.data[0].attributes.title,
