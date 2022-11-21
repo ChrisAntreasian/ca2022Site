@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from "./$types";
-import { dataKey, writeFs } from "$lib/file";
+import { mkKey, writeFs } from "$lib/file";
 
 import { handleGetResponse, mkRequest } from "$lib/api";
 
@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ params, routeId, url }) => {
   const res = await fetchData();
   if (res.ok) {
     const out: StrapiArtCategory = await res.json()
-    const data = await writeFs<StrapiArtCategory>(dataKey(routeId), out);
+    const data = await writeFs<StrapiArtCategory>(mkKey(routeId), out);
 
     return {
       title: "The Quintuplapus",
