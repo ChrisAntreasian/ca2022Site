@@ -54,6 +54,7 @@
   };
   const handleNavArtPieceClick = (id: number) => {
     navArtPieceClick(id);
+    setExpanded(false)
     scrollLogged = false;
   }
   const handleMNavClick = () => {

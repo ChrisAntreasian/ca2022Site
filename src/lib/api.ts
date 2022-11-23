@@ -1,5 +1,3 @@
-
-
 import { error } from "@sveltejs/kit";
 import * as qs from "qs";
 
@@ -12,8 +10,8 @@ export const baseApi = import.meta.env.VITE_BASE_API;
 
 export const queryStr = (_: QuryProps) => qs.stringify(_, { encodeValuesOnly: true });
 
-export const mkRequest = async (method: "GET" | "POST", resource: string, data?: Record<string, unknown>) => {
-	const d = await fetch(`${baseApi}/api/${resource}`, {
+export const fetchRequest = (urlBase: string) => async (method: "GET" | "POST", resource: string, data?: Record<string, unknown>) => {
+	const d = await fetch(`${urlBase}/api/${resource}`, {
 		method,
 		headers: {
 			'content-type': 'application/json'
@@ -22,6 +20,7 @@ export const mkRequest = async (method: "GET" | "POST", resource: string, data?:
 	});
 	return d;
 }
+export const mkRequest = fetchRequest(baseApi);
 
 export const handleGetResponse = async (response: Response) => {
 	if (response.status === 404) {

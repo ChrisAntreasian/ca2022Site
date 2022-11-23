@@ -42,6 +42,7 @@
   "type": "module",
   "dependencies": {
     "@fontsource/fira-mono": "^4.5.0",
+    "aws-sdk": "^2.1260.0",
     "hamburgers": "^1.2.1",
     "mixpanel-browser": "^2.45.0",
     "qs": "^6.10.3",
