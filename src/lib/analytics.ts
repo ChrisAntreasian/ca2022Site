@@ -15,14 +15,15 @@ const mkDistinctId = (arr: string[]): string => {
 	mkDistinctId(arr);
 }
 
-export const handleCookie = async (cookies: Cookies) => {
+export const initDistinctId = async (cookies: Cookies) => {
+	
 	const cid = cookies.get("distinctId");
   if (cid) return;
 
 	const dIdF = await getS3File(fileName)
 	const idsArr: string[] = await JSON.parse(dIdF.Body.toString('utf-8')) || [];
 	const did = mkDistinctId(idsArr);
-
+	
 	await uploadS3File(fileName, JSON.stringify([...idsArr, did]));
 
 	cookies.set("distinctId", did, {

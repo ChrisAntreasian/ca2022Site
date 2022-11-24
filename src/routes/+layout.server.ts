@@ -1,6 +1,6 @@
 import type { LayoutServerLoad } from './$types';
 import * as D from "$data/layout.json"
-import { handleCookie } from '$lib/analytics';
+import { initDistinctId } from '$lib/analytics';
 
 const shortenString = (_: string) => {
 	const a = _.split(" ")
@@ -9,7 +9,7 @@ const shortenString = (_: string) => {
 
 export const load: LayoutServerLoad = async ({ cookies }) => {	
 	const d = D.data;
-	await handleCookie(cookies);
+	await initDistinctId(cookies);
 	return { 
 		logo: d.data[0].attributes.image,
 		title: d.data[0].attributes.title,
