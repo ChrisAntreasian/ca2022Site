@@ -7,14 +7,14 @@ import { handleGetResponse, mkRequest } from "$lib/api";
 import type { StrapiPoem } from '$lib/types';
 
 
-export const fetchData = async () => {
+const fetchData = async () => {
   const response = await mkRequest("GET", `poems`);
 	return await handleGetResponse(response);
 }
 
 const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
 
-export const load: PageServerLoad = async ({ params,routeId }) => {
+export const load: PageServerLoad = async ({ params, route }) => {
   if (params.bid !== VITE_BUILD_KEY || VITE_ENV !== "develop" ) {
     throw error(403, "Permission denied.");
   }
@@ -22,7 +22,7 @@ export const load: PageServerLoad = async ({ params,routeId }) => {
   const res = await fetchData();
   if (res.ok) {
     const out: StrapiPoem = await res.json()
-    const data = await writeFs<StrapiPoem>(mkKey(routeId), out);
+    const data = await writeFs<StrapiPoem>(mkKey(route.id), out);
 
     return {
       title: "Poems",
