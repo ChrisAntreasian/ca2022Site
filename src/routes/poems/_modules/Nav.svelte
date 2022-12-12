@@ -43,7 +43,10 @@
 
 <nav class="bnav bnav-aside subnav">
 	<div class="subnav-wrap">
-		<div class="subnav-handle" on:click={handleMNavHandle}>
+		<div class="subnav-handle" 
+			on:click={handleMNavHandle}
+			on:keypress={handleMNavHandle}
+		>
 			<h3>{expanded ? "poetry" : poem.attributes.title}</h3>
 			<div class="subnav-action">
 				<Arrow direction={expanded ? "bottom": "top"} color="white" size="medium" />

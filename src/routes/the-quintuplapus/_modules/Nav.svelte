@@ -77,14 +77,14 @@
 
   <nav class="bnav subnav" bind:clientWidth={subnavWidth} style={`--window-width: ${windowWidth / rem}rem`}>  
     <div class="subnav-wrap">
-    <div class="subnav-handle" on:click={handleMNavClick}>
+    <div class="subnav-handle" on:click={handleMNavClick} on:keypress={handleMNavClick}>
       <h3>{expanded ? categoryTitle: artPiece.attributes.title}</h3>
       <div class="subnav-icon">
         <Arrow direction={expanded ? "bottom": "top"} color="white" size="medium" />
       </div>
     </div>
     {#if activeItemIndex > 0}
-      <div class="last" on:click={() => paginate(-1)}>
+      <div class="last" on:click={() => paginate(-1)} on:keypress={() => paginate(-1)}>
         <Arrow direction="left" color="white" size="large" />
       </div>
     {/if}
@@ -114,7 +114,7 @@
       </ul>  
     </div>
     {#if activeItemIndex + itemsPerPage < artPieces.length}
-      <div class="next" on:click={() => paginate(1)}>
+      <div class="next" on:click={() => paginate(1)} on:keypress={() => paginate(1)}>
         <Arrow direction="right" color="white" size="large" />
       </div>
     {/if}

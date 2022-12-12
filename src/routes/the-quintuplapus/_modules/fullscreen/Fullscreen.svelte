@@ -29,18 +29,29 @@
 
 </script>
 
-<div on:click={open} class="btn" >
+<div 
+  on:click={open} 
+  on:keypress={open} 
+  class="btn" 
+>
   <img src={fullscreen} alt={"click for fullscreen"} /> 
 </div>
 {#if displayBg}
   <div class="bg-overlay" 
     on:click={close}
+    on:keypress={close}
     transition:fade={transitionConfig}
   />
 {/if}
 {#if displayImg}
   <div class="wrap" transition:scale={transitionConfig}>
-    <div on:click={close} class="btn close" >x</div>
+    <div 
+      on:click={close} 
+      on:keypress={close}
+      class="btn close" 
+    >
+      x
+    </div>
     <img style={`height: ${imageHeight}rem;`} src={`${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.alternativeText} />
   </div>
 {/if}

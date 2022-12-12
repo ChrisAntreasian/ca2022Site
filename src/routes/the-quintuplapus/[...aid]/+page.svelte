@@ -1,4 +1,3 @@
-
 <script lang="ts">
 
 	import { afterUpdate, getContext } from "svelte";

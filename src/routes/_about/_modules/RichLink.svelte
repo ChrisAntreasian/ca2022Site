@@ -7,7 +7,7 @@
 
 <section class="home">
 	{#each richLinks as rl}
-  <a sveltekit:prefetch href={rl.attributes.link}>
+  <a href={rl.attributes.link}> 
 		<h4>{rl.attributes.title.split(":")[0]}: </h4>
 		{#if rl.attributes.image}
 			<img 

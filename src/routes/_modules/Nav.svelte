@@ -17,7 +17,7 @@
 			<div class="rich-link p">
 				<div class="details">
 					<h2>
-						<a on:click={() => navClick("Poems")} sveltekit:prefetch href={ni.attributes.link}>
+						<a on:click={() => navClick("Poems")} href={ni.attributes.link}>
 							{ni.attributes.title}
 						</a>
 					</h2>
@@ -41,7 +41,7 @@
 			<div class="rich-link q">
 				<div>
 					<h2>
-						<a on:click={() => navClick("The Quintuplapus")} sveltekit:prefetch href={ni.attributes.link}>
+						<a on:click={() => navClick("The Quintuplapus")} href={ni.attributes.link}>
 							{ni.attributes.title}
 						</a>
 					</h2>

@@ -49,7 +49,11 @@
     getHeaderHeight: () => number, 
     getFooterHeight: () => number
   } = getContext(contextHeightKey);
-
+  
+  const handleReadMoreClick = () => {
+    readMoreClick(!showMore);
+    detailsDiv.scrollTo({top: 0})
+  }
 </script>
 
 <svelte:window bind:innerHeight={windowHeight} />
@@ -96,10 +100,8 @@
                   {#if needsOverflow}
                     <div class="readmore" 
                       transition:fade={{duration: 300}} 
-                      on:click={() => {
-                        readMoreClick(!showMore);
-                        detailsDiv.scrollTo({top: 0})
-                      }}
+                      on:click={handleReadMoreClick}
+                      on:keypress={handleReadMoreClick}
                     >
                       {!showMore ? "read less" : "read more"}
                     </div>
@@ -127,7 +129,11 @@
               <div>
                 <div class="pagination">
                   {#if paginationDetails.position !== 0 }
-                    <span class="pagination-link last" on:click={() => paginateArtPiece(-1)}>
+                    <span 
+                      class="pagination-link last" 
+                      on:click={() => paginateArtPiece(-1)}
+                      on:keypress={() => paginateArtPiece(-1)}
+                    >
                       <Arrow color="blue" size="small" direction="left" />
                       last
                     </span>
@@ -136,7 +142,11 @@
                     <span>|</span>
                   {/if}
                   {#if paginationDetails.position + 1 < paginationDetails.length}
-                    <span class="pagination-link next" on:click={() => paginateArtPiece(1)}>
+                    <span 
+                      class="pagination-link next" 
+                      on:click={() => paginateArtPiece(1)}
+                      on:keypress={() => paginateArtPiece(1)}
+                    >
                       next
                       <Arrow color="blue" size="small" direction="right" />
                     </span>

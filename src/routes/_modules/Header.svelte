@@ -8,7 +8,7 @@
 	import { safeImageString } from "$lib/image";
 	import { captureBehavior } from "$lib/analytics";
 	
-	export let logo: StrapiImageData;
+	export let logo;
 	export let title: string;
 	export let mobileTitle: string;
 	export let headerHeight: number;
@@ -50,12 +50,12 @@
 	<div class="header-bg"></div>
 	<div class="header-wrap">
 		<div class="header-title">
-			<a on:click={headlineClick} sveltekit:prefetch href="/">
+			<a on:click={headlineClick} href="/">
 				<h1><span class="desktop-title">{title}</span><span class="mobile-title">{mobileTitle}</span>{headlineBit}</h1>
 			</a>
 		</div>
 		<figure>
-			<a on:click={logoClick} sveltekit:prefetch href="/">
+			<a on:click={logoClick} href="/">
 				<img 
 					src={`${safeImageString("thumbnail")(logo)}`} 
 					alt={title} 
@@ -67,18 +67,19 @@
 				<div 
 					class="bg-overlay" 
 					on:click={resetMenu}
+					on:keypress={resetMenu}
 					transition:fade={{duration: 200}} 
 				/>
 			{/if}
 			<ul class="header-links">
 				<li class:active={$page.url.pathname === "/"}>
-					<a on:click={() => clickNav("Home")} sveltekit:prefetch href="/">Home</a>
+					<a on:click={() => clickNav("Home")} href="/">Home</a>
 				</li>
 				<li class:active={$page.url.pathname === "the-quintuplapus"}>
-					<a on:click={() => clickNav("The Quintuplapus")} sveltekit:prefetch href="/the-quintuplapus">The Quintuplapus</a>
+					<a on:click={() => clickNav("The Quintuplapus")} href="/the-quintuplapus">The Quintuplapus</a>
 				</li>
 				<li class:active={$page.url.pathname === "/poems"}>
-					<a on:click={() => clickNav("Poems")} sveltekit:prefetch href="/poems">Poems</a>
+					<a on:click={() => clickNav("Poems")} href="/poems">Poems</a>
 				</li>
 			</ul>
 		</nav>

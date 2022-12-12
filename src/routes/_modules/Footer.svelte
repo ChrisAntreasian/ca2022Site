@@ -12,9 +12,14 @@
 	<div class="footer-wrap">
 		<nav>
 			<ul>
-				<li on:click={() => navClick("Home")} class:active={$page.url.pathname === '/'}><a sveltekit:prefetch href="/">Home</a></li>
-				<li on:click={() => navClick("The Quintuplapus")} class:active={$page.url.pathname === '/the-quintuplapus'}><a sveltekit:prefetch href="/the-quintuplapus">The Quintuplapus</a></li>
-				<li on:click={() => navClick("Poems")} class:active={$page.url.pathname === '/poems'}><a sveltekit:prefetch href="/poems">Poems</a></li>
+				<li on:click={() => navClick("Home")} on:keypress={() => navClick("Home")} class:active={$page.url.pathname === '/'}>
+					<a  href="/">Home</a>
+				</li>
+				<li on:click={() => navClick("The Quintuplapus")} on:keypress={() => navClick("The Quintuplapus")} class:active={$page.url.pathname === '/the-quintuplapus'}>
+					<a  href="/the-quintuplapus">The Quintuplapus</a></li>
+				<li on:click={() => navClick("Poems")} on:keypress={() => navClick("Poems")} class:active={$page.url.pathname === '/poems'}>
+					<a  href="/poems">Poems</a>
+				</li>
 			</ul>
 		</nav>
 		<div class="details">
