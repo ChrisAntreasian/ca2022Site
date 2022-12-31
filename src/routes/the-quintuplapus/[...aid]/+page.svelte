@@ -14,25 +14,27 @@
 	import Nav from "../_modules/Nav.svelte"
 	import type { PageServerData } from "./$types";
 	import { captureDetails, captureBehavior } from "$lib/analytics";
-	
-	export let data: PageServerData;  
+
+	export let data: PageServerData;
 
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
 
 	const extraHeight = 3.5 * rem;
 	const navHeight = 6 * rem;
 
+	const maxMobileWidth = 768;
+
 	let gallarySectionHeight: number;
 
 	const initGalary = () => {
-		if (!windowWidth || windowWidth <=  768) return;
+		if (!windowWidth || windowWidth <=  maxMobileWidth) return;
 
 		const footerHeight = getFooterHeight();
 		const headerHeight = getHeaderHeight();
 		const widgetH = window.outerHeight - footerHeight - headerHeight - extraHeight;
-		
+
 		gallarySectionHeight = Math.ceil((widgetH - navHeight - rem) / rem);
-	
+
 		document.documentElement.style.setProperty('--gallery-height', `${widgetH / rem}rem`);
 		document.documentElement.style.setProperty('--gallery-section-height', `${gallarySectionHeight}rem`);
 	}
@@ -51,7 +53,7 @@
 
   const imageWidth = tweened(50, transitionDetails);
 	const detailsWidth = tweened(50, transitionDetails);
-	
+
 	let showMore = true;
 	const clientNavigateS = clientNavigate(false);
 
@@ -59,7 +61,7 @@
 		imageWidth.set(50);
 		detailsWidth.set(50);
 		showMore = true;
-	}	
+	}
 	const setArtPiece = (id:number) => {
 		data.artPiece = data.artPieces.filter(_ => _.id === id)[0];
 		clientNavigateS(`/the-quintuplapus/${data.artPiece.id}`, data.artPiece.attributes.title);
@@ -69,7 +71,7 @@
 		length: data.artPieces.length,
 		position: 0
 	}
-	
+
 	export let expanded = false;
 	const setExpanded = (exp: boolean) => {
 		expanded = exp;
@@ -85,13 +87,13 @@
 		setArtPiece(id);
 		paginationDetails.position = data.artPieces.findIndex(_ => _.id === data.artPiece.id);
 	}
-	
+
 	const navArtPieceClick = (id: number) => (e: Event) => {
 		e.preventDefault();
 		if (id == data.artPiece.id) return;
-		changeSelected(id);	
+		changeSelected(id);
 		captureBehavior(
-			"click thumbnail", 
+			"click thumbnail",
 			captureDetails({ id: id, name: data.artPiece.attributes.title })
 		);
 	}
@@ -100,7 +102,7 @@
 		const index = data.artPieces.findIndex(_ => _.id == data.artPiece.id);
 		changeSelected(data.artPieces[index + n].id);
 		captureBehavior(
-			"click paginate", 
+			"click paginate",
 			captureDetails(
 				{ id: index + n, name: data.artPieces[index + n].attributes.title },
 				{ direction: n > 0 ? "next" : "last" }
@@ -114,7 +116,7 @@
 		detailsWidth.set(d.details);
     showMore = _;
 		captureBehavior(
-			"click readmore", 
+			"click readmore",
 			captureDetails(
 				{ id: data.artPiece.id, name: data.artPiece.attributes.title },
 			)
@@ -130,11 +132,11 @@
 <svelte:window bind:innerWidth={windowWidth} />
 
 <section transition:fade={{duration: 300}}>
-	<Article 
-		art={data.artPiece} 
-		imageWidth={$imageWidth} 
-		detailsWidth={$detailsWidth} 
-		showMore={showMore} 
+	<Article
+		art={data.artPiece}
+		imageWidth={$imageWidth}
+		detailsWidth={$detailsWidth}
+		showMore={showMore}
 		readMoreClick={readMoreClick}
 		gallarySectionHeight={gallarySectionHeight}
 		paginateArtPiece={paginateArtPiece}
@@ -142,10 +144,10 @@
 		windowWidth={windowWidth}
 	/>
 
-	<Nav 
-		artPiece={data.artPiece} 
-		artPieces={data.artPieces} 
-		navArtPieceClick={navArtPieceClick} 
+	<Nav
+		artPiece={data.artPiece}
+		artPieces={data.artPieces}
+		navArtPieceClick={navArtPieceClick}
 		expanded={expanded}
 		setExpanded={setExpanded}
 		categoryTitle={data.categoryTitle}
