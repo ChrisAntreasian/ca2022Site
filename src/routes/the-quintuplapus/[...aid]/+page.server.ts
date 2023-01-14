@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import * as D from "$data/the-quintuplapus.json"
 
-export const load: PageServerLoad = async ({ params, routeId }) => {
+export const load: PageServerLoad = async ({ params }) => {
 	
 	const aid = parseInt(params.aid) || 2;
 	const d = D.data;

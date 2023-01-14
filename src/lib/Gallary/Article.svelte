@@ -1,12 +1,11 @@
 <script lang="ts">
-  import type { StrapiArt } from "$lib/types";  
   import { afterNavigate, beforeNavigate } from '$app/navigation';
   import { fade } from "svelte/transition";
   import SvelteMarkdown from 'svelte-markdown'
 
   import { rem } from "$lib/spacing";
   import Arrow from '$lib/arrow/Arrow.svelte';
-  import FullScreen from './fullscreen/Fullscreen.svelte';
+  import FullScreen from '../Fullscreen/index.svelte';
 
   import { contextHeightKey, mqBreakPoint } from "$lib/spacing";
 	import { getContext } from "svelte";
@@ -24,7 +23,6 @@
 
   export let paginateArtPiece: (n: number) => void;
   export let readMoreClick: (_: boolean) => void;
-
   
   let transitioning = false;
   let isBeforeNavigate = false;
