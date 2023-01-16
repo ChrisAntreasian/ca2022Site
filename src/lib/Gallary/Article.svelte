@@ -20,7 +20,7 @@
     length: number,
     position: number
   }
-
+  export let analyticsKey: string;
   export let paginateArtPiece: (n: number) => void;
   export let readMoreClick: (_: boolean) => void;
   
@@ -78,7 +78,7 @@
               src={`${art.attributes.image.data.attributes.url}`} 
               alt={art.attributes.description} 
             />
-            <FullScreen img={art} />
+            <FullScreen img={art} analyticsKey={analyticsKey}/>
           </div>
           <figcaption style={`--caption-width: ${detailsWidth}%`}>
             <div>

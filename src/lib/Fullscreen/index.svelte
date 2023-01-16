@@ -1,15 +1,14 @@
 <script lang="ts">
-
-  import type { StrapiArt } from "$lib/types";
-
   import { scale, fade } from "svelte/transition";
 
+  import type { StrapiArt } from "$lib/types";
+  import { noScroll } from '$lib/body';
   import fullscreen from "./fullscreen.svg"
   import { rem } from "$lib/spacing";
 	import { captureDetails, captureBehavior } from "$lib/analytics";
 
   export let img: StrapiArt["data"][number];
-
+  export let analyticsKey: string;
 
   let displayBg = false;
   let displayImg = false
@@ -20,14 +19,15 @@
   const open = () => {
     imageHeight = (window.innerHeight - (2 * rem)) / rem;
     displayBg = displayImg = true;
-    captureBehavior("click open fullscreen", mkCaptureDetails );
+    captureBehavior(`${analyticsKey} click open fullscreen`, mkCaptureDetails );
   }
   const close = () => {
     displayBg = displayImg = false
-    captureBehavior("click close fullscreen",  mkCaptureDetails);
+    captureBehavior(`${analyticsKey} click close fullscreen`,  mkCaptureDetails);
   };
-
 </script>
+
+<svelte:body use:noScroll={displayBg} />
 
 <div 
   on:click={open} 

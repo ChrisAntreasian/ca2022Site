@@ -19,6 +19,7 @@
   export let setExpanded: (_:boolean) => void;
 
   export let categoryTitle: string;
+  export let analyticsKey: string;
 
   const thubmnailWidth = fromRem(6);
   let subnavWidth: number;
@@ -45,7 +46,7 @@
     const aii = activeItemIndex + (n * (itemsPerPage - 1))
     activeItemIndex = aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
     captureBehavior(
-			`click slider ${n > 0 ? "next" : "last"}`, 
+			`${analyticsKey} click slider ${n > 0 ? "next" : "last"}`, 
 			{
         activeIndex: activeItemIndex,
         itemsPerPage: itemsPerPage
@@ -59,12 +60,12 @@
   }
   const handleMNavClick = () => {
     setExpanded(!expanded)
-    captureBehavior("click expand mobile nav", {expanded: expanded});
+    captureBehavior(`${analyticsKey} click expand mobile nav`, {expanded: expanded});
     scrollLogged = false
   }
   const scrollMNav = () => {
     if (!scrollLogged) {
-      captureBehavior("scroll mobile nav");
+      captureBehavior(`${analyticsKey} scroll mobile nav`);
       scrollLogged = true;
     }
   }

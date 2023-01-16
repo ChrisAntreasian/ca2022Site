@@ -2,11 +2,11 @@
 <script lang="ts">
 	import "hamburgers/dist/hamburgers.css";
 
-	import type { StrapiImageData } from "$lib/types";
 	import { page } from "$app/stores";
 	import { fade } from "svelte/transition";
 	import { safeImageString } from "$lib/image";
 	import { captureBehavior } from "$lib/analytics";
+	import { noScroll } from "$lib/body";
 	
 	export let logo;
 	export let title: string;
@@ -42,9 +42,14 @@
 		captureBehavior(`click header nav ${_}`);
 	}
 
+	const hamburgerClick = () => {
+		toggleMenuActive = !toggleMenuActive
+		captureBehavior(`click mobile hamburger ${toggleMenuActive}`);
+	}
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
+<svelte:body use:noScroll={toggleMenuActive} />
 
 <header bind:clientHeight={headerHeight}>
 	<div class="header-bg"></div>
@@ -84,7 +89,7 @@
 			</ul>
 		</nav>
 	</div>
-	<button on:click={() => {toggleMenuActive = !toggleMenuActive}} class="hamburger hamburger--spring" class:is-active={toggleMenuActive} type="button">
+	<button on:click={hamburgerClick} class="hamburger hamburger--spring" class:is-active={toggleMenuActive} type="button">
 		<span class="hamburger-box">
 			<span class="hamburger-inner"></span>
 		</span>

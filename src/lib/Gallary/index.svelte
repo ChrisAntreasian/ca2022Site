@@ -143,6 +143,7 @@
 		paginateArtPiece={paginateArtPiece}
 		paginationDetails={paginationDetails}
 		windowWidth={windowWidth}
+    analyticsKey={analyticsKey}
 	/>
 
 	<Nav 
@@ -152,6 +153,7 @@
 		expanded={expanded}
 		setExpanded={setExpanded}
 		categoryTitle={categoryTitle}
+    analyticsKey={analyticsKey}
 	/>
 </section>
 

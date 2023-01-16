@@ -89,6 +89,10 @@ body:after {
 	z-index: -100;
 }
 
+body.no-scroll {
+	overflow: hidden;
+}
+
 a ,
 a:visited {
 	color: var(--bg-dk);

@@ -27,7 +27,7 @@ const fetchData = async () => {
 
 const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
 
-export const load: PageServerLoad = async ({ params, routeId, url }) => {
+export const load: PageServerLoad = async ({ params }) => {
   if (params.bid !== VITE_BUILD_KEY || VITE_ENV !== "develop" ) {
     throw error(403, "Permission denied.");
   }
@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ params, routeId, url }) => {
   const res = await fetchData();
   if (res.ok) {
     const out: StrapiArtCategory = await res.json()
-    const data = await writeFs<StrapiArtCategory>(mkKey(routeId), out);
+    const data = await writeFs<StrapiArtCategory>(mkKey("the-quintuplapus"), out);
 
     return {
       title: "The Quintuplapus",
