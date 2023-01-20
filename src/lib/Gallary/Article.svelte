@@ -32,6 +32,7 @@
   let detailsDiv: HTMLDivElement;
 
   const setOverflow = () => {
+    console.log("setOverflow")
     if (isBeforeNavigate || !detailsDiv || windowWidth < mqBreakPoint) return;
     needsOverflow = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
@@ -64,7 +65,7 @@
           class:transition={transitioning}
           in:fade={{duration: 500}}
           out:fade={{duration: 300}}
-          on:introend="{() => {
+          on:introend="{() => {    
             setOverflow()
             transitioning = false;
           }}"
@@ -115,17 +116,22 @@
             </div>
             <div class="details" bind:clientHeight={metaHeight}>
               <div>
-                <div class="meta">
-                  <span>date: </span>
-                  {new Date(art.attributes.createdDate).getFullYear()}
-                </div>
-                <div class="meta">
-                  <span>medium:</span>
-                  {art.attributes.medium}
-                </div>
+                {#if art.attributes.createdDate}
+                  <div class="meta">
+                    <span>date: </span>
+                    {new Date(art.attributes.createdDate).getFullYear()}
+                  </div>
+                {/if}
+                {#if art.attributes.medium}
+                  <div class="meta">
+                    <span>medium:</span>
+                    {art.attributes.medium}
+                  </div>
+                {/if}
               </div>
               <div>
                 <div class="pagination">
+                  {paginationDetails.position}
                   {#if paginationDetails.position !== 0 }
                     <span 
                       class="pagination-link last" 

@@ -26,24 +26,26 @@ export const writeFs = async<A>(fn: string, d: A) => {
   }
 }
 
-const routeKeys = ["landing", "layout", "poems", "the-quintuplapus"];
+const routeKeys = ["landing", "layout", "poems", "the-quintuplapus", "the-souljuicer"];
 type RouteKeyU = typeof routeKeys[number];
 
 const dataRoutes: Record<RouteKeyU, Promise<DataFile<any>>> = {
   "landing": import("../../src/data/landing.json"),
   "layout": import("../../src/data/layout.json"),
   "poems": import("../../src/data/poems.json"),
-  "the-quintuplapus": import("../../src/data/the-quintuplapus.json")
+  "the-quintuplapus": import("../../src/data/the-quintuplapus.json"),
+  "the-souljuicer": import("../../src/data/the-souljuicer.json")
 };
 
 const keyGuard = (s: string): s is RouteKeyU => routeKeys.includes(s);
 
 export const mkKey = (rid: string): RouteKeyU => {
-  const k = rid.split("/")[0];
+  const k = rid.split("/")[1];
   if (keyGuard(k)) {
     return k;
   }
-  throw error(500, "Data key does not exist");
+  
+  throw error(500, `Data key does not exist.`);
 };
 
 export const readData = async <A>(n: RouteKeyU): Promise<DataFile<A>> => await dataRoutes[n];

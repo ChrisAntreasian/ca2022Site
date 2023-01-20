@@ -20,8 +20,10 @@
 
   export let categoryTitle: string;
   export let analyticsKey: string;
-
+  export let parentRoute: string;
+  
   const thubmnailWidth = fromRem(6);
+  
   let subnavWidth: number;
   let itemsPerPage = 0;
 
@@ -70,7 +72,6 @@
     }
   }
 </script>
-
 <svelte:window 
   bind:innerHeight={windowHeight} 
   bind:innerWidth={windowWidth} 
@@ -102,7 +103,7 @@
           <li class:active={_.id === artPiece.id}>
             <a
               on:click={() => handleNavArtPieceClick(_.id)}
-              href="{`/the-quintuplapus/${_.id}/${cleanUrlSlug(_.attributes.title)}`}"
+              href="{`${parentRoute}${_.id}/${cleanUrlSlug(_.attributes.title)}`}"
               class:active="{_.id === artPiece.id}" 
             >
               <img 
@@ -119,7 +120,7 @@
         <Arrow direction="right" color="white" size="large" />
       </div>
     {/if}
-  </div>
+  </div> 
 </nav>
 
 <style>

@@ -14,9 +14,10 @@
 	import Nav from "$lib/Gallary/Nav.svelte"
 
   import { captureDetails, captureBehavior } from "$lib/analytics";
+	import type { Art, WithId } from "$lib/types";
 	
-  export let artPieces;
-  export let artPiece;
+  export let artPieces: Array<WithId<Art>>;
+  export let artPiece: WithId<Art>;
   export let parentRoute: string;
   export let analyticsKey: string;
   export let categoryTitle: string;
@@ -79,6 +80,8 @@
 	}
 
 	const changeSelected = (id: number) => {
+		console.log("changeSelected")
+
 		if (windowWidth < mqBreakPoint) {
 			window.scrollTo({top: 0});
 		} else {
@@ -90,6 +93,8 @@
 	}
 	
 	const navArtPieceClick = (id: number) => (e: Event) => {
+		console.log("navArtPieceClick")
+
 		e.preventDefault();
 		if (id === artPiece.id) return;
 		changeSelected(id);	
@@ -100,7 +105,10 @@
 	}
 
 	const paginateArtPiece = (n: number) => {
+		console.log("paginateArtPiece", artPieces)
+
 		const index = artPieces.findIndex(_ => _.id === artPiece.id);
+		console.log(index)
 		changeSelected(artPieces[index + n].id);
 		captureBehavior(
 			`${analyticsKey} click paginate`, 
@@ -126,12 +134,8 @@
 
 </script>
 
-<svelte:head>
-	<title>The Quintuplapus</title>
-</svelte:head>
-
 <svelte:window bind:innerWidth={windowWidth} />
-
+{JSON.stringify(paginationDetails)}
 <section transition:fade={{duration: 300}}>
 	<Article 
 		art={artPiece} 
@@ -143,7 +147,7 @@
 		paginateArtPiece={paginateArtPiece}
 		paginationDetails={paginationDetails}
 		windowWidth={windowWidth}
-    analyticsKey={analyticsKey}
+    analyticsKey={analyticsKey} 
 	/>
 
 	<Nav 
@@ -154,6 +158,7 @@
 		setExpanded={setExpanded}
 		categoryTitle={categoryTitle}
     analyticsKey={analyticsKey}
+		parentRoute={parentRoute}
 	/>
 </section>
 

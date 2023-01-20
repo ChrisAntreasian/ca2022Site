@@ -10,7 +10,6 @@ type StrapiMeta = {
 	}
 };
 
-
 type StrapiBase = {
 	createdAt: string;
 	updatedAt: string;
@@ -24,9 +23,10 @@ type StrapiBase = {
 	featured: boolean;
 }
 
-type ImageBase = StrapiBase & {
+type ImageBase =  {
 	ext: string
 	height: number;
+	hash: string;
 	mime: string;
 	name: string;
 	size: number;
@@ -36,25 +36,18 @@ type ImageBase = StrapiBase & {
 type ImageAttrs = ImageBase & {
 	alternativeText: string;
 	caption: string;
+	provider: string,
+	provider_metadata: any,
+	previewUrl: any
 	formats: {
 		"small": ImageBase,
-		"medium": ImageBase;
+		"medium"?: ImageBase;
 		"thumbnail": ImageBase;
 	}	
 };
 
 export type StrapiImageData = {
-	data: {
-		attributes: ImageBase & {
-			alternativeText: string;
-			caption: string;
-			formats: {
-				"small": ImageBase,
-				"medium": ImageBase;
-				"thumbnail": ImageBase;
-			}	
-		}
-	}
+	data: WithId<ImageAttrs>
 };
 
 type Art = StrapiBase & {
@@ -116,4 +109,3 @@ export type StrapiPageDetails = StrapiDataArr<PageDetails>["data"];
 type StrapiApiResp<A> = StrapiDataArr<A> & StrapiMeta;
 
 export type StrapiPoem = StrapiApiResp<Poem>;
-export type StrapiArtCategory = StrapiApiResp<ArtCategory>;
