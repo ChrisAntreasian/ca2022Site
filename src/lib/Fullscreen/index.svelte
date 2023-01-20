@@ -6,14 +6,22 @@
   import fullscreen from "./fullscreen.svg"
   import { rem } from "$lib/spacing";
 	import { captureDetails, captureBehavior } from "$lib/analytics";
+	import Arrow from "$lib/arrow/Arrow.svelte";
 
   export let img: StrapiArt["data"][number];
   export let analyticsKey: string;
+  export let description: string = null;
+
+  export let paginateArtPiece: (s: string) => (n: number)  => void = null;
+  export let paginationDetails: {
+    length: number,
+    position: number
+  } = null;
 
   let displayBg = false;
   let displayImg = false
   let imageHeight = 0;
-
+  
   const transitionConfig = {duration: 400};
   const mkCaptureDetails = captureDetails({ id: img.id, name: img.attributes.title });
   const open = () => {
@@ -25,6 +33,8 @@
     displayBg = displayImg = false
     captureBehavior(`${analyticsKey} click close fullscreen`,  mkCaptureDetails);
   };
+  const paginateFullscreen = paginateArtPiece ? paginateArtPiece(`${analyticsKey} fullscreen`) : null;
+
 </script>
 
 <svelte:body use:noScroll={displayBg} />
@@ -44,6 +54,7 @@
   />
 {/if}
 {#if displayImg}
+
   <div class="wrap" transition:scale={transitionConfig}>
     <div 
       on:click={close} 
@@ -52,7 +63,27 @@
     >
       x
     </div>
+    {#if paginateFullscreen && paginationDetails && paginationDetails.position !== 0 }
+      <span 
+        class="pagination-link last" 
+        on:click={() => paginateFullscreen(-1)}
+        on:keypress={() => paginateFullscreen(-1)}
+      >
+        <Arrow color="white" size="large" direction="left" />
+      </span>
+    {/if}
+
     <img style={`height: ${imageHeight}rem;`} src={`${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.alternativeText} />
+
+    {#if paginateFullscreen && paginationDetails && paginationDetails.position + 1 < paginationDetails.length}
+      <span 
+        class="pagination-link next" 
+        on:click={() => paginateFullscreen(1)}
+        on:keypress={() => paginateFullscreen(1)}
+      >
+        <Arrow color="white" size="large" direction="right" />
+      </span>
+    {/if}
   </div>
 {/if}
 
@@ -87,6 +118,18 @@
     top: 1rem;
     left: 50%;
     transform: translate(-50%);
+  }
+  .pagination-link {
+    position: absolute;
+    top: 50%;
+  }
+  .pagination-link.last {
+    left: 0;
+    margin-left: -4rem;
+  }
+  .pagination-link.next {
+    right: 0;
+    margin-right: -4rem;
   }
   @media (max-width: 767.98px) {
     .btn {

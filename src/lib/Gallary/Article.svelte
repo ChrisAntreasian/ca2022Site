@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { afterNavigate, beforeNavigate } from '$app/navigation';
+  import { afterNavigate } from '$app/navigation';
   import { fade } from "svelte/transition";
   import SvelteMarkdown from 'svelte-markdown'
 
@@ -21,8 +21,9 @@
     position: number
   }
   export let analyticsKey: string;
-  export let paginateArtPiece: (n: number) => void;
+  export let paginateArtPiece: (s:string) => (n: number) => void;
   export let readMoreClick: (_: boolean) => void;
+  export let useSlides: boolean = false;
   
   let transitioning = false;
   let headlineHeight: number;
@@ -50,8 +51,10 @@
     readMoreClick(!showMore);
     detailsDiv.scrollTo({top: 0})
   }
-</script>
 
+  const paginateGal = paginateArtPiece(analyticsKey);
+
+</script>
 <svelte:window bind:innerHeight={windowHeight} />
   <article style={`
     --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem
@@ -76,7 +79,14 @@
               src={`${art.attributes.image.data.attributes.url}`} 
               alt={art.attributes.description} 
             />
-            <FullScreen img={art} analyticsKey={analyticsKey}/>
+            <FullScreen 
+              img={art} 
+              analyticsKey={analyticsKey} 
+              paginateArtPiece={paginateArtPiece} 
+              paginationDetails={paginationDetails}
+              description={useSlides ? `${art.attributes.title} ${art.attributes.description}`: null}
+
+            />
           </div>
           <figcaption style={`--caption-width: ${detailsWidth}%`}>
             <div>
@@ -131,8 +141,8 @@
                   {#if paginationDetails.position !== 0 }
                     <span 
                       class="pagination-link last" 
-                      on:click={() => paginateArtPiece(-1)}
-                      on:keypress={() => paginateArtPiece(-1)}
+                      on:click={() => paginateGal(-1)}
+                      on:keypress={() => paginateGal(-1)}
                     >
                       <Arrow color="blue" size="small" direction="left" />
                       last
@@ -144,8 +154,8 @@
                   {#if paginationDetails.position + 1 < paginationDetails.length}
                     <span 
                       class="pagination-link next" 
-                      on:click={() => paginateArtPiece(1)}
-                      on:keypress={() => paginateArtPiece(1)}
+                      on:click={() => paginateGal(1)}
+                      on:keypress={() => paginateGal(1)}
                     >
                       next
                       <Arrow color="blue" size="small" direction="right" />

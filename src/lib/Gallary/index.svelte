@@ -21,7 +21,7 @@
   export let parentRoute: string;
   export let analyticsKey: string;
   export let categoryTitle: string;
-  
+  export let useSlides: boolean;
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
 	const extraHeight = 3.5 * rem;
 	const navHeight = 6 * rem;
@@ -103,11 +103,11 @@
 		);
 	}
 
-	const paginateArtPiece = (n: number) => {
+	const paginateArtPiece = (k: string) => (n: number) => {
 		const index = artPieces.findIndex(_ => _.id === artPiece.id);
 		changeSelected(artPieces[index + n].id);
 		captureBehavior(
-			`${analyticsKey} click paginate`, 
+			`${k} click paginate`, 
 			captureDetails(
 				{ id: index + n, name: artPieces[index + n].attributes.title },
 				{ direction: n > 0 ? "next" : "last" }
@@ -143,7 +143,8 @@
 		paginateArtPiece={paginateArtPiece}
 		paginationDetails={paginationDetails}
 		windowWidth={windowWidth}
-    analyticsKey={analyticsKey} 
+    analyticsKey={analyticsKey}
+		useSlides={useSlides}
 	/>
 	<Nav 
 		artPiece={artPiece} 
