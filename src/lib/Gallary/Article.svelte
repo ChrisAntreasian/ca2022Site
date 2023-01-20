@@ -25,19 +25,16 @@
   export let readMoreClick: (_: boolean) => void;
   
   let transitioning = false;
-  let isBeforeNavigate = false;
   let headlineHeight: number;
   let metaHeight: number;
   let needsOverflow = false;
   let detailsDiv: HTMLDivElement;
 
   const setOverflow = () => {
-    console.log("setOverflow")
-    if (isBeforeNavigate || !detailsDiv || windowWidth < mqBreakPoint) return;
+    if (!detailsDiv || windowWidth < mqBreakPoint) return;
     needsOverflow = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
     
-  beforeNavigate(() => { isBeforeNavigate = true });
   afterNavigate(setOverflow);
 
   $: if(windowWidth) setOverflow();
@@ -73,7 +70,7 @@
             needsOverflow = false;
             transitioning = true;
           }}"
-        >
+        >       
           <div class="image" style={`width: ${imageWidth}%`}>
             <img 
               src={`${art.attributes.image.data.attributes.url}`} 
@@ -131,7 +128,6 @@
               </div>
               <div>
                 <div class="pagination">
-                  {paginationDetails.position}
                   {#if paginationDetails.position !== 0 }
                     <span 
                       class="pagination-link last" 

@@ -3,7 +3,6 @@
   import { afterUpdate } from "svelte";
 	import { afterNavigate } from '$app/navigation';
 
-  import type { StrapiArt} from "$lib/types";
 	import { cleanUrlSlug } from "$lib/history";
   import { captureBehavior } from "$lib/analytics";
 
@@ -55,10 +54,12 @@
       }
 		);
   };
+
   const handleNavArtPieceClick = (id: number) => {
-    navArtPieceClick(id);
     setExpanded(false)
     scrollLogged = false;
+    return navArtPieceClick(id);
+
   }
   const handleMNavClick = () => {
     setExpanded(!expanded)
@@ -102,7 +103,7 @@
         {#each artPieces as _}
           <li class:active={_.id === artPiece.id}>
             <a
-              on:click={() => handleNavArtPieceClick(_.id)}
+              on:click={handleNavArtPieceClick(_.id)}
               href="{`${parentRoute}${_.id}/${cleanUrlSlug(_.attributes.title)}`}"
               class:active="{_.id === artPiece.id}" 
             >

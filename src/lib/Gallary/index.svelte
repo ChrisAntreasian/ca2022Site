@@ -66,7 +66,7 @@
 	}	
 	const setArtPiece = (id:number) => {
 		artPiece = artPieces.filter(_ => _.id === id)[0];
-		clientNavigateS(`/${parentRoute}/${artPiece.id}`, artPiece.attributes.title);
+		clientNavigateS(`${parentRoute}${artPiece.id}`, artPiece.attributes.title);
 	}
 
 	let paginationDetails = {
@@ -80,8 +80,6 @@
 	}
 
 	const changeSelected = (id: number) => {
-		console.log("changeSelected")
-
 		if (windowWidth < mqBreakPoint) {
 			window.scrollTo({top: 0});
 		} else {
@@ -89,12 +87,13 @@
 		}
 		expanded = false;
 		setArtPiece(id);
-		paginationDetails.position = artPieces.findIndex(_ => _.id === artPiece.id);
+		paginationDetails = {
+			length: paginationDetails.length,
+			position: artPieces.findIndex(_ => _.id === id)
+		}
 	}
 	
 	const navArtPieceClick = (id: number) => (e: Event) => {
-		console.log("navArtPieceClick")
-
 		e.preventDefault();
 		if (id === artPiece.id) return;
 		changeSelected(id);	
@@ -105,10 +104,7 @@
 	}
 
 	const paginateArtPiece = (n: number) => {
-		console.log("paginateArtPiece", artPieces)
-
 		const index = artPieces.findIndex(_ => _.id === artPiece.id);
-		console.log(index)
 		changeSelected(artPieces[index + n].id);
 		captureBehavior(
 			`${analyticsKey} click paginate`, 
@@ -135,8 +131,8 @@
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
-{JSON.stringify(paginationDetails)}
 <section transition:fade={{duration: 300}}>
+
 	<Article 
 		art={artPiece} 
 		imageWidth={$imageWidth} 
@@ -149,7 +145,6 @@
 		windowWidth={windowWidth}
     analyticsKey={analyticsKey} 
 	/>
-
 	<Nav 
 		artPiece={artPiece} 
 		artPieces={artPieces} 
@@ -160,6 +155,7 @@
     analyticsKey={analyticsKey}
 		parentRoute={parentRoute}
 	/>
+
 </section>
 
 <style>
