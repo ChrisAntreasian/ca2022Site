@@ -16,15 +16,16 @@
   export let showMore: boolean;
   export let gallarySectionHeight: number;
   export let windowWidth: number;
+  export let analyticsKey: string;
+  
+  export let readMoreClick: (_: boolean) => void;
+
+  export let paginateArtPiece: (s:string) => (n: number) => void;
   export let paginationDetails: {
     length: number,
     position: number
   }
-  export let analyticsKey: string;
-  export let paginateArtPiece: (s:string) => (n: number) => void;
-  export let readMoreClick: (_: boolean) => void;
-  export let useSlides: boolean = false;
-  
+
   let transitioning = false;
   let headlineHeight: number;
   let metaHeight: number;
@@ -59,7 +60,15 @@
   <article style={`
     --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem
   `}>
+  
     <div class="wrap">
+      <FullScreen 
+        img={art} 
+        analyticsKey={analyticsKey} 
+        paginateArtPiece={paginateArtPiece} 
+        paginationDetails={paginationDetails}
+        btnOffset={detailsWidth}
+      />
       {#key art.id}
         <figure 
           class:transition={transitioning}
@@ -79,14 +88,7 @@
               src={`${art.attributes.image.data.attributes.url}`} 
               alt={art.attributes.description} 
             />
-            <FullScreen 
-              img={art} 
-              analyticsKey={analyticsKey} 
-              paginateArtPiece={paginateArtPiece} 
-              paginationDetails={paginationDetails}
-              description={useSlides ? `${art.attributes.title} ${art.attributes.description}`: null}
-
-            />
+            
           </div>
           <figcaption style={`--caption-width: ${detailsWidth}%`}>
             <div>

@@ -10,8 +10,7 @@
 
   export let img: StrapiArt["data"][number];
   export let analyticsKey: string;
-  export let description: string = null;
-
+  export let btnOffset: number = 50;
   export let paginateArtPiece: (s: string) => (n: number)  => void = null;
   export let paginationDetails: {
     length: number,
@@ -42,7 +41,9 @@
 <div 
   on:click={open} 
   on:keypress={open} 
-  class="btn" 
+  class="btn open" 
+  style={`--btn-offset: ${btnOffset}%`}
+
 >
   <img src={fullscreen} alt={"click for fullscreen"} /> 
 </div>
@@ -72,9 +73,7 @@
         <Arrow color="white" size="large" direction="left" />
       </span>
     {/if}
-
     <img style={`height: ${imageHeight}rem;`} src={`${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.alternativeText} />
-
     {#if paginateFullscreen && paginationDetails && paginationDetails.position + 1 < paginationDetails.length}
       <span 
         class="pagination-link next" 
@@ -88,7 +87,7 @@
 {/if}
 
 <style>
-  .btn {
+.btn {
     position: absolute;
     height: 2rem;
     width: 2rem;
@@ -99,6 +98,11 @@
     color: white;
     opacity: .85;
     cursor: pointer;
+  }
+  .btn.open {
+    left: var(--btn-offset);
+    margin-left: -3rem;
+    z-index: 1;
   }
   .btn.close {
     height: 4rem;

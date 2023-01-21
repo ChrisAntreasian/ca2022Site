@@ -1,6 +1,6 @@
 <script lang="ts">
 
-	import { afterUpdate, getContext } from "svelte";
+	import { afterUpdate, getContext, onMount } from "svelte";
 	import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
   import { fade } from "svelte/transition";
@@ -21,13 +21,14 @@
   export let parentRoute: string;
   export let analyticsKey: string;
   export let categoryTitle: string;
-  export let useSlides: boolean;
+	
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
+	
 	const extraHeight = 3.5 * rem;
 	const navHeight = 6 * rem;
 
 	let gallarySectionHeight: number;
-
+	
 	const initGalary = () => {
 		if (!windowWidth || windowWidth <=  768) return;
 
@@ -42,6 +43,7 @@
 	}
 
 	let windowWidth: number;
+	let preloadImages = artPieces.map(p => p.attributes.image.data.attributes.url);
 
 	afterUpdate(initGalary);
 	afterNavigate(initGalary);
@@ -128,9 +130,18 @@
 		);
   }
 
+
+
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
+
+<svelte:head>
+  {#each preloadImages as image}
+    <link rel="preload" as="image" href={image} />
+  {/each}
+</svelte:head>
+
 <section transition:fade={{duration: 300}}>
 
 	<Article 
@@ -144,7 +155,6 @@
 		paginationDetails={paginationDetails}
 		windowWidth={windowWidth}
     analyticsKey={analyticsKey}
-		useSlides={useSlides}
 	/>
 	<Nav 
 		artPiece={artPiece} 
