@@ -25,30 +25,31 @@
   export let readMoreClick: (_: boolean) => void;
   
   let transitioning = false;
-  let isBeforeNavigate = false;
   let headlineHeight: number;
   let metaHeight: number;
   let needsOverflow = false;
   let detailsDiv: HTMLDivElement;
 
   const setOverflow = () => {
-    console.log("setOverflow")
-    if (isBeforeNavigate || !detailsDiv || windowWidth < mqBreakPoint) return;
+    console.log("setOverflow");
+    if (!detailsDiv || windowWidth < mqBreakPoint) return;
+
     needsOverflow = detailsDiv.scrollHeight > detailsDiv.clientHeight;
+    console.log("after condition", needsOverflow);
   };
-    
-  beforeNavigate(() => { isBeforeNavigate = true });
+
   afterNavigate(setOverflow);
 
   $: if(windowWidth) setOverflow();
+  $: if(art.id) setOverflow();
 
   let windowHeight: number;
-  
+
   const { getHeaderHeight }: {
-    getHeaderHeight: () => number, 
+    getHeaderHeight: () => number,
     getFooterHeight: () => number
   } = getContext(contextHeightKey);
-  
+
   const handleReadMoreClick = () => {
     readMoreClick(!showMore);
     detailsDiv.scrollTo({top: 0})
@@ -61,7 +62,7 @@
   `}>
     <div class="wrap">
       {#key art.id}
-        <figure 
+        <figure
           class:transition={transitioning}
           in:fade={{duration: 500}}
           out:fade={{duration: 300}}
@@ -75,9 +76,9 @@
           }}"
         >
           <div class="image" style={`width: ${imageWidth}%`}>
-            <img 
-              src={`${art.attributes.image.data.attributes.url}`} 
-              alt={art.attributes.description} 
+            <img
+              src={`${art.attributes.image.data.attributes.url}`}
+              alt={art.attributes.description}
             />
             <FullScreen img={art} analyticsKey={analyticsKey}/>
           </div>
@@ -85,7 +86,7 @@
             <div>
               <h3 bind:clientHeight={headlineHeight}>{art.attributes.title}</h3>
               <div class={`md-wrap ${!showMore ? "overflow" : needsOverflow ? "needs-overflow" : ""}`}>
-                <div 
+                <div
                   bind:this={detailsDiv}
                   class="md-content"
                   style={`height: ${`${(gallarySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem}rem;`}`}
@@ -97,8 +98,8 @@
                     <SvelteMarkdown source={`${art.attributes.title} ${art.attributes.description}`} />
                   </span>
                   {#if needsOverflow}
-                    <div class="readmore" 
-                      transition:fade={{duration: 300}} 
+                    <div class="readmore"
+                      transition:fade={{duration: 300}}
                       on:click={handleReadMoreClick}
                       on:keypress={handleReadMoreClick}
                     >
@@ -107,7 +108,7 @@
                   {/if}
                 </div>
                 {#if showMore}
-                  <div 
+                  <div
                     class="fade"
                     transition:fade={{duration: 300}}
                   />
@@ -133,8 +134,8 @@
                 <div class="pagination">
                   {paginationDetails.position}
                   {#if paginationDetails.position !== 0 }
-                    <span 
-                      class="pagination-link last" 
+                    <span
+                      class="pagination-link last"
                       on:click={() => paginateArtPiece(-1)}
                       on:keypress={() => paginateArtPiece(-1)}
                     >
@@ -146,8 +147,8 @@
                     <span>|</span>
                   {/if}
                   {#if paginationDetails.position + 1 < paginationDetails.length}
-                    <span 
-                      class="pagination-link next" 
+                    <span
+                      class="pagination-link next"
                       on:click={() => paginateArtPiece(1)}
                       on:keypress={() => paginateArtPiece(1)}
                     >
@@ -215,7 +216,7 @@
   }
   .md-content-mobile {
     display: none;
-  } 
+  }
   .needs-overflow .fade {
     position: absolute;
     bottom: 0;
@@ -250,7 +251,7 @@
   .pagination-link,
   .readmore {
     cursor: pointer;
-    color: var(--bg-lt);  
+    color: var(--bg-lt);
   }
   span:hover,
   .readmore:hover {
@@ -309,6 +310,9 @@
       display: block;
     }
     .md-content-desktop {
+      display: none;
+    }
+    .readmore {
       display: none;
     }
   }
