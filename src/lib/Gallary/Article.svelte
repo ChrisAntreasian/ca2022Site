@@ -29,14 +29,14 @@
   let transitioning = false;
   let headlineHeight: number;
   let metaHeight: number;
-  let needsOverflow = false;
+  let needsReadmore = false;
   let detailsDiv: HTMLDivElement;
 
   const setOverflow = () => {
     if (!detailsDiv || windowWidth < mqBreakPoint) return;
-    needsOverflow = detailsDiv.scrollHeight > detailsDiv.clientHeight;
+    needsReadmore = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
-    
+
   afterNavigate(setOverflow);
 
   $: if(windowWidth) setOverflow();
@@ -79,7 +79,7 @@
             transitioning = false;
           }}"
           on:outrostart="{() => {
-            needsOverflow = false;
+            needsReadmore = false;
             transitioning = true;
           }}"
         >       
@@ -93,7 +93,7 @@
           <figcaption style={`--caption-width: ${detailsWidth}%`}>
             <div>
               <h3 bind:clientHeight={headlineHeight}>{art.attributes.title}</h3>
-              <div class={`md-wrap ${!showMore ? "overflow" : needsOverflow ? "needs-overflow" : ""}`}>
+              <div class={`md-wrap ${!showMore ? "overflow" : needsReadmore ? "needs-overflow" : ""}`}>
                 <div 
                   bind:this={detailsDiv}
                   class="md-content"
@@ -105,7 +105,7 @@
                   <span class="md-content-mobile">
                     <SvelteMarkdown source={`${art.attributes.title} ${art.attributes.description}`} />
                   </span>
-                  {#if needsOverflow}
+                  {#if needsReadmore}
                     <div class="readmore" 
                       transition:fade={{duration: 300}} 
                       on:click={handleReadMoreClick}

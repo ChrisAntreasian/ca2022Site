@@ -42,10 +42,27 @@
 
   let activeItemIndex = 0;
   let scrollLogged = false;
-
+  
+  const apPosition = (apid: number) => artPieces.findIndex(_ => _.id === apid);
+  
   const paginate = (n: number) => { 
-    const aii = activeItemIndex + (n * (itemsPerPage - 1))
+    const aii = activeItemIndex + (n * (itemsPerPage - 1));  
     activeItemIndex = aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
+  };
+
+  const artPieceChanged = (apId: number) => {
+    const apP = apPosition(apId);
+    if (activeItemIndex !== 0 && apP < activeItemIndex) {
+      paginate(-1);
+    } else if (apP > activeItemIndex + (itemsPerPage -1)) {
+      paginate(1);
+    }
+  }
+
+  $: artPieceChanged(artPiece.id)
+
+  const paginateClick = (n: number) => {
+    paginate(n);
     captureBehavior(
 			`${analyticsKey} click slider ${n > 0 ? "next" : "last"}`, 
 			{
@@ -53,19 +70,20 @@
         itemsPerPage: itemsPerPage
       }
 		);
-  };
+  }
 
   const handleNavArtPieceClick = (id: number) => {
     setExpanded(false)
     scrollLogged = false;
     return navArtPieceClick(id);
-
   }
+
   const handleMNavClick = () => {
     setExpanded(!expanded)
     captureBehavior(`${analyticsKey} click expand mobile nav`, {expanded: expanded});
     scrollLogged = false
   }
+
   const scrollMNav = () => {
     if (!scrollLogged) {
       captureBehavior(`${analyticsKey} scroll mobile nav`);
@@ -73,6 +91,7 @@
     }
   }
 </script>
+
 <svelte:window 
   bind:innerHeight={windowHeight} 
   bind:innerWidth={windowWidth} 
@@ -87,7 +106,7 @@
       </div>
     </div>
     {#if activeItemIndex > 0}
-      <div class="last" on:click={() => paginate(-1)} on:keypress={() => paginate(-1)}>
+      <div class="last" on:click={() => paginateClick(-1)} on:keypress={() => paginateClick(-1)}>
         <Arrow direction="left" color="white" size="large" />
       </div>
     {/if}
@@ -117,7 +136,7 @@
       </ul>  
     </div>
     {#if activeItemIndex + itemsPerPage < artPieces.length}
-      <div class="next" on:click={() => paginate(1)} on:keypress={() => paginate(1)}>
+      <div class="next" on:click={() => paginateClick(1)} on:keypress={() => paginateClick(1)}>
         <Arrow direction="right" color="white" size="large" />
       </div>
     {/if}

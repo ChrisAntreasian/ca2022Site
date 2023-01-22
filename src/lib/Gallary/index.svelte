@@ -28,6 +28,13 @@
 	const navHeight = 6 * rem;
 
 	let gallarySectionHeight: number;
+
+	const setPaginationDetails = (id: number) => {
+		 paginationDetails = {
+			length: paginationDetails.length,
+			position: artPieces.findIndex(_ => _.id === id)
+		}
+	}
 	
 	const initGalary = () => {
 		if (!windowWidth || windowWidth <=  768) return;
@@ -40,6 +47,8 @@
 	
 		document.documentElement.style.setProperty('--gallery-height', `${widgetH / rem}rem`);
 		document.documentElement.style.setProperty('--gallery-section-height', `${gallarySectionHeight}rem`);
+
+		setPaginationDetails(artPiece.id)
 	}
 
 	let windowWidth: number;
@@ -89,10 +98,7 @@
 		}
 		expanded = false;
 		setArtPiece(id);
-		paginationDetails = {
-			length: paginationDetails.length,
-			position: artPieces.findIndex(_ => _.id === id)
-		}
+		setPaginationDetails(id);
 	}
 	
 	const navArtPieceClick = (id: number) => (e: Event) => {
@@ -129,8 +135,6 @@
 			)
 		);
   }
-
-
 
 </script>
 
