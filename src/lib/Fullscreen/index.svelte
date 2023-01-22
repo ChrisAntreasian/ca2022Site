@@ -45,10 +45,10 @@
   style={`--btn-offset: ${btnOffset}%`}
 
 >
-  <img src={fullscreen} alt={"click for fullscreen"} /> 
+  <img src={fullscreen} alt={"click for fullscreen"} />
 </div>
 {#if displayBg}
-  <div class="bg-overlay" 
+  <div class="bg-overlay"
     on:click={close}
     on:keypress={close}
     transition:fade={transitionConfig}
@@ -57,10 +57,10 @@
 {#if displayImg}
 
   <div class="wrap" transition:scale={transitionConfig}>
-    <div 
-      on:click={close} 
+    <div
+      on:click={close}
       on:keypress={close}
-      class="btn close" 
+      class="btn close"
     >
       x
     </div>
@@ -136,7 +136,9 @@
     margin-right: -4rem;
   }
   @media (max-width: 767.98px) {
-    .btn {
+    .btn,
+    .bg-overlay,
+    .wrap {
       display: none;
     }
   }

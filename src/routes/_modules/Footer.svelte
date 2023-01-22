@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from "$app/stores";
 	import { captureClickThis } from "$lib/analytics";
-	
+
 	export let footerHeight: number;
 
 	const navClick = captureClickThis("footer nav");
@@ -59,15 +59,13 @@
 		background-size: contain;
 	}
 	li {
-		position: relative;
-		height: 100%;
-
-	}
-	nav a {
 		display: flex;
 		height: 100%;
 		align-items: center;
+		position: relative;
 		padding: 0 1em;
+	}
+	a {
 		color: var(--off-bk);
 		font-size: 1rem;
 		letter-spacing: 0.05em;
@@ -101,7 +99,7 @@
 		color: var(--b-dk);
 	}
 
-	@media (max-width: 767.98px) { 
+	@media (max-width: 767.98px) {
 		div {
 			flex-direction: column
 		}

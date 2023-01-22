@@ -40,14 +40,15 @@
   afterNavigate(setOverflow);
 
   $: if(windowWidth) setOverflow();
+  $: if(art.id) setOverflow();
 
   let windowHeight: number;
-  
+
   const { getHeaderHeight }: {
-    getHeaderHeight: () => number, 
+    getHeaderHeight: () => number,
     getFooterHeight: () => number
   } = getContext(contextHeightKey);
-  
+
   const handleReadMoreClick = () => {
     readMoreClick(!showMore);
     detailsDiv.scrollTo({top: 0})
@@ -70,7 +71,7 @@
         btnOffset={detailsWidth}
       />
       {#key art.id}
-        <figure 
+        <figure
           class:transition={transitioning}
           in:fade={{duration: 500}}
           out:fade={{duration: 300}}
@@ -84,9 +85,9 @@
           }}"
         >       
           <div class="image" style={`width: ${imageWidth}%`}>
-            <img 
-              src={`${art.attributes.image.data.attributes.url}`} 
-              alt={art.attributes.description} 
+            <img
+              src={`${art.attributes.image.data.attributes.url}`}
+              alt={art.attributes.description}
             />
             
           </div>
@@ -116,7 +117,7 @@
                   {/if}
                 </div>
                 {#if showMore}
-                  <div 
+                  <div
                     class="fade"
                     transition:fade={{duration: 300}}
                   />
@@ -223,7 +224,7 @@
   }
   .md-content-mobile {
     display: none;
-  } 
+  }
   .needs-overflow .fade {
     position: absolute;
     bottom: 0;
@@ -258,7 +259,7 @@
   .pagination-link,
   .readmore {
     cursor: pointer;
-    color: var(--bg-lt);  
+    color: var(--bg-lt);
   }
   span:hover,
   .readmore:hover {
@@ -317,6 +318,9 @@
       display: block;
     }
     .md-content-desktop {
+      display: none;
+    }
+    .readmore {
       display: none;
     }
   }

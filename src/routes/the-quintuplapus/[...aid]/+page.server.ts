@@ -5,18 +5,18 @@ export const load: PageServerLoad = async ({ params }) => {
 	
 	const aid = parseInt(params.aid) || 2;
 	const d = D.data;
-	const atttributes = d.data[0].attributes;
+	const att = d.data[0].attributes;
 
-	const omitIds = atttributes.omit.data.map(_ => _.id)
+	const omitIds = att.omit.data.map(_ => _.id)
 
-	let artPieces = atttributes.art_pieces.data
+	const artPieces = att.art_pieces.data
 		.filter(_ =>	!omitIds.includes(_.id))
 		.sort((a, b) => a.attributes.order - b.attributes.order)
 
 	const artPiece = artPieces.filter(_ => _.id === aid)[0];
-	const categoryTitle = atttributes.title;
+	const categoryTitle = att.title;
 
-	return  { 
+	return  {
 		categoryTitle,
 		artPieces,
 		artPiece
