@@ -17,7 +17,8 @@
   export let gallarySectionHeight: number;
   export let windowWidth: number;
   export let analyticsKey: string;
-  
+  export let subnavHeight: number;
+
   export let readMoreClick: (_: boolean) => void;
 
   export let paginateArtPiece: (s:string) => (n: number) => void;
@@ -59,7 +60,8 @@
 </script>
 <svelte:window bind:innerHeight={windowHeight} />
   <article style={`
-    --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem
+    --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem;
+    --snh: ${subnavHeight / rem}rem;
   `}>
   
     <div class="wrap">
@@ -288,6 +290,7 @@
       height: auto;
       position: relative;
       min-height: var(--min-height-mobile);
+      padding-bottom: calc(var(--snh) + 2rem);
     }
     .image,
     figcaption {

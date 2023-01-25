@@ -1,13 +1,14 @@
 <script lang="ts">
 
-  import { afterUpdate } from "svelte";
-	import { afterNavigate } from '$app/navigation';
+  import { afterUpdate, getContext } from "svelte";
+	
+  import { afterNavigate } from '$app/navigation';
 
 	import { cleanUrlSlug } from "$lib/history";
   import { captureBehavior } from "$lib/analytics";
 
-  import { wrapperWidth, rem, toRem, fromRem } from "$lib/spacing";
-
+  import { wrapperWidth, rem, toRem, fromRem, contextHeightKey, type LayoutElemH } from "$lib/spacing";
+  
   import Arrow from "$lib/arrow/Arrow.svelte"
 
   export let artPieces;
@@ -20,7 +21,8 @@
   export let categoryTitle: string;
   export let analyticsKey: string;
   export let parentRoute: string;
-  
+  export let subnavHeight: number;
+
   const thubmnailWidth = fromRem(6);
   
   let subnavWidth: number;
@@ -36,8 +38,12 @@
 	afterNavigate(initNav);
 	$: if(subnavWidth) initNav();
 
+  const { getMainHeight }: LayoutElemH = getContext(contextHeightKey);
+
   let windowHeight: number;
   let windowWidth: number;
+  let scrollY: number;
+
   $: navHeight = windowHeight * 0.72;
 
   let activeItemIndex = 0;
@@ -90,14 +96,21 @@
       scrollLogged = true;
     }
   }
+  
 </script>
 
 <svelte:window 
   bind:innerHeight={windowHeight} 
-  bind:innerWidth={windowWidth} 
+  bind:innerWidth={windowWidth}
+  bind:scrollY={scrollY}
 />
 
-  <nav class="bnav subnav" bind:clientWidth={subnavWidth} style={`--window-width: ${windowWidth / rem}rem`}>  
+  <nav class="bnav subnav" 
+    class:absolute={windowHeight + scrollY > getMainHeight() + subnavHeight + fromRem(2)}
+    bind:clientWidth={subnavWidth} 
+    bind:clientHeight={subnavHeight} 
+    style={`--window-width: ${windowWidth / rem}rem`}
+  >  
     <div class="subnav-wrap">
     <div class="subnav-handle" on:click={handleMNavClick} on:keypress={handleMNavClick}>
       <h3>{expanded ? categoryTitle: artPiece.attributes.title}</h3>
@@ -256,6 +269,13 @@
       width: auto;
       position: fixed;
       padding: 0;
+      z-index: 100;
+    }
+    .subnav.absolute {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
     }
     .subnav-wrap {
       width: 100%;

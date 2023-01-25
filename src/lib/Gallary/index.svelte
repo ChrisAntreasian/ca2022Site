@@ -26,6 +26,7 @@
 	
 	const extraHeight = 3.5 * rem;
 	const navHeight = 6 * rem;
+	let subnavHeight: number;
 
 	let gallarySectionHeight: number;
 
@@ -159,6 +160,7 @@
 		paginationDetails={paginationDetails}
 		windowWidth={windowWidth}
     analyticsKey={analyticsKey}
+		subnavHeight={subnavHeight}
 	/>
 	<Nav 
 		artPiece={artPiece} 
@@ -169,6 +171,7 @@
 		categoryTitle={categoryTitle}
     analyticsKey={analyticsKey}
 		parentRoute={parentRoute}
+		bind:subnavHeight={subnavHeight}
 	/>
 
 </section>
@@ -183,6 +186,7 @@
 	@media (max-width: 767.98px) {
 		section {
 			height: auto;
+			flex-direction: column;
 		}
 	}
 </style>
