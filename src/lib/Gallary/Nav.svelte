@@ -7,12 +7,14 @@
 	import { cleanUrlSlug } from "$lib/history";
   import { captureBehavior } from "$lib/analytics";
 
-  import { wrapperWidth, rem, toRem, fromRem, contextHeightKey, type LayoutElemH } from "$lib/spacing";
+  import { wrapperWidth, rem, toRem, fromRem, contextHeightKey, type LayoutElemH, mqBreakPoint } from "$lib/spacing";
   
   import Arrow from "$lib/arrow/Arrow.svelte"
+	import type { Art, WithId } from "$lib/types";
 
-  export let artPieces;
-	export let artPiece;
+  export let artPieces: Array<WithId<Art>>;
+  export let artPiece: WithId<Art>;
+
 	export let navArtPieceClick: (_: number) => (e: Event) => void;
 
   export let expanded: boolean;
@@ -22,13 +24,41 @@
   export let analyticsKey: string;
   export let parentRoute: string;
   export let subnavHeight: number;
+  export let articleHeight: number;
+  export let gallarySectionHeight: number;
+  
+  let windowHeight: number;
+  let windowWidth: number;
+  
+  let scrollY: number;
 
-  const thubmnailWidth = fromRem(6);
+  let activeItemIndex = 0;
+  
+  let scrollLogged = false;
   
   let subnavWidth: number;
   let itemsPerPage = 0;
 
+  const thubmnailWidth = fromRem(6);
+
+  const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
+
+  let isAbsolute: boolean;
+  const checkIsAbsolute = () => {
+    if(windowWidth  > mqBreakPoint) return;
+
+    console.log("checkIsAbsolute", {
+      c: scrollY, 
+      gsh: gallarySectionHeight, 
+      snh: subnavHeight + fromRem(2),
+      ah: articleHeight
+    });
+    
+    isAbsolute = scrollY + gallarySectionHeight > articleHeight + fromRem(2.5)//  + subnavHeight + fromRem(2)
+  };
+
   const initNav = () => {
+    checkIsAbsolute();
     itemsPerPage = Math.floor(
       (subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem)
     );
@@ -36,19 +66,14 @@
 
   afterUpdate(initNav);
 	afterNavigate(initNav);
-	$: if(subnavWidth) initNav();
 
-  const { getMainHeight }: LayoutElemH = getContext(contextHeightKey);
-
-  let windowHeight: number;
-  let windowWidth: number;
-  let scrollY: number;
-
+  $: artPieceChanged(artPiece.id)
   $: navHeight = windowHeight * 0.72;
 
-  let activeItemIndex = 0;
-  let scrollLogged = false;
-  
+  $: if(subnavWidth && scrollY) initNav();
+  $: if(scrollY || windowWidth || gallarySectionHeight) checkIsAbsolute();
+
+
   const apPosition = (apid: number) => artPieces.findIndex(_ => _.id === apid);
   
   const paginate = (n: number) => { 
@@ -64,8 +89,6 @@
       paginate(1);
     }
   }
-
-  $: artPieceChanged(artPiece.id)
 
   const paginateClick = (n: number) => {
     paginate(n);
@@ -106,7 +129,7 @@
 />
 
   <nav class="bnav subnav" 
-    class:absolute={windowHeight + scrollY > getMainHeight() + subnavHeight + fromRem(2)}
+    class:absolute={isAbsolute}
     bind:clientWidth={subnavWidth} 
     bind:clientHeight={subnavHeight} 
     style={`--window-width: ${windowWidth / rem}rem`}

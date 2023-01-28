@@ -11,5 +11,4 @@ export const toRem = (_: number) => _ / rem;
 export type LayoutElemH = { 
   getHeaderHeight: () => number, 
   getFooterHeight: () => number,
-  getMainHeight: () => number
 };

@@ -6,7 +6,8 @@
 	import type { PageServerData} from "./$types";
 	
 	export let data: PageServerData;
-	
+	let subnavHeight: number;
+
 	const clientNavigateS = clientNavigate(true);
 	
 	const setPoem = (id: number) => (e: Event) => {
@@ -21,6 +22,14 @@
 </svelte:head>
 
 <section class="w-sidebar" transition:fade={{duration: 300}}>
-	<Article poem={data.poem} />
-	<Nav poems={data.poems} poem={data.poem} setPoem={setPoem} />
+	<Article 
+		poem={data.poem} 
+		subnavHeight={subnavHeight}
+	/>
+	<Nav 
+		poems={data.poems} 
+		poem={data.poem} 
+		setPoem={setPoem}
+		bind:subnavHeight={subnavHeight} 
+	/>
 </section>

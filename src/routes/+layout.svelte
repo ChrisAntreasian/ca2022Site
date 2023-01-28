@@ -14,7 +14,6 @@
 	export let footerHeight: number;
 
 	export let data: LayoutServerData;
-	export let mainHeight: number;
 	
 	initMixpanel();
 	
@@ -23,7 +22,6 @@
 		{ 
 			getHeaderHeight: () => headerHeight, 
 			getFooterHeight: () => footerHeight,
-			getMainHeight: () => mainHeight
 		}
 	)
 
@@ -36,7 +34,7 @@
 	bind:headerHeight={headerHeight} 
 />
 
-<main bind:offsetHeight={mainHeight}>
+<main>
 	<slot />
 </main>
 
