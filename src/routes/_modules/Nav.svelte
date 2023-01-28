@@ -4,7 +4,6 @@
 	import { cleanUrlSlug } from "$lib/history";
 	import { safeImageString } from "$lib/image";	
   import type { StrapiPageDetails } from "$lib/types";
-	import * as mixpanel from "mixpanel-browser";
 	
 	export let links: StrapiPageDetails;
 	const navClick = captureClickThis("home section");

@@ -3,13 +3,14 @@
   import { afterUpdate } from "svelte";
 	import { afterNavigate } from '$app/navigation';
 
-  import type { StrapiArt} from "$lib/types";
 	import { cleanUrlSlug } from "$lib/history";
   import { captureBehavior } from "$lib/analytics";
 
   import { wrapperWidth, rem, toRem, fromRem } from "$lib/spacing";
 
   import Arrow from "$lib/arrow/Arrow.svelte"
+	import { noScroll } from "$lib/body";
+	import { fade } from "svelte/transition";
 
   export let artPieces;
 	export let artPiece;
@@ -19,8 +20,11 @@
   export let setExpanded: (_:boolean) => void;
 
   export let categoryTitle: string;
-
+  export let analyticsKey: string;
+  export let parentRoute: string;
+  
   const thubmnailWidth = fromRem(6);
+  
   let subnavWidth: number;
   let itemsPerPage = 0;
 
@@ -40,31 +44,51 @@
 
   let activeItemIndex = 0;
   let scrollLogged = false;
-
-  const paginate = (n: number) => { 
-    const aii = activeItemIndex + (n * (itemsPerPage - 1))
+  
+  const apPosition = (apid: number) => artPieces.findIndex(_ => _.id === apid);
+  
+  const paginate = (n: number) => {
+    const aii = activeItemIndex + (n * (itemsPerPage - 1));
     activeItemIndex = aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
+  };
+
+  const artPieceChanged = (apId: number) => {
+    const apP = apPosition(apId);
+    if (activeItemIndex !== 0 && apP < activeItemIndex) {
+      paginate(-1);
+    } else if (apP > activeItemIndex + (itemsPerPage -1)) {
+      paginate(1);
+    }
+  }
+
+  $: artPieceChanged(artPiece.id)
+
+  const paginateClick = (n: number) => {
+    paginate(n);
     captureBehavior(
-			`click slider ${n > 0 ? "next" : "last"}`, 
+			`${analyticsKey} click slider ${n > 0 ? "next" : "last"}`, 
 			{
         activeIndex: activeItemIndex,
         itemsPerPage: itemsPerPage
       }
 		);
-  };
+  }
+
   const handleNavArtPieceClick = (id: number) => {
-    navArtPieceClick(id);
     setExpanded(false)
     scrollLogged = false;
+    return navArtPieceClick(id);
   }
+
   const handleMNavClick = () => {
     setExpanded(!expanded)
-    captureBehavior("click expand mobile nav", {expanded: expanded});
+    captureBehavior(`${analyticsKey} click expand mobile nav`, {expanded: expanded});
     scrollLogged = false
   }
+
   const scrollMNav = () => {
     if (!scrollLogged) {
-      captureBehavior("scroll mobile nav");
+      captureBehavior(`${analyticsKey} scroll mobile nav`);
       scrollLogged = true;
     }
   }
@@ -75,6 +99,14 @@
   bind:innerWidth={windowWidth} 
 />
 
+<svelte:body use:noScroll={expanded} />
+{#if expanded}
+  <div class="bg-overlay"
+    on:click={close}
+    on:keypress={close}
+    transition:fade={{duration: 200}} 
+    />
+{/if}
   <nav class="bnav subnav" bind:clientWidth={subnavWidth} style={`--window-width: ${windowWidth / rem}rem`}>  
     <div class="subnav-wrap">
     <div class="subnav-handle" on:click={handleMNavClick} on:keypress={handleMNavClick}>
@@ -84,7 +116,7 @@
       </div>
     </div>
     {#if activeItemIndex > 0}
-      <div class="last" on:click={() => paginate(-1)} on:keypress={() => paginate(-1)}>
+      <div class="last" on:click={() => paginateClick(-1)} on:keypress={() => paginateClick(-1)}>
         <Arrow direction="left" color="white" size="large" />
       </div>
     {/if}
@@ -100,8 +132,8 @@
         {#each artPieces as _}
           <li class:active={_.id === artPiece.id}>
             <a
-              on:click={() => handleNavArtPieceClick(_.id)}
-              href="{`/the-quintuplapus/${_.id}/${cleanUrlSlug(_.attributes.title)}`}"
+              on:click={handleNavArtPieceClick(_.id)}
+              href="{`${parentRoute}${_.id}/${cleanUrlSlug(_.attributes.title)}`}"
               class:active="{_.id === artPiece.id}" 
             >
               <img 
@@ -114,11 +146,11 @@
       </ul>  
     </div>
     {#if activeItemIndex + itemsPerPage < artPieces.length}
-      <div class="next" on:click={() => paginate(1)} on:keypress={() => paginate(1)}>
+      <div class="next" on:click={() => paginateClick(1)} on:keypress={() => paginateClick(1)}>
         <Arrow direction="right" color="white" size="large" />
       </div>
     {/if}
-  </div>
+  </div> 
 </nav>
 
 <style>
@@ -228,12 +260,16 @@
     height: 4rem;
     display: flex;
   }
+  .bg-overlay {
+    display: none;
+  }
   @media (max-width: 767.98px) { 
     nav {
       height: auto;
       width: auto;
       position: fixed;
       padding: 0;
+      z-index: 200;
     }
     .subnav-wrap {
       width: 100%;
@@ -276,6 +312,9 @@
     }
     .next, .last {
       display: none;
+    }
+    .bg-overlay {
+      display: block;
     }
   }
 

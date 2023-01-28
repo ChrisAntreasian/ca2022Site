@@ -8,20 +8,14 @@ import * as qs from "qs";
 import type { StrapiArtCategory } from '$lib/types';
 
 const q = qs.stringify({
-	filters: {
-		id: { $in: 3 },
-	},
+
   populate: [
-		"omit",
-		"featured",
-    "art_pieces",
-    "art_pieces.image",
-		"art_pieces.image.media",
+    "image",
+		"image.media",
   ],
 });
-
 const fetchData = async () => {
-  const response = await mkRequest("GET", `art-categories?${q}`);
+  const response = await mkRequest("GET", `soul-juices?${q}`);
 	return await handleGetResponse(response);
 }
 
@@ -34,11 +28,11 @@ export const load: PageServerLoad = async ({ params, route }) => {
 
   const res = await fetchData();
   if (res.ok) {
-    const out: StrapiArtCategory = await res.json()
-    const data = await writeFs<StrapiArtCategory>(mkKey(route.id), out);
-
+    const out = await res.json()
+    const data = await writeFs(mkKey(route.id), out);
+    console.log(data, out)
     return {
-      title: "The Quintuplapus",
+      title: "The SoulJuicer",
       data
     }; 
   }

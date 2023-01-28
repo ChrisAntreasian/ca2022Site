@@ -14,7 +14,7 @@ const mkDistinctId = (arr: string[]): string => {
   if (!arr.includes(dId)) return dId;
 	mkDistinctId(arr);
 }
-
+import.meta.env.PROD
 export const initDistinctId = async (cookies: Cookies) => {
 
 	const cid = cookies.get("distinctId");
@@ -42,6 +42,7 @@ export const captureDetails = (
 });
 
 export const captureBehavior = async (eKey: string, props?: any) => {
+	if (!import.meta.env.PROD) return;
 	const details: Record<string, any> = {...props};
   mixpanel.track(eKey, details);
 }

@@ -5,10 +5,7 @@
   export let size: "small" | "medium" | "large" 
 </script>
 
-<div
-  alt="an arrow"
-  class={`arrow ${direction} ${color} ${size}`} 
-/>
+<div class={`arrow ${direction} ${color} ${size}`} />
 
 <style>
   .arrow {
