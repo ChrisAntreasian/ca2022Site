@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { afterNavigate, beforeNavigate } from '$app/navigation';
+  import { afterNavigate } from '$app/navigation';
   import { fade } from "svelte/transition";
   import SvelteMarkdown from 'svelte-markdown'
 
@@ -16,26 +16,25 @@
   export let showMore: boolean;
   export let gallarySectionHeight: number;
   export let windowWidth: number;
+  export let analyticsKey: string;
+  
+  export let readMoreClick: (_: boolean) => void;
+
+  export let paginateArtPiece: (s:string) => (n: number) => void;
   export let paginationDetails: {
     length: number,
     position: number
   }
-  export let analyticsKey: string;
-  export let paginateArtPiece: (n: number) => void;
-  export let readMoreClick: (_: boolean) => void;
-  
+
   let transitioning = false;
   let headlineHeight: number;
   let metaHeight: number;
-  let needsOverflow = false;
+  let needsReadmore = false;
   let detailsDiv: HTMLDivElement;
 
   const setOverflow = () => {
-    console.log("setOverflow");
     if (!detailsDiv || windowWidth < mqBreakPoint) return;
-
-    needsOverflow = detailsDiv.scrollHeight > detailsDiv.clientHeight;
-    console.log("after condition", needsOverflow);
+    needsReadmore = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
 
   afterNavigate(setOverflow);
@@ -54,13 +53,23 @@
     readMoreClick(!showMore);
     detailsDiv.scrollTo({top: 0})
   }
-</script>
 
+  const paginateGal = paginateArtPiece(analyticsKey);
+
+</script>
 <svelte:window bind:innerHeight={windowHeight} />
   <article style={`
     --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem
   `}>
+  
     <div class="wrap">
+      <FullScreen 
+        img={art} 
+        analyticsKey={analyticsKey} 
+        paginateArtPiece={paginateArtPiece} 
+        paginationDetails={paginationDetails}
+        btnOffset={detailsWidth}
+      />
       {#key art.id}
         <figure
           class:transition={transitioning}
@@ -71,22 +80,22 @@
             transitioning = false;
           }}"
           on:outrostart="{() => {
-            needsOverflow = false;
+            needsReadmore = false;
             transitioning = true;
           }}"
-        >
+        >       
           <div class="image" style={`width: ${imageWidth}%`}>
             <img
               src={`${art.attributes.image.data.attributes.url}`}
               alt={art.attributes.description}
             />
-            <FullScreen img={art} analyticsKey={analyticsKey}/>
+            
           </div>
           <figcaption style={`--caption-width: ${detailsWidth}%`}>
             <div>
               <h3 bind:clientHeight={headlineHeight}>{art.attributes.title}</h3>
-              <div class={`md-wrap ${!showMore ? "overflow" : needsOverflow ? "needs-overflow" : ""}`}>
-                <div
+              <div class={`md-wrap ${!showMore ? "overflow" : needsReadmore ? "needs-overflow" : ""}`}>
+                <div 
                   bind:this={detailsDiv}
                   class="md-content"
                   style={`height: ${`${(gallarySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem}rem;`}`}
@@ -97,7 +106,7 @@
                   <span class="md-content-mobile">
                     <SvelteMarkdown source={`${art.attributes.title} ${art.attributes.description}`} />
                   </span>
-                  {#if needsOverflow}
+                  {#if needsReadmore}
                     <div class="readmore"
                       transition:fade={{duration: 300}}
                       on:click={handleReadMoreClick}
@@ -132,12 +141,11 @@
               </div>
               <div>
                 <div class="pagination">
-                  {paginationDetails.position}
                   {#if paginationDetails.position !== 0 }
                     <span
                       class="pagination-link last"
-                      on:click={() => paginateArtPiece(-1)}
-                      on:keypress={() => paginateArtPiece(-1)}
+                      on:click={() => paginateGal(-1)}
+                      on:keypress={() => paginateGal(-1)}
                     >
                       <Arrow color="blue" size="small" direction="left" />
                       last
@@ -149,8 +157,8 @@
                   {#if paginationDetails.position + 1 < paginationDetails.length}
                     <span
                       class="pagination-link next"
-                      on:click={() => paginateArtPiece(1)}
-                      on:keypress={() => paginateArtPiece(1)}
+                      on:click={() => paginateGal(1)}
+                      on:keypress={() => paginateGal(1)}
                     >
                       next
                       <Arrow color="blue" size="small" direction="right" />

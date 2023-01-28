@@ -7,6 +7,8 @@
 	import { cleanUrlSlug } from "$lib/history";
 	import { toRem } from "$lib/spacing";
 	import { captureBehavior, captureDetails } from "$lib/analytics";
+	import { noScroll } from "$lib/body";
+	import { fade } from "svelte/transition";
 
 	export let poems;
 	export let poem;
@@ -40,7 +42,14 @@
 </script>
 	
 <svelte:window bind:innerHeight={windowHeight} />
-
+<svelte:body use:noScroll={expanded} />
+{#if expanded}
+  <div class="bg-overlay"
+    on:click={close}
+    on:keypress={close}
+    transition:fade={{duration: 200}} 
+    />
+{/if}
 <nav class="bnav bnav-aside subnav">
 	<div class="subnav-wrap">
 		<div class="subnav-handle" 
@@ -87,7 +96,13 @@
 	a:active {
 		color: var(--y-md);
 	}
+	.bg-overlay {
+			display: none;
+		}
 	@media (max-width: 767.98px) { 
+		nav {
+			z-index: 200;
+		}
 		.subnav-handle {
 			height: var(--header-height);
 			width: 100%;
@@ -105,6 +120,9 @@
 		}
 		li:last-of-type {
 			padding-bottom: 2rem;
+		}
+		.bg-overlay {
+			display: block;
 		}
 	}
 </style>
