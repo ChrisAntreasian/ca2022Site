@@ -21,9 +21,9 @@
   export let parentRoute: string;
   export let analyticsKey: string;
   export let categoryTitle: string;
-	
+
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
-	
+
 	const extraHeight = 3.5 * rem;
 	const navHeight = 6 * rem;
 
@@ -35,14 +35,14 @@
 			position: artPieces.findIndex(_ => _.id === id)
 		}
 	}
-	
+
 	const initGalary = () => {
 		if (!windowWidth || windowWidth <=  768) return;
 
 		const footerHeight = getFooterHeight();
 		const headerHeight = getHeaderHeight();
 		const widgetH = window.outerHeight - footerHeight - headerHeight - extraHeight;
-		
+	
 		gallarySectionHeight = Math.ceil((widgetH - navHeight - rem) / rem);
 	
 		document.documentElement.style.setProperty('--gallery-height', `${widgetH / rem}rem`);

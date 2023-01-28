@@ -107,8 +107,8 @@
                     <SvelteMarkdown source={`${art.attributes.title} ${art.attributes.description}`} />
                   </span>
                   {#if needsReadmore}
-                    <div class="readmore" 
-                      transition:fade={{duration: 300}} 
+                    <div class="readmore"
+                      transition:fade={{duration: 300}}
                       on:click={handleReadMoreClick}
                       on:keypress={handleReadMoreClick}
                     >
@@ -142,8 +142,8 @@
               <div>
                 <div class="pagination">
                   {#if paginationDetails.position !== 0 }
-                    <span 
-                      class="pagination-link last" 
+                    <span
+                      class="pagination-link last"
                       on:click={() => paginateGal(-1)}
                       on:keypress={() => paginateGal(-1)}
                     >
@@ -155,8 +155,8 @@
                     <span>|</span>
                   {/if}
                   {#if paginationDetails.position + 1 < paginationDetails.length}
-                    <span 
-                      class="pagination-link next" 
+                    <span
+                      class="pagination-link next"
                       on:click={() => paginateGal(1)}
                       on:keypress={() => paginateGal(1)}
                     >

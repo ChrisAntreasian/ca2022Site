@@ -9,6 +9,8 @@
   import { wrapperWidth, rem, toRem, fromRem } from "$lib/spacing";
 
   import Arrow from "$lib/arrow/Arrow.svelte"
+	import { noScroll } from "$lib/body";
+	import { fade } from "svelte/transition";
 
   export let artPieces;
 	export let artPiece;
@@ -45,8 +47,8 @@
   
   const apPosition = (apid: number) => artPieces.findIndex(_ => _.id === apid);
   
-  const paginate = (n: number) => { 
-    const aii = activeItemIndex + (n * (itemsPerPage - 1));  
+  const paginate = (n: number) => {
+    const aii = activeItemIndex + (n * (itemsPerPage - 1));
     activeItemIndex = aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
   };
 
@@ -97,6 +99,14 @@
   bind:innerWidth={windowWidth} 
 />
 
+<svelte:body use:noScroll={expanded} />
+{#if expanded}
+  <div class="bg-overlay"
+    on:click={close}
+    on:keypress={close}
+    transition:fade={{duration: 200}} 
+    />
+{/if}
   <nav class="bnav subnav" bind:clientWidth={subnavWidth} style={`--window-width: ${windowWidth / rem}rem`}>  
     <div class="subnav-wrap">
     <div class="subnav-handle" on:click={handleMNavClick} on:keypress={handleMNavClick}>
@@ -250,12 +260,16 @@
     height: 4rem;
     display: flex;
   }
+  .bg-overlay {
+    display: none;
+  }
   @media (max-width: 767.98px) { 
     nav {
       height: auto;
       width: auto;
       position: fixed;
       padding: 0;
+      z-index: 200;
     }
     .subnav-wrap {
       width: 100%;
@@ -298,6 +312,9 @@
     }
     .next, .last {
       display: none;
+    }
+    .bg-overlay {
+      display: block;
     }
   }
 
