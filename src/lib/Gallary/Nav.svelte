@@ -26,7 +26,8 @@
   export let subnavHeight: number;
   export let articleHeight: number;
   export let gallarySectionHeight: number;
-  
+  export let sectinHeight: number;
+
   let windowHeight: number;
   let windowWidth: number;
   
@@ -51,7 +52,8 @@
       c: scrollY, 
       gsh: gallarySectionHeight, 
       snh: subnavHeight + fromRem(2),
-      ah: articleHeight
+      ah: articleHeight,
+      sh: sectinHeight
     });
     
     isAbsolute = scrollY + gallarySectionHeight > articleHeight + fromRem(2.5)//  + subnavHeight + fromRem(2)

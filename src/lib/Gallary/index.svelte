@@ -23,7 +23,7 @@
   export let categoryTitle: string;
 	
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
-	
+	let sectinHeight: number;
 	let windowWidth: number;
 	let windowHeight: number;
 
@@ -152,7 +152,7 @@
   {/each}
 </svelte:head>
 
-<section transition:fade={{duration: 300}}>
+<section bind:offsetHeight={sectinHeight} transition:fade={{duration: 300}}>
 
 	<Article 
 		artPiece={artPiece} 
@@ -180,6 +180,7 @@
 		articleHeight={articleHeight}
 		bind:subnavHeight={subnavHeight}
 		gallarySectionHeight={gallarySectionHeight}
+		sectinHeight={sectinHeight}
 
 	/>
 
