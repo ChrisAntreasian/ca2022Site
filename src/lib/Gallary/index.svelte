@@ -21,6 +21,7 @@
   export let parentRoute: string;
   export let analyticsKey: string;
   export let categoryTitle: string;
+	export let hideMobileTitle: boolean = false;
 
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
 
@@ -159,6 +160,7 @@
 		paginationDetails={paginationDetails}
 		windowWidth={windowWidth}
     analyticsKey={analyticsKey}
+		hideMobileTitle={hideMobileTitle}
 	/>
 	<Nav 
 		artPiece={artPiece} 
