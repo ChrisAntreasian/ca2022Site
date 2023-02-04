@@ -17,7 +17,7 @@
   export let gallarySectionHeight: number;
   export let windowWidth: number;
   export let analyticsKey: string;
-  
+  export let hideMobileTitle: boolean;
   export let readMoreClick: (_: boolean) => void;
 
   export let paginateArtPiece: (s:string) => (n: number) => void;
@@ -104,7 +104,7 @@
                     <SvelteMarkdown source={art.attributes.description} />
                   </span>
                   <span class="md-content-mobile">
-                    <SvelteMarkdown source={`${art.attributes.title} ${art.attributes.description}`} />
+                    <SvelteMarkdown source={`${hideMobileTitle ? "" : art.attributes.title} ${art.attributes.description}`} />
                   </span>
                   {#if needsReadmore}
                     <div class="readmore"
@@ -224,6 +224,7 @@
   }
   .md-content-mobile {
     display: none;
+    margin-top:1rem;
   }
   .needs-overflow .fade {
     position: absolute;
