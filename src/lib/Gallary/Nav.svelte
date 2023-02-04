@@ -75,7 +75,6 @@
   $: if(subnavWidth && scrollY) initNav();
   $: if(scrollY || windowWidth || gallarySectionHeight) checkIsAbsolute();
 
-
   const apPosition = (apid: number) => artPieces.findIndex(_ => _.id === apid);
   
   const paginate = (n: number) => { 

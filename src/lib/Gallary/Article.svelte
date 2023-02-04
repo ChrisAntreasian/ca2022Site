@@ -9,8 +9,9 @@
 
   import { contextHeightKey, mqBreakPoint } from "$lib/spacing";
 	import { getContext, onMount } from "svelte";
+	import type { Art, WithId } from '$lib/types';
 
-  export let artPiece;
+  export let artPiece: WithId<Art>;
   export let imageWidth: number;
   export let detailsWidth: number;
   export let showMore: boolean;

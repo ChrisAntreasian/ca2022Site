@@ -7,7 +7,7 @@
 	
 	export let data: PageServerData;
 	let subnavHeight: number;
-
+	let contentHeight: number;
 	const clientNavigateS = clientNavigate(true);
 	
 	const setPoem = (id: number) => (e: Event) => {
@@ -21,7 +21,7 @@
 	<title>My Poems</title>
 </svelte:head>
 
-<section class="w-sidebar" transition:fade={{duration: 300}}>
+<section class="w-sidebar" transition:fade={{duration: 300}} bind:clientHeight={contentHeight}>
 	<Article 
 		poem={data.poem} 
 		subnavHeight={subnavHeight}
@@ -30,6 +30,7 @@
 		poems={data.poems} 
 		poem={data.poem} 
 		setPoem={setPoem}
-		bind:subnavHeight={subnavHeight} 
+		contentHeight={contentHeight}
+		bind:subnavHeight={subnavHeight}
 	/>
 </section>

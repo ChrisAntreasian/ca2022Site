@@ -7,13 +7,15 @@
 	import { cleanUrlSlug } from "$lib/history";
 	import { contextHeightKey, fromRem, mqBreakPoint, toRem, type LayoutElemH } from "$lib/spacing";
 	import { captureBehavior, captureDetails } from "$lib/analytics";
-	import { getContext } from "svelte";
+	import { afterUpdate, getContext } from "svelte";
+	import { afterNavigate } from "$app/navigation";
 
 	export let poems;
 	export let poem;
 	export let setPoem: (_: number) => (e: Event) => void;
 	export let subnavHeight: number;
-  
+  export let contentHeight: number;
+	
 	let windowHeight: number;
   let windowWidth: number;
   let scrollY: number;
@@ -26,15 +28,22 @@
 
 	const checkIsAbsolute = () => {
 		if (windowWidth > mqBreakPoint) return
-		console.log(windowWidth < mqBreakPoint && windowHeight + scrollY > getHeaderHeight() + subnavHeight + fromRem(2))
-		windowWidth < mqBreakPoint && windowHeight + scrollY > getHeaderHeight() + subnavHeight + fromRem(2)
-	
+		console.log("checkIsAbsolute", {
+      s: scrollY, 
+      snh: subnavHeight,
+      wh: windowHeight,
+      ch: contentHeight
+    });
+		isAbsolute =  windowHeight + scrollY - subnavHeight > contentHeight;
 	};
 
-	$: navHeight = windowHeight * 0.72;
-  $: if(subnavWidth || getHeaderHeight()) checkIsAbsolute();
+	afterUpdate(checkIsAbsolute);
+	afterNavigate(checkIsAbsolute);
 
-	const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
+	$: navHeight = windowHeight * 0.72;
+  $: if(scrollY || windowWidth || contentHeight) checkIsAbsolute();
+
+	// const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
 
 	const handleLinkClick = (_: StrapiPoem["data"][number]) => {
 		if (_.id == poem.id) return;
