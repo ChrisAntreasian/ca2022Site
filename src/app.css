@@ -133,10 +133,12 @@ p, span, div, li {
 	font-size: 1.15rem;
 }
 
-p {
+p,
+.md-content-desktop li {
 	margin: 1rem 0;
 }
-p:last-of-type {
+p:last-of-type,
+.md-content-desktop li:last-of-type {
 	margin-bottom: 0;
 }
 article {
