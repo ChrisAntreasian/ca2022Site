@@ -23,7 +23,7 @@
   export let categoryTitle: string;
 	export let measureH: number;
 	export let hideMobileTitle: boolean = false;
-	
+
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
 	
 	let windowWidth: number;
@@ -186,8 +186,6 @@
 		measureH={measureH}
 		bind:subnavHeight={subnavHeight}
 		bind:scrollRequestUpdate={scrollRequestUpdate}
-
-
 	/>
 
 </section>

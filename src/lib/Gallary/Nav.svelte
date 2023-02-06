@@ -120,9 +120,7 @@
   bind:scrollY={scrollY}
 />
 <svelte:body use:noScroll={expanded} />
-
   
-  >  
 {#if expanded}
   <div class="bg-overlay"
     on:click={close}

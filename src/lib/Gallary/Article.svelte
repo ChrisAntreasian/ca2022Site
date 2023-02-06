@@ -76,8 +76,7 @@
   bind:innerHeight={windowHeight} 
   bind:innerWidth={windowWidth}
   bind:scrollY={scrollY}
-
-  />
+/>
   <article style={`
     --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem;
     --snh: ${subnavHeight / rem}rem;
@@ -127,7 +126,7 @@
                     <SvelteMarkdown source={artPiece.attributes.description} />
                   </span>
                   <span class="md-content-mobile">
-                    <SvelteMarkdown source={`${hideMobileTitle ? "" : art.attributes.title} ${art.attributes.description}`} />
+                    <SvelteMarkdown source={`${hideMobileTitle ? "" : artPiece.attributes.title} ${artPiece.attributes.description}`} />
                   </span>
                   {#if needsReadmore}
                     <div class="readmore"
