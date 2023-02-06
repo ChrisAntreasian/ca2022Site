@@ -8,7 +8,7 @@
 	import { afterNavigate } from '$app/navigation';
 
 	import { clientNavigate } from "$lib/history";
-	import { contextHeightKey, rem, mqBreakPoint, type LayoutElemH, fromRem } from "$lib/spacing";
+	import { contextHeightKey, rem, mqBreakPoint, type LayoutElemH, fromRem, toRem } from "$lib/spacing";
 
 	import Article from "$lib/Gallary/Article.svelte"
 	import Nav from "$lib/Gallary/Nav.svelte"
@@ -34,7 +34,7 @@
 	let gallarySectionHeight: number;
 	let scrollRequestUpdate: boolean = false;
 	
-	const extraHeight = fromRem(3.5);
+	const extraHeight = fromRem(0.5);
 	const navHeight = fromRem(6);
 	
 	const transitionDetails = {
@@ -52,15 +52,13 @@
 	const initGalary = () => {
 
 		const footerHeight = getFooterHeight();
-		const headerHeight = getHeaderHeight();
-		const widgetH = windowHeight - footerHeight - headerHeight - extraHeight;
+		const widgetH = windowHeight + extraHeight - footerHeight;
 		
 		gallarySectionHeight = Math.ceil((widgetH - navHeight - rem) / rem);
 
 		if (!windowWidth || windowWidth <=  768) return;
 
-		
-		document.documentElement.style.setProperty('--gallery-height', `${widgetH / rem}rem`);
+		document.documentElement.style.setProperty('--gallery-height', `${toRem(widgetH)}rem`);
 		document.documentElement.style.setProperty('--gallery-section-height', `${gallarySectionHeight}rem`);
 
 		setPaginationDetails(artPiece.id)
