@@ -193,6 +193,9 @@ ul {
 .m-only {
 	display: none;
 }
+.mh {
+	display: none;
+}
 @media (max-width: 767.98px) {
 	.d-only {
 		display: none;
@@ -249,6 +252,13 @@ ul {
 		justify-content: center;
 		align-items: center;
 		flex: 1;
+	}
+	.mh {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		z-index: -1;
+		display: block;
 	}
 }
 section.home {

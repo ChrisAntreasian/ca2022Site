@@ -24,9 +24,9 @@
   export let analyticsKey: string;
   export let parentRoute: string;
   export let subnavHeight: number;
-  export let articleHeight: number;
   export let gallarySectionHeight: number;
-  export let sectinHeight: number;
+  export let scrollRequestUpdate: boolean;
+  export let measureH: number;
 
   let windowHeight: number;
   let windowWidth: number;
@@ -42,28 +42,17 @@
 
   const thubmnailWidth = fromRem(6);
 
-  const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
-
   let isAbsolute: boolean;
   const checkIsAbsolute = () => {
     if(windowWidth  > mqBreakPoint) return;
+    if(!scrollRequestUpdate) scrollRequestUpdate = true;
 
-    console.log("checkIsAbsolute", {
-      c: scrollY, 
-      gsh: gallarySectionHeight, 
-      snh: subnavHeight + fromRem(2),
-      ah: articleHeight,
-      sh: sectinHeight
-    });
-    
-    isAbsolute = scrollY + gallarySectionHeight > articleHeight + fromRem(2.5)//  + subnavHeight + fromRem(2)
+    isAbsolute = scrollY + windowHeight - subnavHeight > measureH;
   };
 
   const initNav = () => {
     checkIsAbsolute();
-    itemsPerPage = Math.floor(
-      (subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem)
-    );
+    itemsPerPage = Math.floor((subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem));
   }
 
   afterUpdate(initNav);

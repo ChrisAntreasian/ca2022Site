@@ -21,19 +21,20 @@
   export let parentRoute: string;
   export let analyticsKey: string;
   export let categoryTitle: string;
-	
+	export let measureH: number;
+
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
-	let sectinHeight: number;
+	
 	let windowWidth: number;
 	let windowHeight: number;
 
 	let subnavHeight: number;
 	let gallarySectionHeight: number;
-
+	let scrollRequestUpdate: boolean = false;
+	
 	const extraHeight = fromRem(3.5);
 	const navHeight = fromRem(6);
 	
-	let articleHeight: number;
 	const transitionDetails = {
 		easing: cubicOut,
     duration: 700,
@@ -152,7 +153,7 @@
   {/each}
 </svelte:head>
 
-<section bind:offsetHeight={sectinHeight} transition:fade={{duration: 300}}>
+<section transition:fade={{duration: 300}}>
 
 	<Article 
 		artPiece={artPiece} 
@@ -166,7 +167,8 @@
 		windowWidth={windowWidth}
     analyticsKey={analyticsKey}
 		subnavHeight={subnavHeight}
-		bind:articleHeight={articleHeight}
+		scrollRequestUpdate={scrollRequestUpdate}
+		bind:measureH={measureH}
 	/>
 	<Nav 
 		artPiece={artPiece} 
@@ -177,10 +179,11 @@
 		categoryTitle={categoryTitle}
     analyticsKey={analyticsKey}
 		parentRoute={parentRoute}
-		articleHeight={articleHeight}
-		bind:subnavHeight={subnavHeight}
 		gallarySectionHeight={gallarySectionHeight}
-		sectinHeight={sectinHeight}
+		measureH={measureH}
+		bind:subnavHeight={subnavHeight}
+		bind:scrollRequestUpdate={scrollRequestUpdate}
+
 
 	/>
 

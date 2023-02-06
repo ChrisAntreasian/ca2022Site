@@ -8,7 +8,7 @@
   import FullScreen from '../Fullscreen/index.svelte';
 
   import { contextHeightKey, mqBreakPoint } from "$lib/spacing";
-	import { getContext, onMount } from "svelte";
+	import { getContext } from "svelte";
 	import type { Art, WithId } from '$lib/types';
 
   export let artPiece: WithId<Art>;
@@ -19,8 +19,8 @@
   export let windowWidth: number;
   export let analyticsKey: string;
   export let subnavHeight: number;
-  export let articleHeight: number;
-
+  export let measureH: number;
+  export let scrollRequestUpdate: boolean;
   export let readMoreClick: (_: boolean) => void;
 
   export let paginateArtPiece: (s:string) => (n: number) => void;
@@ -35,7 +35,6 @@
   let needsReadmore = false;
   let detailsDiv: HTMLDivElement;
   let contentHeight: number;
-
   let scrollY: number;
 
   const setOverflow = () => {
@@ -70,11 +69,7 @@
   }
 
   const paginateGal = paginateArtPiece(analyticsKey);
-  $: if(articleHeight) console.log("ArticleHeight", articleHeight);
-  $: console.log(windowHeight, articleHeight);
-  let xx: number;
-  onMount(() => xx);
-
+  
 </script>
 <svelte:window
   bind:innerHeight={windowHeight} 
@@ -82,13 +77,13 @@
   bind:scrollY={scrollY}
 
   />
-  <article 
-  bind:clientHeight={articleHeight}
-  style={`
+  <article style={`
     --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem;
     --snh: ${subnavHeight / rem}rem;
   `}>
-  
+   {#key scrollRequestUpdate}
+      <div bind:offsetHeight={measureH} class="mh" />
+    {/key}
     <div class="wrap">
       <FullScreen 
         img={artPiece} 
@@ -348,7 +343,13 @@
     .md-content-desktop {
       display: none;
     }
+    .details {
+      padding-top: 0.5rem;
+    }
     .readmore {
+      display: none;
+    }
+    .fade {
       display: none;
     }
   }

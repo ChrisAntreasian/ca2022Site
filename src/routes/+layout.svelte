@@ -12,7 +12,7 @@
 
 	export let headerHeight: number;
 	export let footerHeight: number;
-
+	
 	export let data: LayoutServerData;
 	
 	initMixpanel();
@@ -42,6 +42,7 @@
 
 <style>
 	main {
+		position: relative;
 		width: 100%;
 		max-width: var(--wrapper-width);
 		display: flex;

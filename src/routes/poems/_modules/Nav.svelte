@@ -1,40 +1,36 @@
-
-
 <script lang="ts">
 	import Arrow from "$lib/arrow/Arrow.svelte";
 
-  import type { StrapiPoem} from "$lib/types";
+  import type { Poem, StrapiPoem, WithId} from "$lib/types";
 	import { cleanUrlSlug } from "$lib/history";
-	import { contextHeightKey, fromRem, mqBreakPoint, toRem, type LayoutElemH } from "$lib/spacing";
+	import { mqBreakPoint, toRem } from "$lib/spacing";
 	import { captureBehavior, captureDetails } from "$lib/analytics";
-	import { afterUpdate, getContext } from "svelte";
+	import { afterUpdate } from "svelte";
 	import { afterNavigate } from "$app/navigation";
 
-	export let poems;
-	export let poem;
+	export let poems; Array<WithId<Poem>>
+	export let poem: WithId<Poem>;
 	export let setPoem: (_: number) => (e: Event) => void;
-	export let subnavHeight: number;
   export let contentHeight: number;
+	export let measureH: number;
+	export let scrollRequestUpdate: boolean;
+
+	export let subnavHeight: number;
 	
 	let windowHeight: number;
   let windowWidth: number;
   let scrollY: number;
 
 	let expanded = false;
-	let subnavWidth: number;
 	
 	let scrollLogged = false;
 	let isAbsolute: boolean;
 
 	const checkIsAbsolute = () => {
 		if (windowWidth > mqBreakPoint) return
-		console.log("checkIsAbsolute", {
-      s: scrollY, 
-      snh: subnavHeight,
-      wh: windowHeight,
-      ch: contentHeight
-    });
-		isAbsolute =  windowHeight + scrollY - subnavHeight > contentHeight;
+		if(!scrollRequestUpdate) scrollRequestUpdate = true;
+
+    isAbsolute = scrollY + windowHeight - subnavHeight > measureH;
 	};
 
 	afterUpdate(checkIsAbsolute);
@@ -42,8 +38,6 @@
 
 	$: navHeight = windowHeight * 0.72;
   $: if(scrollY || windowWidth || contentHeight) checkIsAbsolute();
-
-	// const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
 
 	const handleLinkClick = (_: StrapiPoem["data"][number]) => {
 		if (_.id == poem.id) return;
@@ -74,7 +68,6 @@
 />
 <nav class="bnav bnav-aside subnav"
 	class:absolute={isAbsolute}
-	bind:clientWidth={subnavWidth} 
 	bind:clientHeight={subnavHeight} 
 >
 	<div class="subnav-wrap">
