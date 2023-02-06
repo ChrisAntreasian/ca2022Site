@@ -1,24 +1,46 @@
-
-
 <script lang="ts">
 	import Arrow from "$lib/arrow/Arrow.svelte";
 
-  import type { StrapiPoem} from "$lib/types";
+  import type { Poem, StrapiPoem, WithId} from "$lib/types";
 	import { cleanUrlSlug } from "$lib/history";
-	import { toRem } from "$lib/spacing";
+	import { mqBreakPoint, toRem } from "$lib/spacing";
 	import { captureBehavior, captureDetails } from "$lib/analytics";
+	import { afterUpdate } from "svelte";
+	import { afterNavigate } from "$app/navigation";
 	import { noScroll } from "$lib/body";
 	import { fade } from "svelte/transition";
 
-	export let poems;
-	export let poem;
+	export let poems; Array<WithId<Poem>>
+	export let poem: WithId<Poem>;
 	export let setPoem: (_: number) => (e: Event) => void;
+  export let contentHeight: number;
+	export let measureH: number;
+	export let scrollRequestUpdate: boolean;
+
+	export let subnavHeight: number;
+	
+	let windowHeight: number;
+  let windowWidth: number;
+  let scrollY: number;
 
 	let expanded = false;
-	let windowHeight: number;
-  let scrollLogged = false;
+	
+	let scrollLogged = false;
+	let isAbsolute: boolean;
+
+	const checkIsAbsolute = () => {
+		if (windowWidth > mqBreakPoint) return
+		if(!scrollRequestUpdate) scrollRequestUpdate = true;
+
+    isAbsolute = scrollY + windowHeight - subnavHeight > measureH;
+	};
+
+	afterUpdate(checkIsAbsolute);
+	afterNavigate(checkIsAbsolute);
 
 	$: navHeight = windowHeight * 0.72;
+  $: if(scrollY || windowWidth || contentHeight) checkIsAbsolute();
+
 	const handleLinkClick = (_: StrapiPoem["data"][number]) => {
 		if (_.id == poem.id) return;
 		setPoem(_.id);
@@ -41,16 +63,24 @@
   }
 </script>
 	
-<svelte:window bind:innerHeight={windowHeight} />
+<svelte:window 
+  bind:innerHeight={windowHeight} 
+  bind:innerWidth={windowWidth}
+  bind:scrollY={scrollY}
+/>
 <svelte:body use:noScroll={expanded} />
-{#if expanded}
-  <div class="bg-overlay"
-    on:click={close}
-    on:keypress={close}
-    transition:fade={{duration: 200}} 
-    />
-{/if}
-<nav class="bnav bnav-aside subnav">
+
+<nav class="bnav bnav-aside subnav"
+	class:absolute={isAbsolute}
+	bind:clientHeight={subnavHeight} 
+>
+	{#if expanded}
+		<div class="bg-overlay"
+			on:click={close}
+			on:keypress={close}
+			transition:fade={{duration: 200}} 
+			/>
+	{/if}
 	<div class="subnav-wrap">
 		<div class="subnav-handle" 
 			on:click={handleMNavHandle}
@@ -61,18 +91,21 @@
 				<Arrow direction={expanded ? "bottom": "top"} color="white" size="medium" />
 			</div>
 		</div>
-		<ul on:scroll={scrollMNav} class:expanded={expanded} style="--nav-height: {toRem(navHeight)}rem">
-			{#each poems.data as _ (_.id)}
-				<li class:active={_.id === poem.id}>
-					<a 
-						href={`/poems/${_.id}/${cleanUrlSlug(_.attributes.title)}`}
-						on:click={() => handleLinkClick(_)}
-					>
-						{_.attributes.title}
-					</a>
-				</li>
-			{/each}			
-		</ul>
+		<div class="subnav-content">
+
+			<ul on:scroll={scrollMNav} class:expanded={expanded} style="--nav-height: {toRem(navHeight)}rem">
+				{#each poems.data as _ (_.id)}
+					<li class:active={_.id === poem.id}>
+						<a 
+							href={`/poems/${_.id}/${cleanUrlSlug(_.attributes.title)}`}
+							on:click={() => handleLinkClick(_)}
+						>
+							{_.attributes.title}
+						</a>
+					</li>
+				{/each}			
+			</ul>
+		</div>
 	</div>
 </nav>
 
@@ -109,6 +142,12 @@
 			display: flex;
 			justify-content: space-between;
 		}
+		.subnav.absolute {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
 		ul {
 			padding: 0;
 		}

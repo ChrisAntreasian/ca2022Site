@@ -3,7 +3,6 @@
 	import { captureClickThis } from "$lib/analytics";
 
 	export let footerHeight: number;
-
 	const navClick = captureClickThis("footer nav");
 
 </script>

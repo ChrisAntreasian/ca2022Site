@@ -1,19 +1,22 @@
 <script lang="ts">
 
-  import { afterUpdate } from "svelte";
-	import { afterNavigate } from '$app/navigation';
+  import { afterUpdate, getContext } from "svelte";
+	
+  import { afterNavigate } from '$app/navigation';
 
 	import { cleanUrlSlug } from "$lib/history";
   import { captureBehavior } from "$lib/analytics";
 
-  import { wrapperWidth, rem, toRem, fromRem } from "$lib/spacing";
-
+  import { wrapperWidth, rem, toRem, fromRem, contextHeightKey, type LayoutElemH, mqBreakPoint } from "$lib/spacing";
+  
   import Arrow from "$lib/arrow/Arrow.svelte"
+	import type { Art, WithId } from "$lib/types";
+
+  export let artPieces: Array<WithId<Art>>;
+  export let artPiece: WithId<Art>;
 	import { noScroll } from "$lib/body";
 	import { fade } from "svelte/transition";
 
-  export let artPieces;
-	export let artPiece;
 	export let navArtPieceClick: (_: number) => (e: Event) => void;
 
   export let expanded: boolean;
@@ -22,29 +25,47 @@
   export let categoryTitle: string;
   export let analyticsKey: string;
   export let parentRoute: string;
+  export let subnavHeight: number;
+  export let gallarySectionHeight: number;
+  export let scrollRequestUpdate: boolean;
+  export let measureH: number;
+
+  let windowHeight: number;
+  let windowWidth: number;
   
-  const thubmnailWidth = fromRem(6);
+  let scrollY: number;
+
+  let activeItemIndex = 0;
+  
+  let scrollLogged = false;
   
   let subnavWidth: number;
   let itemsPerPage = 0;
 
+  const thubmnailWidth = fromRem(6);
+
+  let isAbsolute: boolean;
+  const checkIsAbsolute = () => {
+    if(windowWidth  > mqBreakPoint) return;
+    if(!scrollRequestUpdate) scrollRequestUpdate = true;
+
+    isAbsolute = scrollY + windowHeight - subnavHeight > measureH;
+  };
+
   const initNav = () => {
-    itemsPerPage = Math.floor(
-      (subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem)
-    );
+    checkIsAbsolute();
+    itemsPerPage = Math.floor((subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem));
   }
 
   afterUpdate(initNav);
 	afterNavigate(initNav);
-	$: if(subnavWidth) initNav();
 
-  let windowHeight: number;
-  let windowWidth: number;
+  $: artPieceChanged(artPiece.id)
   $: navHeight = windowHeight * 0.72;
 
-  let activeItemIndex = 0;
-  let scrollLogged = false;
-  
+  $: if(subnavWidth && scrollY) initNav();
+  $: if(scrollY || windowWidth || gallarySectionHeight) checkIsAbsolute();
+
   const apPosition = (apid: number) => artPieces.findIndex(_ => _.id === apid);
   
   const paginate = (n: number) => {
@@ -60,8 +81,6 @@
       paginate(1);
     }
   }
-
-  $: artPieceChanged(artPiece.id)
 
   const paginateClick = (n: number) => {
     paginate(n);
@@ -92,14 +111,16 @@
       scrollLogged = true;
     }
   }
+  
 </script>
 
 <svelte:window 
   bind:innerHeight={windowHeight} 
-  bind:innerWidth={windowWidth} 
+  bind:innerWidth={windowWidth}
+  bind:scrollY={scrollY}
 />
-
 <svelte:body use:noScroll={expanded} />
+  
 {#if expanded}
   <div class="bg-overlay"
     on:click={close}
@@ -107,7 +128,11 @@
     transition:fade={{duration: 200}} 
     />
 {/if}
-  <nav class="bnav subnav" bind:clientWidth={subnavWidth} style={`--window-width: ${windowWidth / rem}rem`}>  
+  <nav class="bnav subnav" 
+  class:absolute={isAbsolute}
+  bind:clientWidth={subnavWidth} 
+  bind:clientHeight={subnavHeight} 
+  style={`--window-width: ${windowWidth / rem}rem`}>  
     <div class="subnav-wrap">
     <div class="subnav-handle" on:click={handleMNavClick} on:keypress={handleMNavClick}>
       <h3>{expanded ? categoryTitle: artPiece.attributes.title}</h3>
@@ -269,7 +294,13 @@
       width: auto;
       position: fixed;
       padding: 0;
-      z-index: 200;
+      z-index: 100;
+    }
+    .subnav.absolute {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
     }
     .subnav-wrap {
       width: 100%;

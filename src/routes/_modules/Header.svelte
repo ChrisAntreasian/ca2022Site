@@ -247,15 +247,15 @@
 		ul {
 			height: 100%;
 			width: 33.333%;
+			margin-right: calc(-33.333% + -3.25rem);
 			flex-direction: column;
 			align-items: flex-start;
 			justify-content: flex-start;
 			position: fixed;
 			right: 0;
 			z-index: 110;
-			margin-right: calc(-33.333% + -3rem);
-			padding: calc(var(--header-height) + 2rem + var(--space-md)) 2rem 0 1rem;
 			border-left: var(--space-md) solid var(--p-dk);
+			padding: calc(var(--header-height) + 2rem + var(--space-md)) 2rem 0 1rem;
 			transition: margin-right 0.5s ease-in-out;
 			background-image: linear-gradient(var(--o-dk), var(--o-md) 20%);
 		}

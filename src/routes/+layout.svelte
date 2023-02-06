@@ -1,4 +1,3 @@
-
 <script lang="ts">	
 	import '../app.css';
 
@@ -13,6 +12,7 @@
 
 	export let headerHeight: number;
 	export let footerHeight: number;
+	
 	export let data: LayoutServerData;
 	
 	initMixpanel();
@@ -21,7 +21,7 @@
 		contextHeightKey,
 		{ 
 			getHeaderHeight: () => headerHeight, 
-			getFooterHeight: () => footerHeight
+			getFooterHeight: () => footerHeight,
 		}
 	)
 
@@ -37,10 +37,12 @@
 <main>
 	<slot />
 </main>
+
 <Footer bind:footerHeight={footerHeight} />
 
 <style>
 	main {
+		position: relative;
 		width: 100%;
 		max-width: var(--wrapper-width);
 		display: flex;
@@ -52,5 +54,10 @@
 		border-left: var(--space-md) solid var(--p-dk);
 		border-right: var(--space-md) solid var(--b-dk);
 		background: var(--w-xl)
+	}
+	@media (max-width: 767.98px) { 
+		main {
+			border: none;
+		}
 	}
 </style>

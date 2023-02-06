@@ -9,14 +9,18 @@
 
   import { contextHeightKey, mqBreakPoint } from "$lib/spacing";
 	import { getContext } from "svelte";
+	import type { Art, WithId } from '$lib/types';
 
-  export let art;
+  export let artPiece: WithId<Art>;
   export let imageWidth: number;
   export let detailsWidth: number;
   export let showMore: boolean;
   export let gallarySectionHeight: number;
   export let windowWidth: number;
   export let analyticsKey: string;
+  export let subnavHeight: number;
+  export let measureH: number;
+  export let scrollRequestUpdate: boolean;
   export let hideMobileTitle: boolean;
   export let readMoreClick: (_: boolean) => void;
 
@@ -31,16 +35,27 @@
   let metaHeight: number;
   let needsReadmore = false;
   let detailsDiv: HTMLDivElement;
+  let contentHeight: number;
+  let scrollY: number;
 
   const setOverflow = () => {
     if (!detailsDiv || windowWidth < mqBreakPoint) return;
     needsReadmore = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
+  const setContentHeight = () => {
+    contentHeight = (gallarySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem;
+  };
 
-  afterNavigate(setOverflow);
+  const init = () => {
+    setOverflow()
+    setContentHeight();
+  }
+  $: if(windowWidth) setContentHeight();
+
+  afterNavigate(init);
 
   $: if(windowWidth) setOverflow();
-  $: if(art.id) setOverflow();
+  $: if(artPiece.id) setOverflow();
 
   let windowHeight: number;
 
@@ -55,22 +70,29 @@
   }
 
   const paginateGal = paginateArtPiece(analyticsKey);
-
-</script>
-<svelte:window bind:innerHeight={windowHeight} />
-  <article style={`
-    --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem
-  `}>
   
+</script>
+<svelte:window
+  bind:innerHeight={windowHeight} 
+  bind:innerWidth={windowWidth}
+  bind:scrollY={scrollY}
+/>
+  <article style={`
+    --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem;
+    --snh: ${subnavHeight / rem}rem;
+  `}>
+   {#key scrollRequestUpdate}
+      <div bind:offsetHeight={measureH} class="mh" />
+    {/key}
     <div class="wrap">
       <FullScreen 
-        img={art} 
+        img={artPiece} 
         analyticsKey={analyticsKey} 
         paginateArtPiece={paginateArtPiece} 
         paginationDetails={paginationDetails}
         btnOffset={detailsWidth}
       />
-      {#key art.id}
+      {#key artPiece.id}
         <figure
           class:transition={transitioning}
           in:fade={{duration: 500}}
@@ -86,25 +108,25 @@
         >       
           <div class="image" style={`width: ${imageWidth}%`}>
             <img
-              src={`${art.attributes.image.data.attributes.url}`}
-              alt={art.attributes.description}
+              src={`${artPiece.attributes.image.data.attributes.url}`}
+              alt={artPiece.attributes.description}
             />
             
           </div>
           <figcaption style={`--caption-width: ${detailsWidth}%`}>
             <div>
-              <h3 bind:clientHeight={headlineHeight}>{art.attributes.title}</h3>
+              <h3 bind:clientHeight={headlineHeight}>{artPiece.attributes.title}</h3>
               <div class={`md-wrap ${!showMore ? "overflow" : needsReadmore ? "needs-overflow" : ""}`}>
                 <div 
                   bind:this={detailsDiv}
                   class="md-content"
-                  style={`height: ${`${(gallarySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem}rem;`}`}
+                  style={`height: ${windowWidth > mqBreakPoint ? `${contentHeight}rem;` : "auto"}`}
                 >
                   <span class="md-content-desktop">
-                    <SvelteMarkdown source={art.attributes.description} />
+                    <SvelteMarkdown source={artPiece.attributes.description} />
                   </span>
                   <span class="md-content-mobile">
-                    <SvelteMarkdown source={`${hideMobileTitle ? "" : art.attributes.title} ${art.attributes.description}`} />
+                    <SvelteMarkdown source={`${hideMobileTitle ? "" : artPiece.attributes.title} ${artPiece.attributes.description}`} />
                   </span>
                   {#if needsReadmore}
                     <div class="readmore"
@@ -126,16 +148,16 @@
             </div>
             <div class="details" bind:clientHeight={metaHeight}>
               <div>
-                {#if art.attributes.createdDate}
+                {#if artPiece.attributes.createdDate}
                   <div class="meta">
                     <span>date: </span>
-                    {new Date(art.attributes.createdDate).getFullYear()}
+                    {new Date(artPiece.attributes.createdDate).getFullYear()}
                   </div>
                 {/if}
-                {#if art.attributes.medium}
+                {#if artPiece.attributes.medium}
                   <div class="meta">
                     <span>medium:</span>
-                    {art.attributes.medium}
+                    {artPiece.attributes.medium}
                   </div>
                 {/if}
               </div>
@@ -289,6 +311,7 @@
       height: auto;
       position: relative;
       min-height: var(--min-height-mobile);
+      padding-bottom: calc(var(--snh) + 2rem);
     }
     .image,
     figcaption {
@@ -321,7 +344,13 @@
     .md-content-desktop {
       display: none;
     }
+    .details {
+      padding-top: 0.5rem;
+    }
     .readmore {
+      display: none;
+    }
+    .fade {
       display: none;
     }
   }

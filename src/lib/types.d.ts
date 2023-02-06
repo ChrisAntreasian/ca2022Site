@@ -19,8 +19,8 @@ type StrapiBase = {
  type Poem = StrapiBase & {
 	title: string;
 	body: string;
-	meta: any;
 	featured: boolean;
+  position: string;
 }
 
 type ImageBase =  {

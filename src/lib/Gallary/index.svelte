@@ -8,7 +8,7 @@
 	import { afterNavigate } from '$app/navigation';
 
 	import { clientNavigate } from "$lib/history";
-	import { contextHeightKey, rem, mqBreakPoint, type LayoutElemH } from "$lib/spacing";
+	import { contextHeightKey, rem, mqBreakPoint, type LayoutElemH, fromRem } from "$lib/spacing";
 
 	import Article from "$lib/Gallary/Article.svelte"
 	import Nav from "$lib/Gallary/Nav.svelte"
@@ -21,14 +21,26 @@
   export let parentRoute: string;
   export let analyticsKey: string;
   export let categoryTitle: string;
+	export let measureH: number;
 	export let hideMobileTitle: boolean = false;
 
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
+	
+	let windowWidth: number;
+	let windowHeight: number;
 
-	const extraHeight = 3.5 * rem;
-	const navHeight = 6 * rem;
 
+	let subnavHeight: number;
 	let gallarySectionHeight: number;
+	let scrollRequestUpdate: boolean = false;
+	
+	const extraHeight = fromRem(3.5);
+	const navHeight = fromRem(6);
+	
+	const transitionDetails = {
+		easing: cubicOut,
+    duration: 700,
+  }
 
 	const setPaginationDetails = (id: number) => {
 		 paginationDetails = {
@@ -38,32 +50,28 @@
 	}
 
 	const initGalary = () => {
-		if (!windowWidth || windowWidth <=  768) return;
 
 		const footerHeight = getFooterHeight();
 		const headerHeight = getHeaderHeight();
-		const widgetH = window.outerHeight - footerHeight - headerHeight - extraHeight;
-	
+		const widgetH = windowHeight - footerHeight - headerHeight - extraHeight;
+		
 		gallarySectionHeight = Math.ceil((widgetH - navHeight - rem) / rem);
-	
+
+		if (!windowWidth || windowWidth <=  768) return;
+
+		
 		document.documentElement.style.setProperty('--gallery-height', `${widgetH / rem}rem`);
 		document.documentElement.style.setProperty('--gallery-section-height', `${gallarySectionHeight}rem`);
 
 		setPaginationDetails(artPiece.id)
 	}
 
-	let windowWidth: number;
-	let preloadImages = artPieces.map(p => p.attributes.image.data.attributes.url);
-
 	afterUpdate(initGalary);
 	afterNavigate(initGalary);
 
-	$: if(windowWidth) initGalary();
+	$: if(windowWidth || artPiece.id) initGalary();
 
-	const transitionDetails = {
-		easing: cubicOut,
-    duration: 700,
-  }
+	let preloadImages = artPieces.map(p => p.attributes.image.data.attributes.url);
 
   const imageWidth = tweened(50, transitionDetails);
 	const detailsWidth = tweened(50, transitionDetails);
@@ -139,7 +147,7 @@
 
 </script>
 
-<svelte:window bind:innerWidth={windowWidth} />
+<svelte:window bind:innerWidth={windowWidth} bind:innerHeight={windowHeight} />
 
 <svelte:head>
   {#each preloadImages as image}
@@ -150,7 +158,7 @@
 <section transition:fade={{duration: 300}}>
 
 	<Article 
-		art={artPiece} 
+		artPiece={artPiece} 
 		imageWidth={$imageWidth} 
 		detailsWidth={$detailsWidth} 
 		showMore={showMore} 
@@ -160,6 +168,9 @@
 		paginationDetails={paginationDetails}
 		windowWidth={windowWidth}
     analyticsKey={analyticsKey}
+		subnavHeight={subnavHeight}
+		scrollRequestUpdate={scrollRequestUpdate}
+		bind:measureH={measureH}
 		hideMobileTitle={hideMobileTitle}
 	/>
 	<Nav 
@@ -171,6 +182,10 @@
 		categoryTitle={categoryTitle}
     analyticsKey={analyticsKey}
 		parentRoute={parentRoute}
+		gallarySectionHeight={gallarySectionHeight}
+		measureH={measureH}
+		bind:subnavHeight={subnavHeight}
+		bind:scrollRequestUpdate={scrollRequestUpdate}
 	/>
 
 </section>
@@ -185,6 +200,7 @@
 	@media (max-width: 767.98px) {
 		section {
 			height: auto;
+			flex-direction: column;
 		}
 	}
 </style>

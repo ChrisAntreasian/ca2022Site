@@ -4,12 +4,15 @@
 	import { fade } from "svelte/transition";
 	import SvelteMarkdown from 'svelte-markdown'
 
-  import type { StrapiPoem } from "$lib/types";
 	import { contextHeightKey, rem, type LayoutElemH } from "$lib/spacing";
 	import { getContext } from "svelte";
+	import type { Poem, WithId } from "$lib/types";
 
-	export let poem;
-	
+	export let poem: WithId<Poem>;
+	export let subnavHeight: number;
+	export let measureH: number;
+  export let scrollRequestUpdate: boolean;
+
 	let fadeOut = false;
 	let windowHeight: number;
 
@@ -19,7 +22,14 @@
 
 <svelte:window bind:innerHeight={windowHeight} />
 
-<article style={`--min-height: ${(windowHeight - getHeaderHeight()) / rem}rem`}>
+<article 
+style={`
+	--min-height: ${(windowHeight - getHeaderHeight()) / rem}rem;
+	--snh: ${subnavHeight / rem}rem;
+`}>
+	{#key scrollRequestUpdate}
+	<div bind:offsetHeight={measureH} class="mh" />
+	{/key}
 	<div class="wrap">
 		{#key poem.id}
 			<div
@@ -29,7 +39,7 @@
 				on:outrostart="{() => {fadeOut = true}}"
 				on:introend="{() => {fadeOut = false}}"
 			>
-				<h3>{poem.attributes.title}</h3>
+			<h3>{poem.attributes.title}</h3>
 				<SvelteMarkdown source={poem.attributes.body} />
 			</div>
 		{/key}
@@ -53,6 +63,7 @@
 		article {
 			width:100%;
 			padding: 1.3333rem 1rem 2rem;
+			padding-bottom: calc(var(--snh) + 2rem);
 		}
 		.wrap {
 			width: 100%;

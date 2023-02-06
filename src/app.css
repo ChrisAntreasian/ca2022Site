@@ -133,10 +133,12 @@ p, span, div, li {
 	font-size: 1.15rem;
 }
 
-p {
+p,
+.md-content-desktop li {
 	margin: 1rem 0;
 }
-p:last-of-type {
+p:last-of-type,
+.md-content-desktop li:last-of-type {
 	margin-bottom: 0;
 }
 article {
@@ -191,6 +193,9 @@ ul {
 	display: block;
 }
 .m-only {
+	display: none;
+}
+.mh {
 	display: none;
 }
 @media (max-width: 767.98px) {
@@ -249,6 +254,13 @@ ul {
 		justify-content: center;
 		align-items: center;
 		flex: 1;
+	}
+	.mh {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		z-index: -1;
+		display: block;
 	}
 }
 section.home {
