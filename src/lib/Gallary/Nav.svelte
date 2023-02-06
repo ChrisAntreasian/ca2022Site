@@ -14,6 +14,8 @@
 
   export let artPieces: Array<WithId<Art>>;
   export let artPiece: WithId<Art>;
+	import { noScroll } from "$lib/body";
+	import { fade } from "svelte/transition";
 
 	export let navArtPieceClick: (_: number) => (e: Event) => void;
 
@@ -66,8 +68,8 @@
 
   const apPosition = (apid: number) => artPieces.findIndex(_ => _.id === apid);
   
-  const paginate = (n: number) => { 
-    const aii = activeItemIndex + (n * (itemsPerPage - 1));  
+  const paginate = (n: number) => {
+    const aii = activeItemIndex + (n * (itemsPerPage - 1));
     activeItemIndex = aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
   };
 
@@ -117,13 +119,22 @@
   bind:innerWidth={windowWidth}
   bind:scrollY={scrollY}
 />
+<svelte:body use:noScroll={expanded} />
 
-  <nav class="bnav subnav" 
-    class:absolute={isAbsolute}
-    bind:clientWidth={subnavWidth} 
-    bind:clientHeight={subnavHeight} 
-    style={`--window-width: ${windowWidth / rem}rem`}
+  
   >  
+{#if expanded}
+  <div class="bg-overlay"
+    on:click={close}
+    on:keypress={close}
+    transition:fade={{duration: 200}} 
+    />
+{/if}
+  <nav class="bnav subnav" 
+  class:absolute={isAbsolute}
+  bind:clientWidth={subnavWidth} 
+  bind:clientHeight={subnavHeight} 
+  style={`--window-width: ${windowWidth / rem}rem`}>  
     <div class="subnav-wrap">
     <div class="subnav-handle" on:click={handleMNavClick} on:keypress={handleMNavClick}>
       <h3>{expanded ? categoryTitle: artPiece.attributes.title}</h3>
@@ -276,6 +287,9 @@
     height: 4rem;
     display: flex;
   }
+  .bg-overlay {
+    display: none;
+  }
   @media (max-width: 767.98px) { 
     nav {
       height: auto;
@@ -331,6 +345,9 @@
     }
     .next, .last {
       display: none;
+    }
+    .bg-overlay {
+      display: block;
     }
   }
 

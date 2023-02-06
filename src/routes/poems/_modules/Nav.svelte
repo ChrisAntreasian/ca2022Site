@@ -7,6 +7,8 @@
 	import { captureBehavior, captureDetails } from "$lib/analytics";
 	import { afterUpdate } from "svelte";
 	import { afterNavigate } from "$app/navigation";
+	import { noScroll } from "$lib/body";
+	import { fade } from "svelte/transition";
 
 	export let poems; Array<WithId<Poem>>
 	export let poem: WithId<Poem>;
@@ -66,10 +68,19 @@
   bind:innerWidth={windowWidth}
   bind:scrollY={scrollY}
 />
+<svelte:body use:noScroll={expanded} />
+
 <nav class="bnav bnav-aside subnav"
 	class:absolute={isAbsolute}
 	bind:clientHeight={subnavHeight} 
 >
+	{#if expanded}
+		<div class="bg-overlay"
+			on:click={close}
+			on:keypress={close}
+			transition:fade={{duration: 200}} 
+			/>
+	{/if}
 	<div class="subnav-wrap">
 		<div class="subnav-handle" 
 			on:click={handleMNavHandle}
@@ -118,7 +129,13 @@
 	a:active {
 		color: var(--y-md);
 	}
+	.bg-overlay {
+			display: none;
+		}
 	@media (max-width: 767.98px) { 
+		nav {
+			z-index: 200;
+		}
 		.subnav-handle {
 			height: var(--header-height);
 			width: 100%;
@@ -142,6 +159,9 @@
 		}
 		li:last-of-type {
 			padding-bottom: 2rem;
+		}
+		.bg-overlay {
+			display: block;
 		}
 	}
 </style>

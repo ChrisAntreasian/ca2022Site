@@ -18,4 +18,5 @@
 	categoryTitle={"The SoulJuicer"}
 	parentRoute={parentRoute} 
 	analyticsKey={analyticsKey}
+	hideMobileTitle={true}
 />

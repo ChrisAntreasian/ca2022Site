@@ -20,7 +20,7 @@
   let displayBg = false;
   let displayImg = false
   let imageHeight = 0;
-  
+
   const transitionConfig = {duration: 400};
   const mkCaptureDetails = captureDetails({ id: img.id, name: img.attributes.title });
   const open = () => {

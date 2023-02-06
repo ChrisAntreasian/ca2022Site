@@ -22,11 +22,13 @@
   export let analyticsKey: string;
   export let categoryTitle: string;
 	export let measureH: number;
-
+	export let hideMobileTitle: boolean = false;
+	
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
 	
 	let windowWidth: number;
 	let windowHeight: number;
+
 
 	let subnavHeight: number;
 	let gallarySectionHeight: number;
@@ -169,6 +171,7 @@
 		subnavHeight={subnavHeight}
 		scrollRequestUpdate={scrollRequestUpdate}
 		bind:measureH={measureH}
+		hideMobileTitle={hideMobileTitle}
 	/>
 	<Nav 
 		artPiece={artPiece} 

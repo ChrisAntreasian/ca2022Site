@@ -21,6 +21,7 @@
   export let subnavHeight: number;
   export let measureH: number;
   export let scrollRequestUpdate: boolean;
+  export let hideMobileTitle: boolean;
   export let readMoreClick: (_: boolean) => void;
 
   export let paginateArtPiece: (s:string) => (n: number) => void;
@@ -126,11 +127,11 @@
                     <SvelteMarkdown source={artPiece.attributes.description} />
                   </span>
                   <span class="md-content-mobile">
-                    <SvelteMarkdown source={`${artPiece.attributes.title} ${artPiece.attributes.description}`} />
+                    <SvelteMarkdown source={`${hideMobileTitle ? "" : art.attributes.title} ${art.attributes.description}`} />
                   </span>
                   {#if needsReadmore}
-                    <div class="readmore" 
-                      transition:fade={{duration: 300}} 
+                    <div class="readmore"
+                      transition:fade={{duration: 300}}
                       on:click={handleReadMoreClick}
                       on:keypress={handleReadMoreClick}
                     >
@@ -164,8 +165,8 @@
               <div>
                 <div class="pagination">
                   {#if paginationDetails.position !== 0 }
-                    <span 
-                      class="pagination-link last" 
+                    <span
+                      class="pagination-link last"
                       on:click={() => paginateGal(-1)}
                       on:keypress={() => paginateGal(-1)}
                     >
@@ -177,8 +178,8 @@
                     <span>|</span>
                   {/if}
                   {#if paginationDetails.position + 1 < paginationDetails.length}
-                    <span 
-                      class="pagination-link next" 
+                    <span
+                      class="pagination-link next"
                       on:click={() => paginateGal(1)}
                       on:keypress={() => paginateGal(1)}
                     >
@@ -246,6 +247,7 @@
   }
   .md-content-mobile {
     display: none;
+    margin-top:1rem;
   }
   .needs-overflow .fade {
     position: absolute;
