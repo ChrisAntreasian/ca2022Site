@@ -123,8 +123,8 @@
   
 {#if expanded}
   <div class="bg-overlay"
-    on:click={close}
-    on:keypress={close}
+    on:click={handleMNavClick}
+    on:keypress={handleMNavClick}
     transition:fade={{duration: 200}} 
     />
 {/if}
@@ -294,7 +294,7 @@
       width: auto;
       position: fixed;
       padding: 0;
-      z-index: 100;
+      z-index: 50;
     }
     .subnav.absolute {
       position: absolute;

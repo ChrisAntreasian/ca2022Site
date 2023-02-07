@@ -68,19 +68,21 @@
   bind:innerWidth={windowWidth}
   bind:scrollY={scrollY}
 />
+
 <svelte:body use:noScroll={expanded} />
+
+{#if expanded}
+	<div class="bg-overlay"
+		on:click={handleMNavHandle}
+		on:keypress={handleMNavHandle}
+		transition:fade={{duration: 200}} 
+	/>
+{/if}
 
 <nav class="bnav bnav-aside subnav"
 	class:absolute={isAbsolute}
 	bind:clientHeight={subnavHeight} 
 >
-	{#if expanded}
-		<div class="bg-overlay"
-			on:click={close}
-			on:keypress={close}
-			transition:fade={{duration: 200}} 
-			/>
-	{/if}
 	<div class="subnav-wrap">
 		<div class="subnav-handle" 
 			on:click={handleMNavHandle}
@@ -134,7 +136,7 @@
 		}
 	@media (max-width: 767.98px) { 
 		nav {
-			z-index: 200;
+			z-index: 50;
 		}
 		.subnav-handle {
 			height: var(--header-height);
