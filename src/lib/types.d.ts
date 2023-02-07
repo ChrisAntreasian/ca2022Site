@@ -20,7 +20,7 @@ type StrapiBase = {
 	title: string;
 	body: string;
 	featured: boolean;
-  position: string;
+  position: number;
 }
 
 type ImageBase =  {
