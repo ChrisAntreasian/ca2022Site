@@ -17,4 +17,5 @@
 	categoryTitle={data.categoryTitle}
 	parentRoute={parentRoute} 
 	analyticsKey={analyticsKey}
+	useUrlTitle={true}
 />

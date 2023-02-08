@@ -11,7 +11,8 @@ export const cleanUrlSlug = (_: string) => {
   return str;
 };
 
-export const clientNavigate = (scroll: boolean) => (url: string, slug: string) => {
-  history.pushState({}, "", `${url}/${cleanUrlSlug(slug)}`);
+export const clientNavigate = (scroll: boolean) => (url: string, slug?: string) => {
+  const s = slug ? `/${cleanUrlSlug(slug)}` : "";
+  history.pushState({}, "", `${url}${s}`);
   scroll && window.scrollTo({top: 0});
 };
