@@ -21,14 +21,14 @@
   export let parentRoute: string;
   export let analyticsKey: string;
   export let categoryTitle: string;
-	export let measureH: number;
+	
 	export let hideMobileTitle: boolean = false;
-
-	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
+	export let useUrlTitle: boolean = true;
+	const { getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
 	
 	let windowWidth: number;
 	let windowHeight: number;
-
+	let measureH: number;
 
 	let subnavHeight: number;
 	let gallarySectionHeight: number;
@@ -84,7 +84,7 @@
 	}	
 	const setArtPiece = (id:number) => {
 		artPiece = artPieces.filter(_ => _.id === id)[0];
-		clientNavigateS(`${parentRoute}${artPiece.id}`, artPiece.attributes.title);
+		clientNavigateS(`${parentRoute}${artPiece.id}`, useUrlTitle ? artPiece.attributes.title : null);
 	}
 
 	let paginationDetails = {

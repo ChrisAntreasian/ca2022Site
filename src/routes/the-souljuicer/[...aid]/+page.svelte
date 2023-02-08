@@ -19,4 +19,5 @@
 	parentRoute={parentRoute} 
 	analyticsKey={analyticsKey}
 	hideMobileTitle={true}
+	useUrlTitle={false}
 />
