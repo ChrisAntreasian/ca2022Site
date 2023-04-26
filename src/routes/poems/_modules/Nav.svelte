@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Arrow from "$lib/arrow/Arrow.svelte";
-
+	import type { IO } from "fp-ts/IO";
   import type { Poem, StrapiPoem, WithId} from "$lib/types";
 	import { cleanUrlSlug } from "$lib/history";
 	import { mqBreakPoint, toRem } from "$lib/spacing";
@@ -12,7 +12,7 @@
 
 	export let poems; Array<WithId<Poem>>
 	export let poem: WithId<Poem>;
-	export let setPoem: (_: number) => (e: Event) => void;
+	export let setPoem: (id: number) => (fa: IO<Event>) => IO<void>;
   export let contentHeight: number;
 	export let measureH: number;
 	export let scrollRequestUpdate: boolean;

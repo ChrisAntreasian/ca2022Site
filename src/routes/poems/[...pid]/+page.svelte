@@ -1,4 +1,9 @@
 <script lang="ts">
+	import { flow, pipe } from "fp-ts/function";
+	import * as IO from "fp-ts/IO";
+	import * as RA from "fp-ts/ReadonlyArray";
+	import * as O from "fp-ts/Option";
+
 	import { fade } from "svelte/transition";
 	import { clientNavigate } from "$lib/history";
 	import Article from "../_modules/Article.svelte";
@@ -12,11 +17,24 @@
 	let contentHeight: number;
 	let scrollRequestUpdate: boolean = false;
 	
-	const setPoem = (id: number) => (e: Event) => {
+	const setPoem3 = (id: number) => (e: Event) => {
 		e.preventDefault();
 		data.poem = data.poems.data.filter(_ => _.id === id)[0];
 		clientNavigate(true)(`/poems/${data.poem.id}`, data.poem.attributes.title);
 	}
+	const setPoem = (id: number) => IO.map((e: Event) => 
+		pipe(
+			e.preventDefault(),
+			() => 
+				data.poem = pipe(
+					data.poems.data, 
+					RA.findFirst(_ => _.id === id), 
+					O.getOrElse(() => data.poems.data[0]),
+				),
+			() => clientNavigate(true)(`/poems/${data.poem.id}`, data.poem.attributes.title)
+		)
+	);
+	
 </script>
 
 <svelte:head>
