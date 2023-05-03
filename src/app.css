@@ -79,7 +79,7 @@ body {
 	overflow-x: hidden;
 }
 
-body:after {
+body:before {
 	content: "";
 	background: linear-gradient( 180deg, var(--b-dk) 0%, var(--bg-dk) 55%, var(--bg-lt) 80% );
 	position: absolute;
