@@ -20,7 +20,7 @@
 </script>
 
 <svelte:head>
-	<title>My Poems</title>
+	<title>Christopher Antreasian: Poems</title>
 </svelte:head>
 
 <section class="w-sidebar" transition:fade={{duration: 300}} bind:clientHeight={contentHeight}>
