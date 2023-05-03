@@ -76,7 +76,6 @@
 		}
 		h2 {
 			padding-bottom: 0.5rem;
-			padding-left: 1rem;
 			font-size: 2.5rem;
 			text-align: left;
 			order: 1;
