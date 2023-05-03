@@ -13,18 +13,17 @@
 </script>
 
 <svelte:head>
-	<title>Home</title>
+	<title>Christopher Antreasian: Home</title>
 </svelte:head>
 
 <svelte:window bind:innerHeight={windowHeight} />
 <section class="w-sidebar">
-	{#each data.intro as sec}<div class="m-only m-headline"><h2>{sec.attributes.title}</h2></div>{/each}
 
 	<article class="home" style={`--min-height: ${(windowHeight - getHeaderHeight() - getFooterHeight()) / rem}rem`}>
 		{#each data.intro as sec}
 			<div class="intro-segment">
 				<div>
-					<h2 class="d-only">{sec.attributes.title}</h2>
+					<h2>{sec.attributes.title}</h2>
 					<p>{sec.attributes.description}</p>
 				</div>
 				{#if sec.attributes.image}
@@ -71,17 +70,9 @@
 		flex-shrink: 0;
 	}
 	@media (max-width: 767.98px) {
-		section {
+		section.w-sidebar {
 			align-items: center;
-		}
-		.m-headline {
-			width:100%;
-			background: linear-gradient( 180deg, var(--b-dk) 30%, var(--bg-dk) 85% );
-		}
-		.m-headline h2 {
-			color: var(--w-xl);
-			text-align: center;
-			font-size: 3rem;
+			flex-direction: column-reverse;
 		}
 		h2 {
 			padding-bottom: 0.5rem;
