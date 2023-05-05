@@ -3,7 +3,7 @@
   import { fade } from "svelte/transition";
   import SvelteMarkdown from 'svelte-markdown'
 
-  import { rem } from "$lib/spacing";
+  import { fromRem, rem } from "$lib/spacing";
   import Arrow from '$lib/arrow/Arrow.svelte';
   import FullScreen from '../Fullscreen/index.svelte';
 
@@ -40,7 +40,7 @@
 
   const setOverflow = () => {
     if (!detailsDiv || windowWidth < mqBreakPoint) return;
-    needsReadmore = detailsDiv.scrollHeight > detailsDiv.clientHeight;
+    needsReadmore = detailsDiv.scrollHeight + fromRem(1) > detailsDiv.clientHeight;
   };
   const setContentHeight = () => {
     contentHeight = (gallarySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem;
