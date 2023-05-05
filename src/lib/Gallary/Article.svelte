@@ -90,7 +90,7 @@
         analyticsKey={analyticsKey} 
         paginateArtPiece={paginateArtPiece} 
         paginationDetails={paginationDetails}
-        btnOffset={detailsWidth}
+        btnOffset={100 - detailsWidth}
       />
       {#key artPiece.id}
         <figure

@@ -1,13 +1,13 @@
 <script lang="ts">
 
-  import { afterUpdate, getContext } from "svelte";
+  import { afterUpdate } from "svelte";
 	
   import { afterNavigate } from '$app/navigation';
 
 	import { cleanUrlSlug } from "$lib/history";
   import { captureBehavior } from "$lib/analytics";
 
-  import { wrapperWidth, rem, toRem, fromRem, contextHeightKey, type LayoutElemH, mqBreakPoint } from "$lib/spacing";
+  import { wrapperWidth, rem, toRem, fromRem, mqBreakPoint } from "$lib/spacing";
   
   import Arrow from "$lib/arrow/Arrow.svelte"
 	import type { Art, WithId } from "$lib/types";
