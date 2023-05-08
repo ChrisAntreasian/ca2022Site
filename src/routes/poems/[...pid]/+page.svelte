@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { fade } from "svelte/transition";
 	import { clientNavigate } from "$lib/history";
-	import Article from "../_modules/Article.svelte";
+	import Article from "$lib/Article/index.svelte"
 	import Nav from "../_modules/Nav.svelte";
 	import type { PageServerData} from "./$types";
-	
 	export let data: PageServerData;
 	export let measureH: number;
 

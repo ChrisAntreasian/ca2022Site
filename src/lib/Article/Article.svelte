@@ -6,11 +6,11 @@
 
 	import { contextHeightKey, rem, type LayoutElemH } from "$lib/spacing";
 	import { getContext } from "svelte";
-	import type { Poem, WithId } from "$lib/types";
+	import type { Item } from "./types";
 
-	export let poem: WithId<Poem>;
+	export let item: Item;
 	export let subnavHeight: number;
-	export let measureH: number;
+	export let measureHeight: number;
   export let scrollRequestUpdate: boolean;
 
 	let fadeOut = false;
@@ -28,10 +28,10 @@ style={`
 	--snh: ${subnavHeight / rem}rem;
 `}>
 	{#key scrollRequestUpdate}
-	<div bind:offsetHeight={measureH} class="mh" />
+	<div bind:offsetHeight={measureHeight} class="mh" />
 	{/key}
 	<div class="wrap">
-		{#key poem.id}
+		{#key item.id}
 			<div
 				class:transition={fadeOut}
 				in:fade={{duration: 500, delay: 50}}
@@ -39,34 +39,34 @@ style={`
 				on:outrostart="{() => {fadeOut = true}}"
 				on:introend="{() => {fadeOut = false}}"
 			>
-			<h3>{poem.attributes.title}</h3>
-				<SvelteMarkdown source={poem.attributes.body} />
+			<h3>{item.title}</h3>
+				<SvelteMarkdown source={item.body} />
 			</div>
 		{/key}
 	</div>
 </article>
 
 <style>
-	article {
-		padding: 1.3333rem 0 2rem;
+	article, .wrap {
 		width: 66.66%;
+		position: relative;
+	}
+	article {
 		display: flex;
 		justify-content: center;
-		position: relative;
 		min-height: var(--min-height);
+		padding: 1.3333rem 0 2rem;
+
 	}
-	.wrap {
-		width: 66.66%;
-		position: relative;
-	}
+
 	@media (max-width: 767.98px) {
-		article {
+		article, .wrap {
 			width:100%;
-			padding: 1.3333rem 1rem 2rem;
-			padding-bottom: calc(var(--snh) + 2rem);
+		}
+		article {
+			padding: 1.3333rem 1rem calc(var(--snh) + 2rem);
 		}
 		.wrap {
-			width: 100%;
 			max-width: 30rem;
 		}
 		h3 {

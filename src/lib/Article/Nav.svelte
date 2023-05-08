@@ -10,7 +10,7 @@
 
 	export let activeTitle: string;
   export let contentHeight: number;
-	export let measureH: number;
+	export let measureHeight: number;
 	export let scrollRequestUpdate: boolean;
 
 	export let subnavHeight: number;
@@ -28,7 +28,7 @@
 		if (windowWidth > mqBreakPoint) return
 		if(!scrollRequestUpdate) scrollRequestUpdate = true;
 
-    isAbsolute = scrollY + windowHeight - subnavHeight > measureH;
+    isAbsolute = scrollY + windowHeight - subnavHeight > measureHeight;
 	};
 
 	afterUpdate(checkIsAbsolute);
@@ -82,7 +82,6 @@
 			</div>
 		</div>
 		<div class="subnav-content">
-
 			<ul on:scroll={scrollMNav} class:expanded={expanded} style="--nav-height: {toRem(navHeight)}rem">
 				<slot />
 			</ul>
