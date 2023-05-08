@@ -72,13 +72,13 @@
 		scrollRequestUpdate={scrollRequestUpdate}
 		subnavHeight={subnavHeight}
 	>
-		{#each items.data as _ (_.id)}
+		{#each items as _ (_.id)}
 			<li class:active={_.id === item.id}>
 				<a 
-					href={`/items/${_.id}/${cleanUrlSlug(_.attributes.title)}`}
+					href={`/${parentRoute}/${_.id}/${cleanUrlSlug(_.title)}`}
 					on:click={() => handleLinkClick(_)}
 				>
-					{_.attributes.title}
+					{_.title}
 				</a>
 			</li>
 		{/each}
