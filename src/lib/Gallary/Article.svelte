@@ -3,7 +3,7 @@
   import { fade } from "svelte/transition";
   import SvelteMarkdown from 'svelte-markdown'
 
-  import { fromRem, rem } from "$lib/spacing";
+  import { rem } from "$lib/spacing";
   import Arrow from '$lib/arrow/Arrow.svelte';
   import FullScreen from '../Fullscreen/index.svelte';
 
@@ -37,10 +37,10 @@
   let detailsDiv: HTMLDivElement;
   let contentHeight: number;
   let scrollY: number;
-
+  
   const setOverflow = () => {
     if (!detailsDiv || windowWidth < mqBreakPoint) return;
-    needsReadmore = detailsDiv.scrollHeight + fromRem(1) > detailsDiv.clientHeight;
+    needsReadmore = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
   const setContentHeight = () => {
     contentHeight = (gallarySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem;
@@ -50,12 +50,11 @@
     setOverflow()
     setContentHeight();
   }
-  $: if(windowWidth) setContentHeight();
 
-  afterNavigate(init);
+  afterNavigate(init);  
 
-  $: if(windowWidth) setOverflow();
-  $: if(artPiece.id) setOverflow();
+  $: if(windowWidth) init();
+  $: if(artPiece.id || detailsDiv.scrollHeight || detailsDiv.clientHeight) setOverflow();
 
   let windowHeight: number;
 
@@ -120,8 +119,7 @@
                 <div 
                   bind:this={detailsDiv}
                   class="md-content"
-                  style={`height: ${windowWidth > mqBreakPoint ? `${contentHeight}rem;` : "auto"}`}
-                >
+                  style={`--height: ${windowWidth > mqBreakPoint ? `${contentHeight}rem;` : "auto"}`}>
                   <span class="md-content-desktop">
                     <SvelteMarkdown source={artPiece.attributes.description} />
                   </span>
@@ -243,6 +241,7 @@
   }
   .md-content {
     overflow: hidden;
+    height: var(--height);
   }
   .md-content-mobile {
     display: none;
