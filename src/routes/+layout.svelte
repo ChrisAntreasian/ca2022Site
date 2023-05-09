@@ -34,9 +34,7 @@
 	bind:headerHeight={headerHeight} 
 />
 
-<main>
-	<slot />
-</main>
+<main><slot /></main>
 
 <Footer bind:footerHeight={footerHeight} />
 
