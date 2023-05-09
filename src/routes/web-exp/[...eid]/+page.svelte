@@ -1,12 +1,9 @@
 <script lang="ts">
 	import Article from "$lib/Article/index.svelte"
-	// import type { PageServerData} from "./$types";
+	import type { PageServerData} from "./$types";
 	
-	// export let data: PageServerData;
-  let data = {
-    item: {title: "", body: "", id: 0},
-    items: [],
-  }
+	export let data: PageServerData;
+
 </script>
 
 <svelte:head>

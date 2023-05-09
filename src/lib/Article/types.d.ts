@@ -4,6 +4,7 @@ export type Item = {
   id: number,
   title: string,
   body: string,
-  logo?: StrapiImageData,
-  screenShots?: StrapiImageData
+  logo?: string,
+  screenShots?: ReadonlyArray<string>,
+  omitFromNav?: boolean 
 }
