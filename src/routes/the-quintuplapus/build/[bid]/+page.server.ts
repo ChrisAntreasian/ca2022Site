@@ -5,7 +5,7 @@ import { mkKey, writeFs } from "$lib/file";
 import { handleGetResponse, mkRequest } from "$lib/api";
 
 import * as qs from "qs";
-import type { StrapiArtCategory } from '$lib/types';
+import type { ArtCategory, StrapiData } from '$lib/types';
 
 const q = qs.stringify({
 	filters: {
@@ -34,8 +34,8 @@ export const load: PageServerLoad = async ({ params, route }) => {
 
   const res = await fetchData();
   if (res.ok) {
-    const out: StrapiArtCategory = await res.json()
-    const data = await writeFs<StrapiArtCategory>(mkKey(route.id), out);
+    const out: StrapiData<ArtCategory> = await res.json()
+    const data = await writeFs<StrapiData<ArtCategory>>(mkKey(route.id), out);
 
     return {
       title: "The Quintuplapus",

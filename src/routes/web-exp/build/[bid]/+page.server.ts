@@ -2,20 +2,21 @@ import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from "./$types";
 import { mkKey, writeFs } from "$lib/file";
 
-import { handleGetResponse, mkRequest } from "$lib/api";
+import { handleGetResponse, mkRequest, queryStr } from "$lib/api";
+import type { StrapiPage, StrapiRichLink } from '$lib/types';
 
-import * as qs from "qs";
-import type { StrapiArtCategory } from '$lib/types';
-
-const q = qs.stringify({
-
+const pq =  queryStr({ 
+  filters: { id: { $in: 3 } },
   populate: [
-    "image",
-		"image.media",
-  ],
+		"page_details",
+		"page_details.image.media",
+		"rich_links",
+    "rich_links.image.media",
+    "rich_links.logo.media",
+	]
 });
 const fetchData = async () => {
-  const response = await mkRequest("GET", `soul-juices?${q}`);
+  const response = await mkRequest("GET", `pages?${pq}`);
 	return await handleGetResponse(response);
 }
 
@@ -28,11 +29,11 @@ export const load: PageServerLoad = async ({ params, route }) => {
 
   const res = await fetchData();
   if (res.ok) {
-    const out = await res.json()
-    const data = await writeFs(mkKey(route.id), out);
-    console.log(data, out)
+    const out: StrapiPage = await res.json()
+    const data = await writeFs<StrapiPage>(mkKey(route.id), out);
+
     return {
-      title: "The SoulJuicer",
+      title: "Web Expereince",
       data
     }; 
   }
