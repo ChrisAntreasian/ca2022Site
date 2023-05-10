@@ -40,7 +40,7 @@
 
   const setOverflow = () => {
     if (!detailsDiv || windowWidth < mqBreakPoint) return;
-    needsReadmore = detailsDiv.scrollHeight + fromRem(1) > detailsDiv.clientHeight;
+    needsReadmore = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
   const setContentHeight = () => {
     contentHeight = (gallarySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem;
