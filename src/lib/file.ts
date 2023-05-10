@@ -26,7 +26,7 @@ export const writeFs = async<A>(fn: string, d: A) => {
   }
 }
 
-const routeKeys = ["landing", "layout", "poems", "the-quintuplapus", "the-souljuicer", "web-experience"];
+const routeKeys = ["landing", "layout", "poems", "the-quintuplapus", "the-souljuicer", "web-experance"];
 type RouteKeyU = typeof routeKeys[number];
 
 const dataRoutes: Record<RouteKeyU, Promise<DataFile<any>>> = {

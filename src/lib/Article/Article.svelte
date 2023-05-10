@@ -12,10 +12,19 @@
 	export let subnavHeight: number;
 	export let measureHeight: number;
   export let scrollRequestUpdate: boolean;
+	
 	let fadeOut = false;
 	let windowHeight: number;
 
 	const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
+	
+	const makeLinkText = (l: string) => {
+		const brokenup = l.split("//")[1].split("/");
+		const domain = `${brokenup[0].split(".")[1]}.${brokenup[0].split(".")[2]}`;
+		return domain === "betterlesson.com" 
+			? `${domain}/${brokenup[brokenup.length - 1]}`
+			: domain
+	}
 
 </script>
 
@@ -38,7 +47,27 @@ style={`
 				on:outrostart="{() => {fadeOut = true}}"
 				on:introend="{() => {fadeOut = false}}"
 			>
-			<h3>{item.title}</h3>
+				{#if item.logo}
+					<img src={item.logo} alt={item.title} />
+				{:else}
+					<h3>{item.title}</h3>
+				{/if}
+
+				{#if item.link}
+					<div>
+						<a href={item.link} target="_blank" rel="noreferrer">
+							{makeLinkText(item.link)}
+						</a>
+					</div>
+				{/if}
+				{#if item.secondLink}
+					<div>
+						<a href={item.secondLink} target="_blank" rel="noreferrer">
+							{makeLinkText(item.secondLink)}
+						</a>
+					</div>
+				{/if}
+
 				<SvelteMarkdown source={item.body} />
 			</div>
 		{/key}
@@ -57,7 +86,9 @@ style={`
 		padding: 1.3333rem 1rem 2rem ;
 
 	}
-
+	img {
+		height: 4rem;
+	}
 	@media (max-width: 767.98px) {
 		article, .wrap {
 			width:100%;
@@ -70,6 +101,10 @@ style={`
 		}
 		h3 {
 			display: none;
+		}
+		img {
+			padding-top: 1rem;
+			height: 3rem;
 		}
 	}
 </style>

@@ -5,6 +5,9 @@ export type Item = {
   title: string,
   body: string,
   logo?: string,
+  link?: string,
+  secondLink?: string,
   screenShots?: ReadonlyArray<string>,
-  omitFromNav?: boolean 
+  omitFromNav?: boolean,
+  
 }

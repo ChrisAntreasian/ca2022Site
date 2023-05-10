@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { cleanUrlSlug } from "$lib/history";
 	import { mqBreakPoint } from "$lib/spacing";
 	import { captureBehavior, captureDetails } from "$lib/analytics";
 	import { afterUpdate } from "svelte";
@@ -8,10 +7,11 @@
 	import { clientNavigate } from "$lib/history";
 	import Article from "./Article.svelte";
 	import Nav from "./Nav.svelte";
-	import type { Item } from "./types";
+	import Item from "./Item.svelte"
+	import type { Item as ItemT } from "./types";
 	
-	export let item: Item;
-	export let items; Array<Item>
+	export let item: ItemT;
+	export let items; Array<ItemT>
 	export let analyticsKey: string;
   export let parentRoute: string;
 	export let defaultHeadline: string;
@@ -43,7 +43,7 @@
 
   $: if(scrollY || windowWidth || contentHeight) checkIsAbsolute();
 
-	const handleLinkClick = (_: Item) => {
+	const handleLinkClick = (_: ItemT) => {
 		if (_.id == item.id) return;
 		setItem(_.id);
 		expanded = false;
@@ -63,8 +63,7 @@
 		item={item} 
 		subnavHeight={subnavHeight}
 		scrollRequestUpdate={scrollRequestUpdate}
-		bind:measureHeight={measureHeight}
-
+		bind:measureHeight={measureHeight}	
 	/>
 	<Nav
 		activeTitle={item.title}
@@ -76,53 +75,12 @@
 		defaultHeadline={defaultHeadline}
 	>
 		{#each items as _ (_.id)}
-			<li class:active={_.id === item.id}>
-				<a 
-					href={`/${parentRoute}/${_.id}/${cleanUrlSlug(_.title)}`}
-					on:click={() => handleLinkClick(_)}
-				>
-					{#if !_.omitFromNav}
-						{#if _.logo} 
-							<div class="rich-link">
-								<img src={_.logo} alt={_.title} /> 
-							</div>
-						{:else} 
-							{_.title}
-						{/if}
-					{/if}
-				</a>
-			</li>
+			<Item 
+				item={item} 
+				currentItem={_} 
+				parentRoute={parentRoute} 
+				handleLinkClick={handleLinkClick}			
+			/>
 		{/each}
 	</Nav>
 </section>
-
-<style>
-	li {
-		margin-bottom: 1rem;
-		font-family: "josefin-bold";
-	}
-	a {
-		color: var(--w-xl);
-	}
-	a:hover {
-		color: var(--w-dk);
-	}
-	li.active a,	
-	a:active {
-		color: var(--y-md);
-	}
-	img {
-		width: 100%;
-	}
-	@media (max-width: 767.98px) {
-		li {
-			padding: 0 1.5rem;
-		}
-		li:first-of-type {
-			padding-top: 1rem;
-		}
-		li:last-of-type {
-			padding-bottom: 2rem;
-		}
-	}
-</style>
