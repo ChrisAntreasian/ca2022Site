@@ -12,15 +12,15 @@
   export let contentHeight: number;
 	export let measureHeight: number;
 	export let scrollRequestUpdate: boolean;
+	export let defaultHeadline: string;
 
 	export let subnavHeight: number;
-	
+	export let expanded;
+
 	let windowHeight: number;
   let windowWidth: number;
   let scrollY: number;
 
-	let expanded = false;
-	
 	let scrollLogged = false;
 	let isAbsolute: boolean;
 
@@ -76,7 +76,7 @@
 			on:click={handleMNavHandle}
 			on:keypress={handleMNavHandle}
 		>
-			<h3>{expanded ? "poetry" : activeTitle}</h3>
+			<h3>{expanded ? defaultHeadline : activeTitle}</h3>
 			<div class="subnav-action">
 				<Arrow direction={expanded ? "bottom": "top"} color="white" size="medium" />
 			</div>

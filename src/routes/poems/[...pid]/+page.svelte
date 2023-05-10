@@ -14,4 +14,5 @@
 	items={data.items}
 	analyticsKey="poem"
 	parentRoute="poems"
+	defaultHeadline="poetry"
 />

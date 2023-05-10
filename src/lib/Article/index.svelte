@@ -14,6 +14,7 @@
 	export let items; Array<Item>
 	export let analyticsKey: string;
   export let parentRoute: string;
+	export let defaultHeadline: string;
 
 	let contentHeight: number;
 	let measureHeight: number;
@@ -70,7 +71,9 @@
 		contentHeight={contentHeight}
 		measureHeight={measureHeight}
 		scrollRequestUpdate={scrollRequestUpdate}
-		subnavHeight={subnavHeight}
+		bind:subnavHeight={subnavHeight}
+		bind:expanded={expanded}
+		defaultHeadline={defaultHeadline}
 	>
 		{#each items as _ (_.id)}
 			<li class:active={_.id === item.id}>
@@ -78,7 +81,15 @@
 					href={`/${parentRoute}/${_.id}/${cleanUrlSlug(_.title)}`}
 					on:click={() => handleLinkClick(_)}
 				>
-					{_.title}
+					{#if !_.omitFromNav}
+						{#if _.logo} 
+							<div class="rich-link">
+								<img src={_.logo} alt={_.title} /> 
+							</div>
+						{:else} 
+							{_.title}
+						{/if}
+					{/if}
 				</a>
 			</li>
 		{/each}
@@ -100,9 +111,12 @@
 	a:active {
 		color: var(--y-md);
 	}
+	img {
+		width: 100%;
+	}
 	@media (max-width: 767.98px) {
 		li {
-			padding-left: 1.5rem;
+			padding: 0 1.5rem;
 		}
 		li:first-of-type {
 			padding-top: 1rem;

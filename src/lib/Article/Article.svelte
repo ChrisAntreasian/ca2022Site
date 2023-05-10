@@ -12,7 +12,6 @@
 	export let subnavHeight: number;
 	export let measureHeight: number;
   export let scrollRequestUpdate: boolean;
-
 	let fadeOut = false;
 	let windowHeight: number;
 
@@ -55,7 +54,7 @@ style={`
 		display: flex;
 		justify-content: center;
 		min-height: var(--min-height);
-		padding: 1.3333rem 0 2rem;
+		padding: 1.3333rem 1rem 2rem ;
 
 	}
 

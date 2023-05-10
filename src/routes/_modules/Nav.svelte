@@ -68,18 +68,6 @@
 	nav { 		
 		padding: 1rem 2rem 2rem;
 	}
-	.rich-link {
-		position: relative;
-		display: flex;
-		margin-bottom: 2rem;
-		padding: 1rem;
-		background: var(--w-xl);
-		border: var(--space-md) solid var(--y-md);
-		border-radius: 0.666rem;
-	}
-	.rich-link:last-of-type {
-		margin-bottom: 0;
-	}
 	.details {
 		flex-basis: 60%;
 	}
