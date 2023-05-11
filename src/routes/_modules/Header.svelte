@@ -18,7 +18,8 @@
 	const headlinesDict = {
 		"/": "",
 		"/the-quintuplapus": ": The Quintuplapus",
-		"/poems": ": Poetry"
+		"/poems": ": Poetry",
+		"web-experance": ": Web"
 	}
 
 	$: headlineBit =  !($page.url.pathname in headlinesDict) ? "" : `${headlinesDict[$page.url.pathname]}`;
@@ -79,6 +80,9 @@
 			<ul class="header-links">
 				<li class:active={$page.url.pathname === "/"}>
 					<a on:click={() => clickNav("Home")} href="/">Home</a>
+				</li>
+				<li class:active={$page.url.pathname === "/web-experance"}>
+					<a on:click={() => clickNav("Web Experance")} href="/web-experance">Web Experance</a>
 				</li>
 				<li class:active={$page.url.pathname === "the-quintuplapus"}>
 					<a on:click={() => clickNav("The Quintuplapus")} href="/the-quintuplapus">The Quintuplapus</a>
