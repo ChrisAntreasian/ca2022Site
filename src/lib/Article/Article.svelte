@@ -117,6 +117,8 @@ style={`
 		box-sizing: border-box;
 		overflow: hidden;
 		margin-bottom: 0.75rem;
+		transition : border 250ms ease-out;
+
 	}
 	li:hover {
 		border-color: var(--bg-lt);

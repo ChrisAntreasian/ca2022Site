@@ -43,6 +43,12 @@
 	img {
 		height: 2rem;
 	}
+  .rich-link {
+    transition : border 250ms ease-out;
+  }
+  .rich-link:hover {
+    border-color: var(--y-lt);
+  }
 	@media (max-width: 767.98px) {
 		li {
 			padding: 0 1.5rem;

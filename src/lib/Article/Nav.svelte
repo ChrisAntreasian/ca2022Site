@@ -96,8 +96,8 @@
 		padding: 1rem 2rem 2rem;
 	}
 	.bg-overlay {
-			display: none;
-		}
+		display: none;
+	}
 	@media (max-width: 767.98px) { 
 		nav {
 			z-index: 50;

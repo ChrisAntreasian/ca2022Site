@@ -88,7 +88,7 @@
         <Arrow color="white" size="large" direction="left" />
       </span>
     {/if}
-    <img style={`height: ${imageHeight}rem;`} src={`${img}`} alt={altText} />
+    <img style={`--height: ${imageHeight}rem;`} src={`${img}`} alt={altText} />
     {#if paginateFullscreen && paginationDetails && paginationDetails.position + 1 < paginationDetails.length}
       <span 
         class="pagination-link next" 
@@ -124,6 +124,9 @@
     margin-left: -25%;
     object-fit: fill;
     max-height: 29rem
+  }
+  img {
+    height: var(--height);
   }
   .btn.open {
     left: var(--btn-offset);
