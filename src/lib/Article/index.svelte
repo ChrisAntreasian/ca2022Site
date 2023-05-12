@@ -56,6 +56,7 @@
 		item = items.data.filter(_ => _.id === id)[0];
 		clientNavigate(true)(`/${parentRoute}/${item.id}`, item.title);
 	}
+
 </script>
 
 <section class="w-sidebar" transition:fade={{duration: 300}} bind:clientHeight={contentHeight}>
@@ -63,7 +64,8 @@
 		item={item} 
 		subnavHeight={subnavHeight}
 		scrollRequestUpdate={scrollRequestUpdate}
-		bind:measureHeight={measureHeight}	
+		bind:measureHeight={measureHeight}
+		analyticsKey={analyticsKey}
 	/>
 	<Nav
 		activeTitle={item.title}

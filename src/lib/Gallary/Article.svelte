@@ -3,7 +3,7 @@
   import { fade } from "svelte/transition";
   import SvelteMarkdown from 'svelte-markdown'
 
-  import { fromRem, rem } from "$lib/spacing";
+  import { rem } from "$lib/spacing";
   import Arrow from '$lib/arrow/Arrow.svelte';
   import FullScreen from '../Fullscreen/index.svelte';
 
@@ -86,7 +86,10 @@
     {/key}
     <div class="wrap">
       <FullScreen 
-        img={artPiece} 
+        id={artPiece.id}
+        title={artPiece.attributes.title}
+        img={artPiece.attributes.image.data.attributes.url}
+        altText={artPiece.attributes.image.data.attributes.alternativeText} 
         analyticsKey={analyticsKey} 
         paginateArtPiece={paginateArtPiece} 
         paginationDetails={paginationDetails}

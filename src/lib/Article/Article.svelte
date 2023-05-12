@@ -7,12 +7,13 @@
 	import { contextHeightKey, rem, type LayoutElemH } from "$lib/spacing";
 	import { getContext } from "svelte";
 	import type { Item } from "./types";
-
+	import Fullscreen from "$lib/Fullscreen/index.svelte"
 	export let item: Item;
 	export let subnavHeight: number;
 	export let measureHeight: number;
   export let scrollRequestUpdate: boolean;
-	
+	export let analyticsKey: string;
+
 	let fadeOut = false;
 	let windowHeight: number;
 
@@ -69,6 +70,22 @@ style={`
 				{/if}
 
 				<SvelteMarkdown source={item.body} />
+				<ul>
+					{#if item.images}
+						{#each item.images as _, i}
+							<li>
+								<Fullscreen 
+									id={item.id + i}
+									title={item.title}
+									img={_.large}
+									targetImage={_.small}
+									analyticsKey={analyticsKey}
+									altText={`${item.title} screenshot ${i + 1}`}
+								/>
+							</li>
+						{/each}
+					{/if}
+				</ul>
 			</div>
 		{/key}
 	</div>
@@ -84,11 +101,30 @@ style={`
 		justify-content: center;
 		min-height: var(--min-height);
 		padding: 1.3333rem 1rem 2rem ;
-
+	}
+	ul {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		margin-top: 1rem;
+	}
+	li {
+		display: flex;
+		width: calc(33.333% - 0.5rem);
+		aspect-ratio : 1 / 0.75;
+		border: var(--space-md) solid var(--bg-dk);
+		border-radius: 0.333rem;
+		box-sizing: border-box;
+		overflow: hidden;
+		margin-bottom: 0.75rem;
+	}
+	li:hover {
+		border-color: var(--bg-lt);
 	}
 	img {
 		height: 4rem;
 	}
+	
 	@media (max-width: 767.98px) {
 		article, .wrap {
 			width:100%;

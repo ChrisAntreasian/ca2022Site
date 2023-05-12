@@ -24,8 +24,11 @@ export const load: PageServerLoad = async ({ params }) => {
       body: _.attributes.body,
       logo: _.attributes.logo.data.attributes.url,
       link: _.attributes.link,
-      secondLink: _.attributes.secondLink
-      // screenShots: _.attributes.image.data.map(_ => _.attributes.url)
+      secondLink: _.attributes.secondLink,
+      images: _.attributes.image.data.map(_ => ({
+        small: _.attributes.formats.small.url,
+        large: _.attributes.url
+      }))
     }));
 
     return { 

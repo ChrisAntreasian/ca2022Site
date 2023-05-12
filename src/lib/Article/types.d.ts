@@ -7,7 +7,10 @@ export type Item = {
   logo?: string,
   link?: string,
   secondLink?: string,
-  screenShots?: ReadonlyArray<string>,
+  images?: ReadonlyArray<{
+    small: string,
+    large: string
+  }>,
   omitFromNav?: boolean,
   
 }

@@ -3,26 +3,31 @@
 
   import type { StrapiArt } from "$lib/types";
   import { noScroll } from '$lib/body';
-  import fullscreen from "./fullscreen.svg"
+  import fullscreenIcon from "./fullscreen.svg"
   import { rem } from "$lib/spacing";
 	import { captureDetails, captureBehavior } from "$lib/analytics";
 	import Arrow from "$lib/arrow/Arrow.svelte";
 
-  export let img: StrapiArt["data"][number];
+  export let id: number;
+  export let title: string;
+  export let img: string;
+  export let altText: string;
   export let analyticsKey: string;
   export let btnOffset: number = 50;
+  export let targetImage: string = null;
   export let paginateArtPiece: (s: string) => (n: number)  => void = null;
   export let paginationDetails: {
     length: number,
     position: number
   } = null;
+  
 
   let displayBg = false;
   let displayImg = false
   let imageHeight = 0;
 
   const transitionConfig = {duration: 400};
-  const mkCaptureDetails = captureDetails({ id: img.id, name: img.attributes.title });
+  const mkCaptureDetails = captureDetails({ id: id, name: title });
   const open = () => {
     imageHeight = (window.innerHeight - (2 * rem)) / rem;
     displayBg = displayImg = true;
@@ -38,15 +43,25 @@
 
 <svelte:body use:noScroll={displayBg} />
 
-<div 
-  on:click={open} 
-  on:keypress={open} 
-  class="btn open" 
-  style={`--btn-offset: ${btnOffset}%`}
+{#if targetImage}
+  <div 
+    on:click={open} 
+    on:keypress={open} 
+    class="img open" 
+  >
+    <img src={targetImage} alt={"click for fullscreen"} />
+  </div>
+{:else}
+  <div 
+    on:click={open} 
+    on:keypress={open} 
+    class="btn open" 
+    style={`--btn-offset: ${btnOffset}%`}
+  >
+    <img src={fullscreenIcon} alt={"click for fullscreen"} />
+  </div>
+{/if}
 
->
-  <img src={fullscreen} alt={"click for fullscreen"} />
-</div>
 {#if displayBg}
   <div class="bg-overlay"
     on:click={close}
@@ -54,8 +69,8 @@
     transition:fade={transitionConfig}
   />
 {/if}
-{#if displayImg}
 
+{#if displayImg}
   <div class="wrap" transition:scale={transitionConfig}>
     <div
       on:click={close}
@@ -73,7 +88,7 @@
         <Arrow color="white" size="large" direction="left" />
       </span>
     {/if}
-    <img style={`height: ${imageHeight}rem;`} src={`${img.attributes.image.data.attributes.url}`} alt={img.attributes.image.data.attributes.alternativeText} />
+    <img style={`height: ${imageHeight}rem;`} src={`${img}`} alt={altText} />
     {#if paginateFullscreen && paginationDetails && paginationDetails.position + 1 < paginationDetails.length}
       <span 
         class="pagination-link next" 
@@ -87,6 +102,10 @@
 {/if}
 
 <style>
+  .img,
+  .btn {
+    cursor: pointer;
+  }
 .btn {
     position: absolute;
     height: 2rem;
@@ -97,7 +116,14 @@
     border-radius: var(--space-md);
     color: white;
     opacity: .85;
-    cursor: pointer;
+  }
+
+  .img img {
+    height: auto;
+    width: 20rem;
+    margin-left: -25%;
+    object-fit: fill;
+    max-height: 29rem
   }
   .btn.open {
     left: var(--btn-offset);
