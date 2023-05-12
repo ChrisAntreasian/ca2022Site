@@ -1,12 +1,12 @@
 <script lang="ts">
   import { scale, fade } from "svelte/transition";
 
-  import type { StrapiArt } from "$lib/types";
   import { noScroll } from '$lib/body';
   import fullscreenIcon from "./fullscreen.svg"
-  import { rem } from "$lib/spacing";
+  import { fromRem, rem, toRem } from "$lib/spacing";
 	import { captureDetails, captureBehavior } from "$lib/analytics";
 	import Arrow from "$lib/arrow/Arrow.svelte";
+	import { onMount } from "svelte";
 
   export let id: number;
   export let title: string;
@@ -21,15 +21,36 @@
     position: number
   } = null;
   
-
   let displayBg = false;
   let displayImg = false
-  let imageHeight = 0;
-
+  let imageHeight
+  let windowWidth = 0;
+  
   const transitionConfig = {duration: 400};
   const mkCaptureDetails = captureDetails({ id: id, name: title });
+
+  let hmw = { h: "auto", mw: "auto" };
+  
+  const wrapperWidth = fromRem(75)
+  onMount(async () => {
+    const  i = new Image();
+    i.src = img;
+    const dfn = i.onload = () => ({ h: i.height, w: i.width });
+    const d = dfn();
+    hmw = { h: `${(window.innerHeight - (2 * rem)) / rem}rem`, mw: "auto" };
+
+    if (d.w >= d.h) {
+      hmw = {
+        h: "auto",
+        mw: `${toRem((windowWidth <= wrapperWidth ? windowWidth: wrapperWidth) - fromRem(4))}rem`
+      }
+    }
+  });
+
+
   const open = () => {
     imageHeight = (window.innerHeight - (2 * rem)) / rem;
+
     displayBg = displayImg = true;
     captureBehavior(`${analyticsKey} click open fullscreen`, mkCaptureDetails );
   }
@@ -41,6 +62,7 @@
 
 </script>
 
+<svelte:window bind:innerWidth={windowWidth} />
 <svelte:body use:noScroll={displayBg} />
 
 {#if targetImage}
@@ -88,7 +110,15 @@
         <Arrow color="white" size="large" direction="left" />
       </span>
     {/if}
-    <img style={`--height: ${imageHeight}rem;`} src={`${img}`} alt={altText} />
+    <img 
+      src={`${img}`} 
+      alt={altText} 
+      class="fs" 
+      style={`
+        --height: ${hmw.h};
+        --max-width: ${hmw.mw};
+      `} 
+    />
     {#if paginateFullscreen && paginationDetails && paginationDetails.position + 1 < paginationDetails.length}
       <span 
         class="pagination-link next" 
@@ -123,10 +153,11 @@
     width: 20rem;
     margin-left: -25%;
     object-fit: fill;
-    max-height: 29rem
   }
-  img {
+  
+  img.fs {
     height: var(--height);
+    max-width: var(--max-width);
   }
   .btn.open {
     left: var(--btn-offset);

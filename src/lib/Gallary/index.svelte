@@ -64,7 +64,6 @@
 		setPaginationDetails(artPiece.id)
 	}
 
-	afterUpdate(initGalary);
 	afterNavigate(initGalary);
 
 	$: if(windowWidth || artPiece.id) initGalary();
