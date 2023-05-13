@@ -34,7 +34,7 @@
 	let gallarySectionHeight: number;
 	let scrollRequestUpdate: boolean = false;
 	
-	const extraHeight = fromRem(0.5);
+	const extraHeight = fromRem(2.5);
 	const navHeight = fromRem(6);
 	
 	let paginationDetails = {

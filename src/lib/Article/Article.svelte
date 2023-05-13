@@ -18,7 +18,7 @@
 	let fadeOut = false;
 	let windowHeight: number;
 	
-	const defaultActiveShot = {i: null, src: null}
+	const defaultActiveShot = { i: null, src: null };
 	
 	let activeShot: { i: number, src: string } = defaultActiveShot; 
 	const resetFullScreen = () => {
@@ -26,12 +26,18 @@
 	}
 
 	let paginationDetails = {
-		length: item.images.length,
+		length: item.images ? item.images.length : 0,
 		position: 0
 	}
 	const setPaginationDetails = (id: number) => {
-		 paginationDetails.position =  item.images.findIndex(_ => _.id === id)
+		 paginationDetails = {
+			position:  item.images.findIndex(_ => _.id === id),
+			length: item.images ? item.images.length : 0
+		 }
 	}
+	
+	$: if (item.images) setPaginationDetails(item.images[0].id);
+
 	const paginateItem = () => (n: number) => {
 		const index = item.images.findIndex(_ => _.id === item.images[activeShot.i + n].id);
 		setPaginationDetails(item.images[index].id);
@@ -92,9 +98,9 @@ style={`
 
 				<SvelteMarkdown source={item.body} />
 
-				<h4>Screenshots</h4>
-				<ul>
-					{#if item.images}
+				{#if item.images}
+					<h4>Screenshots</h4>
+					<ul>
 						{#each item.images as _, i}
 							<li>
 								<Fullscreen 
@@ -110,8 +116,8 @@ style={`
 								/>
 							</li>
 						{/each}
-					{/if}
-				</ul>
+					</ul>
+				{/if}
 			</div>
 		{/key}
 	</div>

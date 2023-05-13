@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { page } from "$app/stores";
 	import { captureClickThis } from "$lib/analytics";
-
+	import githubIcon from "./github-mark.svg"
+	
 	export let footerHeight: number;
+	
 	const navClick = captureClickThis("footer nav");
 
 </script>
@@ -22,9 +24,12 @@
 			</ul>
 		</nav>
 		<div class="details">
-			<h4>
-				Built with Strapi and SvelteKit
-			</h4>
+			<a href="https://github.com/ChrisAntreasian/ca2022Site" target="_blank">
+				<img src={githubIcon} alt={"check the source out on github"} />
+				<h4>
+					Built with SvelteKit
+				</h4>
+			</a>
 			<span>&copy; Christopher Antreasian</span>
 		</div>
 	</div>
@@ -70,13 +75,14 @@
 		letter-spacing: 0.05em;
 		text-decoration: none;
 		transition: color 0.2s linear;
+		transition: transform 0.1s linear;
 		color: var(--b-dk);
 		font-family: "josefin-bold";
 	}
-	nav a:hover {
+	nav a:hover,
+	.details a:hover h4{
 		transform: scale(1.15);
 		color: var(--b-md);
-
 	}
 	.details {
 		display: flex;
@@ -84,7 +90,7 @@
 		font-size: 0.75rem;
 		justify-content: center;
 		align-items: flex-end;
-		padding-right: 1rem;
+		padding: 1rem 1rem 1rem 0;
 	}
 	.details h4,
 	.details span {
@@ -92,10 +98,33 @@
 		font-family: "josefin-italic";
 	}
 	h4 {
-		padding-bottom: 0.25rem;
 		letter-spacing: 0rem;
 		line-height: 1rem;
 		color: var(--b-dk);
+	}
+	.details a {
+		display: flex;
+		justify-content: center;
+		padding: 0.5rem 0;
+
+	}
+	.details a img,
+	.details a h4 {
+		transition: color 0.2s linear;
+		transition: transform 0.1s linear;
+	}
+	.details a:hover img,
+	.details a:hover h4 {
+		transform: scale(1.05);
+
+		color: var(--b-md);
+	}
+
+	.details img {
+		height: 1rem;
+		margin-right: 0.5rem;
+		color: var(--b-dk);
+
 	}
 
 	@media (max-width: 767.98px) {
