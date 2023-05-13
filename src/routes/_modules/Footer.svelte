@@ -25,10 +25,9 @@
 		</nav>
 		<div class="details">
 			<a href="https://github.com/ChrisAntreasian/ca2022Site" target="_blank">
+				<div class="github-icon" style={`--github-icon: ${githubIcon}`}></div>
 				<img src={githubIcon} alt={"check the source out on github"} />
-				<h4>
-					Built with SvelteKit
-				</h4>
+				<h4>Built with SvelteKit</h4>
 			</a>
 			<span>&copy; Christopher Antreasian</span>
 		</div>
@@ -79,8 +78,7 @@
 		color: var(--b-dk);
 		font-family: "josefin-bold";
 	}
-	nav a:hover,
-	.details a:hover h4{
+	nav a:hover{
 		transform: scale(1.15);
 		color: var(--b-md);
 	}
@@ -104,27 +102,29 @@
 	}
 	.details a {
 		display: flex;
-		justify-content: center;
+		align-items: flex-end;
 		padding: 0.5rem 0;
-
-	}
-	.details a img,
-	.details a h4 {
 		transition: color 0.2s linear;
 		transition: transform 0.1s linear;
 	}
-	.details a:hover img,
-	.details a:hover h4 {
-		transform: scale(1.05);
-
+	.details a:hover  {
+		transform: scale(1.15);
 		color: var(--b-md);
 	}
-
-	.details img {
-		height: 1rem;
-		margin-right: 0.5rem;
+	.details a img,
+	.details a h4 {
 		color: var(--b-dk);
-
+	}
+	.details img {
+		height: 1.25rem;
+		margin-right: 0.5rem;
+		filter: invert(13%) sepia(33%) saturate(1000%) hue-rotate(180deg) brightness(100%) contrast(100%);
+	}
+	.details a:hover h4 {
+		color: var(--b-md);
+	}
+	.details a:hover img {
+		filter: invert(25%) sepia(57%) saturate(500%) hue-rotate(170deg) brightness(90%) contrast(100%);
 	}
 
 	@media (max-width: 767.98px) {
