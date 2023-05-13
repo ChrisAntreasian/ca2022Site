@@ -9,7 +9,8 @@ export type Item = {
   secondLink?: string,
   images?: ReadonlyArray<{
     small: string,
-    large: string
+    large: string,
+    id: number
   }>,
   omitFromNav?: boolean,
   

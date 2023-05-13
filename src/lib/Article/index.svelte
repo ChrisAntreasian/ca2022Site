@@ -8,10 +8,11 @@
 	import Article from "./Article.svelte";
 	import Nav from "./Nav.svelte";
 	import Item from "./Item.svelte"
+	
 	import type { Item as ItemT } from "./types";
 	
 	export let item: ItemT;
-	export let items; Array<ItemT>
+	export let items: ReadonlyArray<ItemT>;
 	export let analyticsKey: string;
   export let parentRoute: string;
 	export let defaultHeadline: string;
@@ -43,18 +44,18 @@
 
   $: if(scrollY || windowWidth || contentHeight) checkIsAbsolute();
 
+	const setItem = (id: number) => (e: Event) => {
+		e.preventDefault();
+		item = items.filter(_ => _.id === id)[0];
+		clientNavigate(true)(`/${parentRoute}/${item.id}`, item.title);
+	}
+
 	const handleLinkClick = (_: ItemT) => {
 		if (_.id == item.id) return;
 		setItem(_.id);
 		expanded = false;
 		captureBehavior(`click ${analyticsKey}`, captureDetails({ id: _.id, name: _.title }));
 		scrollLogged = false;
-	}
-
-	const setItem = (id: number) => (e: Event) => {
-		e.preventDefault();
-		item = items.data.filter(_ => _.id === id)[0];
-		clientNavigate(true)(`/${parentRoute}/${item.id}`, item.title);
 	}
 
 </script>

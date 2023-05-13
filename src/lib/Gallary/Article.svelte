@@ -24,7 +24,7 @@
   export let hideMobileTitle: boolean;
   export let readMoreClick: (_: boolean) => void;
 
-  export let paginateArtPiece: (s:string) => (n: number) => void;
+  export let paginateItem: (s:string) => (n: number) => void;
   export let paginationDetails: {
     length: number,
     position: number
@@ -69,7 +69,7 @@
     detailsDiv.scrollTo({top: 0})
   }
 
-  const paginateGal = paginateArtPiece(analyticsKey);
+  const paginateGal = paginateItem(analyticsKey);
   
 </script>
 <svelte:window
@@ -91,7 +91,7 @@
         img={artPiece.attributes.image.data.attributes.url}
         altText={artPiece.attributes.image.data.attributes.alternativeText} 
         analyticsKey={analyticsKey} 
-        paginateArtPiece={paginateArtPiece} 
+        paginateItem={paginateItem} 
         paginationDetails={paginationDetails}
         btnOffset={100 - detailsWidth}
       />

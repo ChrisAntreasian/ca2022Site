@@ -26,6 +26,7 @@ export const load: PageServerLoad = async ({ params }) => {
       link: _.attributes.link,
       secondLink: _.attributes.secondLink,
       images: _.attributes.image.data.map(_ => ({
+        id: _.id,
         small: _.attributes.formats.small.url,
         large: _.attributes.url
       }))

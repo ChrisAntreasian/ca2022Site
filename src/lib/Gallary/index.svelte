@@ -1,6 +1,6 @@
 <script lang="ts">
 
-	import { afterUpdate, getContext, onMount } from "svelte";
+	import { getContext } from "svelte";
 	import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
   import { fade } from "svelte/transition";
@@ -37,11 +37,11 @@
 	const extraHeight = fromRem(0.5);
 	const navHeight = fromRem(6);
 	
-	const transitionDetails = {
-		easing: cubicOut,
-    duration: 700,
-  }
-
+	let paginationDetails = {
+		length: artPieces.length,
+		position: 0
+	}
+	
 	const setPaginationDetails = (id: number) => {
 		 paginationDetails = {
 			length: paginationDetails.length,
@@ -70,6 +70,11 @@
 
 	let preloadImages = artPieces.map(p => p.attributes.image.data.attributes.url);
 
+	const transitionDetails = {
+		easing: cubicOut,
+    duration: 700,
+  }
+	
   const imageWidth = tweened(50, transitionDetails);
 	const detailsWidth = tweened(50, transitionDetails);
 	
@@ -86,11 +91,6 @@
 		clientNavigateS(`${parentRoute}${artPiece.id}`, useUrlTitle ? artPiece.attributes.title : null);
 	}
 
-	let paginationDetails = {
-		length: artPieces.length,
-		position: 0
-	}
-	
 	let expanded = false;
 	const setExpanded = (exp: boolean) => {
 		expanded = exp;
@@ -117,7 +117,7 @@
 		);
 	}
 
-	const paginateArtPiece = (k: string) => (n: number) => {
+	const paginateItem = (k: string) => (n: number) => {
 		const index = artPieces.findIndex(_ => _.id === artPiece.id);
 		changeSelected(artPieces[index + n].id);
 		captureBehavior(
@@ -161,7 +161,7 @@
 		showMore={showMore} 
 		readMoreClick={readMoreClick}
 		gallarySectionHeight={gallarySectionHeight}
-		paginateArtPiece={paginateArtPiece}
+		paginateItem={paginateItem}
 		paginationDetails={paginationDetails}
 		windowWidth={windowWidth}
     analyticsKey={analyticsKey}

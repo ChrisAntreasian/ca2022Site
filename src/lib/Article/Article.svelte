@@ -8,14 +8,35 @@
 	import { getContext } from "svelte";
 	import type { Item } from "./types";
 	import Fullscreen from "$lib/Fullscreen/index.svelte"
+	
 	export let item: Item;
 	export let subnavHeight: number;
 	export let measureHeight: number;
   export let scrollRequestUpdate: boolean;
 	export let analyticsKey: string;
-
+  
 	let fadeOut = false;
 	let windowHeight: number;
+	
+	const defaultActiveShot = {i: null, src: null}
+	
+	let activeShot: { i: number, src: string } = defaultActiveShot; 
+	const resetFullScreen = () => {
+		activeShot = defaultActiveShot
+	}
+
+	let paginationDetails = {
+		length: item.images.length,
+		position: 0
+	}
+	const setPaginationDetails = (id: number) => {
+		 paginationDetails.position =  item.images.findIndex(_ => _.id === id)
+	}
+	const paginateItem = () => (n: number) => {
+		const index = item.images.findIndex(_ => _.id === item.images[activeShot.i + n].id);
+		setPaginationDetails(item.images[index].id);
+		activeShot = {i: index, src: item.images[index].large}
+	}
 
 	const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
 	
@@ -70,17 +91,22 @@ style={`
 				{/if}
 
 				<SvelteMarkdown source={item.body} />
+
+				<h4>Screenshots</h4>
 				<ul>
 					{#if item.images}
 						{#each item.images as _, i}
 							<li>
 								<Fullscreen 
-									id={item.id + i}
+									id={item.id + (activeShot.i || i)}
 									title={item.title}
-									img={_.large}
+									img={activeShot.src || _.large}
 									targetImage={_.small}
 									analyticsKey={analyticsKey}
-									altText={`${item.title} screenshot ${i + 1}`}
+									altText={`${item.title} screenshot ${(activeShot.i || i) + 1}`}
+									paginationDetails={paginationDetails}
+									paginateItem={paginateItem}
+									onClose={resetFullScreen}
 								/>
 							</li>
 						{/each}
@@ -102,11 +128,14 @@ style={`
 		min-height: var(--min-height);
 		padding: 1.3333rem 1rem 2rem ;
 	}
+	h4 {
+		margin-top: 1rem;
+	}
 	ul {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
-		margin-top: 1rem;
+		margin-top: 0.5rem;
 	}
 	li {
 		display: flex;
@@ -142,6 +171,16 @@ style={`
 		img {
 			padding-top: 1rem;
 			height: 3rem;
+		}
+		ul {
+			flex-direction: column;
+			align-items: center;
+		}
+		li {
+			width: 100%;
+			aspect-ratio: initial;
+			border: none;
+			justify-content: center;
 		}
 	}
 </style>

@@ -15,12 +15,14 @@
   export let analyticsKey: string;
   export let btnOffset: number = 50;
   export let targetImage: string = null;
-  export let paginateArtPiece: (s: string) => (n: number)  => void = null;
+  export let paginateItem: (s: string) => (n: number)  => void = null;
   export let paginationDetails: {
     length: number,
     position: number
   } = null;
   
+  export let onClose = () => null;
+
   let displayBg = false;
   let displayImg = false
   let imageHeight
@@ -50,15 +52,16 @@
 
   const open = () => {
     imageHeight = (window.innerHeight - (2 * rem)) / rem;
-
     displayBg = displayImg = true;
     captureBehavior(`${analyticsKey} click open fullscreen`, mkCaptureDetails );
   }
   const close = () => {
-    displayBg = displayImg = false
+    displayBg = displayImg = false;
+    onClose();
     captureBehavior(`${analyticsKey} click close fullscreen`,  mkCaptureDetails);
   };
-  const paginateFullscreen = paginateArtPiece ? paginateArtPiece(`${analyticsKey} fullscreen`) : null;
+  
+  const paginateFullscreen = paginateItem ? paginateItem(`${analyticsKey} fullscreen`) : null;
 
 </script>
 
@@ -136,7 +139,7 @@
   .btn {
     cursor: pointer;
   }
-.btn {
+  .btn {
     position: absolute;
     height: 2rem;
     width: 2rem;
@@ -200,6 +203,15 @@
     .bg-overlay,
     .wrap {
       display: none;
+    }
+    .img {
+      cursor: default;
+      pointer-events: none;
+    }
+    .img img {
+      width: 100%;
+      height: auto;
+      margin-left: 0;
     }
   }
 </style>
