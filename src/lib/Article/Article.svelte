@@ -17,7 +17,16 @@
   
 	let fadeOut = false;
 	let windowHeight: number;
-	
+
+	/*
+		FireFox Screenshot dimensions
+		Mobile Screenshot Window dimensions: (450px, 688px)
+		Desktop Screenshot Window dimensions: (144px, 688px)
+		Gimp Modification dimensions
+		Desktop: position (115, 306) dimensions (2886, 1550)
+		Mobile: position: (118, 306) dimensions (892, 1324)
+	*/
+
 	const defaultActiveShot = { i: null, src: null };
 	
 	let activeShot: { i: number, src: string } = defaultActiveShot; 
@@ -53,7 +62,7 @@
 			? `${domain}/${brokenup[brokenup.length - 1]}`
 			: domain
 	}
-
+	
 </script>
 
 <svelte:window bind:innerHeight={windowHeight} />
