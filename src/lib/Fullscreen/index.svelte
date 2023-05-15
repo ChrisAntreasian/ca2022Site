@@ -126,9 +126,7 @@
         --max-width: ${hmw.mw};
       `} 
     />
-   
-  </div>
-   {#if needsLast || needsNext}
+    {#if needsLast || needsNext}
       <div class="page-control modal-control-wrap"
         style={`--width: ${toRem(maxOverlayWidth) - 2}rem`}
       >
@@ -150,6 +148,8 @@
         </span>
       </div>
     {/if}
+  </div>
+
 {/if}
 
 <style>
@@ -205,11 +205,13 @@
     opacity: 1;
   }
   .wrap {
+    height: 100%;
     position: fixed;
-    z-index: 200;
     top: 1rem;
     left: 50%;
     transform: translate(-50%);
+    z-index: 200;
+    
   }
   .modal-control-wrap {
     position:fixed;
@@ -224,7 +226,10 @@
     top: 0;
   }
   .page-control {
+    position: absolute;
+    bottom: 2rem;
     justify-content: center;
+    
   }
   .pagination-link.disabled {
     pointer-events: none;
