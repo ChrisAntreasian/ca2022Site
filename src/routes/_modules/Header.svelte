@@ -224,6 +224,9 @@
 	}
 
 	@media (max-width: 767.98px) { 
+		header {
+			z-index: 55;
+	}
 		.hamburger {
 			display: block;
 			z-index: 120;

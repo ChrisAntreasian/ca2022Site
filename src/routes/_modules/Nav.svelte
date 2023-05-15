@@ -1,4 +1,3 @@
-
 <script lang="ts">
 	import { captureClickThis } from "$lib/analytics";
 	import { cleanUrlSlug } from "$lib/history";
@@ -7,7 +6,6 @@
 	
 	export let links: StrapiPageDetails;
 	const navClick = captureClickThis("home section");
-	console.log(links)
 </script>
 
 	<nav class="subnav-list">
