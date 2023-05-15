@@ -21,6 +21,9 @@
 				<li on:click={() => navClick("Poems")} on:keypress={() => navClick("Poems")} class:active={$page.url.pathname === '/poems'}>
 					<a  href="/poems">Poems</a>
 				</li>
+				<li on:click={() => navClick("Web Experience")} on:keypress={() => navClick("Web Experience")} class:active={$page.url.pathname === '/web-experience'}>
+					<a  href="/poems">Web Experience</a>
+				</li>
 			</ul>
 		</nav>
 		<div class="details">

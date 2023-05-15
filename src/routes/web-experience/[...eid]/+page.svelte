@@ -14,6 +14,6 @@
 	item={data.item} 
 	items={data.items}
 	analyticsKey="web"
-	parentRoute="web-experance"
+	parentRoute="web-experience"
 	defaultHeadline="Web Experience"
 />

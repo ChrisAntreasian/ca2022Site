@@ -7,11 +7,21 @@
 	
 	export let links: StrapiPageDetails;
 	const navClick = captureClickThis("home section");
-
+	console.log(links)
 </script>
 
 	<nav class="subnav-list">
   {#each links as ni}
+		{#if ni.attributes.title === "Web Experience"}
+			<div class="rich-link w">
+				<h2>
+					<a on:click={() => navClick("Web Experience")} href={ni.attributes.link}>
+						{ni.attributes.title}
+					</a>
+				</h2>
+				<p>{ni.attributes.description}</p>
+			</div>
+		{/if}
 		{#if ni.attributes.title === "My Poetry"}
 			<div class="rich-link p">
 				<div class="details">
@@ -81,6 +91,9 @@
 		flex-basis: 40%;
 		margin-top: 0.5rem;
 		padding-left: 1rem;
+	}
+	.w.rich-link {
+		flex-direction: column;
 	}
 	img {
 		position: absolute;

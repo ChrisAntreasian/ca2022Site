@@ -19,7 +19,7 @@
 		"/": "",
 		"/the-quintuplapus": ": The Quintuplapus",
 		"/poems": ": Poetry",
-		"web-experance": ": Web"
+		"web-experience": ": Web"
 	}
 
 	$: headlineBit =  !($page.url.pathname in headlinesDict) ? "" : `${headlinesDict[$page.url.pathname]}`;
@@ -81,8 +81,8 @@
 				<li class:active={$page.url.pathname === "/"}>
 					<a on:click={() => clickNav("Home")} href="/">Home</a>
 				</li>
-				<li class:active={$page.url.pathname === "/web-experance"}>
-					<a on:click={() => clickNav("Web Experance")} href="/web-experance">Web Experance</a>
+				<li class:active={$page.url.pathname === "/web-experience"}>
+					<a on:click={() => clickNav("Web Experience")} href="/web-experience">Web Experience</a>
 				</li>
 				<li class:active={$page.url.pathname === "the-quintuplapus"}>
 					<a on:click={() => clickNav("The Quintuplapus")} href="/the-quintuplapus">The Quintuplapus</a>
@@ -129,7 +129,7 @@
 		justify-content: space-around;
 		position: fixed;
 		top: 0;
-		z-index: 100;
+		z-index: 45;
 	}
 	.header-bg {
 		max-width: none;
