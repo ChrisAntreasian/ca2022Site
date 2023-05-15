@@ -15,7 +15,7 @@
   export let imageWidth: number;
   export let detailsWidth: number;
   export let showMore: boolean;
-  export let gallarySectionHeight: number;
+  export let gallerySectionHeight: number;
   export let windowWidth: number;
   export let analyticsKey: string;
   export let subnavHeight: number;
@@ -43,7 +43,7 @@
     needsReadmore = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
   const setContentHeight = () => {
-    contentHeight = (gallarySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem;
+    contentHeight = (gallerySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem;
   };
 
   const init = () => {
@@ -79,6 +79,7 @@
 />
   <article style={`
     --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem;
+    --gallery-section-height: ${gallerySectionHeight}rem;
     --snh: ${subnavHeight / rem}rem;
   `}>
    {#key scrollRequestUpdate}

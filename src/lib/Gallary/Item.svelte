@@ -5,7 +5,6 @@
   export let artPiece: WithId<Art>;
 	export let item: WithId<Art>;
 
-	export let navArtPieceClick: (_: number) => (e: Event) => void;
   export let handleNavArtPieceClick: (id: number) => (e: Event) => void;
   
   export let parentRoute: string;
