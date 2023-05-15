@@ -1,7 +1,7 @@
 import type { Item } from '$lib/Article/types';
 
 import type { PageServerLoad } from './$types';
-import * as D from "$data/web-experance.json"
+import * as D from "$data/web-experience.json"
 
 export const load: PageServerLoad = async ({ params }) => {
 	const d = D.data;

@@ -26,7 +26,7 @@ export const writeFs = async<A>(fn: string, d: A) => {
   }
 }
 
-const routeKeys = ["landing", "layout", "poems", "the-quintuplapus", "the-souljuicer", "web-experance"];
+const routeKeys = ["landing", "layout", "poems", "the-quintuplapus", "the-souljuicer", "web-experience"];
 type RouteKeyU = typeof routeKeys[number];
 
 const dataRoutes: Record<RouteKeyU, Promise<DataFile<any>>> = {
@@ -35,7 +35,7 @@ const dataRoutes: Record<RouteKeyU, Promise<DataFile<any>>> = {
   "poems": import("../../src/data/poems.json"),
   "the-quintuplapus": import("../../src/data/the-quintuplapus.json"),
   "the-souljuicer": import("../../src/data/the-souljuicer.json"),
-  "web-experience": import("../../src/data/web-experance.json")
+  "web-experience": import("../../src/data/web-experience.json")
 };
 
 const keyGuard = (s: string): s is RouteKeyU => routeKeys.includes(s);
