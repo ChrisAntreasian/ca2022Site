@@ -20,3 +20,12 @@
 		&#9660; Download Resume
 	</a>
 </Article>
+
+<style>
+@media (max-width: 767.98px) { 
+	a {
+		display: block;
+		padding: 0 2rem;
+	}
+}
+</style>
