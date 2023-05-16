@@ -87,5 +87,6 @@
 				handleLinkClick={handleLinkClick}			
 			/>
 		{/each}
+		<slot />
 	</Nav>
 </section>

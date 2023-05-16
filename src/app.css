@@ -294,3 +294,14 @@ section.w-sidebar {
 		margin-bottom: 1.5rem;
 	}
 }
+
+a.sidebar-link {
+	color: var(--w-xl);
+}
+a.sidebar-link:hover {
+	color: var(--w-dk);
+}
+li.active a.sidebar-link,	
+a.sidebar-link:active {
+	color: var(--y-md);
+}

@@ -10,6 +10,7 @@
 
 <li class:active={currentItem.id === item.id}>
   <a 
+		class="sidebar-link"
     href={`/${parentRoute}/${currentItem.id}/${cleanUrlSlug(currentItem.title)}`}
     on:click={() => handleLinkClick(currentItem)}
   >
@@ -29,16 +30,6 @@
 	li {
 		margin-bottom: 1rem;
 		font-family: "josefin-bold";
-	}
-	a {
-		color: var(--w-xl);
-	}
-	a:hover {
-		color: var(--w-dk);
-	}
-	li.active a,	
-	a:active {
-		color: var(--y-md);
 	}
 	img {
 		height: 2rem;
