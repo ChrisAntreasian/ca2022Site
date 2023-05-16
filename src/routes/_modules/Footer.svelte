@@ -143,9 +143,10 @@
 			align-items: flex-start;
 		}
 		h4 {
-			margin-left: 1rem;
 			line-height: 1.5rem;
-			padding-top: 1rem;
+		}
+		.details a {
+			align-items: center;
 		}
 	 }
 </style>
