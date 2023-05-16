@@ -54,8 +54,8 @@
 		if (_.id == item.id) return;
 		setItem(_.id);
 		expanded = false;
-		captureBehavior(`click ${analyticsKey}`, captureDetails({ id: _.id, name: _.title }));
 		scrollLogged = false;
+		captureBehavior(`click ${analyticsKey}`, captureDetails({ id: _.id, name: _.title }));
 	}
 
 </script>

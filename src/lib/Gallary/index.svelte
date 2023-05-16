@@ -70,7 +70,7 @@
 
 	afterNavigate(initGallery);
 	afterUpdate(initGallery);
-	onMount(initGallery)
+	onMount(initGallery);
 
 	$: if(windowWidth || artPiece.id) initGallery();
 
