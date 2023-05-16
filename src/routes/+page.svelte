@@ -50,7 +50,7 @@
   article {
     flex-basis: 50%;
     min-height: var(--min-height);
-    padding: 0rem 1rem 1rem;
+    padding: 0rem 2rem 2rem;
     margin-top: 0;
 		justify-content: space-between;
   }

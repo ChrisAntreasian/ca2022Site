@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ params }) => {
       }))
     }));
 
-    return { 
+  return { 
     items: [pageItem, ...workExpItems], 
     item: workExpItems.filter((_: Item) => _.id === eid)[0] || pageItem 
   };

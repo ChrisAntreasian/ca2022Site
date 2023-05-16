@@ -15,4 +15,5 @@
 	analyticsKey="poem"
 	parentRoute="poems"
 	defaultHeadline="poetry"
+	wrapBasis={70}
 />

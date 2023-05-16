@@ -24,6 +24,7 @@
 	export let measureHeight: number;
   export let scrollRequestUpdate: boolean;
 	export let analyticsKey: string;
+	export let wrapBasis: number;
 
 	const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
 
@@ -89,7 +90,7 @@ style={`
 	{#key scrollRequestUpdate}
 	<div bind:offsetHeight={measureHeight} class="mh" />
 	{/key}
-	<div class="wrap">
+	<div class="wrap" style={`--basis: ${wrapBasis}%`}>
 		{#key item.id}
 			<div
 				class:transition={fadeOut}
@@ -148,15 +149,18 @@ style={`
 </article>
 
 <style>
-	article, .wrap {
-		width: 66.66%;
+	article {
+		width: 66.66%
+	} 
+	.wrap {
+		width: var(--basis);
 		position: relative;
 	}
 	article {
 		display: flex;
 		justify-content: center;
 		min-height: var(--min-height);
-		padding: 1.3333rem 1rem 2rem ;
+		padding: 1.3333rem 2rem 2rem ;
 	}
 	h4 {
 		margin-top: 1rem;

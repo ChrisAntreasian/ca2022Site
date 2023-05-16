@@ -16,6 +16,7 @@
 	export let analyticsKey: string;
   export let parentRoute: string;
 	export let defaultHeadline: string;
+	export let wrapBasis = 100;
 
 	let contentHeight: number;
 	let measureHeight: number;
@@ -67,6 +68,7 @@
 		scrollRequestUpdate={scrollRequestUpdate}
 		bind:measureHeight={measureHeight}
 		analyticsKey={analyticsKey}
+		wrapBasis={wrapBasis}
 	/>
 	<Nav
 		activeTitle={item.title}

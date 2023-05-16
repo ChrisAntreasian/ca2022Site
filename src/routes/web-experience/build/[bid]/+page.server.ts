@@ -3,7 +3,7 @@ import type { PageServerLoad } from "./$types";
 import { mkKey, writeFs } from "$lib/file";
 
 import { handleGetResponse, mkRequest, queryStr } from "$lib/api";
-import type { StrapiPage, StrapiRichLink } from '$lib/types';
+import type { StrapiPage } from '$lib/types';
 
 const pq =  queryStr({ 
   filters: { id: { $in: 3 } },
@@ -15,6 +15,7 @@ const pq =  queryStr({
     "rich_links.logo.media",
 	]
 });
+
 const fetchData = async () => {
   const response = await mkRequest("GET", `pages?${pq}`);
 	return await handleGetResponse(response);

@@ -232,7 +232,7 @@
   }
   figcaption {
     overflow: hidden;
-    padding-left: 1rem;
+    padding: 0 1rem 0 2rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
