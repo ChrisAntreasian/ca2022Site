@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { page } from "$app/stores";
 	import { captureClickThis } from "$lib/analytics";
-
+	import githubIcon from "./github-mark.svg"
+	
 	export let footerHeight: number;
+	
 	const navClick = captureClickThis("footer nav");
 
 </script>
@@ -19,12 +21,17 @@
 				<li on:click={() => navClick("Poems")} on:keypress={() => navClick("Poems")} class:active={$page.url.pathname === '/poems'}>
 					<a  href="/poems">Poems</a>
 				</li>
+				<li on:click={() => navClick("Web Experience")} on:keypress={() => navClick("Web Experience")} class:active={$page.url.pathname === '/web-experience'}>
+					<a  href="/poems">Web Experience</a>
+				</li>
 			</ul>
 		</nav>
 		<div class="details">
-			<h4>
-				Built with Strapi and SvelteKit
-			</h4>
+			<a href="https://github.com/ChrisAntreasian/ca2022Site" target="_blank">
+				<div class="github-icon" style={`--github-icon: ${githubIcon}`}></div>
+				<img src={githubIcon} alt={"check the source out on github"} />
+				<h4>Built with SvelteKit</h4>
+			</a>
 			<span>&copy; Christopher Antreasian</span>
 		</div>
 	</div>
@@ -70,13 +77,13 @@
 		letter-spacing: 0.05em;
 		text-decoration: none;
 		transition: color 0.2s linear;
+		transition: transform 0.1s linear;
 		color: var(--b-dk);
 		font-family: "josefin-bold";
 	}
-	nav a:hover {
+	nav a:hover{
 		transform: scale(1.15);
 		color: var(--b-md);
-
 	}
 	.details {
 		display: flex;
@@ -84,7 +91,7 @@
 		font-size: 0.75rem;
 		justify-content: center;
 		align-items: flex-end;
-		padding-right: 1rem;
+		padding: 1rem 1rem 1rem 0;
 	}
 	.details h4,
 	.details span {
@@ -92,10 +99,35 @@
 		font-family: "josefin-italic";
 	}
 	h4 {
-		padding-bottom: 0.25rem;
 		letter-spacing: 0rem;
 		line-height: 1rem;
 		color: var(--b-dk);
+	}
+	.details a {
+		display: flex;
+		align-items: flex-end;
+		padding: 0.5rem 0;
+		transition: color 0.2s linear;
+		transition: transform 0.1s linear;
+	}
+	.details a:hover  {
+		transform: scale(1.15);
+		color: var(--b-md);
+	}
+	.details a img,
+	.details a h4 {
+		color: var(--b-dk);
+	}
+	.details img {
+		height: 1.25rem;
+		margin-right: 0.5rem;
+		filter: invert(13%) sepia(33%) saturate(1000%) hue-rotate(180deg) brightness(100%) contrast(100%);
+	}
+	.details a:hover h4 {
+		color: var(--b-md);
+	}
+	.details a:hover img {
+		filter: invert(25%) sepia(57%) saturate(500%) hue-rotate(170deg) brightness(90%) contrast(100%);
 	}
 
 	@media (max-width: 767.98px) {

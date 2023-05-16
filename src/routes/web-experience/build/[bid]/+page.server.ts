@@ -2,26 +2,22 @@ import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from "./$types";
 import { mkKey, writeFs } from "$lib/file";
 
-import { handleGetResponse, mkRequest } from "$lib/api";
+import { handleGetResponse, mkRequest, queryStr } from "$lib/api";
+import type { StrapiPage } from '$lib/types';
 
-import * as qs from "qs";
-import type { ArtCategory, StrapiData } from '$lib/types';
-
-const q = qs.stringify({
-	filters: {
-		id: { $in: 3 },
-	},
+const pq =  queryStr({ 
+  filters: { id: { $in: 3 } },
   populate: [
-		"omit",
-		"featured",
-    "art_pieces",
-    "art_pieces.image",
-		"art_pieces.image.media",
-  ],
+		"page_details",
+		"page_details.image.media",
+		"rich_links",
+    "rich_links.image.media",
+    "rich_links.logo.media",
+	]
 });
 
 const fetchData = async () => {
-  const response = await mkRequest("GET", `art-categories?${q}`);
+  const response = await mkRequest("GET", `pages?${pq}`);
 	return await handleGetResponse(response);
 }
 
@@ -34,11 +30,11 @@ export const load: PageServerLoad = async ({ params, route }) => {
 
   const res = await fetchData();
   if (res.ok) {
-    const out: StrapiData<ArtCategory> = await res.json()
-    const data = await writeFs<StrapiData<ArtCategory>>(mkKey(route.id), out);
+    const out: StrapiPage = await res.json()
+    const data = await writeFs<StrapiPage>(mkKey(route.id), out);
 
     return {
-      title: "The Quintuplapus",
+      title: "Web Expereince",
       data
     }; 
   }

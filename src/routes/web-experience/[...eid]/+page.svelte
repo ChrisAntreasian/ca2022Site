@@ -3,17 +3,17 @@
 	import type { PageServerData} from "./$types";
 	
 	export let data: PageServerData;
+
 </script>
 
 <svelte:head>
-	<title>Christopher Antreasian: Poems</title>
+	<title>Christopher Antreasian: Web Development Experience</title>
 </svelte:head>
 
 <Article 
 	item={data.item} 
 	items={data.items}
-	analyticsKey="poem"
-	parentRoute="poems"
-	defaultHeadline="poetry"
-	wrapBasis={70}
+	analyticsKey="web"
+	parentRoute="web-experience"
+	defaultHeadline="Web Experience"
 />
