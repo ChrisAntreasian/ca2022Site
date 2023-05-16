@@ -82,7 +82,7 @@
 			margin-bottom: 1rem;
 		}
 		article {
-			padding: 1rem 2rem;
+			padding: 0 1rem;
 			min-height: auto;
 			order: 3;
 		}
