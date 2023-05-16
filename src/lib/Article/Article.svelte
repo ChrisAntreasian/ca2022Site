@@ -8,15 +8,7 @@
 	import { getContext } from "svelte";
 	import type { Item } from "./types";
 	import Fullscreen from "$lib/Fullscreen/index.svelte"
-	
-	export let item: Item;
-	export let subnavHeight: number;
-	export let measureHeight: number;
-  export let scrollRequestUpdate: boolean;
-	export let analyticsKey: string;
-  
-	let fadeOut = false;
-	let windowHeight: number;
+	import { captureBehavior, captureDetails } from "$lib/analytics";
 
 	/*
 		FireFox Screenshot dimensions
@@ -27,17 +19,27 @@
 		Mobile: position: (118, 306) dimensions (892, 1324)
 	*/
 
+	export let item: Item;
+	export let subnavHeight: number;
+	export let measureHeight: number;
+  export let scrollRequestUpdate: boolean;
+	export let analyticsKey: string;
+
+	const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
+
+	let fadeOut = false;
+	let windowHeight: number;
+
 	const defaultActiveShot = { i: null, src: null };
 	
+	let paginationDetails = null;
 	let activeShot: { i: number, src: string } = defaultActiveShot; 
+	
 	const resetFullScreen = () => {
-		activeShot = defaultActiveShot
+		activeShot = defaultActiveShot;
+		paginationDetails = null;
 	}
 
-	let paginationDetails = {
-		length: item.images ? item.images.length : 0,
-		position: 0
-	}
 	const setPaginationDetails = (id: number) => {
 		 paginationDetails = {
 			position:  item.images.findIndex(_ => _.id === id),
@@ -45,16 +47,28 @@
 		 }
 	}
 	
-	$: if (item.images) setPaginationDetails(item.images[0].id);
-
-	const paginateItem = () => (n: number) => {
+	const paginateItem = (k?: string) => (n: number) => {
 		const index = item.images.findIndex(_ => _.id === item.images[activeShot.i + n].id);
-		setPaginationDetails(item.images[index].id);
-		activeShot = {i: index, src: item.images[index].large}
+		const {id, large} = item.images[index]
+
+		setPaginationDetails(id);
+		activeShot = {i: index, src: large}
+
+		if (k) {
+			captureBehavior(
+				`${k} click paginate`, 
+				captureDetails(
+					{ id: activeShot.i + n, name: `${item.title} screenshot ${activeShot.i}` },
+					{ direction: n > 0 ? "next" : "last" }
+				)
+			);
+		}
 	}
 
-	const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
-	
+	const setActiveShot = (i: number, img: string) => {
+		activeShot = {i: i, src: img};
+	};
+
 	const makeLinkText = (l: string) => {
 		const brokenup = l.split("//")[1].split("/");
 		const domain = `${brokenup[0].split(".")[1]}.${brokenup[0].split(".")[2]}`;
@@ -62,7 +76,7 @@
 			? `${domain}/${brokenup[brokenup.length - 1]}`
 			: domain
 	}
-	
+
 </script>
 
 <svelte:window bind:innerHeight={windowHeight} />
@@ -113,15 +127,16 @@ style={`
 						{#each item.images as _, i}
 							<li>
 								<Fullscreen 
-									id={item.id + (activeShot.i || i)}
+									id={_.id}
 									title={item.title}
 									img={activeShot.src || _.large}
 									targetImage={_.small}
-									analyticsKey={analyticsKey}
+									analyticsKey={`${analyticsKey} ${item.title}`}
 									altText={`${item.title} screenshot ${(activeShot.i || i) + 1}`}
-									paginationDetails={paginationDetails}
+									paginationDetails={paginationDetails || {length: item.images.length, position: i}}
 									paginateItem={paginateItem}
 									onClose={resetFullScreen}
+									onOpen={() => setActiveShot(i, _.large)}
 								/>
 							</li>
 						{/each}

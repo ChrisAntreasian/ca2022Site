@@ -15,13 +15,14 @@
   export let analyticsKey: string;
   export let btnOffset: number = 50;
   export let targetImage: string = null;
-  export let paginateItem: (s: string) => (n: number)  => void = null;
+  export let paginateItem: (s?: string) => (n: number)  => void = null;
   export let paginationDetails: {
     length: number,
     position: number
   } = null;
   
   export let onClose = () => null;
+  export let onOpen = (_: number) => null;
 
   let displayBg = false;
   let displayImg = false
@@ -51,12 +52,13 @@
         mw: `${toRem((windowWidth <= wrapperWidth ? windowWidth: wrapperWidth) - fromRem(4))}rem`
       }
     }
+    onOpen(id);
   });
-
-
+  
   const open = () => {
     imageHeight = (window.innerHeight - (2 * rem)) / rem;
     displayBg = displayImg = true;
+    onOpen(id);
     captureBehavior(`${analyticsKey} click open fullscreen`, mkCaptureDetails );
   }
   const close = () => {
@@ -65,12 +67,18 @@
     captureBehavior(`${analyticsKey} click close fullscreen`,  mkCaptureDetails);
   };
   
-  const paginateFullscreen = paginateItem ? paginateItem(`${analyticsKey} fullscreen`) : null;
   let needsNext = false;
   let needsLast = false;
-  $: needsLast = paginateFullscreen && paginationDetails && paginationDetails.position + 1 < paginationDetails.length;
-  $: needsNext = paginateFullscreen && paginationDetails && paginationDetails.position !== 0;
 
+  const paginateFullscreen = paginateItem ? paginateItem(`${analyticsKey} paginate fullscreen`) : null;
+  const setNeedsLast = () => paginateFullscreen && paginationDetails && paginationDetails.position + 1 < paginationDetails.length;
+  const setNeedsFirst = () => paginateFullscreen && paginationDetails && paginationDetails.position !== 0
+  
+  $: if(paginateFullscreen || paginationDetails) {
+    needsLast = setNeedsLast();
+    needsNext = setNeedsFirst();
+  };
+ 
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
