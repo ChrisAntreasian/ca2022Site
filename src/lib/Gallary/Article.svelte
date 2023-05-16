@@ -37,7 +37,7 @@
   let detailsDiv: HTMLDivElement;
   let contentHeight: number;
   let scrollY: number;
-
+  
   const setOverflow = () => {
     if (!detailsDiv || windowWidth < mqBreakPoint) return;
     needsReadmore = detailsDiv.scrollHeight > detailsDiv.clientHeight;
@@ -50,12 +50,11 @@
     setOverflow()
     setContentHeight();
   }
-  $: if(windowWidth) setContentHeight();
 
-  afterNavigate(init);
+  afterNavigate(init);  
 
-  $: if(windowWidth) setOverflow();
-  $: if(artPiece.id) setOverflow();
+  $: if(windowWidth) init();
+  $: if(artPiece.id || detailsDiv.scrollHeight || detailsDiv.clientHeight) setOverflow();
 
   let windowHeight: number;
 
@@ -124,8 +123,7 @@
                 <div 
                   bind:this={detailsDiv}
                   class="md-content"
-                  style={`height: ${windowWidth > mqBreakPoint ? `${contentHeight}rem;` : "auto"}`}
-                >
+                  style={`--height: ${windowWidth > mqBreakPoint ? `${contentHeight}rem;` : "auto"}`}>
                   <span class="md-content-desktop">
                     <SvelteMarkdown source={artPiece.attributes.description} />
                   </span>
@@ -247,6 +245,7 @@
   }
   .md-content {
     overflow: hidden;
+    height: var(--height);
   }
   .md-content-mobile {
     display: none;
