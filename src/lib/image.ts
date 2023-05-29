@@ -1,8 +1,8 @@
 import type { StrapiImageData } from "./types";
-import { pipe, flow } from "fp-ts/lib/function";
+import { pipe, flow } from "fp-ts/function";
 
-import * as O from "fp-ts/lib/Option";
-import * as R from "fp-ts/lib/Record";
+import * as O from "fp-ts/Option";
+import * as R from "fp-ts/Record";
 
 export const safeImageString = (size: "small" | "medium" | "thumbnail" | "original") => flow(
 	(pd: StrapiImageData) => pd.data.attributes,

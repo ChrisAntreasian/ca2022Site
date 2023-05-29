@@ -1,5 +1,7 @@
 import { error } from "@sveltejs/kit";
 import { pipe } from "fp-ts/function";
+import * as O from "fp-ts/Option";
+
 import * as qs from "qs";
 import * as TE from "fp-ts/TaskEither"
 type QuryProps = {
@@ -11,18 +13,28 @@ export const baseApi = import.meta.env.VITE_BASE_API;
 
 export const queryStr = (_: QuryProps) => qs.stringify(_, { encodeValuesOnly: true });
 
-export const fetchRequestB =  (urlBase: string) => async (method: "GET" | "POST", resource: string, data?: Record<string, unknown>) => await pipe(
+const fetchRequestB =  (
+	urlBase: string
+) => (
+	method: "GET" | "POST", 
+	data: O.Option<Record<string, unknown>>
+) => async (resource: string) => await pipe(
 	TE.tryCatch(
-		() => fetch(`${urlBase}/api/ {resource}`, {
+		() => fetch(`${urlBase}/api/${resource}`, {
 			method,
 			headers: { "content-type": "application/json" },
-			body: data && JSON.stringify(data)
+			body: pipe(data, O.getOrElseW(() => null))
 		}),
-		(reason) => new Error(`${reason}`),
+		e => new Error(`Server Request Failed`),
 	),
+	TE.getOrElse(e => {
+		throw error(500, e)
+	})
 )()
 
-export const fetchRequest = (urlBase: string) => async (method: "GET" | "POST", resource: string, data?: Record<string, unknown>) => {
+export const mkRequestB = fetchRequestB(baseApi);
+
+const fetchRequest = (urlBase: string) => async (method: "GET" | "POST", resource: string, data?: Record<string, unknown>) => {
 	const d = await fetch(`${urlBase}/api/ {resource}`, {
 		method,
 		headers: {
