@@ -1,4 +1,3 @@
-
 <script lang="ts">
 	import { captureClickThis } from "$lib/analytics";
 	import { cleanUrlSlug } from "$lib/history";
@@ -7,11 +6,20 @@
 	
 	export let links: StrapiPageDetails;
 	const navClick = captureClickThis("home section");
-
 </script>
 
 	<nav class="subnav-list">
   {#each links as ni}
+		{#if ni.attributes.title === "Web Experience"}
+			<div class="rich-link w">
+				<h2>
+					<a on:click={() => navClick("Web Experience")} href={ni.attributes.link}>
+						{ni.attributes.title}
+					</a>
+				</h2>
+				<p>{ni.attributes.description}</p>
+			</div>
+		{/if}
 		{#if ni.attributes.title === "My Poetry"}
 			<div class="rich-link p">
 				<div class="details">
@@ -68,18 +76,6 @@
 	nav { 		
 		padding: 1rem 2rem 2rem;
 	}
-	.rich-link {
-		position: relative;
-		display: flex;
-		margin-bottom: 2rem;
-		padding: 1rem;
-		background: var(--w-xl);
-		border: var(--space-md) solid var(--y-md);
-		border-radius: 0.666rem;
-	}
-	.rich-link:last-of-type {
-		margin-bottom: 0;
-	}
 	.details {
 		flex-basis: 60%;
 	}
@@ -93,6 +89,9 @@
 		flex-basis: 40%;
 		margin-top: 0.5rem;
 		padding-left: 1rem;
+	}
+	.w.rich-link {
+		flex-direction: column;
 	}
 	img {
 		position: absolute;

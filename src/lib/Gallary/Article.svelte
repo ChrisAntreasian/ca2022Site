@@ -15,7 +15,7 @@
   export let imageWidth: number;
   export let detailsWidth: number;
   export let showMore: boolean;
-  export let gallarySectionHeight: number;
+  export let gallerySectionHeight: number;
   export let windowWidth: number;
   export let analyticsKey: string;
   export let subnavHeight: number;
@@ -24,7 +24,7 @@
   export let hideMobileTitle: boolean;
   export let readMoreClick: (_: boolean) => void;
 
-  export let paginateArtPiece: (s:string) => (n: number) => void;
+  export let paginateItem: (s:string) => (n: number) => void;
   export let paginationDetails: {
     length: number,
     position: number
@@ -37,25 +37,24 @@
   let detailsDiv: HTMLDivElement;
   let contentHeight: number;
   let scrollY: number;
-
+  
   const setOverflow = () => {
     if (!detailsDiv || windowWidth < mqBreakPoint) return;
     needsReadmore = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
   const setContentHeight = () => {
-    contentHeight = (gallarySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem;
+    contentHeight = (gallerySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem;
   };
 
   const init = () => {
     setOverflow()
     setContentHeight();
   }
-  $: if(windowWidth) setContentHeight();
 
-  afterNavigate(init);
+  afterNavigate(init);  
 
-  $: if(windowWidth) setOverflow();
-  $: if(artPiece.id) setOverflow();
+  $: if(windowWidth) init();
+  $: if(artPiece.id || detailsDiv.scrollHeight || detailsDiv.clientHeight) setOverflow();
 
   let windowHeight: number;
 
@@ -69,7 +68,7 @@
     detailsDiv.scrollTo({top: 0})
   }
 
-  const paginateGal = paginateArtPiece(analyticsKey);
+  const paginateGal = paginateItem(analyticsKey);
   
 </script>
 <svelte:window
@@ -79,6 +78,7 @@
 />
   <article style={`
     --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem;
+    --gallery-section-height: ${gallerySectionHeight}rem;
     --snh: ${subnavHeight / rem}rem;
   `}>
    {#key scrollRequestUpdate}
@@ -86,11 +86,14 @@
     {/key}
     <div class="wrap">
       <FullScreen 
-        img={artPiece} 
+        id={artPiece.id}
+        title={artPiece.attributes.title}
+        img={artPiece.attributes.image.data.attributes.url}
+        altText={artPiece.attributes.image.data.attributes.alternativeText} 
         analyticsKey={analyticsKey} 
-        paginateArtPiece={paginateArtPiece} 
+        paginateItem={paginateItem} 
         paginationDetails={paginationDetails}
-        btnOffset={detailsWidth}
+        btnOffset={100 - detailsWidth}
       />
       {#key artPiece.id}
         <figure
@@ -120,8 +123,7 @@
                 <div 
                   bind:this={detailsDiv}
                   class="md-content"
-                  style={`height: ${windowWidth > mqBreakPoint ? `${contentHeight}rem;` : "auto"}`}
-                >
+                  style={`--height: ${windowWidth > mqBreakPoint ? `${contentHeight}rem;` : "auto"}`}>
                   <span class="md-content-desktop">
                     <SvelteMarkdown source={artPiece.attributes.description} />
                   </span>
@@ -228,7 +230,7 @@
   }
   figcaption {
     overflow: hidden;
-    padding-left: 1rem;
+    padding: 0 1rem 0 2rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -243,6 +245,7 @@
   }
   .md-content {
     overflow: hidden;
+    height: var(--height);
   }
   .md-content-mobile {
     display: none;

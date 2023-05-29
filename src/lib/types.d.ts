@@ -85,8 +85,11 @@ export type StrapiArt = StrapiDataArr<Art>;
 type RichLink = {
 	title: string;
 	body: string;
-	image: StrapiImageData
+	image: ReadonlyArray<StrapiImageData>;
+	logo: StrapiImageData;
 	link: string;
+	secondLink: string;
+	position: number;
 }
 
 type ArtCategory = StrapiBase & {
@@ -109,3 +112,4 @@ export type StrapiPageDetails = StrapiDataArr<PageDetails>["data"];
 type StrapiApiResp<A> = StrapiDataArr<A> & StrapiMeta;
 
 export type StrapiPoem = StrapiApiResp<Poem>;
+export type StrapiRichLink = StrapiApiResp<RichLink>;
