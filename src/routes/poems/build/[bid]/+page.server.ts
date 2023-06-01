@@ -2,10 +2,9 @@ import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from "./$types";
 import { mkKey, writeFs } from "$lib/file";
 
-import { handleGetResponse, mkRequest } from "$lib/api";
+import { getNoOptions, handleGetResponse, mkRequest } from "$lib/api";
 
 import type { StrapiPoem } from '$lib/types';
-
 
 const fetchData = async () => {
   const response = await mkRequest("GET", `poems`);
@@ -18,7 +17,8 @@ export const load: PageServerLoad = async ({ params, route }) => {
   if (params.bid !== VITE_BUILD_KEY || VITE_ENV !== "develop" ) {
     throw error(403, "Permission denied.");
   }
-
+  // const hey = await getNoOptions("poems")();
+  // console.log(hey)
   const res = await fetchData();
   if (res.ok) {
     const out: StrapiPoem = await res.json()
@@ -28,6 +28,7 @@ export const load: PageServerLoad = async ({ params, route }) => {
       title: "Poems",
       data
     }; 
+    return {};
   }
 
   throw error(500, "Failed to save the data.")

@@ -1,22 +1,53 @@
+import * as t from "io-ts";
 
-type StrapiMeta = {
-	meta: {
-		pagination: {
-			page: number;
-			pageCount: number;
-			pageSize: number;
-			total: number;
-		}
-	}
-};
+const strapiMetaDataC = t.type({
+	meta: t.type({
+		pagination: t.type({
+			page: t.number,
+			pageCount: t.number,
+			pageSize: t.number,
+			total: t.number
+		})
+	})
+});
 
-type StrapiBase = {
-	createdAt: string;
-	updatedAt: string;
-	publishedAt: string;
-}
+type StrapiMetaDataC = typeof strapiMetaDataC;
+type StrapiMeta = t.TypeOf<StrapiMetaDataC>;
 
- type Poem = StrapiBase & {
+const withIdC = <A extends t.Mixed>(d: A) => t.type({
+	id: t.number,
+	attributes: d
+});
+
+const strapiDataArrC = <A extends t.Mixed>(d: A) => t.type({
+	data: t.array(withIdC(d))
+});
+
+const strapiBaseC = t.type({
+	createdAt: t.string,
+	updatedAt: t.string,
+	publishedAt: t.string
+});
+
+type StrapiBaseC = typeof strapiBaseC;
+type StrapiBase = t.TypeOf<StrapiBaseC>;
+
+const poemC = t.intersection([
+	strapiBaseC, 
+	t.type({
+		title: t.string,
+		body: t.string,
+		featured: t.boolean,
+		position: t.number
+	})
+]);
+
+export const strapiPoemC = t.intersection([strapiDataArrC(poemC), strapiMetaDataC]);
+type StrapiPoemC = typeof strapiPoemC;
+
+export type StrapiPoem = t.TypeOf<StrapiPoemC>;
+ 
+type Poem = StrapiBase & {
 	title: string;
 	body: string;
 	featured: boolean;
@@ -50,7 +81,7 @@ export type StrapiImageData = {
 	data: WithId<ImageAttrs>
 };
 
-type Art = StrapiBase & {
+export type Art = StrapiBase & {
 	title: string;
 	description: string;
 	createdDate: string;
@@ -70,7 +101,7 @@ type StrapiData<A> = {
 	data: WithId<A>;
 }
 
-type PageDetails = StrapiBase & {
+export type PageDetails = StrapiBase & {
 	title: string;
 	description: string;
 	art_categories: StrapiDataArr<ArtCategory>;
@@ -109,7 +140,6 @@ export type StrapiPage = StrapiData<
 
 export type StrapiPageDetails = StrapiDataArr<PageDetails>["data"];
 
-type StrapiApiResp<A> = StrapiDataArr<A> & StrapiMeta;
+export type StrapiApiResp<A> = StrapiDataArr<A> & StrapiMeta;
 
-export type StrapiPoem = StrapiApiResp<Poem>;
 export type StrapiRichLink = StrapiApiResp<RichLink>;

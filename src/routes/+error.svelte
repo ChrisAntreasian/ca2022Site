@@ -32,4 +32,10 @@
     display: flex;
     margin-bottom: 1rem;
   }
+  h3 {
+    color: var(--off-bk);
+  }
+  h4 { 
+    line-height: var(--header-height);
+  }
 </style>
