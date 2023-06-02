@@ -12,20 +12,22 @@ type DataFile<A> = {
   data: A
 }
 
-export const writeFsTE = <A>(k: string) => (d: A) => pipe(
-  {
-    name: k,
+export const writeFsTE = <A>(k: E.Either<HttpError, RouteKeyU>) => (d: A) => pipe(
+  k,
+  E.map(_=> ({
+    name: _,
     timestamp: Date.now(),
     data: d,
-  },
-  (_: DataFile<A>) => pipe(
+  })),
+  TE.fromEither,
+  TE.chain((_: DataFile<A>) => pipe(
       TE.tryCatch(
       () => fs.promises.writeFile(`./${dataPath}/${k}.json`, JSON.stringify(_)),
       () => error(500, "Failed to write the data.")
     ),
     TE.map(() => _.data)
-  )
-)
+  ))
+);
 
 export const writeFs = async<A>(fn: string, d: A) => {
   try {
