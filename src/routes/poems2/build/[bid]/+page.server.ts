@@ -1,10 +1,13 @@
-import { error } from '@sveltejs/kit';
+import { error, type HttpError } from '@sveltejs/kit';
 import type { PageServerLoad } from "./$types";
 
 import { getNoOpts, handleGetResponse, mkRequest } from "$lib/api";
 
 import { strapiPoemC, type StrapiPoem } from '$lib/types';
+import * as E from "fp-ts/Either";
+import * as TE from "fp-ts/TaskEither";
 
+import { flow, pipe } from 'fp-ts/lib/function';
 const fetchData = async () => {
   const response = await mkRequest("GET", `poems`);
 	return await handleGetResponse(response);
@@ -12,10 +15,19 @@ const fetchData = async () => {
 
 const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
 
+const buildGate = (bid: string) => <A>(fetchFn: TE.TaskEither<HttpError, A>) => pipe(
+  bid,
+  E.fromPredicate(
+    (_: string) => _ !== VITE_BUILD_KEY || VITE_ENV !== "develop", 
+    () => error(403, "Permission denied.")
+  ),
+  TE.fromEither,
+  TE.chain(() => fetchFn),
+);
+
 export const load: PageServerLoad = async ({ params, route }) => {
-  if (params.bid !== VITE_BUILD_KEY || VITE_ENV !== "develop" ) {
-    throw error(403, "Permission denied.");
-  }
+  buildGate(params.bid)<StrapiPoem>(getNoOpts(strapiPoemC)("poems"))
+ 
   const poemH = await getNoOpts(strapiPoemC)("poems")();
   console.log("PoemH", poemH)
   const res = await fetchData();

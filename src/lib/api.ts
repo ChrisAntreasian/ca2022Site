@@ -1,10 +1,11 @@
 import { error, type HttpError } from "@sveltejs/kit";
+import * as qs from "qs";
+
 import { flow, pipe } from "fp-ts/function";
 import * as O from "fp-ts/Option";
-import * as T from "fp-ts/Task";
-import * as qs from "qs";
 import * as TE from "fp-ts/TaskEither"
-import { strapiPoemC, type StrapiPoem } from "./types";
+
+import type * as t from "io-ts";
 
 type HTTPMethods = "GET" | "POST";
 type QuryProps = {
@@ -12,14 +13,11 @@ type QuryProps = {
 	populate?: string | string[]
 } 
 
-export const baseApi = import.meta.env.VITE_BASE_API;
-
-export const queryStr = (_: QuryProps) => qs.stringify(_, { encodeValuesOnly: true });
-
+const baseApi = import.meta.env.VITE_BASE_API;
 const requestHeader = { headers: { 'content-type': 'application/json' }};
 
 const fetchRequest = (urlBase: string) => async (method: "GET" | "POST", resource: string, data?: Record<string, unknown>) => {
-	const d = await fetch(`${urlBase}/api/ {resource}`, {
+	const d = await fetch(`${urlBase}/api/${resource}`, {
 		method,
 		headers: {
 			'content-type': 'application/json'
@@ -35,7 +33,7 @@ export const handleGetResponse = async (response: Response) => {
 		throw error(404, "Not Found");
 	}
 
-	const resp = await response.json()
+	const resp = await response.json();
 	return new Response(JSON.stringify(resp), {
 		headers: {
 			'content-type': 'application/json; charset=utf-8'
@@ -49,33 +47,34 @@ type FetchInit = {
 	body: any;
 }
 
-const decodeResponse = (codec?: any): (res: unknown) => TE.TaskEither<HttpError, StrapiPoem> =>
-	flow(
-		strapiPoemC.decode,
-		TE.fromEither, 
-		TE.mapLeft(() => error(500, "Data and Codec did not match!"))
-	);
+const toJSON = async (_: Response) => await _.json();
 
-const mkFetchInit = (method: HTTPMethods) => (data: O.Option<Record<string, unknown>>) => ({
+const init = (method: HTTPMethods) => (data: O.Option<Record<string, unknown>>) => ({
 	headers: { 'content-type': 'application/json; charset=utf-8' },
 	method: method,
-	body: pipe(data, O.getOrElseW(() => null))
+	body: pipe(data, O.map(JSON.stringify), O.toUndefined)
 });
 
-const mkGetInit: (_: O.Option<Record<string, unknown>>) => FetchInit = flow(mkFetchInit("GET"));
-const setHeaders = _ => new Response(_, requestHeader);
+const get = init("GET");
 
-const fetchRequestB = (urlBase: string) => (fetchInit: FetchInit) => (resource: string) => TE.tryCatch(
-		() => fetch(`${urlBase}/api/${resource}`, fetchInit),
-		() => error(500, "Server Request Failed")
+const request = (urlBase: string, init: FetchInit) => (resource: string) => TE.tryCatch(
+	() => fetch(`${urlBase}/api/${resource}`, init),
+	() => error(500, "Server Request Failed")
 );
 
-const mkRequestB = (fetchInit: FetchInit ) => flow(
-	fetchRequestB(baseApi)(fetchInit), 
-	TE.filterOrElse(_ => _.status === 404, () => error(404, "Not Found")),
-	TE.map(_ => pipe(_.json, T.of, JSON.stringify, setHeaders)),
-	TE.filterOrElse(_ => _.ok, () => error(500, "Data Not Ok")),
-	TE.chain(decodeResponse()),
+const decode = <A>(codec: t.Type<A>): (res: unknown) => TE.TaskEither<HttpError, A> => flow(
+	codec.decode,
+	TE.fromEither,
+	TE.mapLeft(() => error(500, "Data And Codec Didn't Match"))
 );
 
-export const getNoOptions = pipe(O.none, mkGetInit, mkRequestB);
+const parse =  <A>(codec: t.Type<A>) => (init: FetchInit ) => flow(
+	request(baseApi, init), 
+	TE.filterOrElse(_ => _.status !== 404, () => error(404, "Not Found")),
+	TE.chain(_ => TE.tryCatch(() => toJSON(_), () => error(500, "Faild To Parse JSON"))),
+	TE.chain(decode(codec))
+);
+
+export const getNoOpts = <A>(codec: t.Type<A>) =>pipe(O.none, get, parse(codec));
+export type GetNoOpts = <A>(codec: t.Type<A, A, unknown>) => (resource: string) => TE.TaskEither<HttpError, A>
+export const queryStr = (_: QuryProps) => qs.stringify(_, { encodeValuesOnly: true });

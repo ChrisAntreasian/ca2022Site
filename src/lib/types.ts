@@ -47,13 +47,6 @@ type StrapiPoemC = typeof strapiPoemC;
 
 export type StrapiPoem = t.TypeOf<StrapiPoemC>;
  
-type Poem = StrapiBase & {
-	title: string;
-	body: string;
-	featured: boolean;
-  position: number;
-}
-
 type ImageBase =  {
 	ext: string
 	height: number;
@@ -105,7 +98,7 @@ export type PageDetails = StrapiBase & {
 	title: string;
 	description: string;
 	art_categories: StrapiDataArr<ArtCategory>;
-	poems: StrapiDataArr<Poem>;
+	poems: StrapiDataArr<StrapiPoem>;
 	link: string;
 	art_piece: StrapiData<Art>;
 	image: StrapiImageData;
