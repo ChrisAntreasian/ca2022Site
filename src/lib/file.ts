@@ -1,6 +1,9 @@
-import { error } from "@sveltejs/kit";
+import { error, type HttpError } from "@sveltejs/kit";
 import * as fs from "fs";
+import * as TE from "fp-ts/TaskEither";
+import * as E from "fp-ts/Either";
 
+import { flow, pipe } from "fp-ts/lib/function";
 const dataPath = 'src/data';
 
 type DataFile<A> = {
@@ -9,6 +12,20 @@ type DataFile<A> = {
   data: A
 }
 
+export const writeFsTE = <A>(k: string) => (d: A) => pipe(
+  {
+    name: k,
+    timestamp: Date.now(),
+    data: d,
+  },
+  (_: DataFile<A>) => pipe(
+      TE.tryCatch(
+      () => fs.promises.writeFile(`./${dataPath}/${k}.json`, JSON.stringify(_)),
+      () => error(500, "Failed to write the data.")
+    ),
+    TE.map(() => _.data)
+  )
+)
 
 export const writeFs = async<A>(fn: string, d: A) => {
   try {
@@ -40,6 +57,9 @@ const dataRoutes: Record<RouteKeyU, Promise<DataFile<any>>> = {
 
 const keyGuard = (s: string): s is RouteKeyU => routeKeys.includes(s);
 
+export const mkKeyB = (rid: string): E.Either<HttpError, RouteKeyU> =>
+  pipe(rid.split("/")[1], E.fromPredicate(keyGuard, () => error(500, `Data key does not exist.`)));
+
 export const mkKey = (rid: string): RouteKeyU => {
   const k = rid.split("/")[1];
   if (keyGuard(k)) {
@@ -48,5 +68,3 @@ export const mkKey = (rid: string): RouteKeyU => {
   
   throw error(500, `Data key does not exist.`);
 };
-
-export const readData = async <A>(n: RouteKeyU): Promise<DataFile<A>> => await dataRoutes[n];

@@ -76,5 +76,4 @@ const parse =  <A>(codec: t.Type<A>) => (init: FetchInit ) => flow(
 );
 
 export const getNoOpts = <A>(codec: t.Type<A>) =>pipe(O.none, get, parse(codec));
-export type GetNoOpts = <A>(codec: t.Type<A, A, unknown>) => (resource: string) => TE.TaskEither<HttpError, A>
 export const queryStr = (_: QuryProps) => qs.stringify(_, { encodeValuesOnly: true });
