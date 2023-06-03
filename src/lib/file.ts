@@ -24,7 +24,7 @@ export const writeFsTE = <A>(k: E.Either<HttpError, RouteKeyU>) => flow(
   TE.fromEither,
   TE.chain((_: DataFile<A>) => pipe(
     TE.tryCatch(
-      () => fs.promises.writeFile(`./${dataPath}/${k}.json`, JSON.stringify(_)),
+      () => fs.promises.writeFile(`./${dataPath}/${_.name}.json`, JSON.stringify(_)),
       () => error(500, "Failed to write the data.")
     ),
     TE.map(() => _.data)
@@ -52,7 +52,7 @@ export type RouteKeyU = typeof routeKeys[number];
 
 const keyGuard = (_: string): _ is RouteKeyU => pipe(routeKeys, RA.elem(s.Eq)(_));
 
-export const mkKeyB = (rid: string): E.Either<HttpError, RouteKeyU> =>
+export const mkKeyE = (rid: string): E.Either<HttpError, RouteKeyU> =>
   pipe(rid.split("/")[1], E.fromPredicate(keyGuard, () => error(500, `Data key does not exist.`)));
 
 export const mkKey = (rid: string): RouteKeyU => {
