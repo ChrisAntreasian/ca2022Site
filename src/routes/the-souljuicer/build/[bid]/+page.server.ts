@@ -5,7 +5,6 @@ import { mkKey, writeFs } from "$lib/file";
 import { handleGetResponse, mkRequest } from "$lib/api";
 
 import * as qs from "qs";
-import type { StrapiArtCategory } from '$lib/types';
 
 const q = qs.stringify({
 
