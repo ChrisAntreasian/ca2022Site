@@ -2,8 +2,10 @@ import { error, type HttpError } from "@sveltejs/kit";
 import * as fs from "fs";
 import * as TE from "fp-ts/TaskEither";
 import * as E from "fp-ts/Either";
+import * as RA from "fp-ts/ReadonlyArray";
+import * as s from "fp-ts/string";
 
-import { flow, pipe } from "fp-ts/lib/function";
+import { pipe } from "fp-ts/lib/function";
 const dataPath = 'src/data';
 
 type DataFile<A> = {
@@ -57,7 +59,7 @@ const dataRoutes: Record<RouteKeyU, Promise<DataFile<any>>> = {
   "web-experience": import("../../src/data/web-experience.json")
 };
 
-const keyGuard = (s: string): s is RouteKeyU => routeKeys.includes(s);
+const keyGuard = (_: string): _ is RouteKeyU => pipe(routeKeys, RA.elem(s.Eq)(_));
 
 export const mkKeyB = (rid: string): E.Either<HttpError, RouteKeyU> =>
   pipe(rid.split("/")[1], E.fromPredicate(keyGuard, () => error(500, `Data key does not exist.`)));
