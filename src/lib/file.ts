@@ -5,7 +5,8 @@ import * as E from "fp-ts/Either";
 import * as RA from "fp-ts/ReadonlyArray";
 import * as s from "fp-ts/string";
 
-import { pipe } from "fp-ts/lib/function";
+import { flow, pipe } from "fp-ts/lib/function";
+
 const dataPath = 'src/data';
 
 type DataFile<A> = {
@@ -14,13 +15,12 @@ type DataFile<A> = {
   data: A
 }
 
-export const writeFsTE = <A>(k: E.Either<HttpError, RouteKeyU>) => (d: A): TE.TaskEither<HttpError, A> => pipe(
-  k,
-  E.map(_=> ({
+export const writeFsTE = <A>(k: E.Either<HttpError, RouteKeyU>) => flow(
+  (d: A) => E.map(_=> ({
     name: _,
     timestamp: Date.now(),
     data: d,
-  })),
+  }))(k),
   TE.fromEither,
   TE.chain((_: DataFile<A>) => pipe(
     TE.tryCatch(
@@ -47,17 +47,8 @@ export const writeFs = async<A>(fn: string, d: A) => {
   }
 }
 
-const routeKeys = ["landing", "layout", "poems", "the-quintuplapus", "the-souljuicer", "web-experience", "poems2"];
+const routeKeys = ["landing", "layout", "poems", "the-quintuplapus", "the-souljuicer", "web-experience"];
 export type RouteKeyU = typeof routeKeys[number];
-
-const dataRoutes: Record<RouteKeyU, Promise<DataFile<any>>> = {
-  "landing": import("../../src/data/landing.json"),
-  "layout": import("../../src/data/layout.json"),
-  "poems": import("../../src/data/poems.json"),
-  "the-quintuplapus": import("../../src/data/the-quintuplapus.json"),
-  "the-souljuicer": import("../../src/data/the-souljuicer.json"),
-  "web-experience": import("../../src/data/web-experience.json")
-};
 
 const keyGuard = (_: string): _ is RouteKeyU => pipe(routeKeys, RA.elem(s.Eq)(_));
 

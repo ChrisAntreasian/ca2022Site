@@ -16,8 +16,7 @@ export const load: PageServerLoad = async ({ params, route }) => {
   if (params.bid !== VITE_BUILD_KEY || VITE_ENV !== "develop" ) {
     throw error(403, "Permission denied.");
   }
-  const poemH = await getNoOpts(strapiPoemC)("poems")();
-  console.log("PoemH", poemH)
+
   const res = await fetchData();
   if (res.ok) {
     const out: StrapiPoem = await res.json()
