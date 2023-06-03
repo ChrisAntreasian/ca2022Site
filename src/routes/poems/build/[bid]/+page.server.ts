@@ -3,7 +3,7 @@ import { pipe } from 'fp-ts/lib/function';
 
 import { getNoOpts } from "$lib/api";
 
-import { strapiPoemC, type StrapiPoem } from '$lib/types';
+import { strapiPoemC, type StrapiPoem } from "$lib/typing/poem";
 import { build, buildGate } from '$lib/build';
 import { mkKeyE } from '$lib/file';
 

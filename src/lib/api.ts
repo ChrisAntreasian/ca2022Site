@@ -14,7 +14,6 @@ type QuryProps = {
 } 
 
 const baseApi = import.meta.env.VITE_BASE_API;
-const requestHeader = { headers: { 'content-type': 'application/json' }};
 
 const fetchRequest = (urlBase: string) => async (method: "GET" | "POST", resource: string, data?: Record<string, unknown>) => {
 	const d = await fetch(`${urlBase}/api/${resource}`, {
@@ -65,7 +64,7 @@ const request = (urlBase: string, init: FetchInit) => (resource: string) => TE.t
 const decode = <A>(codec: t.Type<A>): (res: unknown) => TE.TaskEither<HttpError, A> => flow(
 	codec.decode,
 	TE.fromEither,
-	TE.mapLeft(() => error(500, "Data And Codec Didn't Match"))
+	TE.mapLeft(() => error(500, "Data Did Not Match The Codec"))
 );
 
 const parse =  <A>(codec: t.Type<A>) => (init: FetchInit ) => flow(
