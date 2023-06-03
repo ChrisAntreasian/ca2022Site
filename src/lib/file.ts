@@ -12,7 +12,7 @@ type DataFile<A> = {
   data: A
 }
 
-export const writeFsTE = <A>(k: E.Either<HttpError, RouteKeyU>) => (d: A) => pipe(
+export const writeFsTE = <A>(k: E.Either<HttpError, RouteKeyU>) => (d: A): TE.TaskEither<HttpError, A> => pipe(
   k,
   E.map(_=> ({
     name: _,
@@ -21,7 +21,7 @@ export const writeFsTE = <A>(k: E.Either<HttpError, RouteKeyU>) => (d: A) => pip
   })),
   TE.fromEither,
   TE.chain((_: DataFile<A>) => pipe(
-      TE.tryCatch(
+    TE.tryCatch(
       () => fs.promises.writeFile(`./${dataPath}/${k}.json`, JSON.stringify(_)),
       () => error(500, "Failed to write the data.")
     ),
@@ -45,8 +45,8 @@ export const writeFs = async<A>(fn: string, d: A) => {
   }
 }
 
-const routeKeys = ["landing", "layout", "poems", "the-quintuplapus", "the-souljuicer", "web-experience"];
-type RouteKeyU = typeof routeKeys[number];
+const routeKeys = ["landing", "layout", "poems", "the-quintuplapus", "the-souljuicer", "web-experience", "poems2"];
+export type RouteKeyU = typeof routeKeys[number];
 
 const dataRoutes: Record<RouteKeyU, Promise<DataFile<any>>> = {
   "landing": import("../../src/data/landing.json"),

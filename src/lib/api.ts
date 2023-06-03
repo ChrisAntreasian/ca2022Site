@@ -75,5 +75,5 @@ const parse =  <A>(codec: t.Type<A>) => (init: FetchInit ) => flow(
 	TE.chain(decode(codec))
 );
 
-export const getNoOpts = <A>(codec: t.Type<A>) =>pipe(O.none, get, parse(codec));
+export const getNoOpts = <A>(codec: t.Type<A>) => pipe(O.none, get, parse(codec));
 export const queryStr = (_: QuryProps) => qs.stringify(_, { encodeValuesOnly: true });
