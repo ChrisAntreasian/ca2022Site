@@ -12,6 +12,5 @@ export const poemC = t.intersection([
 ]);
 
 export const strapiPoemC = t.intersection([strapiDataArrC(poemC), strapiMetaDataC]);
-type StrapiPoemC = typeof strapiPoemC;
 
-export type StrapiPoem = t.TypeOf<StrapiPoemC>;
+export type StrapiPoem = t.TypeOf<typeof strapiPoemC>;
