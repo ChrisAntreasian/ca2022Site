@@ -29,8 +29,3 @@ export const strapiBaseC = t.type({
 	updatedAt: t.string,
 	publishedAt: t.string
 });
-
-type StrapiBaseC = typeof strapiBaseC;
-export type StrapiBase = t.TypeOf<StrapiBaseC>;
-
-export const strapiApiRespC = <A extends t.Mixed>(d: A) => t.intersection([strapiDataArrC(d), strapiDataC(d)]);

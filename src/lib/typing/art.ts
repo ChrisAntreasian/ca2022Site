@@ -32,8 +32,7 @@ export const strapiImageDataC = t.type({
 	data: withIdC(imageAttrsC)
 });
 
-type StrapiImageDataC = typeof strapiImageDataC;
-export type StrapiImageData = t.TypeOf<StrapiImageDataC>
+export type StrapiImageData = t.TypeOf<typeof strapiImageDataC>
 
 export const artC = t.intersection([
   strapiBaseC,
@@ -47,13 +46,9 @@ export const artC = t.intersection([
   })
 ]);
 
-type ArtC = typeof artC;
-export type Art = t.TypeOf<ArtC>
+export type ArtArt = t.TypeOf<typeof artC>
 
 export const strapiArtC = strapiDataArrC(artC);
-
-type StrapiArtC = typeof strapiArtC;
-export type StrapiArt = t.TypeOf<StrapiArtC>
 
 export const artCategoryC = t.intersection([
   strapiBaseC, 
@@ -63,6 +58,3 @@ export const artCategoryC = t.intersection([
     omit: strapiDataArrC(t.type({ title: t.string, description: t.string })),
   })
 ]);
-
-type ArtCategoryC = typeof artCategoryC;
-export type ArtCategory = t.TypeOf<ArtCategoryC>;
