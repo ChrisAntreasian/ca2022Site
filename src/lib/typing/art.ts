@@ -1,5 +1,5 @@
 import * as t from "io-ts";
-import { strapiBaseC, strapiDataArrC, withIdC } from "./strapi";
+import { strapiBaseC, strapiDataArrC, strapiUpdatedC, withIdC } from "./strapi";
 
 const imageBaseC = t.type({
 	ext: t.string,
@@ -9,11 +9,12 @@ const imageBaseC = t.type({
 	name: t.string,
 	size: t.number,
 	url: t.string,
-	width: t.number
+	width: t.number,
+  path: t.union([t.string, t.null])
 });
 
 const imageAttrsC = t.intersection([
-  imageBaseC, 
+  strapiUpdatedC,
   t.type({
     alternativeText: t.string,
     caption: t.string,
@@ -21,9 +22,9 @@ const imageAttrsC = t.intersection([
     provider_metadata: t.any,
     previewUrl: t.any,
     formats: t.type({
-      "small": imageBaseC,
-      "medium": t.union([imageBaseC, t.undefined]),
-      "thumbnail": imageBaseC
+      small: imageBaseC,
+      medium: t.union([imageBaseC, t.undefined]),
+      thumbnail: imageBaseC
     })
   })
 ]);
@@ -55,6 +56,6 @@ export const artCategoryC = t.intersection([
   t.type({
     title: t.string,
     art_pieces: strapiArtC,
-    omit: strapiDataArrC(t.type({ title: t.string, description: t.string })),
+    omit: strapiDataArrC(t.null),
   })
 ]);

@@ -1,6 +1,5 @@
 import { error, type HttpError } from "@sveltejs/kit";
 import * as qs from "qs";
-
 import { flow, pipe } from "fp-ts/function";
 import * as O from "fp-ts/Option";
 import * as TE from "fp-ts/TaskEither"
@@ -68,7 +67,7 @@ const decode = <A>(codec: t.Type<A>): (res: unknown) => TE.TaskEither<HttpError,
 );
 
 const parse =  <A>(codec: t.Type<A>) => (init: FetchInit ) => flow(
-	request(baseApi, init), 
+	request(baseApi, init),
 	TE.filterOrElse(_ => _.status !== 404, () => error(404, "Not Found")),
 	TE.chain(_ => TE.tryCatch(() => toJSON(_), () => error(500, "Faild To Parse JSON"))),
 	TE.chain(decode(codec))

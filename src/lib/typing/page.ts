@@ -34,5 +34,6 @@ const strapiPageC = strapiDataC(t.intersection([
   })
 ]));
 
+export type StrapiPage = t.TypeOf<typeof strapiPageC>;
 const strapiPageDetailsC = strapiDataArrC(pageDetailsC).props.data;
 

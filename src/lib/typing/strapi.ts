@@ -16,16 +16,16 @@ export const withIdC = <A extends t.Mixed>(d: A) => t.type({
 	attributes: d
 });
 
-export const strapiDataC = <A extends t.Mixed>(d: A) => t.type({
-	data: withIdC(d)
-});
-
 export const strapiDataArrC = <A extends t.Mixed>(d: A) => t.type({
 	data: t.array(withIdC(d))
 });
-
-export const strapiBaseC = t.type({
+export const strapiUpdatedC = t.type({
 	createdAt: t.string,
 	updatedAt: t.string,
-	publishedAt: t.string
-});
+})
+export const strapiBaseC = t.intersection([
+	strapiUpdatedC,
+	t.type({
+		publishedAt: t.string,
+	})
+]);
