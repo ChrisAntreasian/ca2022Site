@@ -16,6 +16,10 @@ export const withIdC = <A extends t.Mixed>(d: A) => t.type({
 	attributes: d
 });
 
+export const strapiDataC = <A extends t.Mixed>(d: A) => t.type({
+	data: withIdC(d)
+});
+
 export const strapiDataArrC = <A extends t.Mixed>(d: A) => t.type({
 	data: t.array(withIdC(d))
 });

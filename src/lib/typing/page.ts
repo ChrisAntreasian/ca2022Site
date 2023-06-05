@@ -1,39 +1,43 @@
 import * as t from "io-ts";
 
 import { strapiBaseC, strapiDataArrC, strapiDataC } from "./strapi";
-import { artC, artCategoryC, strapiArtC, strapiImageDataC } from "./art";
+import { artC, artCategoryC, imageC, strapiImageDataC } from "./art";
 import { poemC } from "./poem";
 
-const pageDetailsC = t.type({
-  title: t.string,
-  description: t.string,
-  art_categories: strapiDataArrC(artCategoryC),
-  poems: strapiDataArrC(poemC),
-  link: t.string,
-  art_piece: strapiDataC(artC),
-  image: strapiImageDataC
-});
-
-const richLinkC = t.type({
-	title: t.string,
-	body: t.string,
-	image: t.readonlyArray(strapiImageDataC),
-	logo: strapiImageDataC,
-	link: t.string,
-	secondLink: t.string,
-	position: t.number,
-});
-
-const strapiPageC = strapiDataC(t.intersection([
+const pageDetailsC = t.intersection([
   strapiBaseC,
   t.type({
     title: t.string,
-		art_pieces: strapiArtC,
+    description: t.string,
+    art_categories: t.union([strapiDataArrC(artCategoryC), t.undefined]),
+    poems: t.union([strapiDataArrC(poemC), t.undefined]),
+    link: t.union([t.string, t.null]),
+    art_piece: t.union([strapiDataC(artC), t.undefined]),
+    image: strapiImageDataC
+  })
+]);
+
+const richLinkC = t.intersection([
+  strapiBaseC,
+	t.type({
+    title: t.string,
+    body: t.string,
+    image: strapiDataArrC(imageC),
+    logo: strapiDataC(imageC),
+    link: t.string,
+    secondLink: t.union([t.string, t.null]),
+    position: t.number,
+  })
+]);
+
+export const strapiPageC = t.intersection([
+  strapiBaseC,  
+  t.type({
+    title: t.string,
 		page_details: strapiDataArrC(pageDetailsC),
 		rich_links: strapiDataArrC(richLinkC)
   })
-]));
+]);
 
 export type StrapiPage = t.TypeOf<typeof strapiPageC>;
-const strapiPageDetailsC = strapiDataArrC(pageDetailsC).props.data;
 

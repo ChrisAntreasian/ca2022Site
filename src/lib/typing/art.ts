@@ -21,16 +21,22 @@ const imageAttrsC = t.intersection([
     provider: t.string,
     provider_metadata: t.any,
     previewUrl: t.any,
-    formats: t.type({
-      small: imageBaseC,
-      medium: t.union([imageBaseC, t.undefined]),
-      thumbnail: imageBaseC
-    })
+    formats: t.union([
+      t.null,
+      t.type({}),
+      t.type({
+        small: imageBaseC,
+        medium: t.union([imageBaseC, t.undefined]),
+        thumbnail: imageBaseC
+      })
+    ])
   })
 ]);
 
+export const imageC = t.union([imageBaseC, imageAttrsC]);
+
 export const strapiImageDataC = t.type({
-	data: withIdC(imageAttrsC)
+	data: t.union([withIdC(imageAttrsC), t.null])
 });
 
 export type StrapiImageData = t.TypeOf<typeof strapiImageDataC>
