@@ -17,16 +17,18 @@ export const withIdC = <A extends t.Mixed>(d: A) => t.type({
 });
 
 export const strapiDataC = <A extends t.Mixed>(d: A) => t.type({
-	data: withIdC(d)
+	data: t.union([withIdC(d), t.null])
 });
 
 export const strapiDataArrC = <A extends t.Mixed>(d: A) => t.type({
-	data: t.array(withIdC(d))
+	data: t.union([t.array(withIdC(d)), t.null])
 });
+
 export const strapiUpdatedC = t.type({
 	createdAt: t.string,
 	updatedAt: t.string,
-})
+});
+
 export const strapiBaseC = t.intersection([
 	strapiUpdatedC,
 	t.type({

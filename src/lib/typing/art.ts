@@ -61,7 +61,7 @@ export const artCategoryC = t.intersection([
   strapiBaseC, 
   t.type({
     title: t.string,
-    art_pieces: strapiArtC,
-    omit: strapiDataArrC(t.null),
+    art_pieces: t.union([strapiArtC, t.undefined]),
+    omit:  t.union([strapiDataArrC(t.null), t.undefined])
   })
 ]);
