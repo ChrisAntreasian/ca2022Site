@@ -1,6 +1,6 @@
 import type { PageServerLoad } from "./$types";
 
-import * as t from "io-ts";
+import type * as t from "io-ts";
 import * as qs from "qs";
 
 import { pipe } from 'fp-ts/lib/function';
@@ -8,11 +8,7 @@ import { pipe } from 'fp-ts/lib/function';
 import { getNoOpts } from "$lib/api";
 import { build, buildGate } from '$lib/build';
 import { mkKeyE } from '$lib/file';
-import { strapiPageC } from '$lib/typing/page';
-import { strapiDataArrC, strapiMetaDataC } from '$lib/typing/strapi';
-
-const respC = t.intersection([strapiMetaDataC, strapiDataArrC(strapiPageC)]);
-type Resp = t.TypeOf<typeof respC>
+import { pageResC, type PageRes } from '$lib/typing/page';
 
 const pq =  qs.stringify({ 
   filters: { id: { $in: 3 } },
@@ -25,9 +21,9 @@ const pq =  qs.stringify({
 	]
 });
 
-const getRes = getNoOpts(respC)(`pages?${pq}`);
+const getRes = getNoOpts(pageResC)(`pages?${pq}`);
 
-const mapFn = (data: Resp) => ({
+const mapFn = (data: PageRes) => ({
   title: "Web Expereince",
   data
 });
@@ -35,5 +31,5 @@ const mapFn = (data: Resp) => ({
 export const load: PageServerLoad = async ({ params, route }) =>  await pipe(
   params.bid, 
   buildGate, 
-  build<Resp, Resp>(mkKeyE(route.id), getRes, mapFn)
+  build<PageRes, PageRes>(mkKeyE(route.id), getRes, mapFn)
 )();
