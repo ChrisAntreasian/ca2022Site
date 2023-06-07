@@ -1,12 +1,15 @@
-import { error } from '@sveltejs/kit';
+
+import * as qs from "qs";
+
+import { E, FN, TE, AP } from "$lib/fp-ts";
+import { getNoOpts } from "$lib/api";
+
+import { build, buildGate, fetchKey, type KeyData, writeFile } from '$lib/build';
+
 import type { PageServerLoad } from "./$types";
-import { writeFs } from "$lib/file";
+import { detailsResC, type DetailsRes, type PageRes, pageResC } from "$lib/typing/page";
 
-import { handleGetResponse, mkRequest, queryStr } from "$lib/api";
-
-import type { PageDetails, StrapiApiResp, StrapiPage } from '$lib/types';
-
-const lq =  queryStr({ 
+const lq =  qs.stringify({ 
   filters: { id: { $in: 6 } },
   populate: [
 		"image",
@@ -15,7 +18,7 @@ const lq =  queryStr({
 	]
 });
 
-const pq =  queryStr({ 
+const pq =  qs.stringify({ 
   filters: { id: { $in: 1 } },
   populate: [
 		"page_details",
@@ -28,39 +31,40 @@ const pq =  queryStr({
 	]
 });
 
-const fetchData = async (p: string) => {
-  const response = await mkRequest("GET", p);
-	return await handleGetResponse(response);
-}
+const getResL = getNoOpts(detailsResC)(`page-slugs?${lq}`);
+const getResP =  getNoOpts(pageResC)(`pages?${pq}`);
 
-const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
-let data = {};
+const mapFnL = (out: DetailsRes) => ({
+  title: "Layout",
+  data: out
+});
 
-export const load: PageServerLoad = async ({ params }) => {
-  if (params.bid !== VITE_BUILD_KEY || VITE_ENV !== "develop" ) {
-    throw error(403, "Permission denied.");
-  }
+const mapFnP = (out: PageRes) => ({
+  title: "Landing",
+  data: out
+});
 
-  const resL = await fetchData(`page-slugs?${lq}`);
-  if (resL.ok) {
-    const outL: StrapiApiResp<PageDetails> = await resL.json()
-    const dataL = await writeFs<StrapiApiResp<PageDetails>>("layout", outL);
-    data = {...data, ...dataL}
-  }
+export const load: PageServerLoad = async ({ params, route }) => { 
+  const buildL = build<DetailsRes, DetailsRes>(E.right("layout"), getResL, mapFnL);
+  const buildP = build<PageRes, PageRes>(E.right("landing"), getResP, mapFnP);
+  
+  const fetchFns = [
+    fetchKey(E.right("layout"), getResL), 
+    fetchKey(E.right("landing"), getResP)
+  ] as const;
+  
+  const buildFns: KeyData = FN.pipe(
+    fetchFns,   
+    bfk => AP.sequenceT(TE.ApplyPar)(...bfk),
+  );
 
-  const resP = await fetchData(`pages?${pq}`);
-  if (resP.ok) {
-    const outP: StrapiPage = await resP.json()
-    const dataP = await writeFs<StrapiPage>("landing", outP);
-    data = {...data, ...dataP};
-  }
 
-  if (resP.ok && resL.ok) {
-    return {
-      title: "Layout & Landing",
-      data
-    }; 
-  }
+  FN.pipe(buildFns, writeFile)
+  
+  return await FN.pipe(
+    params.bid, 
+    buildGate,
+    buildL
+  )();
 
-  throw error(500, "Failed to save the data.")
 }
