@@ -5,6 +5,20 @@ import { writeFsTE, type RouteKeyU } from '$lib/file';
 import { error, type HttpError } from "@sveltejs/kit";
 import type { HttpErrE, HttpErrTE } from "./error";
 
+type FetchKey<A> = HttpErrTE<{
+  key: E.Either<HttpError, string>;
+  data: A;
+}>
+
+export type BuildFns<A> = HttpErrTE<{ key: E.Either<HttpError, string>, data: A }[]>;
+
+export type KeyData = HttpErrTE<{
+  key: HttpErrE<string>;
+  data: Record<string, any>
+}[]>
+
+type WriteTE = HttpErrTE<Record<string, any>>;
+
 const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
 
 const throwErrIO = IO.of((e: HttpError) => { throw e });
@@ -15,10 +29,7 @@ export const buildGate = FN.flow(
     () => error(403, "Permission denied.")
   )
 );
-type FetchKey<A> = HttpErrTE<{
-  key: E.Either<HttpError, string>;
-  data: A;
-}>
+
 export const fetchKey = <A>(
   buildKey: HttpErrE<RouteKeyU>,
   fetchFn: HttpErrTE<A>
@@ -41,18 +52,32 @@ export const build = <A, B>(
   TE.fold(throwErrIO(), FN.flow(mapFn, T.of)),
 );
 
-export type BuildFns<A> = HttpErrTE<{ key: E.Either<HttpError, string>, data: A }[]>;
-export type KeyData = HttpErrTE<{
-  key: HttpErrE<string>;
-  data: Record<string, any>
-}[]>
-
-export const writeFile: (d: KeyData) => HttpErrTE<Record<string, any>> = FN.flow(
-  TE.map(
-    RA.reduce({}, (acc, curr) => FN.pipe(
-      curr.data,
-      TE.chain(_ => writeFsTE(curr.key)(_)),
-      TE.chainW(_ => TE.of({acc, ...curr.data})),
-    ))
+export const w1 = <A>(
+  buildKey: HttpErrE<RouteKeyU>,
+  fetchFn: HttpErrTE<A>
+) => FN.flow(
+  TE.chain(() => fetchFn),
+  TE.chain(writeFsTE(buildKey)),
+);
+export const w2 = (d: KeyData) => TE.map(
+  FN.pipe(
+    d,
+    TE.map(
+      RA.reduce({}, (acc, {data, key}) => FN.pipe(
+        data,
+        TE.chain(writeFsTE(key)),
+        TE.map(() => ({acc, ...data})),
+      ))
+    )
   )
+);
+
+export const build2 = <A, B>(
+  fetchFns: KeyData, 
+  mapFn: (_: A) => { title: string, data: B },
+  writeTask: WriteTE
+) => FN.flow(
+  TE.fromEither,
+  // writeFile(fetchFns),
+  TE.fold(throwErrIO(), FN.flow(mapFn, T.of)),
 );
