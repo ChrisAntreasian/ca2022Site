@@ -41,9 +41,13 @@ export const build = <A, B>(
 );
 
 
-////
-export const buildResource = <A>(buildKey: string) => TE.chain((_: A) => writeFsTE2<A>([_, buildKey]));
+export const write = <A>(buildKey: string) => TE.chain((_: A) => writeFsTE2<A>([_, buildKey]));
   
-export const combineResp: (kd: HttpErrTE<ReadonlyArray<RR.ReadonlyRecord<string, any>>>) => RR.ReadonlyRecord<string, any> = FN.flow(
-  TE.map(RA.reduce({}, (acc, curr) => ({...acc, ...curr})))
+export const combineResp: (kd: HttpErrTE<ReadonlyArray<RR.ReadonlyRecord<string, any>>>) => HttpErrTE<RR.ReadonlyRecord<string, any>> = TE.map(RA.reduce({}, (acc, curr) => ({...acc, ...curr})));
+
+type BuildFn = (ma: HttpErrTE<unknown>) => HttpErrTE<unknown>
+export const buildRes = (title: string, bFn: BuildFn) => FN.flow(
+  buildGate,
+  bFn,
+  TE.fold(throwErrIO(), FN.flow(_ => ({ title: title, data: _}), T.of))
 );
