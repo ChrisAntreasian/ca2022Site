@@ -13,15 +13,20 @@ type DataFile<A> = {
 
 
 export const writeFsTE2 = <A>(d: [A, string]): HttpErrTE<A> => FN.pipe(
+  
   ({
     name: d[1],
     timestamp: Date.now(),
     data: d[0],
   }),
+  _ =>  cLog("before")(_),
   _ => TE.tryCatch(
     () => fs.promises.writeFile(`./${dataPath}/${d[1]}.json`, JSON.stringify(_)),
     () => e500("Failed to write the data.")
   ),
+  TE.bimap(
+    _ => cLog("after nope")(_),
+    _ =>  cLog("after yup")(_)),
   TE.map(() => d[0])
 );
 

@@ -2,7 +2,6 @@
 import { E, T, TE, FN, RA, RR } from "$lib/fp-ts";
 
 import { writeFsTE, type RouteKeyU, writeFsTE2 } from '$lib/file';
-import type { HttpError } from "@sveltejs/kit";
 import { throwErrIO, type HttpErrE, type HttpErrTE, e403 } from "./error";
 
 type FetchKey<A> = HttpErrTE<{
@@ -10,9 +9,6 @@ type FetchKey<A> = HttpErrTE<{
   data: A;
 }>
 
-
-
-type DataAndKey<A extends RR.ReadonlyRecord<string, any>> = ReadonlyArray<[A, string]>
 const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
 
 export const buildGate = FN.flow(
@@ -44,18 +40,10 @@ export const build = <A, B>(
   TE.fold(throwErrIO(), FN.flow(mapFn, T.of)),
 );
 
-export const w1 = <A>(
-  buildKey: HttpErrE<RouteKeyU>,
-  fetchFn: HttpErrTE<A>
-) => FN.flow(
-  TE.chain(() => fetchFn),
-  TE.chain(writeFsTE(buildKey)),
-);
 
-export const w2d = <A extends RR.ReadonlyRecord<string, any>>(kd: HttpErrTE<DataAndKey<A>>) => TE.chain(RA.reduce(
-  TE.of({} as A), (acc: HttpErrTE<A>, curr) => FN.pipe(
-    curr,
-    writeFsTE2,
-    TE.map((_: HttpErrTE<A>) => ({...acc, ..._}))
-  )
-))(kd);
+////
+export const buildResource = <A>(buildKey: string) => TE.chain((_: A) => writeFsTE2<A>([_, buildKey]));
+  
+export const combineResp: (kd: HttpErrTE<ReadonlyArray<RR.ReadonlyRecord<string, any>>>) => RR.ReadonlyRecord<string, any> = FN.flow(
+  TE.map(RA.reduce({}, (acc, curr) => ({...acc, ...curr})))
+);

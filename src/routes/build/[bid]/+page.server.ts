@@ -1,15 +1,14 @@
 
 import * as qs from "qs";
 
-import { E, FN, TE, AP, T, RA, RNEA } from "$lib/fp-ts";
+import { FN, TE, AP, T } from "$lib/fp-ts";
 import { getNoOpts } from "$lib/api";
 
-import { buildGate, w1, w2d } from '$lib/build';
+import { buildGate, buildResource, combineResp } from '$lib/build';
 
 import type { PageServerLoad } from "./$types";
-import { detailsResC, pageResC } from "$lib/typing/page";
+import { detailsResC, pageResC, type DetailsRes, type PageRes } from "$lib/typing/page";
 import { throwErrIO } from "$lib/error";
-import { writeFsTE2 } from "$lib/file";
 
 const lq =  qs.stringify({ 
   filters: { id: { $in: 6 } },
@@ -36,10 +35,9 @@ const pq =  qs.stringify({
 const getResL = getNoOpts(detailsResC)(`page-slugs?${lq}`);
 const getResP =  getNoOpts(pageResC)(`pages?${pq}`);
 
-const buildTup = TE.chain(() => FN.pipe(
-  [getResL ,getResP] as const,
+const buildTupB = TE.chain(() => FN.pipe(
+  [buildResource<DetailsRes>("layout")(getResL), buildResource<PageRes>("landing")(getResP)] as const,
   _ => AP.sequenceT(TE.ApplyPar)(..._),
-  TE.map(RA.zip(["layout", "landing"]))
 ));
 
 const mapFn = <A>(out: A) => ({
@@ -49,28 +47,18 @@ const mapFn = <A>(out: A) => ({
 
 export const load: PageServerLoad = async ({ params, route }) => { 
   
-  // this is working
-  const w11 = FN.pipe(
-    params.bid,
-    buildGate,
-    w1(E.right("layout"), getResL),
-    TE.fold(throwErrIO(), FN.flow(mapFn, T.of))
-  );
-
   const w12 = FN.pipe(
     params.bid,
     buildGate,
-    TE.chain(() => getResL),
-    TE.map(_ => [_, "title"]),
-    TE.map(writeFsTE2),
+    TE.chain(() => buildResource("landing")(getResP)),
     TE.fold(throwErrIO(), FN.flow(mapFn, T.of))
   );
 
   const z22 = FN.pipe(
     params.bid, 
     buildGate,
-    buildTup,
-    w2d,
+    buildTupB,
+    combineResp,
     TE.fold(throwErrIO(), FN.flow(mapFn, T.of)),
   );
 
