@@ -1,13 +1,15 @@
 
 import * as qs from "qs";
 
-import { E, FN, TE, AP } from "$lib/fp-ts";
+import { E, FN, TE, AP, T, RA, RNEA } from "$lib/fp-ts";
 import { getNoOpts } from "$lib/api";
 
-import { build, buildGate, fetchKey, type KeyData, writeFile } from '$lib/build';
+import { buildGate, w1, w2d } from '$lib/build';
 
 import type { PageServerLoad } from "./$types";
-import { detailsResC, type DetailsRes, type PageRes, pageResC } from "$lib/typing/page";
+import { detailsResC, pageResC } from "$lib/typing/page";
+import { throwErrIO } from "$lib/error";
+import { writeFsTE2 } from "$lib/file";
 
 const lq =  qs.stringify({ 
   filters: { id: { $in: 6 } },
@@ -34,37 +36,44 @@ const pq =  qs.stringify({
 const getResL = getNoOpts(detailsResC)(`page-slugs?${lq}`);
 const getResP =  getNoOpts(pageResC)(`pages?${pq}`);
 
-const mapFnL = (out: DetailsRes) => ({
-  title: "Layout",
-  data: out
-});
+const buildTup = TE.chain(() => FN.pipe(
+  [getResL ,getResP] as const,
+  _ => AP.sequenceT(TE.ApplyPar)(..._),
+  TE.map(RA.zip(["layout", "landing"]))
+));
 
-const mapFnP = (out: PageRes) => ({
-  title: "Landing",
+const mapFn = <A>(out: A) => ({
+  title: "Layout & Landing",
   data: out
 });
 
 export const load: PageServerLoad = async ({ params, route }) => { 
-  const buildL = build<DetailsRes, DetailsRes>(E.right("layout"), getResL, mapFnL);
-  const buildP = build<PageRes, PageRes>(E.right("landing"), getResP, mapFnP);
   
-  const fetchFns = [
-    fetchKey(E.right("layout"), getResL), 
-    fetchKey(E.right("landing"), getResP)
-  ] as const;
-  
-  const buildFns: KeyData = FN.pipe(
-    fetchFns,   
-    bfk => AP.sequenceT(TE.ApplyPar)(...bfk),
+  // this is working
+  const w11 = FN.pipe(
+    params.bid,
+    buildGate,
+    w1(E.right("layout"), getResL),
+    TE.fold(throwErrIO(), FN.flow(mapFn, T.of))
   );
 
+  const w12 = FN.pipe(
+    params.bid,
+    buildGate,
+    TE.chain(() => getResL),
+    TE.map(_ => [_, "title"]),
+    TE.map(writeFsTE2),
+    TE.fold(throwErrIO(), FN.flow(mapFn, T.of))
+  );
 
-  FN.pipe(buildFns, writeFile)
-  
-  return await FN.pipe(
+  const z22 = FN.pipe(
     params.bid, 
     buildGate,
-    buildL
-  )();
+    buildTup,
+    w2d,
+    TE.fold(throwErrIO(), FN.flow(mapFn, T.of)),
+  );
 
+  return await z22();
 }
+

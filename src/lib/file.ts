@@ -1,11 +1,7 @@
-import { error, type HttpError } from "@sveltejs/kit";
 import * as fs from "fs";
-import * as TE from "fp-ts/TaskEither";
-import * as E from "fp-ts/Either";
-import * as RA from "fp-ts/ReadonlyArray";
-import * as s from "fp-ts/string";
-
-import { flow, pipe } from "fp-ts/lib/function";
+import { s, RA, E, TE, FN } from "$lib/fp-ts";
+import { e500, type HttpErrE, type HttpErrTE } from "./error";
+import { cLog } from "./console";
 
 const dataPath = 'src/data';
 
@@ -15,17 +11,31 @@ type DataFile<A> = {
   data: A
 }
 
-export const writeFsTE = <A>(k: E.Either<HttpError, RouteKeyU>) => flow(
+
+export const writeFsTE2 = <A>(d: [A, string]): HttpErrTE<A> => FN.pipe(
+  ({
+    name: d[1],
+    timestamp: Date.now(),
+    data: d[0],
+  }),
+  _ => TE.tryCatch(
+    () => fs.promises.writeFile(`./${dataPath}/${d[1]}.json`, JSON.stringify(_)),
+    () => e500("Failed to write the data.")
+  ),
+  TE.map(() => d[0])
+);
+
+export const writeFsTE = <A>(k: HttpErrE<RouteKeyU>) => FN.flow(
   (d: A) => E.map(_=> ({
     name: _,
     timestamp: Date.now(),
     data: d,
   }))(k),
   TE.fromEither,
-  TE.chain((_: DataFile<A>) => pipe(
+  TE.chain((_: DataFile<A>) => FN.pipe(
     TE.tryCatch(
       () => fs.promises.writeFile(`./${dataPath}/${_.name}.json`, JSON.stringify(_)),
-      () => error(500, "Failed to write the data.")
+      () => e500("Failed to write the data.")
     ),
     TE.map(() => _.data)
   ))
@@ -43,17 +53,17 @@ export const writeFs = async<A>(fn: string, d: A) => {
     return out.data;
 
   } catch (e) {
-    throw error(500, "Failed to write the data.");
+    throw e500("Failed to write the data.");
   }
 }
 
 const routeKeys = ["landing", "layout", "poems", "the-quintuplapus", "the-souljuicer", "web-experience"];
 export type RouteKeyU = typeof routeKeys[number];
 
-const keyGuard = (_: string): _ is RouteKeyU => pipe(routeKeys, RA.elem(s.Eq)(_));
+const keyGuard = (_: string): _ is RouteKeyU => FN.pipe(routeKeys, RA.elem(s.Eq)(_));
 
-export const mkKeyE = (rid: string): E.Either<HttpError, RouteKeyU> =>
-  pipe(rid.split("/")[1], E.fromPredicate(keyGuard, () => error(500, `Data key does not exist.`)));
+export const mkKeyE = (rid: string): HttpErrE<RouteKeyU> =>
+  FN.pipe(rid.split("/")[1], E.fromPredicate(keyGuard, () => e500(`Data key does not exist.`)));
 
 export const mkKey = (rid: string): RouteKeyU => {
   const k = rid.split("/")[1];
@@ -61,5 +71,5 @@ export const mkKey = (rid: string): RouteKeyU => {
     return k;
   }
   
-  throw error(500, `Data key does not exist.`);
+  throw e500(`Data key does not exist.`);
 };

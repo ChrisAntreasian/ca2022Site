@@ -1,12 +1,8 @@
 import { error, type HttpError } from "@sveltejs/kit";
 import * as qs from "qs";
-import { PathReporter } from 'io-ts/lib/PathReporter'
-import { flow, pipe } from "fp-ts/function";
-import * as O from "fp-ts/Option";
-import * as TE from "fp-ts/TaskEither"
+import { FN, O, TE } from "$lib/fp-ts";
 
 import type * as t from "io-ts";
-import { cLog } from "./console";
 
 type HTTPMethods = "GET" | "POST";
 type QuryProps = {
@@ -52,7 +48,7 @@ const toJSON = async (_: Response) => await _.json();
 const init = (method: HTTPMethods) => (data: O.Option<Record<string, unknown>>) => ({
 	headers: { 'content-type': 'application/json; charset=utf-8' },
 	method: method,
-	body: pipe(data, O.map(JSON.stringify), O.toUndefined)
+	body: FN.pipe(data, O.map(JSON.stringify), O.toUndefined)
 });
 
 const get = init("GET");
@@ -62,28 +58,18 @@ const request = (urlBase: string, init: FetchInit) => (resource: string) => TE.t
 	() => error(500, "Server Request Failed")
 );
 
-const decode = <A>(codec: t.Type<A>): (res: unknown) => TE.TaskEither<HttpError, A> => flow(
-	// _ => {
-	// 	_.data.forEach(_ =>
-	// 		_.attributes.page_details.data.forEach(_ => console.log(_.attributes.art_categories.data))
-	// 			//.art_categories.forEach(cLog("yo")))
-	// 	); return _},
+const decode = <A>(codec: t.Type<A>): (res: unknown) => TE.TaskEither<HttpError, A> => FN.flow(
 	codec.decode,
-	_ => { 
-		cLog("path report")(PathReporter.report(_)); 
-		return _
-	},
-
 	TE.fromEither,
 	TE.mapLeft(() => error(500, "Data Did Not Match The Codec"))
 );
 
-const parse =  <A>(codec: t.Type<A>) => (init: FetchInit ) => flow(
+const parse =  <A>(codec: t.Type<A>) => (init: FetchInit ) => FN.flow(
 	request(baseApi, init),
 	TE.filterOrElse(_ => _.status !== 404, () => error(404, "Not Found")),
 	TE.chain(_ => TE.tryCatch(() => toJSON(_), () => error(500, "Faild To Parse JSON"))),
 	TE.chain(decode(codec))
 );
 
-export const getNoOpts = <A>(codec: t.Type<A>) => pipe(O.none, get, parse(codec));
+export const getNoOpts = <A>(codec: t.Type<A>) => FN.pipe(O.none, get, parse(codec));
 export const queryStr = (_: QuryProps) => qs.stringify(_, { encodeValuesOnly: true });
