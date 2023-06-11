@@ -1,14 +1,12 @@
 import type { PageServerLoad } from "./$types";
 
-import type * as t from "io-ts";
 import * as qs from "qs";
 
-import { pipe } from 'fp-ts/lib/function';
-
 import { getNoOpts } from "$lib/api";
-import { build, buildGate } from '$lib/build';
-import { mkKeyE } from '$lib/file';
+import { buildRes, writeFile } from '$lib/build';
+import { mkKeyWDefault } from '$lib/file';
 import { pageResC, type PageRes } from '$lib/typing/page';
+import { TE } from "$lib/fp-ts";
 
 const pq =  qs.stringify({ 
   filters: { id: { $in: 3 } },
@@ -22,14 +20,7 @@ const pq =  qs.stringify({
 });
 
 const getRes = getNoOpts(pageResC)(`pages?${pq}`);
+const wf = (rid: string) => TE.chain(() => writeFile<PageRes>(mkKeyWDefault(rid))(getRes));
 
-const mapFn = (data: PageRes) => ({
-  title: "Web Expereince",
-  data
-});
-
-export const load: PageServerLoad = async ({ params, route }) =>  await pipe(
-  params.bid, 
-  buildGate, 
-  build<PageRes, PageRes>(mkKeyE(route.id), getRes, mapFn)
-)();
+export const load: PageServerLoad = async ({ params, route }) => 
+  await buildRes("Web Expereince", wf(route.id))(params.bid)();

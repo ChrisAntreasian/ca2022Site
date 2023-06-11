@@ -9,11 +9,9 @@ type DataFile<A> = {
   name: string,
   timestamp: EpochTimeStamp,
   data: A
-}
+};
 
-
-export const writeFsTE2 = <A>(d: [A, string]): HttpErrTE<A> => FN.pipe(
-  
+export const writeFsTE = <A>(d: [A, string]): HttpErrTE<A> => FN.pipe(  
   ({
     name: d[1],
     timestamp: Date.now(),
@@ -28,22 +26,6 @@ export const writeFsTE2 = <A>(d: [A, string]): HttpErrTE<A> => FN.pipe(
     _ => cLog("after nope")(_),
     _ =>  cLog("after yup")(_)),
   TE.map(() => d[0])
-);
-
-export const writeFsTE = <A>(k: HttpErrE<RouteKeyU>) => FN.flow(
-  (d: A) => E.map(_=> ({
-    name: _,
-    timestamp: Date.now(),
-    data: d,
-  }))(k),
-  TE.fromEither,
-  TE.chain((_: DataFile<A>) => FN.pipe(
-    TE.tryCatch(
-      () => fs.promises.writeFile(`./${dataPath}/${_.name}.json`, JSON.stringify(_)),
-      () => e500("Failed to write the data.")
-    ),
-    TE.map(() => _.data)
-  ))
 );
 
 export const writeFs = async<A>(fn: string, d: A) => {
@@ -67,8 +49,12 @@ export type RouteKeyU = typeof routeKeys[number];
 
 const keyGuard = (_: string): _ is RouteKeyU => FN.pipe(routeKeys, RA.elem(s.Eq)(_));
 
-export const mkKeyE = (rid: string): HttpErrE<RouteKeyU> =>
-  FN.pipe(rid.split("/")[1], E.fromPredicate(keyGuard, () => e500(`Data key does not exist.`)));
+export const mkKeyE = (rid: string): HttpErrE<RouteKeyU> => FN.pipe(
+  rid.split("/")[1], 
+  E.fromPredicate(keyGuard, () => e500(`Data key does not exist.`))
+);
+
+export const mkKeyWDefault = FN.flow(mkKeyE, E.getOrElse(() => "resource"));
 
 export const mkKey = (rid: string): RouteKeyU => {
   const k = rid.split("/")[1];

@@ -3,15 +3,14 @@ import type { PageServerLoad } from "./$types";
 import * as t from "io-ts";
 import * as qs from "qs";
 
-import { pipe } from 'fp-ts/lib/function';
-
 import { getNoOpts } from "$lib/api";
 
-import { build, buildGate } from '$lib/build';
-import { mkKeyE } from '$lib/file';
+import { buildRes, writeFile } from '$lib/build';
+import { mkKeyWDefault } from '$lib/file';
 
 import { strapiDataArrC, strapiMetaDataC } from "$lib/typing/strapi";
 import { artCategoryC } from "$lib/typing/art";
+import { TE } from "$lib/fp-ts";
 
 const respC = t.intersection([strapiMetaDataC, strapiDataArrC(artCategoryC)]);
 type Resp = t.TypeOf<typeof respC>
@@ -30,14 +29,8 @@ const q = qs.stringify({
 });
 
 const getRes = getNoOpts(respC)(`art-categories?${q}`);
+const wf = (rid: string) => TE.chain(() => writeFile<Resp>(mkKeyWDefault(rid))(getRes));
 
-const mapFn = (out: Resp) => ({
-  title: "The Quintuplapus",
-  data: out
-});
-
-export const load: PageServerLoad = async ({ params, route }) =>  await pipe(
-  params.bid, 
-  buildGate, 
-  build<Resp, Resp>(mkKeyE(route.id), getRes, mapFn)
-)();
+export const load: PageServerLoad = async ({ params, route }) => 
+  await buildRes("The Quintuplapus", wf(route.id))(params.bid)();
+  
