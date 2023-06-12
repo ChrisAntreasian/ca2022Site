@@ -20,7 +20,7 @@ const imageAttrsC = t.intersection([
     caption: t.string,
     provider: t.string,
     provider_metadata: t.any,
-    previewUrl: t.any,
+    previewUrl: t.union([t.string, t.null]),
     formats: t.union([
       t.null,
       t.type({}),
@@ -60,15 +60,11 @@ export const artC = t.intersection([
   })
 ]);
 
-export type ArtArt = t.TypeOf<typeof artC>
-
-export const strapiArtC = strapiDataArrC(artC);
-
 export const artCategoryC = t.intersection([
   strapiBaseC, 
   t.type({
     title: t.string,
-    art_pieces: t.union([strapiArtC, t.undefined]),
+    art_pieces: t.union([strapiDataArrC(artC), t.undefined]),
     omit:  t.union([strapiDataArrC(t.null), t.undefined])
   })
 ]);

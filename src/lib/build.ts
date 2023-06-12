@@ -6,7 +6,7 @@ import { throwErrIO, type HttpErrTE, e403 } from "./error";
 
 const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
 
-export const buildGate = FN.flow(
+const buildGate = FN.flow(
   E.fromPredicate(
     _ => _ === VITE_BUILD_KEY && VITE_ENV === "develop", 
     () => e403("Permission denied.")

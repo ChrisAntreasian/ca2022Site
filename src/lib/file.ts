@@ -18,11 +18,11 @@ export const writeFsTE = <A>(d: [A, string]): HttpErrTE<A> => FN.pipe(
 );
 
 const routeKeys = ["landing", "layout", "poems", "the-quintuplapus", "the-souljuicer", "web-experience"];
-export type RouteKeyU = typeof routeKeys[number];
+type RouteKeyU = typeof routeKeys[number];
 
 const keyGuard = (_: string): _ is RouteKeyU => FN.pipe(routeKeys, RA.elem(s.Eq)(_));
 
-export const mkKeyE = (rid: string): HttpErrE<RouteKeyU> => FN.pipe(
+const mkKeyE = (rid: string): HttpErrE<RouteKeyU> => FN.pipe(
   rid.split("/")[1], 
   E.fromPredicate(keyGuard, () => e500(`Data key does not exist.`))
 );

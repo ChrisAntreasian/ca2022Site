@@ -4,7 +4,7 @@ import { strapiBaseC, strapiDataArrC, strapiDataC, strapiMetaDataC } from "./str
 import { artC, artCategoryC, imageC, strapiImageDataC } from "./art";
 import { poemC } from "./poem";
 
-export const pageDetailsC = t.intersection([
+const pageDetailsC = t.intersection([
   strapiBaseC,
   t.type({
     title: t.string,
@@ -30,7 +30,7 @@ const richLinkC = t.intersection([
   })
 ]);
 
-export const strapiPageC = t.intersection([
+const strapiPageC = t.intersection([
   strapiBaseC,  
   t.type({
     title: t.string,
@@ -38,8 +38,6 @@ export const strapiPageC = t.intersection([
 		rich_links: t.union([strapiDataArrC(richLinkC), t.undefined])
   })
 ]);
-
-export type StrapiPage = t.TypeOf<typeof strapiPageC>;
 
 export const pageResC = t.intersection([strapiMetaDataC, strapiDataArrC(strapiPageC)]);
 export type PageRes = t.TypeOf<typeof pageResC>;
