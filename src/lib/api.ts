@@ -5,43 +5,19 @@ import { FN, O, TE } from "$lib/fp-ts";
 import type * as t from "io-ts";
 
 type HTTPMethods = "GET" | "POST";
+
 type QuryProps = {
 	filters?: Record<string, any>,
 	populate?: string | string[]
 } 
-
-const baseApi = import.meta.env.VITE_BASE_API;
-
-const fetchRequest = (urlBase: string) => async (method: "GET" | "POST", resource: string, data?: Record<string, unknown>) => {
-	const d = await fetch(`${urlBase}/api/${resource}`, {
-		method,
-		headers: {
-			'content-type': 'application/json'
-		},
-		body: data && JSON.stringify(data)
-	});
-	return d;
-}
-export const mkRequest = fetchRequest(baseApi);
-
-export const handleGetResponse = async (response: Response) => {
-	if (response.status === 404) {
-		throw error(404, "Not Found");
-	}
-
-	const resp = await response.json();
-	return new Response(JSON.stringify(resp), {
-		headers: {
-			'content-type': 'application/json; charset=utf-8'
-		}
-	});
-}
 
 type FetchInit = {
 	headers: { 'content-type': string; };
 	method: HTTPMethods;
 	body: any;
 }
+
+const baseApi = import.meta.env.VITE_BASE_API;
 
 const toJSON = async (_: Response) => await _.json();
 
@@ -61,7 +37,7 @@ const request = (urlBase: string, init: FetchInit) => (resource: string) => TE.t
 const decode = <A>(codec: t.Type<A>): (res: unknown) => TE.TaskEither<HttpError, A> => FN.flow(
 	codec.decode,
 	TE.fromEither,
-	TE.mapLeft(() => error(500, "Data Did Not Match The Codec"))
+	TE.mapLeft(_ => error(500, "Data Did Not Match The Codec"))
 );
 
 const parse =  <A>(codec: t.Type<A>) => (init: FetchInit ) => FN.flow(

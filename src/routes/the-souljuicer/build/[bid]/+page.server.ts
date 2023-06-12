@@ -1,40 +1,27 @@
-import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from "./$types";
-import { mkKey, writeFs } from "$lib/file";
-
-import { handleGetResponse, mkRequest } from "$lib/api";
+import { mkKeyWDefault } from "$lib/file";
+import * as t from "io-ts";
+import { TE } from "$lib/fp-ts";
 
 import * as qs from "qs";
 
-const q = qs.stringify({
+import { getNoOpts } from "$lib/api";
+import { buildRes, writeFile } from '$lib/build';
+import { strapiDataArrC, strapiMetaDataC } from "$lib/typing/strapi";
+import { artBaseC } from "$lib/typing/art";
 
+const respC = t.intersection([strapiMetaDataC, strapiDataArrC(artBaseC)]);
+type Resp = t.TypeOf<typeof respC>;
+
+const q = qs.stringify({
   populate: [
     "image",
 		"image.media",
-  ],
+  ]
 });
-const fetchData = async () => {
-  const response = await mkRequest("GET", `soul-juices?${q}`);
-	return await handleGetResponse(response);
-}
 
-const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
+const getRes = getNoOpts(respC)(`soul-juices?${q}`);
+const wf = (rid: string) => TE.chain(() => writeFile<Resp>(mkKeyWDefault(rid))(getRes));
 
-export const load: PageServerLoad = async ({ params, route }) => {
-  if (params.bid !== VITE_BUILD_KEY || VITE_ENV !== "develop" ) {
-    throw error(403, "Permission denied.");
-  }
-
-  const res = await fetchData();
-  if (res.ok) {
-    const out = await res.json()
-    const data = await writeFs(mkKey(route.id), out);
-    console.log(data, out)
-    return {
-      title: "The SoulJuicer",
-      data
-    }; 
-  }
-
-  throw error(500, "Failed to save the data.")
-}
+export const load: PageServerLoad = async ({ params, route }) => 
+  await buildRes("The SoulJuicer", wf(route.id))(params.bid)();

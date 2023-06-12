@@ -41,15 +41,22 @@ export const strapiImageDataC = t.type({
 
 export type StrapiImageData = t.TypeOf<typeof strapiImageDataC>
 
-export const artC = t.intersection([
+export const artBaseC = t.intersection([
+  t.any,
   strapiBaseC,
   t.type({
-    title: t.string,
     description: t.string,
-    createdDate: t.string,
-    medium: t.string,
     order: t.number,
     image: strapiImageDataC
+  })
+]);
+
+export const artC = t.intersection([
+  artBaseC,
+  t.type({
+    title: t.string,
+    createdDate: t.string,
+    medium: t.string,
   })
 ]);
 
