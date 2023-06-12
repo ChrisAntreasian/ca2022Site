@@ -1,7 +1,11 @@
 
 import * as qs from "qs";
 
-import { FN, TE, AP } from "$lib/fp-ts";
+import { 
+	function as FN,
+	taskEither as TE,
+	apply as AP 
+} from "fp-ts";
 import { getNoOpts } from "$lib/api";
 
 import { buildRes, combineResp, writeFile } from '$lib/build';

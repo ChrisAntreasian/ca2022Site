@@ -6,7 +6,7 @@ import { getNoOpts } from "$lib/api";
 import { buildRes, writeFile } from '$lib/build';
 import { mkKeyWDefault } from '$lib/file';
 import { pageResC, type PageRes } from '$lib/typing/page';
-import { TE } from "$lib/fp-ts";
+import { taskEither as TE } from "fp-ts";
 
 const pq =  qs.stringify({ 
   filters: { id: { $in: 3 } },

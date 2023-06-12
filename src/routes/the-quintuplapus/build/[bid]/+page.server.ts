@@ -10,7 +10,7 @@ import { mkKeyWDefault } from '$lib/file';
 
 import { strapiDataArrC, strapiMetaDataC } from "$lib/typing/strapi";
 import { artCategoryC } from "$lib/typing/art";
-import { TE } from "$lib/fp-ts";
+import { taskEither as TE } from "fp-ts";
 
 const respC = t.intersection([strapiMetaDataC, strapiDataArrC(artCategoryC)]);
 type Resp = t.TypeOf<typeof respC>

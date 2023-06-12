@@ -1,7 +1,7 @@
 import type { PageServerLoad } from "./$types";
 import { mkKeyWDefault } from "$lib/file";
 import * as t from "io-ts";
-import { TE } from "$lib/fp-ts";
+import { taskEither as TE } from "fp-ts";
 
 import * as qs from "qs";
 
