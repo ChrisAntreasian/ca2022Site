@@ -1,5 +1,9 @@
 import type { StrapiImageData } from "$lib/typing/art";
-import { FN, O, RR } from "$lib/fp-ts";
+import { 
+	function as FN, 
+	option as O, 
+	readonlyRecord as RR 
+} from "fp-ts";
 
 export const safeImageString = (size: "small" | "medium" | "thumbnail" | "original") => FN.flow(
 	(pd: StrapiImageData) => pd.data.attributes,

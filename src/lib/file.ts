@@ -1,5 +1,12 @@
 import * as fs from "fs";
-import { s, RA, E, TE, FN } from "$lib/fp-ts";
+import { 
+  string as s,
+  readonlyArray as RA,
+  either as E,
+  taskEither as TE,
+  function as FN
+} from "fp-ts";
+
 import { e500, type HttpErrE, type HttpErrTE } from "./error";
 
 const dataPath = 'src/data';

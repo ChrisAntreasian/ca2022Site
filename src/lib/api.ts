@@ -1,6 +1,10 @@
 import { error, type HttpError } from "@sveltejs/kit";
 import * as qs from "qs";
-import { FN, O, TE } from "$lib/fp-ts";
+import { 
+	function as FN, 
+	option as O, 
+	taskEither as TE 
+} from "fp-ts";
 
 import type * as t from "io-ts";
 

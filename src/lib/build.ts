@@ -1,5 +1,12 @@
 
-import { E, T, TE, FN, RA, RR } from "$lib/fp-ts";
+import { 
+  either as E, 
+  task as T, 
+  taskEither as TE, 
+  function as FN, 
+  readonlyArray as RA, 
+  readonlyRecord as RR 
+} from "fp-ts";
 
 import { writeFsTE } from '$lib/file';
 import { throwErrIO, type HttpErrTE, e403 } from "./error";

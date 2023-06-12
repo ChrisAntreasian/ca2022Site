@@ -1,5 +1,5 @@
 import { error, type HttpError } from "@sveltejs/kit";
-import { type TE, type E, IO } from "$lib/fp-ts";
+import { type taskEither as TE, type either as E, io as IO } from "fp-ts";
 
 export type HttpErrTE<A> = TE.TaskEither<HttpError, A>
 export type HttpErrE<A> = E.Either<HttpError, A>
