@@ -60,6 +60,9 @@ export const artC = t.intersection([
   })
 ]);
 
+const artWithId = withIdC(artC);
+export type ArtWithId = t.TypeOf<typeof artWithId>;
+
 export const artCategoryC = t.intersection([
   strapiBaseC, 
   t.type({

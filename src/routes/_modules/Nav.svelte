@@ -2,10 +2,11 @@
 	import { captureClickThis } from "$lib/analytics";
 	import { cleanUrlSlug } from "$lib/history";
 	import { safeImageString } from "$lib/image";	
-  import type { StrapiPageDetails } from "$lib/types";
-	
+  import type { StrapiPageDetails } from "$lib/typing/page";
+
 	export let links: StrapiPageDetails;
-	const navClick = captureClickThis("home section");
+
+const navClick = captureClickThis("home section");
 </script>
 
 	<nav class="subnav-list">

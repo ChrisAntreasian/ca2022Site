@@ -17,6 +17,9 @@ const pageDetailsC = t.intersection([
   })
 ]);
 
+const strapiPageDetailsC = strapiDataArrC(t.intersection([pageDetailsC, t.type({poems: strapiDataArrC(poemC)})]));
+export type StrapiPageDetails = t.TypeOf<typeof strapiPageDetailsC>["data"];
+
 const richLinkC = t.intersection([
   strapiBaseC,
 	t.type({
@@ -42,5 +45,5 @@ const strapiPageC = t.intersection([
 export const pageResC = t.intersection([strapiMetaDataC, strapiDataArrC(strapiPageC)]);
 export type PageRes = t.TypeOf<typeof pageResC>;
 
-export const detailsResC = t.intersection([strapiMetaDataC, strapiDataArrC(pageDetailsC)]);
+export const detailsResC = t.intersection([strapiMetaDataC, strapiPageDetailsC]);
 export type DetailsRes = t.TypeOf<typeof detailsResC>;
