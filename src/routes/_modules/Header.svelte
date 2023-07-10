@@ -19,7 +19,7 @@
 		"/": "",
 		"/the-quintuplapus": ": The Quintuplapus",
 		"/poems": ": Poetry",
-		"web-experience": ": Web"
+		"/web-experience": ": Web"
 	}
 
 	$: headlineBit =  !($page.url.pathname in headlinesDict) ? "" : `${headlinesDict[$page.url.pathname]}`;

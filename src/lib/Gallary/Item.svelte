@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { cleanUrlSlug } from "$lib/history";
-	import type { Art, WithId } from "$lib/types";
+  import type { ArtWithId } from "$lib/typing/art";
 
-  export let artPiece: WithId<Art>;
-	export let item: WithId<Art>;
+  export let artPiece: ArtWithId;
+	export let item: ArtWithId;
 
   export let handleNavArtPieceClick: (id: number) => (e: Event) => void;
   

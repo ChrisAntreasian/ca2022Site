@@ -1,11 +1,14 @@
-import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from "./$types";
-import { mkKey, writeFs } from "$lib/file";
 
-import { handleGetResponse, mkRequest, queryStr } from "$lib/api";
-import type { StrapiPage } from '$lib/types';
+import * as qs from "qs";
 
-const pq =  queryStr({ 
+import { getNoOpts } from "$lib/api";
+import { buildRes, writeFile } from '$lib/build';
+import { mkKeyWDefault } from '$lib/file';
+import { pageResC, type PageRes } from '$lib/typing/page';
+import { taskEither as TE } from "fp-ts";
+
+const pq =  qs.stringify({ 
   filters: { id: { $in: 3 } },
   populate: [
 		"page_details",
@@ -16,28 +19,8 @@ const pq =  queryStr({
 	]
 });
 
-const fetchData = async () => {
-  const response = await mkRequest("GET", `pages?${pq}`);
-	return await handleGetResponse(response);
-}
+const getRes = getNoOpts(pageResC)(`pages?${pq}`);
+const wf = (rid: string) => TE.chain(() => writeFile<PageRes>(mkKeyWDefault(rid))(getRes));
 
-const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
-
-export const load: PageServerLoad = async ({ params, route }) => {
-  if (params.bid !== VITE_BUILD_KEY || VITE_ENV !== "develop" ) {
-    throw error(403, "Permission denied.");
-  }
-
-  const res = await fetchData();
-  if (res.ok) {
-    const out: StrapiPage = await res.json()
-    const data = await writeFs<StrapiPage>(mkKey(route.id), out);
-
-    return {
-      title: "Web Expereince",
-      data
-    }; 
-  }
-
-  throw error(500, "Failed to save the data.")
-}
+export const load: PageServerLoad = async ({ params, route }) => 
+  await buildRes("Web Expereince", wf(route.id))(params.bid)();
