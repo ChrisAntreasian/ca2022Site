@@ -21,6 +21,7 @@ const imageAttrsC = t.intersection([
     provider: t.string,
     provider_metadata: t.any,
     previewUrl: t.union([t.string, t.null]),
+    url: t.string,
     formats: t.union([
       t.null,
       t.type({}),

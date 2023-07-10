@@ -10,6 +10,9 @@ export const safeImageString = (size: "small" | "medium" | "thumbnail" | "origin
 	attr => FN.pipe(
 		attr.formats, 
 		RR.lookup(size), 
-		O.fold(() => attr.previewUrl, _ => _.url)
+		O.fold(
+			() => attr.url, 
+			_ => _.url
+		)
 	)
 );
