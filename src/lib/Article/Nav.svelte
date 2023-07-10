@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Arrow from "$lib/arrow/Arrow.svelte";
-
 	import { mqBreakPoint, toRem } from "$lib/spacing";
 	import { captureBehavior } from "$lib/analytics";
 	import { afterUpdate } from "svelte";

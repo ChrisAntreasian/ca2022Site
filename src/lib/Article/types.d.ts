@@ -1,5 +1,3 @@
-import type { StrapiImageData } from "$lib/types";
-
 export type Item = {
   id: number,
   title: string,

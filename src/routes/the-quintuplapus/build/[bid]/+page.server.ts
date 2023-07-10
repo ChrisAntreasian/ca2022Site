@@ -1,11 +1,19 @@
-import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from "./$types";
-import { mkKey, writeFs } from "$lib/file";
 
-import { handleGetResponse, mkRequest } from "$lib/api";
-
+import * as t from "io-ts";
 import * as qs from "qs";
-import type { ArtCategory, StrapiData } from '$lib/types';
+
+import { getNoOpts } from "$lib/api";
+
+import { buildRes, writeFile } from '$lib/build';
+import { mkKeyWDefault } from '$lib/file';
+
+import { strapiDataArrC, strapiMetaDataC } from "$lib/typing/strapi";
+import { artCategoryC } from "$lib/typing/art";
+import { taskEither as TE } from "fp-ts";
+
+const respC = t.intersection([strapiMetaDataC, strapiDataArrC(artCategoryC)]);
+type Resp = t.TypeOf<typeof respC>
 
 const q = qs.stringify({
 	filters: {
@@ -20,28 +28,9 @@ const q = qs.stringify({
   ],
 });
 
-const fetchData = async () => {
-  const response = await mkRequest("GET", `art-categories?${q}`);
-	return await handleGetResponse(response);
-}
+const getRes = getNoOpts(respC)(`art-categories?${q}`);
+const wf = (rid: string) => TE.chain(() => writeFile<Resp>(mkKeyWDefault(rid))(getRes));
 
-const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
-
-export const load: PageServerLoad = async ({ params, route }) => {
-  if (params.bid !== VITE_BUILD_KEY || VITE_ENV !== "develop" ) {
-    throw error(403, "Permission denied.");
-  }
-
-  const res = await fetchData();
-  if (res.ok) {
-    const out: StrapiData<ArtCategory> = await res.json()
-    const data = await writeFs<StrapiData<ArtCategory>>(mkKey(route.id), out);
-
-    return {
-      title: "The Quintuplapus",
-      data
-    }; 
-  }
-
-  throw error(500, "Failed to save the data.")
-}
+export const load: PageServerLoad = async ({ params, route }) => 
+  await buildRes("The Quintuplapus", wf(route.id))(params.bid)();
+  

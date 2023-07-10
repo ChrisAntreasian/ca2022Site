@@ -1,5 +1,5 @@
 import type { PageServerLoad } from './$types';
-import type { StrapiPageDetails } from "$lib/types";
+import type { StrapiPageDetails } from "$lib/typing/page";
 import * as D from "$data/landing.json"
 
 const introIds = [5];

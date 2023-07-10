@@ -10,10 +10,10 @@
   import { wrapperWidth, rem, toRem, fromRem, mqBreakPoint } from "$lib/spacing";
   
   import Arrow from "$lib/arrow/Arrow.svelte"
-	import type { Art, WithId } from "$lib/types";
+  import type { ArtWithId } from "$lib/typing/art";
 
-  export let artPieces: Array<WithId<Art>>;
-  export let artPiece: WithId<Art>;
+  export let artPieces: Array<ArtWithId>;
+  export let artPiece: ArtWithId;
 	import { noScroll } from "$lib/body";
 	import { fade } from "svelte/transition";
 

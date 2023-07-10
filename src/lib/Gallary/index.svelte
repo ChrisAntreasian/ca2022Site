@@ -14,11 +14,12 @@
 	import Nav from "$lib/Gallary/Nav.svelte"
 
   import { captureDetails, captureBehavior } from "$lib/analytics";
-	import type { Art, WithId } from "$lib/types";
+
+	import type { ArtWithId } from "$lib/typing/art"
 	import { onMount } from "svelte";
 	
-  export let artPieces: Array<WithId<Art>>;
-  export let artPiece: WithId<Art>;
+  export let artPieces: Array<ArtWithId>;
+  export let artPiece: ArtWithId;
   export let parentRoute: string;
   export let analyticsKey: string;
   export let categoryTitle: string;
@@ -56,12 +57,10 @@
 	}
 
 	const initGallery = () => {
-
 		const footerHeight = getFooterHeight();
 		const widgetH = windowHeight + extraHeight - footerHeight;
 
 		if (!windowWidth || windowWidth <=  768) return;
-
 		gallaryHeight = toRem(widgetH);
 		gallarySectionHeight = Math.ceil((widgetH - navHeight - rem) / rem);
 
