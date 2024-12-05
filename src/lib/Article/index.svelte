@@ -61,7 +61,7 @@
 
 </script>
 
-<section class="w-sidebar" transition:fade={{duration: 300}} bind:clientHeight={contentHeight}>
+<section class="w-sidebar" transition:fade|global={{duration: 300}} bind:clientHeight={contentHeight}>
 	<Article 
 		item={item} 
 		subnavHeight={subnavHeight}

@@ -62,7 +62,7 @@
 	<div class="bg-overlay"
 		on:click={handleMNavHandle}
 		on:keypress={handleMNavHandle}
-		transition:fade={{duration: 200}} 
+		transition:fade|global={{duration: 200}} 
 	/>
 {/if}
 

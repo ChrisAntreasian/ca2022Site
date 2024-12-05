@@ -156,7 +156,7 @@
   {/each}
 </svelte:head>
 
-<section transition:fade={{duration: 300}} style="--gallary-height: {gallaryHeight}rem">
+<section transition:fade|global={{duration: 300}} style="--gallary-height: {gallaryHeight}rem">
 
 	<Article 
 		artPiece={artPiece} 

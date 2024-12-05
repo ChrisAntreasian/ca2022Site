@@ -107,12 +107,12 @@
   <div class="bg-overlay"
     on:click={close}
     on:keypress={close}
-    transition:fade={transitionConfig}
+    transition:fade|global={transitionConfig}
   />
 {/if}
 
 {#if displayImg}
-  <div class="wrap" transition:scale={transitionConfig}>
+  <div class="wrap" transition:scale|global={transitionConfig}>
     <div 
       class="close-control modal-control-wrap" 
       style={`--width: ${toRem(maxOverlayWidth) - 2}rem`}

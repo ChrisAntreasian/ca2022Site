@@ -125,7 +125,7 @@
   <div class="bg-overlay"
     on:click={handleMNavClick}
     on:keypress={handleMNavClick}
-    transition:fade={{duration: 200}} 
+    transition:fade|global={{duration: 200}} 
     />
 {/if}
   <nav class="bnav subnav" 

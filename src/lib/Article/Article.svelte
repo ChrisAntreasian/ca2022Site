@@ -94,8 +94,8 @@ style={`
 		{#key item.id}
 			<div
 				class:transition={fadeOut}
-				in:fade={{duration: 500, delay: 50}}
-				out:fade={{duration: 300}}
+				in:fade|global={{duration: 500, delay: 50}}
+				out:fade|global={{duration: 300}}
 				on:outrostart="{() => {fadeOut = true}}"
 				on:introend="{() => {fadeOut = false}}"
 			>

@@ -98,8 +98,8 @@
       {#key artPiece.id}
         <figure
           class:transition={transitioning}
-          in:fade={{duration: 500}}
-          out:fade={{duration: 300}}
+          in:fade|global={{duration: 500}}
+          out:fade|global={{duration: 300}}
           on:introend="{() => {    
             setOverflow()
             transitioning = false;
@@ -132,7 +132,7 @@
                   </span>
                   {#if needsReadmore}
                     <div class="readmore"
-                      transition:fade={{duration: 300}}
+                      transition:fade|global={{duration: 300}}
                       on:click={handleReadMoreClick}
                       on:keypress={handleReadMoreClick}
                     >
@@ -143,7 +143,7 @@
                 {#if showMore}
                   <div
                     class="fade"
-                    transition:fade={{duration: 300}}
+                    transition:fade|global={{duration: 300}}
                   />
                 {/if}
               </div>
