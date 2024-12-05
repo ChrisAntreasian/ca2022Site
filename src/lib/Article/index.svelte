@@ -1,3 +1,4 @@
+<!-- @migration-task Error while migrating Svelte code: Can't migrate code with afterUpdate. Please migrate by hand. -->
 <script lang="ts">
 	import { mqBreakPoint } from "$lib/spacing";
 	import { captureBehavior, captureDetails } from "$lib/analytics";

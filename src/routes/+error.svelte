@@ -4,7 +4,7 @@
   import type { LayoutElemH } from "$lib/spacing";
 	import { getContext } from 'svelte';
   
-  let windowHeight;
+  let windowHeight = $state();
   const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
   const image =  [500, 404, 403].includes($page.status)  ? `/${$page.status}.jpg` : "/500.jpg";
  

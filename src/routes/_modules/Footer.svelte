@@ -3,7 +3,11 @@
 	import { captureClickThis } from "$lib/analytics";
 	import githubIcon from "./github-mark.svg"
 	
-	export let footerHeight: number;
+	interface Props {
+		footerHeight: number;
+	}
+
+	let { footerHeight = $bindable() }: Props = $props();
 	
 	const navClick = captureClickThis("footer nav");
 
@@ -13,15 +17,15 @@
 	<div class="footer-wrap">
 		<nav>
 			<ul>
-				<li on:click={() => navClick("Home")} on:keypress={() => navClick("Home")} class:active={$page.url.pathname === '/'}>
+				<li onclick={() => navClick("Home")} onkeypress={() => navClick("Home")} class:active={$page.url.pathname === '/'}>
 					<a  href="/">Home</a>
 				</li>
-				<li on:click={() => navClick("The Quintuplapus")} on:keypress={() => navClick("The Quintuplapus")} class:active={$page.url.pathname === '/the-quintuplapus'}>
+				<li onclick={() => navClick("The Quintuplapus")} onkeypress={() => navClick("The Quintuplapus")} class:active={$page.url.pathname === '/the-quintuplapus'}>
 					<a  href="/the-quintuplapus">The Quintuplapus</a></li>
-				<li on:click={() => navClick("Poems")} on:keypress={() => navClick("Poems")} class:active={$page.url.pathname === '/poems'}>
+				<li onclick={() => navClick("Poems")} onkeypress={() => navClick("Poems")} class:active={$page.url.pathname === '/poems'}>
 					<a  href="/poems">Poems</a>
 				</li>
-				<li on:click={() => navClick("Web Experience")} on:keypress={() => navClick("Web Experience")} class:active={$page.url.pathname === '/web-experience'}>
+				<li onclick={() => navClick("Web Experience")} onkeypress={() => navClick("Web Experience")} class:active={$page.url.pathname === '/web-experience'}>
 					<a  href="/poems">Web Experience</a>
 				</li>
 			</ul>

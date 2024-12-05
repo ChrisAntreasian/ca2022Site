@@ -6,10 +6,14 @@
 	import Nav from "./_modules/Nav.svelte"
 	import type { PageServerData} from "./$types";
 
-	export let data: PageServerData;  
+	interface Props {
+		data: PageServerData;
+	}
+
+	let { data }: Props = $props();
 
 	const { getHeaderHeight, getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
-  let windowHeight: number;
+  let windowHeight: number = $state();
 </script>
 
 <svelte:head>

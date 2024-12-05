@@ -10,10 +10,20 @@
 	import type { LayoutServerData } from "./$types";
 	import { initMixpanel } from '$lib/analytics';
 
-	export let headerHeight: number;
-	export let footerHeight: number;
 	
-	export let data: LayoutServerData;
+	interface Props {
+		headerHeight: number;
+		footerHeight: number;
+		data: LayoutServerData;
+		children?: import('svelte').Snippet;
+	}
+
+	let {
+		headerHeight = $bindable(),
+		footerHeight = $bindable(),
+		data,
+		children
+	}: Props = $props();
 	
 	initMixpanel();
 	
@@ -34,7 +44,7 @@
 	bind:headerHeight={headerHeight} 
 />
 
-<main><slot /></main>
+<main>{@render children?.()}</main>
 
 <Footer bind:footerHeight={footerHeight} />
 

@@ -1,8 +1,12 @@
 <script lang="ts">
 	import type { PageServerData } from "./$types";
 	
-	export let data: PageServerData;  
-	import Gallary from "$lib/Gallary/index.svelte"; 	
+	import Gallary from "$lib/Gallary/index.svelte";
+	interface Props {
+		data: PageServerData;
+	}
+
+	let { data }: Props = $props(); 	
 	let parentRoute = "/the-quintuplapus/";
 	let analyticsKey = "the Quintuplapus";
 </script>

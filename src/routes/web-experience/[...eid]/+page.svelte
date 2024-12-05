@@ -1,7 +1,11 @@
 <script lang="ts">
 	import Article from "$lib/Article/index.svelte"
 	import type { PageServerData} from "./$types";
-	export let data: PageServerData;
+	interface Props {
+		data: PageServerData;
+	}
+
+	let { data }: Props = $props();
 
 </script>
 

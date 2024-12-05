@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { afterNavigate } from '$app/navigation';
   import { fade } from "svelte/transition";
   import SvelteMarkdown from 'svelte-markdown'
@@ -11,32 +13,51 @@
 	import { getContext } from "svelte";
   import type { ArtWithId } from "$lib/typing/art";
 
-  export let artPiece: ArtWithId;
-  export let imageWidth: number;
-  export let detailsWidth: number;
-  export let showMore: boolean;
-  export let gallerySectionHeight: number;
-  export let windowWidth: number;
-  export let analyticsKey: string;
-  export let subnavHeight: number;
-  export let measureH: number;
-  export let scrollRequestUpdate: boolean;
-  export let hideMobileTitle: boolean;
-  export let readMoreClick: (_: boolean) => void;
 
-  export let paginateItem: (s:string) => (n: number) => void;
-  export let paginationDetails: {
+  interface Props {
+    artPiece: ArtWithId;
+    imageWidth: number;
+    detailsWidth: number;
+    showMore: boolean;
+    gallerySectionHeight: number;
+    windowWidth: number;
+    analyticsKey: string;
+    subnavHeight: number;
+    measureH: number;
+    scrollRequestUpdate: boolean;
+    hideMobileTitle: boolean;
+    readMoreClick: (_: boolean) => void;
+    paginateItem: (s:string) => (n: number) => void;
+    paginationDetails: {
     length: number,
     position: number
+  };
   }
 
-  let transitioning = false;
-  let headlineHeight: number;
-  let metaHeight: number;
-  let needsReadmore = false;
-  let detailsDiv: HTMLDivElement;
-  let contentHeight: number;
-  let scrollY: number;
+  let {
+    artPiece,
+    imageWidth,
+    detailsWidth,
+    showMore,
+    gallerySectionHeight,
+    windowWidth = $bindable(),
+    analyticsKey,
+    subnavHeight,
+    measureH = $bindable(),
+    scrollRequestUpdate,
+    hideMobileTitle,
+    readMoreClick,
+    paginateItem,
+    paginationDetails
+  }: Props = $props();
+
+  let transitioning = $state(false);
+  let headlineHeight: number = $state();
+  let metaHeight: number = $state();
+  let needsReadmore = $state(false);
+  let detailsDiv: HTMLDivElement = $state();
+  let contentHeight: number = $state();
+  let scrollY: number = $state();
   
   const setOverflow = () => {
     if (!detailsDiv || windowWidth < mqBreakPoint) return;
@@ -53,10 +74,14 @@
 
   afterNavigate(init);  
 
-  $: if(windowWidth) init();
-  $: if(artPiece.id || detailsDiv.scrollHeight || detailsDiv.clientHeight) setOverflow();
+  run(() => {
+    if(windowWidth) init();
+  });
+  run(() => {
+    if(artPiece.id || detailsDiv.scrollHeight || detailsDiv.clientHeight) setOverflow();
+  });
 
-  let windowHeight: number;
+  let windowHeight: number = $state();
 
   const { getHeaderHeight }: {
     getHeaderHeight: () => number,
@@ -82,7 +107,7 @@
     --snh: ${subnavHeight / rem}rem;
   `}>
    {#key scrollRequestUpdate}
-      <div bind:offsetHeight={measureH} class="mh" />
+      <div bind:offsetHeight={measureH} class="mh"></div>
     {/key}
     <div class="wrap">
       <FullScreen 
@@ -100,14 +125,14 @@
           class:transition={transitioning}
           in:fade|global={{duration: 500}}
           out:fade|global={{duration: 300}}
-          on:introend="{() => {    
+          onintroend={() => {    
             setOverflow()
             transitioning = false;
-          }}"
-          on:outrostart="{() => {
+          }}
+          onoutrostart={() => {
             needsReadmore = false;
             transitioning = true;
-          }}"
+          }}
         >       
           <div class="image" style={`width: ${imageWidth}%`}>
             <img
@@ -133,8 +158,8 @@
                   {#if needsReadmore}
                     <div class="readmore"
                       transition:fade|global={{duration: 300}}
-                      on:click={handleReadMoreClick}
-                      on:keypress={handleReadMoreClick}
+                      onclick={handleReadMoreClick}
+                      onkeypress={handleReadMoreClick}
                     >
                       {!showMore ? "read less" : "read more"}
                     </div>
@@ -144,7 +169,7 @@
                   <div
                     class="fade"
                     transition:fade|global={{duration: 300}}
-                  />
+></div>
                 {/if}
               </div>
             </div>
@@ -168,8 +193,8 @@
                   {#if paginationDetails.position !== 0 }
                     <span
                       class="pagination-link last"
-                      on:click={() => paginateGal(-1)}
-                      on:keypress={() => paginateGal(-1)}
+                      onclick={() => paginateGal(-1)}
+                      onkeypress={() => paginateGal(-1)}
                     >
                       <Arrow color="blue" size="small" direction="left" />
                       last
@@ -181,8 +206,8 @@
                   {#if paginationDetails.position + 1 < paginationDetails.length}
                     <span
                       class="pagination-link next"
-                      on:click={() => paginateGal(1)}
-                      on:keypress={() => paginateGal(1)}
+                      onclick={() => paginateGal(1)}
+                      onkeypress={() => paginateGal(1)}
                     >
                       next
                       <Arrow color="blue" size="small" direction="right" />

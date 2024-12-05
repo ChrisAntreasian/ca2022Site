@@ -2,17 +2,26 @@
 	import { cleanUrlSlug } from "$lib/history";
 	import type { Item } from "./types";
 
-  export let item: Item;
-  export let currentItem: Item;
-  export let parentRoute: string;
-  export let handleLinkClick: (_: Item) => void;
+  interface Props {
+    item: Item;
+    currentItem: Item;
+    parentRoute: string;
+    handleLinkClick: (_: Item) => void;
+  }
+
+  let {
+    item,
+    currentItem,
+    parentRoute,
+    handleLinkClick
+  }: Props = $props();
 </script>
 
 <li class:active={currentItem.id === item.id}>
   <a 
 		class="sidebar-link"
     href={`/${parentRoute}/${currentItem.id}/${cleanUrlSlug(currentItem.title)}`}
-    on:click={() => handleLinkClick(currentItem)}
+    onclick={() => handleLinkClick(currentItem)}
   >
     {#if !currentItem.omitFromNav}
       {#if currentItem.logo} 

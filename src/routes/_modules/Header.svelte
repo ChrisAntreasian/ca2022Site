@@ -8,12 +8,21 @@
 	import { captureBehavior } from "$lib/analytics";
 	import { noScroll } from "$lib/body";
 	
-	export let logo;
-	export let title: string;
-	export let mobileTitle: string;
-	export let headerHeight: number;
+	interface Props {
+		logo: any;
+		title: string;
+		mobileTitle: string;
+		headerHeight: number;
+	}
 
-	let toggleMenuActive = false;
+	let {
+		logo,
+		title,
+		mobileTitle,
+		headerHeight = $bindable()
+	}: Props = $props();
+
+	let toggleMenuActive = $state(false);
 
 	const headlinesDict = {
 		"/": "",
@@ -22,11 +31,11 @@
 		"/web-experience": ": Web"
 	}
 
-	$: headlineBit =  !($page.url.pathname in headlinesDict) ? "" : `${headlinesDict[$page.url.pathname]}`;
+	let headlineBit =  $derived(!($page.url.pathname in headlinesDict) ? "" : `${headlinesDict[$page.url.pathname]}`);
 	
 	const resetMenu = () => { toggleMenuActive = false }
 
-	let windowWidth: number;
+	let windowWidth: number = $state();
 	
 	const headlineClick = () => {
 		resetMenu();
@@ -56,12 +65,12 @@
 	<div class="header-bg"></div>
 	<div class="header-wrap">
 		<div class="header-title">
-			<a on:click={headlineClick} href="/">
+			<a onclick={headlineClick} href="/">
 				<h1><span class="desktop-title">{title}</span><span class="mobile-title">{mobileTitle}</span>{headlineBit}</h1>
 			</a>
 		</div>
 		<figure>
-			<a on:click={logoClick} href="/">
+			<a onclick={logoClick} href="/">
 				<img 
 					src={`${safeImageString("thumbnail")(logo)}`} 
 					alt={title} 
@@ -72,28 +81,28 @@
 			{#if toggleMenuActive}
 				<div 
 					class="bg-overlay" 
-					on:click={resetMenu}
-					on:keypress={resetMenu}
+					onclick={resetMenu}
+					onkeypress={resetMenu}
 					transition:fade|global={{duration: 200}} 
-				/>
+				></div>
 			{/if}
 			<ul class="header-links">
 				<li class:active={$page.url.pathname === "/"}>
-					<a on:click={() => clickNav("Home")} href="/">Home</a>
+					<a onclick={() => clickNav("Home")} href="/">Home</a>
 				</li>
 				<li class:active={$page.url.pathname === "/web-experience"}>
-					<a on:click={() => clickNav("Web Experience")} href="/web-experience">Web Experience</a>
+					<a onclick={() => clickNav("Web Experience")} href="/web-experience">Web Experience</a>
 				</li>
 				<li class:active={$page.url.pathname === "the-quintuplapus"}>
-					<a on:click={() => clickNav("The Quintuplapus")} href="/the-quintuplapus">The Quintuplapus</a>
+					<a onclick={() => clickNav("The Quintuplapus")} href="/the-quintuplapus">The Quintuplapus</a>
 				</li>
 				<li class:active={$page.url.pathname === "/poems"}>
-					<a on:click={() => clickNav("Poems")} href="/poems">Poems</a>
+					<a onclick={() => clickNav("Poems")} href="/poems">Poems</a>
 				</li>
 			</ul>
 		</nav>
 	</div>
-	<button on:click={hamburgerClick} class="hamburger hamburger--spring" class:is-active={toggleMenuActive} type="button">
+	<button onclick={hamburgerClick} class="hamburger hamburger--spring" class:is-active={toggleMenuActive} type="button">
 		<span class="hamburger-box">
 			<span class="hamburger-inner"></span>
 		</span>

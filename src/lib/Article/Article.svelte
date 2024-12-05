@@ -10,7 +10,10 @@
 	import Fullscreen from "$lib/Fullscreen/index.svelte"
 	import { captureBehavior, captureDetails } from "$lib/analytics";
 
-	/*
+	
+
+	interface Props {
+		/*
 		FireFox Screenshot dimensions
 		Mobile Screenshot Window dimensions: (450px, 688px)
 		Desktop Screenshot Window dimensions: (144px, 688px)
@@ -18,23 +21,32 @@
 		Desktop: position (115, 306) dimensions (2886, 1550)
 		Mobile: position: (118, 306) dimensions (892, 1324)
 	*/
+		item: Item;
+		subnavHeight: number;
+		measureHeight: number;
+		scrollRequestUpdate: boolean;
+		analyticsKey: string;
+		wrapBasis: number;
+	}
 
-	export let item: Item;
-	export let subnavHeight: number;
-	export let measureHeight: number;
-  export let scrollRequestUpdate: boolean;
-	export let analyticsKey: string;
-	export let wrapBasis: number;
+	let {
+		item,
+		subnavHeight,
+		measureHeight = $bindable(),
+		scrollRequestUpdate,
+		analyticsKey,
+		wrapBasis
+	}: Props = $props();
 
 	const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
 
-	let fadeOut = false;
-	let windowHeight: number;
+	let fadeOut = $state(false);
+	let windowHeight: number = $state();
 
 	const defaultActiveShot = { i: null, src: null };
 	
-	let paginationDetails = null;
-	let activeShot: { i: number, src: string } = defaultActiveShot; 
+	let paginationDetails = $state(null);
+	let activeShot: { i: number, src: string } = $state(defaultActiveShot); 
 	
 	const resetFullScreen = () => {
 		activeShot = defaultActiveShot;
@@ -88,7 +100,7 @@ style={`
 	--snh: ${subnavHeight / rem}rem;
 `}>
 	{#key scrollRequestUpdate}
-	<div bind:offsetHeight={measureHeight} class="mh" />
+	<div bind:offsetHeight={measureHeight} class="mh"></div>
 	{/key}
 	<div class="wrap" style={`--basis: ${wrapBasis}%`}>
 		{#key item.id}
@@ -96,8 +108,8 @@ style={`
 				class:transition={fadeOut}
 				in:fade|global={{duration: 500, delay: 50}}
 				out:fade|global={{duration: 300}}
-				on:outrostart="{() => {fadeOut = true}}"
-				on:introend="{() => {fadeOut = false}}"
+				onoutrostart={() => {fadeOut = true}}
+				onintroend={() => {fadeOut = false}}
 			>
 				{#if item.logo}
 					<img src={item.logo} alt={item.title} />

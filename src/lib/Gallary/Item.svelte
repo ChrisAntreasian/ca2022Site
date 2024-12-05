@@ -2,18 +2,27 @@
 	import { cleanUrlSlug } from "$lib/history";
   import type { ArtWithId } from "$lib/typing/art";
 
-  export let artPiece: ArtWithId;
-	export let item: ArtWithId;
 
-  export let handleNavArtPieceClick: (id: number) => (e: Event) => void;
   
-  export let parentRoute: string;
+  interface Props {
+    artPiece: ArtWithId;
+    item: ArtWithId;
+    handleNavArtPieceClick: (id: number) => (e: Event) => void;
+    parentRoute: string;
+  }
+
+  let {
+    artPiece,
+    item,
+    handleNavArtPieceClick,
+    parentRoute
+  }: Props = $props();
 
 </script>
 
 <li class:active={item.id === artPiece.id}>
   <a
-    on:click={handleNavArtPieceClick(item.id)}
+    onclick={handleNavArtPieceClick(item.id)}
     href="{`${parentRoute}${item.id}/${cleanUrlSlug(item.attributes.title)}`}"
     class:active="{item.id === artPiece.id}" 
   >

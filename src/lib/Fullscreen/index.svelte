@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import { scale, fade } from "svelte/transition";
 
   import { noScroll } from '$lib/body';
@@ -8,36 +10,54 @@
 	import Arrow from "$lib/arrow/Arrow.svelte";
 	import { onMount } from "svelte";
 
-  export let id: number;
-  export let title: string;
-  export let img: string;
-  export let altText: string;
-  export let analyticsKey: string;
-  export let btnOffset: number = 50;
-  export let targetImage: string = null;
-  export let paginateItem: (s?: string) => (n: number)  => void = null;
-  export let paginationDetails: {
+  
+  interface Props {
+    id: number;
+    title: string;
+    img: string;
+    altText: string;
+    analyticsKey: string;
+    btnOffset?: number;
+    targetImage?: string;
+    paginateItem?: (s?: string) => (n: number)  => void;
+    paginationDetails?: {
     length: number,
     position: number
-  } = null;
-  
-  export let onClose = () => null;
-  export let onOpen = (_: number) => null;
+  };
+    onClose?: any;
+    onOpen?: any;
+  }
 
-  let displayBg = false;
-  let displayImg = false
+  let {
+    id,
+    title,
+    img,
+    altText,
+    analyticsKey,
+    btnOffset = 50,
+    targetImage = null,
+    paginateItem = null,
+    paginationDetails = null,
+    onClose = () => null,
+    onOpen = (_: number) => null
+  }: Props = $props();
+
+  let displayBg = $state(false);
+  let displayImg = $state(false)
   let imageHeight
-  let windowWidth = 0;
+  let windowWidth = $state(0);
   
   const transitionConfig = {duration: 400};
   const mkCaptureDetails = captureDetails({ id: id, name: title });
 
-  let hmw = { h: "auto", mw: "auto" };
+  let hmw = $state({ h: "auto", mw: "auto" });
   
   const wrapperWidth = fromRem(75);
 
-  let maxOverlayWidth = 0
-  $: maxOverlayWidth = (windowWidth <= wrapperWidth ? windowWidth: wrapperWidth) - fromRem(4);
+  let maxOverlayWidth = $state(0)
+  run(() => {
+    maxOverlayWidth = (windowWidth <= wrapperWidth ? windowWidth: wrapperWidth) - fromRem(4);
+  });
 
   onMount(async () => {
     const  i = new Image();
@@ -67,17 +87,19 @@
     captureBehavior(`${analyticsKey} click close fullscreen`,  mkCaptureDetails);
   };
   
-  let needsNext = false;
-  let needsLast = false;
+  let needsNext = $state(false);
+  let needsLast = $state(false);
 
   const paginateFullscreen = paginateItem ? paginateItem(`${analyticsKey} paginate fullscreen`) : null;
   const setNeedsLast = () => paginateFullscreen && paginationDetails && paginationDetails.position + 1 < paginationDetails.length;
   const setNeedsFirst = () => paginateFullscreen && paginationDetails && paginationDetails.position !== 0
   
-  $: if(paginateFullscreen || paginationDetails) {
-    needsLast = setNeedsLast();
-    needsNext = setNeedsFirst();
-  };
+  run(() => {
+    if(paginateFullscreen || paginationDetails) {
+      needsLast = setNeedsLast();
+      needsNext = setNeedsFirst();
+    }
+  });;
  
 </script>
 
@@ -86,16 +108,16 @@
 
 {#if targetImage}
   <div 
-    on:click={open} 
-    on:keypress={open} 
+    onclick={open} 
+    onkeypress={open} 
     class="img open" 
   >
     <img src={targetImage} alt={"click for fullscreen"} />
   </div>
 {:else}
   <div 
-    on:click={open} 
-    on:keypress={open} 
+    onclick={open} 
+    onkeypress={open} 
     class="btn btn-bg open" 
     style={`--btn-offset: ${btnOffset}%`}
   >
@@ -105,10 +127,10 @@
 
 {#if displayBg}
   <div class="bg-overlay"
-    on:click={close}
-    on:keypress={close}
+    onclick={close}
+    onkeypress={close}
     transition:fade|global={transitionConfig}
-  />
+></div>
 {/if}
 
 {#if displayImg}
@@ -118,8 +140,8 @@
       style={`--width: ${toRem(maxOverlayWidth) - 2}rem`}
     >
       <div
-        on:click={close}
-        on:keypress={close}
+        onclick={close}
+        onkeypress={close}
         class="btn btn-bg close"
       >
         x
@@ -141,16 +163,16 @@
         <span 
           class:disabled={!needsNext}
           class="pagination-link last btn-bg" 
-          on:click={() => paginateFullscreen(-1)}
-          on:keypress={() => paginateFullscreen(-1)}
+          onclick={() => paginateFullscreen(-1)}
+          onkeypress={() => paginateFullscreen(-1)}
         >
           <Arrow color="white" size="medium" direction="left" />
         </span>
         <span 
           class:disabled={!needsLast}
           class="pagination-link next btn-bg" 
-          on:click={() => paginateFullscreen(1)}
-          on:keypress={() => paginateFullscreen(1)}
+          onclick={() => paginateFullscreen(1)}
+          onkeypress={() => paginateFullscreen(1)}
         >
           <Arrow color="white" size="medium" direction="right" />
         </span>

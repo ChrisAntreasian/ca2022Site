@@ -1,11 +1,15 @@
 
 <script lang="ts">  
-  export let direction: "top" | "right" | "bottom" | "left";
-  export let color: "blue" | "white"; 
-  export let size: "small" | "medium" | "large" 
+  interface Props {
+    direction: "top" | "right" | "bottom" | "left";
+    color: "blue" | "white";
+    size: "small" | "medium" | "large";
+  }
+
+  let { direction, color, size }: Props = $props();
 </script>
 
-<div class={`arrow ${direction} ${color} ${size}`} />
+<div class={`arrow ${direction} ${color} ${size}`}></div>
 
 <style>
   .arrow {

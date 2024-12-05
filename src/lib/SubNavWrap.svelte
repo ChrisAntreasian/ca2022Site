@@ -6,25 +6,44 @@
 	import { contextHeightKey, fromRem, rem, toRem, type LayoutElemH } from "./spacing";
 
 
-  export let expanded: boolean;
-  export let analyticsKey: string;
-  export let pieceTitle: string;
-  export let subnavHeight: number;
-  export let setExpanded: (_:boolean) => void;
-  export let categoryTitle: string;
 
-  export let asideNav: boolean = false;
-  export let navOffset: string = null;
+  interface Props {
+    expanded: boolean;
+    analyticsKey: string;
+    pieceTitle: string;
+    subnavHeight: number;
+    setExpanded: (_:boolean) => void;
+    categoryTitle: string;
+    asideNav?: boolean;
+    navOffset?: string;
+    left?: import('svelte').Snippet;
+    primary?: import('svelte').Snippet;
+    right?: import('svelte').Snippet;
+  }
 
-  let subnavWidth: number;
-  let windowHeight: number;
-  let windowWidth: number;
-  let scrollY: number;
+  let {
+    expanded,
+    analyticsKey,
+    pieceTitle,
+    subnavHeight = $bindable(),
+    setExpanded,
+    categoryTitle,
+    asideNav = false,
+    navOffset = null,
+    left,
+    primary,
+    right
+  }: Props = $props();
+
+  let subnavWidth: number = $state();
+  let windowHeight: number = $derived(windowHeight * 0.72);
+  let windowWidth: number = $state();
+  let scrollY: number = $state();
   let scrollLogged = false;
 
   const { getMainHeight }: LayoutElemH = getContext(contextHeightKey);
   
-  $: navHeight = windowHeight * 0.72;
+  
 
   const handleMNavClick = () => {
     setExpanded(!expanded)
@@ -57,8 +76,8 @@
 >  
   <div class="subnav-wrap">
     <div class="subnav-handle" 
-      on:click={handleMNavClick} 
-      on:keypress={handleMNavClick}
+      onclick={handleMNavClick} 
+      onkeypress={handleMNavClick}
     >
       <h3>
         {expanded ? categoryTitle: pieceTitle}
@@ -67,17 +86,17 @@
         <Arrow direction={expanded ? "bottom": "top"} color="white" size="medium" />
       </div>
     </div>
-    <slot name="left"></slot>
+    {@render left?.()}
     <ul 
-    on:scroll={scrollMNav} 
+    onscroll={scrollMNav} 
     class:expanded={expanded} 
     style={`
       --nav-height: ${toRem(navHeight)}rem
       ${navOffset ? navOffset : ""}
     `}>
-      <slot name="primary"></slot>  
+      {@render primary?.()}  
     </ul>
   </div>
-  <slot name="right"></slot>
+  {@render right?.()}
 
 </nav>

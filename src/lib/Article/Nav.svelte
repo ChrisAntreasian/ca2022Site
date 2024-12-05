@@ -1,3 +1,4 @@
+<!-- @migration-task Error while migrating Svelte code: Can't migrate code with afterUpdate. Please migrate by hand. -->
 <script lang="ts">
 	import Arrow from "$lib/arrow/Arrow.svelte";
 	import { mqBreakPoint, toRem } from "$lib/spacing";

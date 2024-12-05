@@ -4,7 +4,11 @@
 	import { safeImageString } from "$lib/image";	
   import type { StrapiPageDetails } from "$lib/typing/page";
 
-	export let links: StrapiPageDetails;
+	interface Props {
+		links: StrapiPageDetails;
+	}
+
+	let { links }: Props = $props();
 
 const navClick = captureClickThis("home section");
 </script>
@@ -14,7 +18,7 @@ const navClick = captureClickThis("home section");
 		{#if ni.attributes.title === "Web Experience"}
 			<div class="rich-link w">
 				<h2>
-					<a on:click={() => navClick("Web Experience")} href={ni.attributes.link}>
+					<a onclick={() => navClick("Web Experience")} href={ni.attributes.link}>
 						{ni.attributes.title}
 					</a>
 				</h2>
@@ -25,7 +29,7 @@ const navClick = captureClickThis("home section");
 			<div class="rich-link p">
 				<div class="details">
 					<h2>
-						<a on:click={() => navClick("Poems")} href={ni.attributes.link}>
+						<a onclick={() => navClick("Poems")} href={ni.attributes.link}>
 							{ni.attributes.title}
 						</a>
 					</h2>
@@ -36,7 +40,7 @@ const navClick = captureClickThis("home section");
 					<ul>
 						{#each ni.attributes.poems.data as _}
 							<li>
-								<a on:click={() => navClick(`poem ${_.attributes.title}`)} href={`poems/${_.id}/${cleanUrlSlug(_.attributes.title)}`}>
+								<a onclick={() => navClick(`poem ${_.attributes.title}`)} href={`poems/${_.id}/${cleanUrlSlug(_.attributes.title)}`}>
 									{_.attributes.title}
 								</a>
 							</li>
@@ -49,7 +53,7 @@ const navClick = captureClickThis("home section");
 			<div class="rich-link q">
 				<div>
 					<h2>
-						<a on:click={() => navClick("The Quintuplapus")} href={ni.attributes.link}>
+						<a onclick={() => navClick("The Quintuplapus")} href={ni.attributes.link}>
 							{ni.attributes.title}
 						</a>
 					</h2>
