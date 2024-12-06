@@ -1,3 +1,3 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from "@playwright/test";
 
 // TODO add tests
