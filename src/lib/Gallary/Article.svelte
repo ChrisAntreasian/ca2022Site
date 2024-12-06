@@ -1,6 +1,5 @@
 <script lang="ts">
   import { run } from 'svelte/legacy';
-
   import { afterNavigate } from '$app/navigation';
   import { fade } from "svelte/transition";
   import SvelteMarkdown from 'svelte-markdown'

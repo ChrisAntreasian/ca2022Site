@@ -124,8 +124,8 @@
   
 {#if expanded}
   <div class="bg-overlay"
-    on:click={handleMNavClick}
-    on:keypress={handleMNavClick}
+    onClick={handleMNavClick}
+    onKeypress={handleMNavClick}
     transition:fade|global={{duration: 200}} 
     />
 {/if}
@@ -135,14 +135,14 @@
   bind:clientHeight={subnavHeight} 
   style={`--window-width: ${windowWidth / rem}rem`}>  
     <div class="subnav-wrap">
-    <div class="subnav-handle" on:click={handleMNavClick} on:keypress={handleMNavClick}>
+    <div class="subnav-handle" onClick={handleMNavClick} onKeypress={handleMNavClick}>
       <h3>{expanded ? categoryTitle: artPiece.attributes.title}</h3>
       <div class="subnav-icon">
         <Arrow direction={expanded ? "bottom": "top"} color="white" size="medium" />
       </div>
     </div>
     {#if activeItemIndex > 0}
-      <div class="last" on:click={() => paginateClick(-1)} on:keypress={() => paginateClick(-1)}>
+      <div class="last" onClick={() => paginateClick(-1)} onKeypress={() => paginateClick(-1)}>
         <Arrow direction="left" color="white" size="large" />
       </div>
     {/if}
@@ -158,7 +158,7 @@
         {#each artPieces as _}
           <li class:active={_.id === artPiece.id}>
             <a
-              on:click={handleNavArtPieceClick(_.id)}
+              onClick={handleNavArtPieceClick(_.id)}
               href="{`${parentRoute}${_.id}/${cleanUrlSlug(_.attributes.title)}`}"
               class:active="{_.id === artPiece.id}" 
             >
@@ -172,7 +172,7 @@
       </ul>  
     </div>
     {#if activeItemIndex + itemsPerPage < artPieces.length}
-      <div class="next" on:click={() => paginateClick(1)} on:keypress={() => paginateClick(1)}>
+      <div class="next" onClick={() => paginateClick(1)} onKeypress={() => paginateClick(1)}>
         <Arrow direction="right" color="white" size="large" />
       </div>
     {/if}

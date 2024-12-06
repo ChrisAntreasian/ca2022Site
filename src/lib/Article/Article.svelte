@@ -2,7 +2,7 @@
 
 <script lang="ts">
 	import { fade } from "svelte/transition";
-	import SvelteMarkdown from 'svelte-markdown'
+	import SvelteMarkdown from 'svelte-exmarkdown'
 
 	import { contextHeightKey, rem, type LayoutElemH } from "$lib/spacing";
 	import { getContext } from "svelte";
@@ -42,7 +42,7 @@
 
 	let fadeOut = $state(false);
 	let windowHeight: number = $state();
-
+	let md = $state(item.body);
 	const defaultActiveShot = { i: null, src: null };
 	
 	let paginationDetails = $state(null);
@@ -131,8 +131,10 @@ style={`
 						</a>
 					</div>
 				{/if}
+				
+				<textarea bind:value={md}></textarea>
 
-				<SvelteMarkdown source={item.body} />
+				<SvelteMarkdown {md} />
 
 				{#if item.images}
 					<h4>Screenshots</h4>
