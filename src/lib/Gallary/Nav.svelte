@@ -148,7 +148,7 @@
     {/if}
     <div class="subnav-content">
       <ul 
-        on:scroll={scrollMNav}
+        onscroll={scrollMNav}
         class:expanded={expanded} 
         style={`
           --nav-height: ${toRem(navHeight)}rem;

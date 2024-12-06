@@ -2,7 +2,7 @@
   import { run } from 'svelte/legacy';
   import { afterNavigate } from '$app/navigation';
   import { fade } from "svelte/transition";
-  import SvelteMarkdown from 'svelte-markdown'
+	import SvelteMarkdown from 'svelte-exmarkdown'
 
   import { rem } from "$lib/spacing";
   import Arrow from '$lib/arrow/Arrow.svelte';
@@ -149,10 +149,10 @@
                   class="md-content"
                   style={`--height: ${windowWidth > mqBreakPoint ? `${contentHeight}rem;` : "auto"}`}>
                   <span class="md-content-desktop">
-                    <SvelteMarkdown source={artPiece.attributes.description} />
+                    <SvelteMarkdown md={artPiece.attributes.description} />
                   </span>
                   <span class="md-content-mobile">
-                    <SvelteMarkdown source={`${hideMobileTitle ? "" : artPiece.attributes.title} ${artPiece.attributes.description}`} />
+                    <SvelteMarkdown md={`${hideMobileTitle ? "" : artPiece.attributes.title} ${artPiece.attributes.description}`} />
                   </span>
                   {#if needsReadmore}
                     <div class="readmore"

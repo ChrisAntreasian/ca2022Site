@@ -1,5 +1,6 @@
 
-<script lang="ts">  
+<script lang="ts">
+  
   interface Props {
     direction: "top" | "right" | "bottom" | "left";
     color: "blue" | "white";

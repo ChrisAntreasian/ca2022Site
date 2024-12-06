@@ -3,9 +3,6 @@ import path from "path";
 
 /** @type {import('vite').UserConfig} */
 const config = {
-	build: {
-		target:"es2022"
-	},
 	plugins: [
 		sveltekit(),
 	],

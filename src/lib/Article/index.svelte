@@ -15,7 +15,7 @@
 	export let item: ItemT;
 	export let items: ReadonlyArray<ItemT>;
 	export let analyticsKey: string;
-  export let parentRoute: string;
+  	export let parentRoute: string;
 	export let defaultHeadline: string;
 	export let wrapBasis = 100;
 
@@ -26,7 +26,7 @@
 	let subnavHeight: number;
 
 	let windowHeight: number;
-  let windowWidth: number;
+  	let windowWidth: number;
   let scrollY: number;
 
 	let expanded = false;
@@ -48,16 +48,16 @@
 
 	const setItem = (id: number) => (e: Event) => {
 		e.preventDefault();
-		item = items.filter(_ => _.id === id)[0];
+		item = items.filter(i => i.id === id)[0];
 		clientNavigate(true)(`/${parentRoute}/${item.id}`, item.title);
 	}
 
-	const handleLinkClick = (_: ItemT) => {
-		if (_.id == item.id) return;
-		setItem(_.id);
+	const handleLinkClick = (item: ItemT) => {
+		if (item.id == item.id) return;
+		setItem(item.id);
 		expanded = false;
 		scrollLogged = false;
-		captureBehavior(`click ${analyticsKey}`, captureDetails({ id: _.id, name: _.title }));
+		captureBehavior(`click ${analyticsKey}`, captureDetails({ id: item.id, name: item.title }));
 	}
 
 </script>

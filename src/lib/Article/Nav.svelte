@@ -82,7 +82,7 @@
 			</div>
 		</div>
 		<div class="subnav-content">
-			<ul on:scroll={scrollMNav} class:expanded={expanded} style="--nav-height: {toRem(navHeight)}rem">
+			<ul onscroll={scrollMNav} class:expanded={expanded} style="--nav-height: {toRem(navHeight)}rem">
 				<slot />
 			</ul>
 		</div>
