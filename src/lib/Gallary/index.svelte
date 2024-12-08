@@ -1,7 +1,7 @@
 <!-- @migration-task Error while migrating Svelte code: Can't migrate code with afterUpdate. Please migrate by hand. -->
 <script lang="ts">
 
-	import { afterUpdate, getContext } from "svelte";
+	import {afterUpdate, getContext } from "svelte";
 	import { tweened } from 'svelte/motion';
   import { cubicOut } from 'svelte/easing';
   import { fade } from "svelte/transition";
@@ -72,7 +72,7 @@
 	afterUpdate(initGallery);
 	onMount(initGallery);
 
-	$: if(windowWidth || artPiece.id) initGallery();
+	$effect(() => { if(windowWidth || artPiece.id) initGallery(); });
 
 	let preloadImages = artPieces.map(p => p.attributes.image.data.attributes.url);
 

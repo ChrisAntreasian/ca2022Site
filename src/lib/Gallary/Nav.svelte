@@ -1,7 +1,6 @@
 <!-- @migration-task Error while migrating Svelte code: Can't migrate code with afterUpdate. Please migrate by hand. -->
 <script lang="ts">
 
-  import { afterUpdate } from "svelte";
 	
   import { afterNavigate } from '$app/navigation';
 
@@ -17,6 +16,7 @@
   export let artPiece: ArtWithId;
 	import { noScroll } from "$lib/body";
 	import { fade } from "svelte/transition";
+  import { tick } from 'svelte';
 
 	export let navArtPieceClick: (_: number) => (e: Event) => void;
 
@@ -58,14 +58,14 @@
     itemsPerPage = Math.floor((subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem));
   }
 
-  afterUpdate(initNav);
+  tick(() => initNav());
 	afterNavigate(initNav);
 
-  $: artPieceChanged(artPiece.id)
-  $: navHeight = windowHeight * 0.72;
+  $effect(() => { artPieceChanged(artPiece.id); });
+  const navHeight = $derived(windowHeight * 0.72);
 
-  $: if(subnavWidth && scrollY) initNav();
-  $: if(scrollY || windowWidth || gallarySectionHeight) checkIsAbsolute();
+  $effect(() => { if(subnavWidth && scrollY) initNav(); });
+  $effect(() => { if(scrollY || windowWidth || gallarySectionHeight) checkIsAbsolute(); });
 
   const apPosition = (apid: number) => artPieces.findIndex(_ => _.id === apid);
   

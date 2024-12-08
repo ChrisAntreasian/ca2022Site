@@ -15,10 +15,12 @@
 	export let item: ItemT;
 	export let items: ReadonlyArray<ItemT>;
 	export let analyticsKey: string;
-  	export let parentRoute: string;
+  export let parentRoute: string;
 	export let defaultHeadline: string;
 	export let wrapBasis = 100;
 
+	let { children } = $props();
+	
 	let contentHeight: number;
 	let measureHeight: number;
 	let scrollRequestUpdate: boolean;
@@ -26,7 +28,7 @@
 	let subnavHeight: number;
 
 	let windowHeight: number;
-  	let windowWidth: number;
+  let windowWidth: number;
   let scrollY: number;
 
 	let expanded = false;
@@ -41,10 +43,10 @@
     isAbsolute = scrollY + windowHeight - subnavHeight > measureHeight;
 	};
 
-	afterUpdate(checkIsAbsolute);
+	tick(checkIsAbsolute);
 	afterNavigate(checkIsAbsolute);
 
-  $: if(scrollY || windowWidth || contentHeight) checkIsAbsolute();
+  $effect(() => { if(scrollY || windowWidth || contentHeight) checkIsAbsolute(); });
 
 	const setItem = (id: number) => (e: Event) => {
 		e.preventDefault();
@@ -80,14 +82,14 @@
 		bind:expanded={expanded}
 		defaultHeadline={defaultHeadline}
 	>
-		{#each items as _ (_.id)}
+		{#each items as i (i.id)}
 			<Item 
 				item={item} 
-				currentItem={_} 
+				currentItem={i} 
 				parentRoute={parentRoute} 
 				handleLinkClick={handleLinkClick}			
 			/>
 		{/each}
-		<slot />
+		{@render children?.()}
 	</Nav>
 </section>

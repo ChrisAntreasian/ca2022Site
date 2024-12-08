@@ -55,13 +55,13 @@
 
 	const setPaginationDetails = (id: number) => {
 		 paginationDetails = {
-			position:  item.images.findIndex(_ => _.id === id),
+			position:  item.images.findIndex(img => img.id === id),
 			length: item.images ? item.images.length : 0
 		 }
 	}
 	
 	const paginateItem = (k?: string) => (n: number) => {
-		const index = item.images.findIndex(_ => _.id === item.images[activeShot.i + n].id);
+		const index = item.images.findIndex(img => img.id === item.images[activeShot.i + n].id);
 		const {id, large} = item.images[index]
 
 		setPaginationDetails(id);

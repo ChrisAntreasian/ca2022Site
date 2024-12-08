@@ -23,6 +23,8 @@
 
 	let scrollLogged = false;
 	let isAbsolute: boolean;
+	
+	let children = $props();
 
 	const checkIsAbsolute = () => {
 		if (windowWidth > mqBreakPoint) return
@@ -34,8 +36,8 @@
 	afterUpdate(checkIsAbsolute);
 	afterNavigate(checkIsAbsolute);
 
-	$: navHeight = windowHeight * 0.72;
-  $: if(scrollY || windowWidth || contentHeight) checkIsAbsolute();
+	const navHeight = derived(windowHeight * 0.72);
+  $effect(() => if(scrollY || windowWidth || contentHeight) checkIsAbsolute());
 
 	const handleMNavHandle = () => {
     expanded = !expanded
@@ -83,7 +85,7 @@
 		</div>
 		<div class="subnav-content">
 			<ul onscroll={scrollMNav} class:expanded={expanded} style="--nav-height: {toRem(navHeight)}rem">
-				<slot />
+				{@render children?.()}
 			</ul>
 		</div>
 	</div>
