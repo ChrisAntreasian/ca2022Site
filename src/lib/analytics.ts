@@ -15,7 +15,7 @@ const mkDistinctId = (arr: string[]): string => {
   if (!arr.includes(dId)) return dId;
   mkDistinctId(arr);
 };
-import.meta.env.PROD;
+//import.meta.env.PROD;
 export const initDistinctId = async (cookies: Cookies) => {
   const cid = cookies.get("distinctId");
   if (cid) return;

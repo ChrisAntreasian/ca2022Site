@@ -61,8 +61,8 @@
 
 {#if expanded}
 	<div class="bg-overlay"
-		onClick={handleMNavHandle}
-		onKeypress={handleMNavHandle}
+		onclick={handleMNavHandle}
+		onkeypress={handleMNavHandle}
 		transition:fade|global={{duration: 200}} 
 	/>
 {/if}
@@ -73,8 +73,8 @@
 >
 	<div class="subnav-wrap">
 		<div class="subnav-handle" 
-			onClick={handleMNavHandle}
-			onKeypress={handleMNavHandle}
+			onclick={handleMNavHandle}
+			onkeypress={handleMNavHandle}
 		>
 			<h3>{expanded ? defaultHeadline : activeTitle}</h3>
 			<div class="subnav-action">

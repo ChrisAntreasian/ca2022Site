@@ -18,12 +18,12 @@ export const writeFsTE = <A>(d: [A, string]): HttpErrTE<A> =>
       timestamp: Date.now(),
       data: d[0],
     },
-    (_) =>
+    (d) =>
       TE.tryCatch(
         () =>
           fs.promises.writeFile(
             `./${dataPath}/${d[1]}.json`,
-            JSON.stringify(_),
+            JSON.stringify(d),
           ),
         () => e500("Failed to write the data."),
       ),
@@ -40,8 +40,8 @@ const routeKeys = [
 ];
 type RouteKeyU = (typeof routeKeys)[number];
 
-const keyGuard = (_: string): _ is RouteKeyU =>
-  FN.pipe(routeKeys, RA.elem(s.Eq)(_));
+const keyGuard = (k: string): k is RouteKeyU =>
+  FN.pipe(routeKeys, RA.elem(s.Eq)(k));
 
 const mkKeyE = (rid: string): HttpErrE<RouteKeyU> =>
   FN.pipe(

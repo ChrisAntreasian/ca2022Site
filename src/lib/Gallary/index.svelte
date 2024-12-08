@@ -169,7 +169,7 @@
 		paginateItem={paginateItem}
 		paginationDetails={paginationDetails}
 		windowWidth={windowWidth}
-    analyticsKey={analyticsKey}
+    	analyticsKey={analyticsKey}
 		subnavHeight={subnavHeight}
 		scrollRequestUpdate={scrollRequestUpdate}
 		bind:measureH={measureH}

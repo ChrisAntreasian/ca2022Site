@@ -7,14 +7,14 @@ import type * as t from "io-ts";
 type HTTPMethods = "GET" | "POST";
 
 type QuryProps = {
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   populate?: string | string[];
 };
 
 type FetchInit = {
   headers: { "content-type": string };
   method: HTTPMethods;
-  body: any;
+  body: Record<string, unknown>;
 };
 
 const baseApi = import.meta.env.VITE_BASE_API;

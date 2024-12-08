@@ -5,7 +5,7 @@ export const load: PageServerLoad = async ({ params }) => {
   const d = D.data;
   const aid = parseInt(params.aid);
 
-  let artPieces = d.data
+  const artPieces = d.data
     .sort((a, b) => a.attributes.order - b.attributes.order)
     .map((a) => ({
       ...a,
