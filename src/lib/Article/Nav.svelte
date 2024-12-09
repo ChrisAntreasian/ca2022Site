@@ -23,8 +23,8 @@
     measureHeight,
     scrollRequestUpdate,
     defaultHeadline,
-    subnavHeight,
-    expanded,
+    subnavHeight = $bindable(),
+    expanded = $bindable(false),
     children,
   } = $props();
 
@@ -85,10 +85,12 @@
 {#if expanded}
   <div
     class="bg-overlay"
+    role="button"
+    tabindex="0"
     onclick={handleMNavHandle}
     onkeypress={handleMNavHandle}
     transition:fade|global={{ duration: 200 }}
-  />
+  ></div>
 {/if}
 
 <nav

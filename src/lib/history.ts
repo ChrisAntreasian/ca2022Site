@@ -10,9 +10,10 @@ export const cleanUrlSlug = (slug: string) => {
   return str;
 };
 
-export const clientNavigate =
-  (scroll: boolean) => (url: string, slug?: string) => {
-    const s = slug ? `/${cleanUrlSlug(slug)}` : "";
-    history.pushState({}, "", `${url}${s}`);
-    scroll && window.scrollTo({ top: 0 });
-  };
+export const clientNavigate = (scroll: boolean) => (url: string, slug?: string) => {
+  const s = slug ? `/${cleanUrlSlug(slug)}` : "";
+  history.pushState({}, "", `${url}${s}`);
+  if (scroll) {
+    window.scrollTo({ top: 0 });
+  } 
+};

@@ -11,12 +11,6 @@ type QuryProps = {
   populate?: string | string[];
 };
 
-type FetchInit = {
-  headers: { "content-type": string };
-  method: HTTPMethods;
-  body: Record<string, unknown>;
-};
-
 const baseApi = import.meta.env.VITE_BASE_API;
 
 const toJSON = async (res: Response) => await res.json();
@@ -30,7 +24,7 @@ const init =
 
 const get = init("GET");
 
-const request = (urlBase: string, init: FetchInit) => (resource: string) =>
+const request = (urlBase: string, init: RequestInit) => (resource: string) =>
   TE.tryCatch(
     () => fetch(`${urlBase}/api/${resource}`, init),
     () => error(500, "Server Request Failed"),
@@ -47,7 +41,7 @@ const decode = <A>(
 
 const parse =
   <A>(codec: t.Type<A>) =>
-  (init: FetchInit) =>
+  (init: RequestInit) =>
     FN.flow(
       request(baseApi, init),
       TE.filterOrElse(
