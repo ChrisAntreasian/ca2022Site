@@ -1,7 +1,4 @@
-<!-- @migration-task Error while migrating Svelte code: Can't migrate code with afterUpdate. Please migrate by hand. -->
-<script lang="ts">
-
-	
+<script lang="ts">	
   import { afterNavigate } from '$app/navigation';
 
 	import { cleanUrlSlug } from "$lib/history";
@@ -11,26 +8,30 @@
   
   import Arrow from "$lib/arrow/Arrow.svelte"
   import type { ArtWithId } from "$lib/typing/art";
-
-  export let artPieces: Array<ArtWithId>;
-  export let artPiece: ArtWithId;
+  
 	import { noScroll } from "$lib/body";
 	import { fade } from "svelte/transition";
   import { tick } from 'svelte';
+  // export let artPieces: Array<ArtWithId>;
+  // export let artPiece: ArtWithId;
 
-	export let navArtPieceClick: (_: number) => (e: Event) => void;
 
-  export let expanded: boolean;
-  export let setExpanded: (_:boolean) => void;
+	// export let navArtPieceClick: (_: number) => (e: Event) => void;
 
-  export let categoryTitle: string;
-  export let analyticsKey: string;
-  export let parentRoute: string;
-  export let subnavHeight: number;
-  export let gallarySectionHeight: number;
-  export let scrollRequestUpdate: boolean;
-  export let measureH: number;
+  // export let expanded: boolean;
+  // export let setExpanded: (_:boolean) => void;
 
+  // export let categoryTitle: string;
+  // export let analyticsKey: string;
+  // export let parentRoute: string;
+  // export let subnavHeight: number;
+  // export let gallarySectionHeight: number;
+  // export let scrollRequestUpdate: boolean;
+  // export let measureH: number;
+  
+  type NavProps = { expanded: boolean, setExpanded: (_:boolean) => void, categoryTitle: string, analyticsKey: string, parentRoute: string, subnavHeight: number, gallarySectionHeight: number, scrollRequestUpdate: boolean, measureH: number, artPieces: Array<ArtWithId>, artPiece: ArtWithId, navArtPieceClick: (_: number) => (e: Event) => void };
+  let { expanded, setExpanded, categoryTitle, analyticsKey, parentRoute, subnavHeight, gallarySectionHeight, scrollRequestUpdate, measureH, artPieces, artPiece, navArtPieceClick }: NavProps = $props();
+  
   let windowHeight: number;
   let windowWidth: number;
   
@@ -58,8 +59,14 @@
     itemsPerPage = Math.floor((subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem));
   }
 
-  tick(() => initNav());
-	afterNavigate(initNav);
+  $effect.pre(() => {
+		async () => { 
+			await tick(); 
+			initNav();
+		};
+	});
+
+  afterNavigate(initNav);
 
   $effect(() => { artPieceChanged(artPiece.id); });
   const navHeight = $derived(windowHeight * 0.72);

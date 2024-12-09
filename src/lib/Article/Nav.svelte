@@ -1,9 +1,9 @@
-<!-- @migration-task Error while migrating Svelte code: Can't migrate code with afterUpdate. Please migrate by hand. -->
+
 <script lang="ts">
 	import Arrow from "$lib/arrow/Arrow.svelte";
 	import { mqBreakPoint, toRem } from "$lib/spacing";
 	import { captureBehavior } from "$lib/analytics";
-	import { afterUpdate } from "svelte";
+	import { tick } from "svelte";
 	import { afterNavigate } from "$app/navigation";
 	import { noScroll } from "$lib/body";
 	import { fade } from "svelte/transition";
@@ -33,11 +33,22 @@
     isAbsolute = scrollY + windowHeight - subnavHeight > measureHeight;
 	};
 
-	afterUpdate(checkIsAbsolute);
-	afterNavigate(checkIsAbsolute);
 
-	const navHeight = derived(windowHeight * 0.72);
-  $effect(() => if(scrollY || windowWidth || contentHeight) checkIsAbsolute());
+	// $effect.pre(() => {
+	// 	tick().then(_ => checkIsAbsolute);
+	// });
+
+	$effect.pre(() => {
+		async () => { 
+			await tick(); 
+			checkIsAbsolute();
+		};
+	});
+	
+		afterNavigate(checkIsAbsolute);
+
+	const navHeight = $derived(windowHeight * 0.72);
+  $effect(() => { if(scrollY || windowWidth || contentHeight) checkIsAbsolute() });
 
 	const handleMNavHandle = () => {
     expanded = !expanded

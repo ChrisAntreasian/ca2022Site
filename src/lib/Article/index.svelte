@@ -1,8 +1,7 @@
-<!-- @migration-task Error while migrating Svelte code: Can't migrate code with afterUpdate. Please migrate by hand. -->
 <script lang="ts">
 	import { mqBreakPoint } from "$lib/spacing";
 	import { captureBehavior, captureDetails } from "$lib/analytics";
-	import { afterUpdate } from "svelte";
+	import { tick } from "svelte";
 	import { afterNavigate } from "$app/navigation";
 	import { fade } from "svelte/transition";
 	import { clientNavigate } from "$lib/history";
@@ -43,7 +42,12 @@
     isAbsolute = scrollY + windowHeight - subnavHeight > measureHeight;
 	};
 
-	tick(checkIsAbsolute);
+	$effect.pre(() => {
+		async () => { 
+			await tick(); 
+			checkIsAbsolute();
+		};
+	});
 	afterNavigate(checkIsAbsolute);
 
   $effect(() => { if(scrollY || windowWidth || contentHeight) checkIsAbsolute(); });

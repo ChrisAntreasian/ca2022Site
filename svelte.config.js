@@ -7,11 +7,10 @@ const config = {
   preprocess: preprocess(),
   kit: {
     adapter: adapterauto(),
-        alias: {
-          $lib: "./src/lib",
-          $data: "./src/data"
-        }
-      
+    alias: {
+      $lib: "./src/lib",
+      $data: "./src/data",
+    },
   },
 };
 
