@@ -6,13 +6,13 @@ export const load: PageServerLoad = async ({ params }) => {
   const d = D.data;
   const att = d.data[0].attributes;
 
-  const omitIds = att.omit.data.map((_) => _.id);
+  const omitIds = att.omit.data.map((d) => d.id);
 
   const artPieces = att.art_pieces.data
-    .filter((_) => !omitIds.includes(_.id))
+    .filter((p) => !omitIds.includes(p.id))
     .sort((a, b) => a.attributes.order - b.attributes.order);
 
-  const artPiece = artPieces.filter((_) => _.id === aid)[0];
+  const artPiece = artPieces.filter((p) => p.id === aid)[0];
   const categoryTitle = att.title;
 
   return {

@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ params }) => {
     }));
 
   const artPiece = aid
-    ? artPieces.filter((_) => _.id === aid)[0]
+    ? artPieces.filter((p) => p.id === aid)[0]
     : artPieces[0];
 
   return {

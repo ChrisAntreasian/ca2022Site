@@ -40,7 +40,7 @@ const getResP =  getNoOpts(pageResC)(`pages?${pq}`);
 
 const buildTupple = TE.chain(() => FN.pipe(
   [writeFile<DetailsRes>("layout")(getResL), writeFile<PageRes>("landing")(getResP)] as const,
-  _ => AP.sequenceT(TE.ApplyPar)(..._),
+  x => AP.sequenceT(TE.ApplyPar)(...x),
 ));
 
 const wf = FN.flow(buildTupple, combineResp)

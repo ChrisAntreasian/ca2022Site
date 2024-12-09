@@ -12,7 +12,7 @@ export const safeImageString = (
         RR.lookup(size),
         O.fold(
           () => attr.url,
-          (_) => _.url,
+          (img) => img.url,
         ),
       ),
   );

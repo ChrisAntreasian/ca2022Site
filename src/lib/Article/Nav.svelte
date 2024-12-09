@@ -2,19 +2,31 @@
   import Arrow from "$lib/arrow/Arrow.svelte";
   import { mqBreakPoint, toRem } from "$lib/spacing";
   import { captureBehavior } from "$lib/analytics";
-  import { tick } from "svelte";
+  import { tick, type Snippet } from "svelte";
   import { afterNavigate } from "$app/navigation";
   import { noScroll } from "$lib/body";
   import { fade } from "svelte/transition";
+  type NavProps = {
+    activeTitle: string;
+    contentHeight: number;
+    measureHeight: number;
+    scrollRequestUpdate: boolean;
+    defaultHeadline: string;
+    children?: Snippet;
+    subnavHeight: number;
+    expanded: boolean;
+  };
 
-  export let activeTitle: string;
-  export let contentHeight: number;
-  export let measureHeight: number;
-  export let scrollRequestUpdate: boolean;
-  export let defaultHeadline: string;
-
-  export let subnavHeight: number;
-  export let expanded;
+  let {
+    activeTitle,
+    contentHeight,
+    measureHeight,
+    scrollRequestUpdate,
+    defaultHeadline,
+    subnavHeight,
+    expanded,
+    children,
+  } = $props();
 
   let windowHeight: number;
   let windowWidth: number;
@@ -22,8 +34,6 @@
 
   let scrollLogged = false;
   let isAbsolute: boolean;
-
-  let children = $props();
 
   const checkIsAbsolute = () => {
     if (windowWidth > mqBreakPoint) return;

@@ -19,7 +19,7 @@ export const uploadS3File =
   (s3: AWS.S3) =>
   async (k: string, f: AWS.S3.Types.PutObjectRequest["Body"]) => {
     try {
-      const stored = await s3
+      await s3
         .upload({
           Bucket: import.meta.env.VITE_AWS_BUCKET,
           Key: k,

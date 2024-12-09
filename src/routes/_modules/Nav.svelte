@@ -41,13 +41,13 @@
         <div>
           <h4>My Favorites</h4>
           <ul>
-            {#each ni.attributes.poems.data as _}
+            {#each ni.attributes.poems.data as p}
               <li>
                 <a
-                  onclick={() => navClick(`poem ${_.attributes.title}`)}
-                  href={`poems/${_.id}/${cleanUrlSlug(_.attributes.title)}`}
+                  onclick={() => navClick(`poem ${p.attributes.title}`)}
+                  href={`poems/${p.id}/${cleanUrlSlug(p.attributes.title)}`}
                 >
-                  {_.attributes.title}
+                  {p.attributes.title}
                 </a>
               </li>
             {/each}

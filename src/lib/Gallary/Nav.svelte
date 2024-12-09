@@ -18,21 +18,6 @@
   import { noScroll } from "$lib/body";
   import { fade } from "svelte/transition";
   import { tick } from "svelte";
-  // export let artPieces: Array<ArtWithId>;
-  // export let artPiece: ArtWithId;
-
-  // export let navArtPieceClick: (_: number) => (e: Event) => void;
-
-  // export let expanded: boolean;
-  // export let setExpanded: (_:boolean) => void;
-
-  // export let categoryTitle: string;
-  // export let analyticsKey: string;
-  // export let parentRoute: string;
-  // export let subnavHeight: number;
-  // export let gallarySectionHeight: number;
-  // export let scrollRequestUpdate: boolean;
-  // export let measureH: number;
 
   type NavProps = {
     expanded: boolean;
@@ -46,7 +31,7 @@
     measureH: number;
     artPieces: Array<ArtWithId>;
     artPiece: ArtWithId;
-    navArtPieceClick: (_: number) => (e: Event) => void;
+    navArtPieceClick: (i: number) => (e: Event) => void;
   };
   let {
     expanded,
@@ -114,7 +99,7 @@
   });
 
   const apPosition = (apid: number) =>
-    artPieces.findIndex((_) => _.id === apid);
+    artPieces.findIndex((p) => p.id === apid);
 
   const paginate = (n: number) => {
     const aii = activeItemIndex + n * (itemsPerPage - 1);
@@ -216,16 +201,16 @@
           --nav-offset: ${toRem(activeItemIndex * thubmnailWidth) * -1}rem;
         `}
       >
-        {#each artPieces as _}
-          <li class:active={_.id === artPiece.id}>
+        {#each artPieces as p}
+          <li class:active={p.id === artPiece.id}>
             <a
-              onclick={handleNavArtPieceClick(_.id)}
-              href={`${parentRoute}${_.id}/${cleanUrlSlug(_.attributes.title)}`}
-              class:active={_.id === artPiece.id}
+              onclick={handleNavArtPieceClick(p.id)}
+              href={`${parentRoute}${p.id}/${cleanUrlSlug(p.attributes.title)}`}
+              class:active={p.id === artPiece.id}
             >
               <img
-                src={`${_.attributes.image.data.attributes.formats.thumbnail.url}`}
-                alt={_.attributes.description}
+                src={`${p.attributes.image.data.attributes.formats.thumbnail.url}`}
+                alt={p.attributes.description}
               />
             </a>
           </li>

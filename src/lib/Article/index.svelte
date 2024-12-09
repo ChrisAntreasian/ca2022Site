@@ -1,7 +1,7 @@
 <script lang="ts">
   import { mqBreakPoint } from "$lib/spacing";
   import { captureBehavior, captureDetails } from "$lib/analytics";
-  import { tick } from "svelte";
+  import { tick, type Snippet } from "svelte";
   import { afterNavigate } from "$app/navigation";
   import { fade } from "svelte/transition";
   import { clientNavigate } from "$lib/history";
@@ -10,15 +10,25 @@
   import Item from "./Item.svelte";
 
   import type { Item as ItemT } from "./types";
+  type ArticleProps = {
+    item: ItemT;
+    items: ReadonlyArray<ItemT>;
+    analyticsKey: string;
+    parentRoute: string;
+    defaultHeadline: string;
+    wrapBasis: number;
+    children?: Snippet;
+  };
 
-  export let item: ItemT;
-  export let items: ReadonlyArray<ItemT>;
-  export let analyticsKey: string;
-  export let parentRoute: string;
-  export let defaultHeadline: string;
-  export let wrapBasis = 100;
-
-  let { children } = $props();
+  let {
+    item,
+    items,
+    analyticsKey,
+    parentRoute,
+    defaultHeadline,
+    wrapBasis,
+    children,
+  }: ArticleProps = $props();
 
   let contentHeight: number;
   let measureHeight: number;

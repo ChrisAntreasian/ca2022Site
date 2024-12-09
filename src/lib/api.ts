@@ -19,7 +19,7 @@ type FetchInit = {
 
 const baseApi = import.meta.env.VITE_BASE_API;
 
-const toJSON = async (_: Response) => await _.json();
+const toJSON = async (res: Response) => await res.json();
 
 const init =
   (method: HTTPMethods) => (data: O.Option<Record<string, unknown>>) => ({
@@ -42,7 +42,7 @@ const decode = <A>(
   FN.flow(
     codec.decode,
     TE.fromEither,
-    TE.mapLeft((_) => error(500, "Data Did Not Match The Codec")),
+    TE.mapLeft(() => error(500, "Data Did Not Match The Codec")),
   );
 
 const parse =
@@ -51,12 +51,12 @@ const parse =
     FN.flow(
       request(baseApi, init),
       TE.filterOrElse(
-        (_) => _.status !== 404,
+        (res) => res.status !== 404,
         () => error(404, "Not Found"),
       ),
-      TE.chain((_) =>
+      TE.chain((res) =>
         TE.tryCatch(
-          () => toJSON(_),
+          () => toJSON(res),
           () => error(500, "Faild To Parse JSON"),
         ),
       ),
@@ -65,5 +65,5 @@ const parse =
 
 export const getNoOpts = <A>(codec: t.Type<A>) =>
   FN.pipe(O.none, get, parse(codec));
-export const queryStr = (_: QuryProps) =>
-  qs.stringify(_, { encodeValuesOnly: true });
+export const queryStr = (p: QuryProps) =>
+  qs.stringify(p, { encodeValuesOnly: true });

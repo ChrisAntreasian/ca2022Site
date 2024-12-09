@@ -52,9 +52,9 @@
     captureBehavior("click header logo");
   };
 
-  const clickNav = (_: string) => {
+  const clickNav = (elem: string) => {
     resetMenu();
-    captureBehavior(`click header nav ${_}`);
+    captureBehavior(`click header nav ${elem}`);
   };
 
   const hamburgerClick = () => {

@@ -8,5 +8,5 @@ export const throwErrIO = IO.of((e: HttpError) => {
   throw e;
 });
 
-export const e500 = (_: string) => error(500, _);
-export const e403 = (_: string) => error(500, _);
+export const e500 = (msg: string) => error(500, msg);
+export const e403 = (msg: string) => error(500, msg);

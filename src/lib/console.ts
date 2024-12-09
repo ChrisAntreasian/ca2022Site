@@ -1,4 +1,4 @@
-export const cLog = (s: string) => (_: unknown) => {
-  console.log(s, _);
-  return _;
+export const cLog = (s: string) => (v: unknown) => {
+  console.log(s, v);
+  return v;
 };
