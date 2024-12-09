@@ -1,99 +1,102 @@
 <script lang="ts">
-	import { mqBreakPoint } from "$lib/spacing";
-	import { captureBehavior, captureDetails } from "$lib/analytics";
-	import { tick } from "svelte";
-	import { afterNavigate } from "$app/navigation";
-	import { fade } from "svelte/transition";
-	import { clientNavigate } from "$lib/history";
-	import Article from "./Article.svelte";
-	import Nav from "./Nav.svelte";
-	import Item from "./Item.svelte"
-	
-	import type { Item as ItemT } from "./types";
-	
-	export let item: ItemT;
-	export let items: ReadonlyArray<ItemT>;
-	export let analyticsKey: string;
+  import { mqBreakPoint } from "$lib/spacing";
+  import { captureBehavior, captureDetails } from "$lib/analytics";
+  import { tick } from "svelte";
+  import { afterNavigate } from "$app/navigation";
+  import { fade } from "svelte/transition";
+  import { clientNavigate } from "$lib/history";
+  import Article from "./Article.svelte";
+  import Nav from "./Nav.svelte";
+  import Item from "./Item.svelte";
+
+  import type { Item as ItemT } from "./types";
+
+  export let item: ItemT;
+  export let items: ReadonlyArray<ItemT>;
+  export let analyticsKey: string;
   export let parentRoute: string;
-	export let defaultHeadline: string;
-	export let wrapBasis = 100;
+  export let defaultHeadline: string;
+  export let wrapBasis = 100;
 
-	let { children } = $props();
-	
-	let contentHeight: number;
-	let measureHeight: number;
-	let scrollRequestUpdate: boolean;
+  let { children } = $props();
 
-	let subnavHeight: number;
+  let contentHeight: number;
+  let measureHeight: number;
+  let scrollRequestUpdate: boolean;
 
-	let windowHeight: number;
+  let subnavHeight: number;
+
+  let windowHeight: number;
   let windowWidth: number;
   let scrollY: number;
 
-	let expanded = false;
-	
-	let scrollLogged = false;
-	let isAbsolute: boolean;
+  let expanded = false;
 
-	const checkIsAbsolute = () => {
-		if (windowWidth > mqBreakPoint) return
-		if(!scrollRequestUpdate) scrollRequestUpdate = true;
+  let scrollLogged = false;
+  let isAbsolute: boolean;
+
+  const checkIsAbsolute = () => {
+    if (windowWidth > mqBreakPoint) return;
+    if (!scrollRequestUpdate) scrollRequestUpdate = true;
 
     isAbsolute = scrollY + windowHeight - subnavHeight > measureHeight;
-	};
+  };
 
-	$effect.pre(() => {
-		async () => { 
-			await tick(); 
-			checkIsAbsolute();
-		};
-	});
-	afterNavigate(checkIsAbsolute);
+  $effect.pre(() => {
+    async () => {
+      await tick();
+      checkIsAbsolute();
+    };
+  });
+  afterNavigate(checkIsAbsolute);
 
-  $effect(() => { if(scrollY || windowWidth || contentHeight) checkIsAbsolute(); });
+  $effect(() => {
+    if (scrollY || windowWidth || contentHeight) checkIsAbsolute();
+  });
 
-	const setItem = (id: number) => (e: Event) => {
-		e.preventDefault();
-		item = items.filter(i => i.id === id)[0];
-		clientNavigate(true)(`/${parentRoute}/${item.id}`, item.title);
-	}
+  const setItem = (id: number) => (e: Event) => {
+    e.preventDefault();
+    item = items.filter((i) => i.id === id)[0];
+    clientNavigate(true)(`/${parentRoute}/${item.id}`, item.title);
+  };
 
-	const handleLinkClick = (item: ItemT) => {
-		if (item.id == item.id) return;
-		setItem(item.id);
-		expanded = false;
-		scrollLogged = false;
-		captureBehavior(`click ${analyticsKey}`, captureDetails({ id: item.id, name: item.title }));
-	}
-
+  const handleLinkClick = (item: ItemT) => {
+    if (item.id == item.id) return;
+    setItem(item.id);
+    expanded = false;
+    scrollLogged = false;
+    captureBehavior(
+      `click ${analyticsKey}`,
+      captureDetails({ id: item.id, name: item.title })
+    );
+  };
 </script>
 
-<section class="w-sidebar" transition:fade|global={{duration: 300}} bind:clientHeight={contentHeight}>
-	<Article 
-		item={item} 
-		subnavHeight={subnavHeight}
-		scrollRequestUpdate={scrollRequestUpdate}
-		bind:measureHeight={measureHeight}
-		analyticsKey={analyticsKey}
-		wrapBasis={wrapBasis}
-	/>
-	<Nav
-		activeTitle={item.title}
-		contentHeight={contentHeight}
-		measureHeight={measureHeight}
-		scrollRequestUpdate={scrollRequestUpdate}
-		bind:subnavHeight={subnavHeight}
-		bind:expanded={expanded}
-		defaultHeadline={defaultHeadline}
-	>
-		{#each items as i (i.id)}
-			<Item 
-				item={item} 
-				currentItem={i} 
-				parentRoute={parentRoute} 
-				handleLinkClick={handleLinkClick}			
-			/>
-		{/each}
-		{@render children?.()}
-	</Nav>
+<section
+  class="w-sidebar"
+  transition:fade|global={{ duration: 300 }}
+  bind:clientHeight={contentHeight}
+>
+  <Article
+    {item}
+    {subnavHeight}
+    {scrollRequestUpdate}
+    bind:measureHeight
+    {analyticsKey}
+    {wrapBasis}
+  />
+  <Nav
+    activeTitle={item.title}
+    {contentHeight}
+    {measureHeight}
+    {scrollRequestUpdate}
+    bind:subnavHeight
+    bind:expanded
+    {defaultHeadline}
+  >
+    {#each items as i (i.id)}
+      <Item {item} currentItem={i} {parentRoute} {handleLinkClick} />
+    {/each}
+    {@render children?.()}
+  </Nav>
 </section>

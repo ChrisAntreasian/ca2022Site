@@ -1,9 +1,7 @@
 <script lang="ts">
-	import { cleanUrlSlug } from "$lib/history";
+  import { cleanUrlSlug } from "$lib/history";
   import type { ArtWithId } from "$lib/typing/art";
 
-
-  
   interface Props {
     artPiece: ArtWithId;
     item: ArtWithId;
@@ -11,24 +9,18 @@
     parentRoute: string;
   }
 
-  let {
-    artPiece,
-    item,
-    handleNavArtPieceClick,
-    parentRoute
-  }: Props = $props();
-
+  let { artPiece, item, handleNavArtPieceClick, parentRoute }: Props = $props();
 </script>
 
 <li class:active={item.id === artPiece.id}>
   <a
     onclick={handleNavArtPieceClick(item.id)}
-    href="{`${parentRoute}${item.id}/${cleanUrlSlug(item.attributes.title)}`}"
-    class:active="{item.id === artPiece.id}" 
+    href={`${parentRoute}${item.id}/${cleanUrlSlug(item.attributes.title)}`}
+    class:active={item.id === artPiece.id}
   >
-    <img 
-      src={`${item.attributes.image.data.attributes.formats.thumbnail.url}`} 
-      alt={item.attributes.description} 
+    <img
+      src={`${item.attributes.image.data.attributes.formats.thumbnail.url}`}
+      alt={item.attributes.description}
     />
   </a>
 </li>

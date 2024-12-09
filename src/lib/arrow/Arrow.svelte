@@ -1,6 +1,4 @@
-
 <script lang="ts">
-  
   interface Props {
     direction: "top" | "right" | "bottom" | "left";
     color: "blue" | "white";
@@ -18,7 +16,7 @@
     cursor: pointer;
     -webkit-mask: url("arrow.svg") no-repeat center;
     mask: url("arrow.svg") no-repeat center;
-    transition: transform 0.2s ease-in-out; 
+    transition: transform 0.2s ease-in-out;
   }
   .small {
     height: 1.5rem;
@@ -45,7 +43,7 @@
     -webkit-transform: rotate(180deg);
   }
   .bottom {
-    transform:rotate(0deg);
+    transform: rotate(0deg);
     -webkit-transform: rotate(0deg);
   }
   .blue {
@@ -58,6 +56,6 @@
     background-color: var(--w-lt);
   }
   .white:hover {
-    background-color:var(--w-xl);
+    background-color: var(--w-xl);
   }
 </style>
