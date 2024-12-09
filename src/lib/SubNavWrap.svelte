@@ -39,12 +39,14 @@
   }: Props = $props();
 
   let subnavWidth: number = $state();
-  let windowHeight: number = $derived(windowHeight * 0.72);
+  let windowHeight: number = $state();
   let windowWidth: number = $state();
   let scrollY: number = $state();
   let scrollLogged = false;
 
-  const { getMainHeight }: LayoutElemH = getContext(contextHeightKey);
+  let navHeight: number = $derived(windowHeight * 0.72);
+
+  // const { getMainHeight }: LayoutElemH = getContext(contextHeightKey);
 
   const handleMNavClick = () => {
     setExpanded(!expanded);
@@ -71,8 +73,7 @@
 <nav
   class="bnav subnav"
   class:bnav-aside={asideNav}
-  class:absolute={windowHeight + scrollY >
-    getMainHeight() + subnavHeight + fromRem(2)}
+  class:absolute={windowHeight + scrollY > subnavHeight + fromRem(2)}
   bind:clientWidth={subnavWidth}
   bind:clientHeight={subnavHeight}
   style={`--window-width: ${windowWidth / rem}rem`}

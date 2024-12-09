@@ -16,7 +16,7 @@
     analyticsKey: string;
     parentRoute: string;
     defaultHeadline: string;
-    wrapBasis: number;
+    wrapBasis?: number;
     children?: Snippet;
   };
 
@@ -26,7 +26,7 @@
     analyticsKey,
     parentRoute,
     defaultHeadline,
-    wrapBasis,
+    wrapBasis = 100,
     children,
   }: ArticleProps = $props();
 
