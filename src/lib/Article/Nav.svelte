@@ -28,12 +28,12 @@
     children,
   } = $props();
 
-  let windowHeight: number;
-  let windowWidth: number;
-  let scrollY: number;
+  let windowHeight: number = $state();
+  let windowWidth: number = $state();
+  let scrollY: number = $state();
 
   let scrollLogged = false;
-  let isAbsolute: boolean;
+  let isAbsolute: boolean = $state();
 
   const checkIsAbsolute = () => {
     if (windowWidth > mqBreakPoint) return;
@@ -41,10 +41,6 @@
 
     isAbsolute = scrollY + windowHeight - subnavHeight > measureHeight;
   };
-
-  // $effect.pre(() => {
-  // 	tick().then(_ => checkIsAbsolute);
-  // });
 
   $effect.pre(() => {
     async () => {

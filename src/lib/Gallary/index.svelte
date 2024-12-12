@@ -66,7 +66,7 @@
   const setPaginationDetails = (id: number) => {
     paginationDetails = {
       length: paginationDetails.length,
-      position: artPieces.findIndex((_) => _.id === id),
+      position: artPieces.findIndex((p) => p.id === id),
     };
   };
 
@@ -81,18 +81,14 @@
     setPaginationDetails(artPiece.id);
   };
 
+  onMount(initGallery);
   afterNavigate(initGallery);
+
   $effect.pre(() => {
     async () => {
       await tick();
       initGallery();
     };
-  });
-
-  onMount(initGallery);
-
-  $effect(() => {
-    if (windowWidth || artPiece.id) initGallery();
   });
 
   let preloadImages = artPieces.map(

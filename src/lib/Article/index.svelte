@@ -30,20 +30,20 @@
     children,
   }: ArticleProps = $props();
 
-  let contentHeight: number;
-  let measureHeight: number;
-  let scrollRequestUpdate: boolean;
+  let contentHeight: number = $state();
+  let measureHeight: number = $state();
+  let scrollRequestUpdate: boolean = $state();
 
-  let subnavHeight: number;
+  let subnavHeight: number = $state();
 
-  let windowHeight: number;
-  let windowWidth: number;
-  let scrollY: number;
+  let windowHeight: number = $state();
+  let windowWidth: number = $state();
+  let scrollY: number = $state();
 
-  let expanded = false;
+  let expanded: boolean = $state(false);
 
-  let scrollLogged = false;
-  let isAbsolute: boolean;
+  let scrollLogged = $state(false);
+  let isAbsolute: boolean = $state();
 
   const checkIsAbsolute = () => {
     if (windowWidth > mqBreakPoint) return;
@@ -66,18 +66,21 @@
 
   const setItem = (id: number) => (e: Event) => {
     e.preventDefault();
-    item = items.filter((i) => i.id === id)[0];
+    item = items.find((i) => i.id === id);
+    console.log("setItem", item);
     clientNavigate(true)(`/${parentRoute}/${item.id}`, item.title);
   };
 
-  const handleLinkClick = (item: ItemT) => {
-    if (item.id == item.id) return;
-    setItem(item.id);
+  const handleLinkClick = (i: ItemT) => {
+    console.log("handleLinkClick", i);
+    if (i.id === item.id) return;
+    console.log("after return");
+    setItem(i.id);
     expanded = false;
     scrollLogged = false;
     captureBehavior(
       `click ${analyticsKey}`,
-      captureDetails({ id: item.id, name: item.title })
+      captureDetails({ id: i.id, name: i.title })
     );
   };
 </script>

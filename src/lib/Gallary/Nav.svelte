@@ -21,7 +21,7 @@
 
   type NavProps = {
     expanded: boolean;
-    setExpanded: (_: boolean) => void;
+    setExpanded: (v: boolean) => void;
     categoryTitle: string;
     analyticsKey: string;
     parentRoute: string;
@@ -40,7 +40,6 @@
     analyticsKey,
     parentRoute,
     subnavHeight = $bindable(),
-    gallarySectionHeight,
     scrollRequestUpdate = $bindable(),
     measureH,
     artPieces,
@@ -48,21 +47,21 @@
     navArtPieceClick,
   }: NavProps = $props();
 
-  let windowHeight: number;
-  let windowWidth: number;
+  let windowHeight: number = $state();
+  let windowWidth: number = $state();
+  let navHeight = $state(windowHeight * 0.72);
+  let subnavWidth: number = $state();
 
-  let scrollY: number;
+  let isAbsolute: boolean = $state(false);
 
-  let activeItemIndex = 0;
+  let scrollY: number = $state();
+  let scrollLogged = $state(false);
 
-  let scrollLogged = false;
-
-  let subnavWidth: number;
-  let itemsPerPage = 0;
+  let activeItemIndex = $state(0);
+  let itemsPerPage = $state(0);
 
   const thubmnailWidth = fromRem(6);
 
-  let isAbsolute: boolean;
   const checkIsAbsolute = () => {
     if (windowWidth > mqBreakPoint) return;
     if (!scrollRequestUpdate) scrollRequestUpdate = true;
@@ -80,6 +79,8 @@
   $effect.pre(() => {
     async () => {
       await tick();
+      console.log("called from inde nav");
+
       initNav();
     };
   });
@@ -88,14 +89,6 @@
 
   $effect(() => {
     artPieceChanged(artPiece.id);
-  });
-  const navHeight = $derived(windowHeight * 0.72);
-
-  $effect(() => {
-    if (subnavWidth && scrollY) initNav();
-  });
-  $effect(() => {
-    if (scrollY || windowWidth || gallarySectionHeight) checkIsAbsolute();
   });
 
   const apPosition = (apid: number) =>
@@ -204,7 +197,7 @@
         {#each artPieces as p}
           <li class:active={p.id === artPiece.id}>
             <a
-              onclick={handleNavArtPieceClick(p.id)}
+              onclick={() => handleNavArtPieceClick(p.id)}
               href={`${parentRoute}${p.id}/${cleanUrlSlug(p.attributes.title)}`}
               class:active={p.id === artPiece.id}
             >

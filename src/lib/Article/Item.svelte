@@ -10,6 +10,7 @@
   }
 
   let { item, currentItem, parentRoute, handleLinkClick }: Props = $props();
+  console.log("handleLinkClick", handleLinkClick);
 </script>
 
 <li class:active={currentItem.id === item.id}>

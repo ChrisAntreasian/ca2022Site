@@ -1,14 +1,7 @@
 <script lang="ts">
-  import { getContext } from "svelte";
   import { captureBehavior } from "./analytics";
   import Arrow from "./arrow/Arrow.svelte";
-  import {
-    contextHeightKey,
-    fromRem,
-    rem,
-    toRem,
-    type LayoutElemH,
-  } from "./spacing";
+  import { fromRem, rem, toRem } from "./spacing";
 
   interface Props {
     expanded: boolean;
