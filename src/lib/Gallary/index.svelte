@@ -54,7 +54,7 @@
   let subnavHeight: number = $state();
   let gallarySectionHeight: number = $state();
   let scrollRequestUpdate: boolean = $state(false);
-  let gallaryHeight = $state(0);
+  let gallaryHeight = $state();
 
   const extraHeight = fromRem(2.5);
   const navHeight = fromRem(6);

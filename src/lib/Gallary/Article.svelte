@@ -37,7 +37,7 @@
     imageWidth,
     detailsWidth,
     showMore,
-    gallerySectionHeight,
+    gallerySectionHeight = $bindable(),
     windowWidth = $bindable(),
     analyticsKey,
     subnavHeight,

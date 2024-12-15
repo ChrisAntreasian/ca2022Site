@@ -45,11 +45,12 @@
     artPieces,
     artPiece,
     navArtPieceClick,
+    gallarySectionHeight,
   }: NavProps = $props();
 
   let windowHeight: number = $state();
   let windowWidth: number = $state();
-  let navHeight = $state(windowHeight * 0.72);
+  let navHeight = $derived(windowHeight * 0.72);
   let subnavWidth: number = $state();
 
   let isAbsolute: boolean = $state(false);
@@ -77,6 +78,7 @@
   };
 
   $effect.pre(() => {
+    if (scrollY || windowWidth || gallarySectionHeight) checkIsAbsolute();
     async () => {
       await tick();
       console.log("called from inde nav");
@@ -137,6 +139,7 @@
       scrollLogged = true;
     }
   };
+  console.log(activeItemIndex);
 </script>
 
 <svelte:window
@@ -149,6 +152,8 @@
 {#if expanded}
   <div
     class="bg-overlay"
+    role="button"
+    tabindex="0"
     onclick={handleMNavClick}
     onkeypress={handleMNavClick}
     transition:fade|global={{ duration: 200 }}
@@ -162,7 +167,7 @@
   style={`--window-width: ${windowWidth / rem}rem`}
 >
   <div class="subnav-wrap">
-    <div
+    <button
       class="subnav-handle"
       onclick={handleMNavClick}
       onkeypress={handleMNavClick}
@@ -175,15 +180,15 @@
           size="medium"
         />
       </div>
-    </div>
+    </button>
     {#if activeItemIndex > 0}
-      <div
+      <button
         class="last"
         onclick={() => paginateClick(-1)}
         onkeypress={() => paginateClick(-1)}
       >
         <Arrow direction="left" color="white" size="large" />
-      </div>
+      </button>
     {/if}
     <div class="subnav-content">
       <ul
@@ -211,18 +216,22 @@
       </ul>
     </div>
     {#if activeItemIndex + itemsPerPage < artPieces.length}
-      <div
+      <button
         class="next"
         onclick={() => paginateClick(1)}
         onkeypress={() => paginateClick(1)}
       >
         <Arrow direction="right" color="white" size="large" />
-      </div>
+      </button>
     {/if}
   </div>
 </nav>
 
 <style>
+  button {
+    background: none;
+    border: none;
+  }
   nav {
     width: 100%;
     height: 6rem;
