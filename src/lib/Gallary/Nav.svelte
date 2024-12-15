@@ -140,7 +140,6 @@
       scrollLogged = true;
     }
   };
-  console.log(activeItemIndex);
 </script>
 
 <svelte:window

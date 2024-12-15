@@ -52,13 +52,14 @@
     isAbsolute = scrollY + windowHeight - subnavHeight > measureHeight;
   };
 
+  afterNavigate(checkIsAbsolute);
+
   $effect.pre(() => {
     async () => {
       await tick();
       checkIsAbsolute();
     };
   });
-  afterNavigate(checkIsAbsolute);
 
   $effect(() => {
     if (scrollY || windowWidth || contentHeight) checkIsAbsolute();
@@ -67,14 +68,11 @@
   const setItem = (id: number) => (e: Event) => {
     e.preventDefault();
     item = items.find((i) => i.id === id);
-    console.log("setItem", item);
     clientNavigate(true)(`/${parentRoute}/${item.id}`, item.title);
   };
 
   const handleLinkClick = (i: ItemT) => {
-    console.log("handleLinkClick", i);
     if (i.id === item.id) return;
-    console.log("after return");
     setItem(i.id);
     expanded = false;
     scrollLogged = false;
