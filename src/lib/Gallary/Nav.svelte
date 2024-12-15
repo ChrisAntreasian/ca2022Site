@@ -33,6 +33,7 @@
     artPiece: ArtWithId;
     navArtPieceClick: (i: number) => (e: Event) => void;
   };
+
   let {
     expanded,
     setExpanded,
@@ -49,8 +50,10 @@
   }: NavProps = $props();
 
   let windowHeight: number = $state();
+
   let windowWidth: number = $state();
   let navHeight = $derived(windowHeight * 0.72);
+
   let subnavWidth: number = $state();
 
   let isAbsolute: boolean = $state(false);
@@ -81,8 +84,6 @@
     if (scrollY || windowWidth || gallarySectionHeight) checkIsAbsolute();
     async () => {
       await tick();
-      console.log("called from inde nav");
-
       initNav();
     };
   });

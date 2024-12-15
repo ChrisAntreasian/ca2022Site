@@ -37,8 +37,8 @@
   const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
 
   let fadeOut = $state(false);
+
   let windowHeight: number = $state();
-  let md = $state(item.body);
   const defaultActiveShot = { i: null, src: null };
 
   let paginationDetails = $state(null);
@@ -137,9 +137,7 @@
           </div>
         {/if}
 
-        <textarea bind:value={md}></textarea>
-
-        <SvelteMarkdown {md} />
+        <SvelteMarkdown md={item.body} />
 
         {#if item.images}
           <h4>Screenshots</h4>
