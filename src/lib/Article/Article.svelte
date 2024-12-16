@@ -142,13 +142,13 @@
         {#if item.images}
           <h4>Screenshots</h4>
           <ul>
-            {#each item.images as _, i}
+            {#each item.images as img, i}
               <li>
                 <Fullscreen
-                  id={_.id}
+                  id={img.id}
                   title={item.title}
-                  img={activeShot.src || _.large}
-                  targetImage={_.small}
+                  img={activeShot.src || img.large}
+                  targetImage={img.small}
                   analyticsKey={`${analyticsKey} ${item.title}`}
                   altText={`${item.title} screenshot ${(activeShot.i || i) + 1}`}
                   paginationDetails={paginationDetails || {
@@ -157,7 +157,7 @@
                   }}
                   {paginateItem}
                   onClose={resetFullScreen}
-                  onOpen={() => setActiveShot(i, _.large)}
+                  onOpen={() => setActiveShot(i, img.large)}
                 />
               </li>
             {/each}

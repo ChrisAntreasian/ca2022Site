@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
-
   import { scale, fade } from "svelte/transition";
 
   import { noScroll } from "$lib/body";
@@ -53,11 +51,9 @@
 
   const wrapperWidth = fromRem(75);
 
-  let maxOverlayWidth = $state(0);
-  run(() => {
-    maxOverlayWidth =
-      (windowWidth <= wrapperWidth ? windowWidth : wrapperWidth) - fromRem(4);
-  });
+  let maxOverlayWidth = $derived(
+    (windowWidth <= wrapperWidth ? windowWidth : wrapperWidth) - fromRem(4)
+  );
 
   onMount(async () => {
     const i = new Image();
@@ -93,14 +89,16 @@
   const paginateFullscreen = paginateItem
     ? paginateItem(`${analyticsKey} paginate fullscreen`)
     : null;
+
   const setNeedsLast = () =>
     paginateFullscreen &&
     paginationDetails &&
     paginationDetails.position + 1 < paginationDetails.length;
+
   const setNeedsFirst = () =>
     paginateFullscreen && paginationDetails && paginationDetails.position !== 0;
 
-  run(() => {
+  $effect(() => {
     if (paginateFullscreen || paginationDetails) {
       needsLast = setNeedsLast();
       needsNext = setNeedsFirst();
@@ -112,26 +110,29 @@
 <svelte:body use:noScroll={displayBg} />
 
 {#if targetImage}
-  <div onclick={open} onkeypress={open} class="img open">
+  <button onclick={open} onkeypress={open} class="img open">
     <img src={targetImage} alt={"click for fullscreen"} />
-  </div>
+  </button>
 {:else}
-  <div
+  <button
     onclick={open}
     onkeypress={open}
     class="btn btn-bg open"
     style={`--btn-offset: ${btnOffset}%`}
   >
     <img src={fullscreenIcon} alt={"click for fullscreen"} />
-  </div>
+  </button>
 {/if}
 
 {#if displayBg}
   <div
     class="bg-overlay"
+    role="button"
+    tabindex="0"
     onclick={close}
     onkeypress={close}
     transition:fade|global={transitionConfig}
+    aria-label="Close fullscreen"
   ></div>
 {/if}
 
@@ -141,7 +142,9 @@
       class="close-control modal-control-wrap"
       style={`--width: ${toRem(maxOverlayWidth) - 2}rem`}
     >
-      <div onclick={close} onkeypress={close} class="btn btn-bg close">x</div>
+      <button onclick={close} onkeypress={close} class="btn btn-bg close"
+        >x</button
+      >
     </div>
     <img
       src={`${img}`}
@@ -157,22 +160,22 @@
         class="page-control modal-control-wrap"
         style={`--width: ${toRem(maxOverlayWidth) - 2}rem`}
       >
-        <span
+        <button
           class:disabled={!needsNext}
           class="pagination-link last btn-bg"
           onclick={() => paginateFullscreen(-1)}
           onkeypress={() => paginateFullscreen(-1)}
         >
           <Arrow color="white" size="medium" direction="left" />
-        </span>
-        <span
+        </button>
+        <button
           class:disabled={!needsLast}
           class="pagination-link next btn-bg"
           onclick={() => paginateFullscreen(1)}
           onkeypress={() => paginateFullscreen(1)}
         >
           <Arrow color="white" size="medium" direction="right" />
-        </span>
+        </button>
       </div>
     {/if}
   </div>
@@ -184,6 +187,7 @@
     cursor: pointer;
   }
   .btn-bg {
+    height: 3rem;
     background: var(--off-bk);
     border-radius: var(--space-md);
     color: white;
@@ -197,7 +201,9 @@
     color: white;
     opacity: 0.85;
   }
-
+  .btn:hover {
+    opacity: 1;
+  }
   .img img {
     height: auto;
     width: 20rem;
@@ -220,15 +226,12 @@
   .btn.close {
     height: 3.5rem;
     width: 3.5rem;
-    font-size: 3rem;
+    font-size: 2.75rem;
     line-height: 3.5rem;
     text-align: center;
     top: 0;
     left: 0;
     margin-left: var(--position);
-  }
-  .btn:hover {
-    opacity: 1;
   }
   .wrap {
     height: 100%;

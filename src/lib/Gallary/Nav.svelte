@@ -228,10 +228,6 @@
 </nav>
 
 <style>
-  button {
-    background: none;
-    border: none;
-  }
   nav {
     width: 100%;
     height: 6rem;

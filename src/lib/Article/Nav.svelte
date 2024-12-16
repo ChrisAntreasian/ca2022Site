@@ -95,7 +95,7 @@
   bind:clientHeight={subnavHeight}
 >
   <div class="subnav-wrap">
-    <div
+    <button
       class="subnav-handle"
       onclick={handleMNavHandle}
       onkeypress={handleMNavHandle}
@@ -108,7 +108,7 @@
           size="medium"
         />
       </div>
-    </div>
+    </button>
     <div class="subnav-content">
       <ul
         onscroll={scrollMNav}

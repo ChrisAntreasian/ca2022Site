@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { run } from "svelte/legacy";
   import { afterNavigate } from "$app/navigation";
   import { fade } from "svelte/transition";
   import SvelteMarkdown from "svelte-exmarkdown";
@@ -24,7 +23,7 @@
     measureH: number;
     scrollRequestUpdate: boolean;
     hideMobileTitle: boolean;
-    readMoreClick: (_: boolean) => void;
+    readMoreClick: (b: boolean) => void;
     paginateItem: (s: string) => (n: number) => void;
     paginationDetails: {
       length: number;
@@ -74,12 +73,11 @@
 
   afterNavigate(init);
 
-  run(() => {
+  $effect(() => {
     if (windowWidth) init();
-  });
-  run(() => {
-    if (artPiece.id || detailsDiv.scrollHeight || detailsDiv.clientHeight)
+    if (artPiece.id || detailsDiv.scrollHeight || detailsDiv.clientHeight) {
       setOverflow();
+    }
   });
 
   let windowHeight: number = $state();
@@ -167,14 +165,14 @@
                   />
                 </span>
                 {#if needsReadmore}
-                  <div
+                  <button
                     class="readmore"
                     transition:fade|global={{ duration: 300 }}
                     onclick={handleReadMoreClick}
                     onkeypress={handleReadMoreClick}
                   >
                     {!showMore ? "read less" : "read more"}
-                  </div>
+                  </button>
                 {/if}
               </div>
               {#if showMore}
@@ -203,27 +201,27 @@
             <div>
               <div class="pagination">
                 {#if paginationDetails.position !== 0}
-                  <span
+                  <button
                     class="pagination-link last"
                     onclick={() => paginateGal(-1)}
                     onkeypress={() => paginateGal(-1)}
                   >
                     <Arrow color="blue" size="small" direction="left" />
                     last
-                  </span>
+                  </button>
                 {/if}
                 {#if paginationDetails.position !== 0 && paginationDetails.position + 1 < paginationDetails.length}
                   <span>|</span>
                 {/if}
                 {#if paginationDetails.position + 1 < paginationDetails.length}
-                  <span
+                  <button
                     class="pagination-link next"
                     onclick={() => paginateGal(1)}
                     onkeypress={() => paginateGal(1)}
                   >
                     next
                     <Arrow color="blue" size="small" direction="right" />
-                  </span>
+                  </button>
                 {/if}
               </div>
             </div>
