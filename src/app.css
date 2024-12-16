@@ -181,12 +181,7 @@ section {
   margin-top: var(--header-height);
 }
 button {
-  appearance: inherit;
-  height: 1.5rem;
-  font-family: var(--font-jsf);
-  line-height: 1.5rem;
-  background:none;
-  border: none
+  all: unset;
 }
 .bg-overlay {
   position: fixed;
