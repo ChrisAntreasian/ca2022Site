@@ -83,6 +83,8 @@
   };
 </script>
 
+<window onresize={checkIsAbsolute}></window>
+
 <section
   class="w-sidebar"
   transition:fade|global={{ duration: 300 }}

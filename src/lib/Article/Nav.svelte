@@ -42,13 +42,6 @@
     isAbsolute = scrollY + windowHeight - subnavHeight > measureHeight;
   };
 
-  $effect.pre(() => {
-    async () => {
-      await tick();
-      checkIsAbsolute();
-    };
-  });
-
   afterNavigate(checkIsAbsolute);
 
   const navHeight = $derived(windowHeight * 0.72);
@@ -74,6 +67,7 @@
   bind:innerHeight={windowHeight}
   bind:innerWidth={windowWidth}
   bind:scrollY
+  onresize={checkIsAbsolute}
 />
 
 <svelte:body use:noScroll={expanded} />

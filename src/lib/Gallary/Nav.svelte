@@ -67,26 +67,18 @@
   const thubmnailWidth = fromRem(6);
 
   const checkIsAbsolute = () => {
-    if (windowWidth > mqBreakPoint) return;
     if (!scrollRequestUpdate) scrollRequestUpdate = true;
 
     isAbsolute = scrollY + windowHeight - subnavHeight > measureH;
   };
 
   const initNav = () => {
+    if (windowWidth > mqBreakPoint) return;
     checkIsAbsolute();
     itemsPerPage = Math.floor(
       (subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem)
     );
   };
-
-  $effect.pre(() => {
-    if (scrollY || windowWidth || gallarySectionHeight) checkIsAbsolute();
-    async () => {
-      await tick();
-      initNav();
-    };
-  });
 
   afterNavigate(initNav);
 
@@ -146,6 +138,7 @@
   bind:innerHeight={windowHeight}
   bind:innerWidth={windowWidth}
   bind:scrollY
+  onresize={initNav}
 />
 <svelte:body use:noScroll={expanded} />
 

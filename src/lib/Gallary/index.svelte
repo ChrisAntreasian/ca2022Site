@@ -71,11 +71,11 @@
   };
 
   const initGallery = () => {
-    if (!artPiece) return;
+    if (!artPiece || !windowWidth || windowWidth <= mqBreakPoint) return;
+
     const footerHeight = getFooterHeight();
     const widgetH = windowHeight + extraHeight - footerHeight;
 
-    if (!windowWidth || windowWidth <= 768) return;
     gallaryHeight = toRem(widgetH);
     gallarySectionHeight = Math.ceil((widgetH - navHeight - rem) / rem);
 
@@ -84,13 +84,6 @@
 
   onMount(initGallery);
   afterNavigate(initGallery);
-
-  $effect.pre(() => {
-    async () => {
-      await tick();
-      initGallery();
-    };
-  });
 
   let preloadImages = artPieces.map(
     (p) => p.attributes.image.data.attributes.url
@@ -169,7 +162,11 @@
   };
 </script>
 
-<svelte:window bind:innerWidth={windowWidth} bind:innerHeight={windowHeight} />
+<svelte:window
+  bind:innerWidth={windowWidth}
+  bind:innerHeight={windowHeight}
+  onresize={initGallery}
+/>
 
 <svelte:head>
   {#each preloadImages as image}
