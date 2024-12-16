@@ -16,33 +16,33 @@
   <div class="footer-wrap">
     <nav>
       <ul>
-        <li
-          onclick={() => navClick("Home")}
-          onkeypress={() => navClick("Home")}
-          class:active={$page.url.pathname === "/"}
-        >
-          <a href="/">Home</a>
+        <li class:active={$page.url.pathname === "/"}>
+          <a
+            href="/"
+            onclick={() => navClick("Home")}
+            onkeypress={() => navClick("Home")}>Home</a
+          >
         </li>
-        <li
-          onclick={() => navClick("The Quintuplapus")}
-          onkeypress={() => navClick("The Quintuplapus")}
-          class:active={$page.url.pathname === "/the-quintuplapus"}
-        >
-          <a href="/the-quintuplapus">The Quintuplapus</a>
+        <li class:active={$page.url.pathname === "/the-quintuplapus"}>
+          <a
+            href="/the-quintuplapus"
+            onclick={() => navClick("The Quintuplapus")}
+            onkeypress={() => navClick("The Quintuplapus")}>The Quintuplapus</a
+          >
         </li>
-        <li
-          onclick={() => navClick("Poems")}
-          onkeypress={() => navClick("Poems")}
-          class:active={$page.url.pathname === "/poems"}
-        >
-          <a href="/poems">Poems</a>
+        <li class:active={$page.url.pathname === "/poems"}>
+          <a
+            href="/poems"
+            onclick={() => navClick("Poems")}
+            onkeypress={() => navClick("Poems")}>Poems</a
+          >
         </li>
-        <li
-          onclick={() => navClick("Web Experience")}
-          onkeypress={() => navClick("Web Experience")}
-          class:active={$page.url.pathname === "/web-experience"}
-        >
-          <a href="/poems">Web Experience</a>
+        <li class:active={$page.url.pathname === "/web-experience"}>
+          <a
+            href="/poems"
+            onclick={() => navClick("Web Experience")}
+            onkeypress={() => navClick("Web Experience")}>Web Experience</a
+          >
         </li>
       </ul>
     </nav>

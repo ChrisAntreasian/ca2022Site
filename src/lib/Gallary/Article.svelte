@@ -297,7 +297,7 @@
     height: 3rem;
   }
   .overflow .md-content {
-    overflow: scroll;
+    overflow-y: scroll;
   }
   .meta,
   .meta span {

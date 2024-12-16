@@ -1,3 +1,5 @@
+import { pushState } from "$app/navigation";
+
 export const cleanUrlSlug = (slug: string) => {
   let str = slug.replace(/[^A-Za-z0-9]/g, "-")
     .toLowerCase()
@@ -12,7 +14,7 @@ export const cleanUrlSlug = (slug: string) => {
 
 export const clientNavigate = (scroll: boolean) => (url: string, slug?: string) => {
   const s = slug ? `/${cleanUrlSlug(slug)}` : "";
-  history.pushState({}, "", `${url}${s}`);
+  pushState(`${url}${s}`, {});
   if (scroll) {
     window.scrollTo({ top: 0 });
   } 
