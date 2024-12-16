@@ -70,7 +70,7 @@
   <div class="header-bg"></div>
   <div class="header-wrap">
     <div class="header-title">
-      <a onclick={headlineClick} href="/">
+      <a onclick={headlineClick} href="/" aria-label="Home">
         <h1>
           <span class="desktop-title">{title}</span><span class="mobile-title"
             >{mobileTitle}</span
@@ -79,7 +79,7 @@
       </a>
     </div>
     <figure>
-      <a onclick={logoClick} href="/">
+      <a onclick={logoClick} href="/" aria-label="Logo">
         <img src={`${safeImageString("thumbnail")(logo)}`} alt={title} />
       </a>
     </figure>
@@ -87,6 +87,8 @@
       {#if toggleMenuActive}
         <div
           class="bg-overlay"
+          role="button"
+          tabindex="0"
           onclick={resetMenu}
           onkeypress={resetMenu}
           transition:fade|global={{ duration: 200 }}
@@ -118,6 +120,7 @@
     class="hamburger hamburger--spring"
     class:is-active={toggleMenuActive}
     type="button"
+    aria-label="Toggle primary navication"
   >
     <span class="hamburger-box">
       <span class="hamburger-inner"></span>

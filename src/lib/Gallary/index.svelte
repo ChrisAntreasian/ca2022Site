@@ -71,6 +71,7 @@
   };
 
   const initGallery = () => {
+    if (!artPiece) return;
     const footerHeight = getFooterHeight();
     const widgetH = windowHeight + extraHeight - footerHeight;
 
