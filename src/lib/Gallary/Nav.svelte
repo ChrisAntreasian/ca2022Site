@@ -92,7 +92,7 @@
     artPieces.findIndex((p) => p.id === apid);
 
   const paginate = (ps: PaginationShift) => {
-    const aii = activeItemIndex + ps * itemsPerPage;
+    const aii = activeItemIndex + ps * (itemsPerPage - 1);
     activeItemIndex =
       aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
   };
@@ -185,14 +185,8 @@
     {#if activeItemIndex > 0}
       <button
         class="last"
-        onclick={() => {
-          console.log("ONCLICK");
-          paginateClick(-1);
-        }}
-        onkeypress={() => {
-          console.log("ONKEYPRESS");
-          paginateClick(-1);
-        }}
+        onclick={() => paginateClick(-1)}
+        onkeypress={() => paginateClick(-1)}
       >
         <Arrow direction="left" color="white" size="large" />
       </button>
@@ -225,14 +219,8 @@
     {#if activeItemIndex + itemsPerPage < artPieces.length}
       <button
         class="next"
-        onclick={() => {
-          console.log("ONCLICK");
-          paginateClick(1);
-        }}
-        onkeypress={() => {
-          console.log("KEYPRESS");
-          paginateClick(1);
-        }}
+        onclick={() => paginateClick(1)}
+        onkeypress={() => paginateClick(1)}
       >
         <Arrow direction="right" color="white" size="large" />
       </button>
