@@ -17,7 +17,9 @@
 
   import { noScroll } from "$lib/body";
   import { fade } from "svelte/transition";
-  import { tick } from "svelte";
+  import { onMount } from "svelte";
+
+  type PaginationShift = -1 | 1;
 
   type NavProps = {
     expanded: boolean;
@@ -46,7 +48,6 @@
     artPieces,
     artPiece,
     navArtPieceClick,
-    gallarySectionHeight,
   }: NavProps = $props();
 
   let windowHeight: number = $state();
@@ -73,30 +74,70 @@
   };
 
   const initNav = () => {
-    if (windowWidth > mqBreakPoint) return;
+    // console.log("initNav---------------");
+    // console.log("windowWidth", windowWidth);
+    // console.log("mqBreakPoint", mqBreakPoint);
+    if (windowWidth < mqBreakPoint) return;
+
     checkIsAbsolute();
+
+    // console.log("subnavWidth", subnavWidth);
+    // console.log("wrapperWidth", wrapperWidth);
+    // console.log("thubmnailWidth", thubmnailWidth);
+
     itemsPerPage = Math.floor(
       (subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem)
     );
+    // console.log("itemsPerPage", itemsPerPage);
+    // console.log("enc initNav---------------");
   };
 
   afterNavigate(initNav);
+  onMount(initNav);
 
   $effect(() => {
+    console.log("effect called EFFECT CALLED");
     artPieceChanged(artPiece.id);
   });
 
   const apPosition = (apid: number) =>
     artPieces.findIndex((p) => p.id === apid);
 
-  const paginate = (n: number) => {
-    const aii = activeItemIndex + n * (itemsPerPage - 1);
+  const paginate = (ps: PaginationShift) => {
+    console.log("paginate---------------");
+    const aii = activeItemIndex + ps * itemsPerPage;
+    console.log("itemsPerPage", itemsPerPage);
+    // console.log("paginate", ps);
+    console.log("aii", aii);
+    // console.log("activeItemIndex", activeItemIndex);
+    console.log("condition a", aii < 0);
+    console.log("condition b", aii > artPieces.length);
+
     activeItemIndex =
       aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
+
+    console.log("activeItemIndex", activeItemIndex);
+    console.log("enc paginate---------------");
   };
 
+  // const paginateB = (ps: PaginationShift) => {
+  //   const aii = activeItemIndex + ps * itemsPerPage;
+  //   return aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
+  // };
+
+  // const activeItemIndexB = $derived.by(() => {
+  //   const apP = apPosition(artPiece.id);
+  //   if (activeItemIndex !== 0 && apP < activeItemIndex) {
+  //     return paginateB(-1);
+  //   } else if (apP > activeItemIndex + (itemsPerPage - 1)) {
+  //     return paginateB(1);
+  //   }
+  //   return 0;
+  // });
   const artPieceChanged = (apId: number) => {
     const apP = apPosition(apId);
+    console.log("app", apP, activeItemIndex);
+    if (apP <= 0) return;
     if (activeItemIndex !== 0 && apP < activeItemIndex) {
       paginate(-1);
     } else if (apP > activeItemIndex + (itemsPerPage - 1)) {
@@ -104,12 +145,15 @@
     }
   };
 
-  const paginateClick = (n: number) => {
-    paginate(n);
-    captureBehavior(`${analyticsKey} click slider ${n > 0 ? "next" : "last"}`, {
-      activeIndex: activeItemIndex,
-      itemsPerPage: itemsPerPage,
-    });
+  const paginateClick = (ps: PaginationShift) => {
+    paginate(ps);
+    captureBehavior(
+      `${analyticsKey} click slider ${ps > 0 ? "next" : "last"}`,
+      {
+        activeIndex: activeItemIndex,
+        itemsPerPage: itemsPerPage,
+      }
+    );
   };
 
   const handleNavArtPieceClick = (id: number) => {
@@ -177,8 +221,14 @@
     {#if activeItemIndex > 0}
       <button
         class="last"
-        onclick={() => paginateClick(-1)}
-        onkeypress={() => paginateClick(-1)}
+        onclick={() => {
+          console.log("ONCLICK");
+          paginateClick(-1);
+        }}
+        onkeypress={() => {
+          console.log("ONKEYPRESS");
+          paginateClick(-1);
+        }}
       >
         <Arrow direction="left" color="white" size="large" />
       </button>
@@ -211,8 +261,14 @@
     {#if activeItemIndex + itemsPerPage < artPieces.length}
       <button
         class="next"
-        onclick={() => paginateClick(1)}
-        onkeypress={() => paginateClick(1)}
+        onclick={() => {
+          console.log("ONCLICK");
+          paginateClick(1);
+        }}
+        onkeypress={() => {
+          console.log("KEYPRESS");
+          paginateClick(1);
+        }}
       >
         <Arrow direction="right" color="white" size="large" />
       </button>

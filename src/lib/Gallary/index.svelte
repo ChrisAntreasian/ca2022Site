@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tick, getContext } from "svelte";
+  import { getContext } from "svelte";
   import { tweened } from "svelte/motion";
   import { cubicOut } from "svelte/easing";
   import { fade } from "svelte/transition";

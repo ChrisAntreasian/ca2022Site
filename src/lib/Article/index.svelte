@@ -1,7 +1,7 @@
 <script lang="ts">
   import { mqBreakPoint } from "$lib/spacing";
   import { captureBehavior, captureDetails } from "$lib/analytics";
-  import { tick, type Snippet } from "svelte";
+  import { onMount, type Snippet } from "svelte";
   import { afterNavigate } from "$app/navigation";
   import { fade } from "svelte/transition";
   import { clientNavigate } from "$lib/history";
@@ -10,6 +10,7 @@
   import Item from "./Item.svelte";
 
   import type { Item as ItemT } from "./types";
+
   type ArticleProps = {
     item: ItemT;
     items: ReadonlyArray<ItemT>;
@@ -53,13 +54,7 @@
   };
 
   afterNavigate(checkIsAbsolute);
-
-  $effect.pre(() => {
-    async () => {
-      await tick();
-      checkIsAbsolute();
-    };
-  });
+  onMount(checkIsAbsolute);
 
   $effect(() => {
     if (scrollY || windowWidth || contentHeight) checkIsAbsolute();
