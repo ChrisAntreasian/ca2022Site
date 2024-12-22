@@ -34,6 +34,7 @@
     artPieces: Array<ArtWithId>;
     artPiece: ArtWithId;
     navArtPieceClick: (i: number) => (e: Event) => void;
+    shoudPageinateSlider: (apId: number) => void;
   };
 
   let {
@@ -48,6 +49,7 @@
     artPieces,
     artPiece,
     navArtPieceClick,
+    shoudPageinateSlider = $bindable(),
   }: NavProps = $props();
 
   let windowHeight: number = $state();
@@ -74,69 +76,29 @@
   };
 
   const initNav = () => {
-    // console.log("initNav---------------");
-    // console.log("windowWidth", windowWidth);
-    // console.log("mqBreakPoint", mqBreakPoint);
     if (windowWidth < mqBreakPoint) return;
 
     checkIsAbsolute();
 
-    // console.log("subnavWidth", subnavWidth);
-    // console.log("wrapperWidth", wrapperWidth);
-    // console.log("thubmnailWidth", thubmnailWidth);
-
     itemsPerPage = Math.floor(
       (subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem)
     );
-    // console.log("itemsPerPage", itemsPerPage);
-    // console.log("enc initNav---------------");
   };
 
   afterNavigate(initNav);
   onMount(initNav);
 
-  $effect(() => {
-    console.log("effect called EFFECT CALLED");
-    artPieceChanged(artPiece.id);
-  });
-
   const apPosition = (apid: number) =>
     artPieces.findIndex((p) => p.id === apid);
 
   const paginate = (ps: PaginationShift) => {
-    console.log("paginate---------------");
     const aii = activeItemIndex + ps * itemsPerPage;
-    console.log("itemsPerPage", itemsPerPage);
-    // console.log("paginate", ps);
-    console.log("aii", aii);
-    // console.log("activeItemIndex", activeItemIndex);
-    console.log("condition a", aii < 0);
-    console.log("condition b", aii > artPieces.length);
-
     activeItemIndex =
       aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
-
-    console.log("activeItemIndex", activeItemIndex);
-    console.log("enc paginate---------------");
   };
 
-  // const paginateB = (ps: PaginationShift) => {
-  //   const aii = activeItemIndex + ps * itemsPerPage;
-  //   return aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
-  // };
-
-  // const activeItemIndexB = $derived.by(() => {
-  //   const apP = apPosition(artPiece.id);
-  //   if (activeItemIndex !== 0 && apP < activeItemIndex) {
-  //     return paginateB(-1);
-  //   } else if (apP > activeItemIndex + (itemsPerPage - 1)) {
-  //     return paginateB(1);
-  //   }
-  //   return 0;
-  // });
   const artPieceChanged = (apId: number) => {
     const apP = apPosition(apId);
-    console.log("app", apP, activeItemIndex);
     if (apP <= 0) return;
     if (activeItemIndex !== 0 && apP < activeItemIndex) {
       paginate(-1);
@@ -176,6 +138,8 @@
       scrollLogged = true;
     }
   };
+
+  shoudPageinateSlider = artPieceChanged;
 </script>
 
 <svelte:window

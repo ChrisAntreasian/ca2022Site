@@ -56,6 +56,8 @@
   let scrollRequestUpdate: boolean = $state(false);
   let gallaryHeight = $state();
 
+  let shoudPageinateSlider: (apId: number) => void = $state();
+
   const extraHeight = fromRem(2.5);
   const navHeight = fromRem(6);
 
@@ -141,6 +143,7 @@
   const paginateItem = (k: string) => (n: number) => {
     const index = artPieces.findIndex((_) => _.id === artPiece.id);
     changeSelected(artPieces[index + n].id);
+    shoudPageinateSlider(artPieces[index + n].id);
     captureBehavior(
       `${k} click paginate`,
       captureDetails(
@@ -207,6 +210,7 @@
     {measureH}
     bind:subnavHeight
     bind:scrollRequestUpdate
+    bind:shoudPageinateSlider
   />
 </section>
 
