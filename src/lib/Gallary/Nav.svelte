@@ -50,6 +50,7 @@
     artPiece,
     navArtPieceClick,
     shoudPageinateSlider = $bindable(),
+    gallarySectionHeight,
   }: NavProps = $props();
 
   let windowHeight: number = $state();
@@ -59,7 +60,7 @@
 
   let subnavWidth: number = $state();
 
-  let isAbsolute: boolean = $state(false);
+  let isAbsolute: boolean = $state();
 
   let scrollY: number = $state();
   let scrollLogged = $state(false);
@@ -70,20 +71,27 @@
   const thubmnailWidth = fromRem(6);
 
   const checkIsAbsolute = () => {
+    if (windowWidth > mqBreakPoint) return;
+
     if (!scrollRequestUpdate) scrollRequestUpdate = true;
 
     isAbsolute = scrollY + windowHeight - subnavHeight > measureH;
   };
 
   const initNav = () => {
-    if (windowWidth < mqBreakPoint) return;
-
+    console.log("initNav");
     checkIsAbsolute();
+
+    if (windowWidth < mqBreakPoint) return;
 
     itemsPerPage = Math.floor(
       (subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem)
     );
   };
+
+  $effect(() => {
+    if (scrollY || windowWidth || gallarySectionHeight) checkIsAbsolute();
+  });
 
   afterNavigate(initNav);
   onMount(initNav);
@@ -99,10 +107,10 @@
 
   const artPieceChanged = (apId: number) => {
     const apP = apPosition(apId);
-    if (apP <= 0) return;
     if (activeItemIndex !== 0 && apP < activeItemIndex) {
       paginate(-1);
     } else if (apP > activeItemIndex + (itemsPerPage - 1)) {
+      console.log("art piece changed else statement");
       paginate(1);
     }
   };
