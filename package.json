@@ -1,6 +1,6 @@
 {
   "name": "chris-a-sveltekit",
-  "version": "2.0.7",
+  "version": "2.1.0",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",

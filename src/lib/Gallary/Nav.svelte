@@ -79,7 +79,6 @@
   };
 
   const initNav = () => {
-    console.log("initNav");
     checkIsAbsolute();
 
     if (windowWidth < mqBreakPoint) return;
@@ -378,21 +377,15 @@
     }
     .subnav ul {
       height: 0;
-      overflow: hidden;
-      transition: height 0.33s ease-in-out;
-    }
-    ul.expanded {
-      height: var(--nav-height);
       overflow: scroll;
+      transition: height 0.33s ease-in-out;
     }
     .subnav ul.expanded {
       height: var(--nav-height);
     }
-
     li {
       margin: 1.5rem 0.5rem;
     }
-
     li a {
       width: 8rem;
       height: 8rem;

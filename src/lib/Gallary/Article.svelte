@@ -74,10 +74,8 @@
   afterNavigate(init);
 
   $effect(() => {
-    if (windowWidth) init();
-    if (artPiece.id || detailsDiv.scrollHeight || detailsDiv.clientHeight) {
-      setOverflow();
-    }
+    if (windowHeight < mqBreakPoint) return;
+    init();
   });
 
   let windowHeight: number = $state();
@@ -364,7 +362,7 @@
     }
     figcaption {
       align-items: flex-start;
-      padding-left: 0;
+      padding: 0;
     }
     .md-content {
       height: auto;
