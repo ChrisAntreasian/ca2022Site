@@ -27,7 +27,7 @@ export const initDistinctId = async (cookies: Cookies) => {
   // await uploadS3File(s3)(fileName, JSON.stringify([...idsArr, did]));
 
   cookies.set("distinctId", did, {
-    httpOnly: true,
+    path: "/",
     expires: daysFromNow(400),
   });
 };
