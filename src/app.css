@@ -236,6 +236,10 @@ ul {
   .m-only {
     display: block;
   }
+  .transition {
+    position: unset;
+    transform: unset;
+  }
   .bnav-aside {
     border-top: var(--space-md) solid var(--y-md);
     border-left: none;
