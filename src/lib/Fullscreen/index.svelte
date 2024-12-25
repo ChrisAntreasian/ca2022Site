@@ -1,163 +1,184 @@
 <script lang="ts">
   import { scale, fade } from "svelte/transition";
 
-  import { noScroll } from '$lib/body';
-  import fullscreenIcon from "./fullscreen.svg"
+  import { noScroll } from "$lib/body";
+  import fullscreenIcon from "./fullscreen.svg";
   import { fromRem, rem, toRem } from "$lib/spacing";
-	import { captureDetails, captureBehavior } from "$lib/analytics";
-	import Arrow from "$lib/arrow/Arrow.svelte";
-	import { onMount } from "svelte";
+  import { captureDetails, captureBehavior } from "$lib/analytics";
+  import Arrow from "$lib/arrow/Arrow.svelte";
+  import { onMount } from "svelte";
 
-  export let id: number;
-  export let title: string;
-  export let img: string;
-  export let altText: string;
-  export let analyticsKey: string;
-  export let btnOffset: number = 50;
-  export let targetImage: string = null;
-  export let paginateItem: (s?: string) => (n: number)  => void = null;
-  export let paginationDetails: {
-    length: number,
-    position: number
-  } = null;
-  
-  export let onClose = () => null;
-  export let onOpen = (_: number) => null;
+  interface FullscreenProps {
+    id: number;
+    title: string;
+    img: string;
+    altText: string;
+    analyticsKey: string;
+    btnOffset?: number;
+    targetImage?: string;
+    paginateItem?: (s?: string) => (n: number) => void;
+    paginationDetails?: {
+      length: number;
+      position: number;
+    };
+    onClose?: any;
+    onOpen?: any;
+  }
 
-  let displayBg = false;
-  let displayImg = false
-  let imageHeight
-  let windowWidth = 0;
-  
-  const transitionConfig = {duration: 400};
+  let {
+    id,
+    title,
+    img,
+    altText,
+    analyticsKey,
+    btnOffset = 50,
+    targetImage = null,
+    paginateItem = null,
+    paginationDetails = null,
+    onClose = () => null,
+    onOpen = (id: number) => null,
+  }: FullscreenProps = $props();
+
+  let displayBg = $state(false);
+  let displayImg = $state(false);
+  let imageHeight;
+  let windowWidth = $state(0);
+
+  const transitionConfig = { duration: 400 };
   const mkCaptureDetails = captureDetails({ id: id, name: title });
 
-  let hmw = { h: "auto", mw: "auto" };
-  
+  let hmw = $state({ h: "auto", mw: "auto" });
+
   const wrapperWidth = fromRem(75);
 
-  let maxOverlayWidth = 0
-  $: maxOverlayWidth = (windowWidth <= wrapperWidth ? windowWidth: wrapperWidth) - fromRem(4);
+  let maxOverlayWidth = $derived(
+    (windowWidth <= wrapperWidth ? windowWidth : wrapperWidth) - fromRem(4)
+  );
 
   onMount(async () => {
-    const  i = new Image();
+    const i = new Image();
     i.src = img;
-    const dfn = i.onload = () => ({ h: i.height, w: i.width });
+    const dfn = (i.onload = () => ({ h: i.height, w: i.width }));
     const d = dfn();
-    hmw = { h: `${(window.innerHeight - (2 * rem)) / rem}rem`, mw: "auto" };
+    hmw = { h: `${(window.innerHeight - 2 * rem) / rem}rem`, mw: "auto" };
 
     if (d.w >= d.h) {
       hmw = {
         h: "auto",
-        mw: `${toRem((windowWidth <= wrapperWidth ? windowWidth: wrapperWidth) - fromRem(4))}rem`
-      }
+        mw: `${toRem((windowWidth <= wrapperWidth ? windowWidth : wrapperWidth) - fromRem(4))}rem`,
+      };
     }
     onOpen(id);
   });
-  
+
   const open = () => {
-    imageHeight = (window.innerHeight - (2 * rem)) / rem;
+    imageHeight = (window.innerHeight - 2 * rem) / rem;
     displayBg = displayImg = true;
     onOpen(id);
-    captureBehavior(`${analyticsKey} click open fullscreen`, mkCaptureDetails );
-  }
+    captureBehavior(`${analyticsKey} click open fullscreen`, mkCaptureDetails);
+  };
   const close = () => {
     displayBg = displayImg = false;
     onClose();
-    captureBehavior(`${analyticsKey} click close fullscreen`,  mkCaptureDetails);
+    captureBehavior(`${analyticsKey} click close fullscreen`, mkCaptureDetails);
   };
-  
-  let needsNext = false;
-  let needsLast = false;
 
-  const paginateFullscreen = paginateItem ? paginateItem(`${analyticsKey} paginate fullscreen`) : null;
-  const setNeedsLast = () => paginateFullscreen && paginationDetails && paginationDetails.position + 1 < paginationDetails.length;
-  const setNeedsFirst = () => paginateFullscreen && paginationDetails && paginationDetails.position !== 0
-  
-  $: if(paginateFullscreen || paginationDetails) {
-    needsLast = setNeedsLast();
-    needsNext = setNeedsFirst();
-  };
- 
+  let needsNext = $state(false);
+  let needsLast = $state(false);
+
+  const paginateFullscreen = paginateItem
+    ? paginateItem(`${analyticsKey} paginate fullscreen`)
+    : null;
+
+  const setNeedsLast = () =>
+    paginateFullscreen &&
+    paginationDetails &&
+    paginationDetails.position + 1 < paginationDetails.length;
+
+  const setNeedsFirst = () =>
+    paginateFullscreen && paginationDetails && paginationDetails.position !== 0;
+
+  $effect(() => {
+    if (paginateFullscreen || paginationDetails) {
+      needsLast = setNeedsLast();
+      needsNext = setNeedsFirst();
+    }
+  });
 </script>
 
 <svelte:window bind:innerWidth={windowWidth} />
 <svelte:body use:noScroll={displayBg} />
 
 {#if targetImage}
-  <div 
-    on:click={open} 
-    on:keypress={open} 
-    class="img open" 
-  >
+  <button onclick={open} onkeypress={open} class="img open">
     <img src={targetImage} alt={"click for fullscreen"} />
-  </div>
+  </button>
 {:else}
-  <div 
-    on:click={open} 
-    on:keypress={open} 
-    class="btn btn-bg open" 
+  <button
+    onclick={open}
+    onkeypress={open}
+    class="btn btn-bg open"
     style={`--btn-offset: ${btnOffset}%`}
   >
     <img src={fullscreenIcon} alt={"click for fullscreen"} />
-  </div>
+  </button>
 {/if}
 
 {#if displayBg}
-  <div class="bg-overlay"
-    on:click={close}
-    on:keypress={close}
-    transition:fade={transitionConfig}
-  />
+  <div
+    class="bg-overlay"
+    role="button"
+    tabindex="0"
+    onclick={close}
+    onkeypress={close}
+    transition:fade|global={transitionConfig}
+    aria-label="Close fullscreen"
+  ></div>
 {/if}
 
 {#if displayImg}
-  <div class="wrap" transition:scale={transitionConfig}>
-    <div 
-      class="close-control modal-control-wrap" 
+  <div class="wrap" transition:scale|global={transitionConfig}>
+    <div
+      class="close-control modal-control-wrap"
       style={`--width: ${toRem(maxOverlayWidth) - 2}rem`}
     >
-      <div
-        on:click={close}
-        on:keypress={close}
-        class="btn btn-bg close"
+      <button onclick={close} onkeypress={close} class="btn btn-bg close"
+        >x</button
       >
-        x
-      </div>
     </div>
-    <img 
-      src={`${img}`} 
-      alt={altText} 
-      class="fs" 
+    <img
+      src={`${img}`}
+      alt={altText}
+      class="fs"
       style={`
         --height: ${hmw.h};
         --max-width: ${hmw.mw};
-      `} 
+      `}
     />
     {#if needsLast || needsNext}
-      <div class="page-control modal-control-wrap"
+      <div
+        class="page-control modal-control-wrap"
         style={`--width: ${toRem(maxOverlayWidth) - 2}rem`}
       >
-        <span 
+        <button
           class:disabled={!needsNext}
-          class="pagination-link last btn-bg" 
-          on:click={() => paginateFullscreen(-1)}
-          on:keypress={() => paginateFullscreen(-1)}
+          class="pagination-link last btn-bg"
+          onclick={() => paginateFullscreen(-1)}
+          onkeypress={() => paginateFullscreen(-1)}
         >
           <Arrow color="white" size="medium" direction="left" />
-        </span>
-        <span 
+        </button>
+        <button
           class:disabled={!needsLast}
-          class="pagination-link next btn-bg" 
-          on:click={() => paginateFullscreen(1)}
-          on:keypress={() => paginateFullscreen(1)}
+          class="pagination-link next btn-bg"
+          onclick={() => paginateFullscreen(1)}
+          onkeypress={() => paginateFullscreen(1)}
         >
           <Arrow color="white" size="medium" direction="right" />
-        </span>
+        </button>
       </div>
     {/if}
   </div>
-
 {/if}
 
 <style>
@@ -166,10 +187,11 @@
     cursor: pointer;
   }
   .btn-bg {
+    height: 3rem;
     background: var(--off-bk);
     border-radius: var(--space-md);
     color: white;
-    opacity: .85;
+    opacity: 0.85;
   }
   .btn {
     height: 2rem;
@@ -177,16 +199,18 @@
     background: var(--off-bk);
     border-radius: var(--space-md);
     color: white;
-    opacity: .85;
+    opacity: 0.85;
   }
-
+  .btn:hover {
+    opacity: 1;
+  }
   .img img {
     height: auto;
     width: 20rem;
     margin-left: -25%;
     object-fit: fill;
   }
-  
+
   img.fs {
     height: var(--height);
     max-width: var(--max-width);
@@ -202,15 +226,12 @@
   .btn.close {
     height: 3.5rem;
     width: 3.5rem;
-    font-size: 3rem;
+    font-size: 2.75rem;
     line-height: 3.5rem;
     text-align: center;
     top: 0;
     left: 0;
     margin-left: var(--position);
-  }
-  .btn:hover {
-    opacity: 1;
   }
   .wrap {
     height: 100%;
@@ -219,16 +240,15 @@
     left: 50%;
     transform: translate(-50%);
     z-index: 200;
-    
   }
   .modal-control-wrap {
-    position:fixed;
+    position: fixed;
     width: var(--width);
     left: 50%;
     transform: translate(-50%);
     display: flex;
   }
-  
+
   .close-control {
     justify-content: flex-end;
     top: 0;
@@ -237,7 +257,6 @@
     position: absolute;
     bottom: 2rem;
     justify-content: center;
-    
   }
   .pagination-link.disabled {
     pointer-events: none;

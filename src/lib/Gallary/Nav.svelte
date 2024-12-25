@@ -1,181 +1,238 @@
 <script lang="ts">
+  import { afterNavigate } from "$app/navigation";
 
-  import { afterUpdate } from "svelte";
-	
-  import { afterNavigate } from '$app/navigation';
-
-	import { cleanUrlSlug } from "$lib/history";
+  import { cleanUrlSlug } from "$lib/history";
   import { captureBehavior } from "$lib/analytics";
 
-  import { wrapperWidth, rem, toRem, fromRem, mqBreakPoint } from "$lib/spacing";
-  
-  import Arrow from "$lib/arrow/Arrow.svelte"
+  import {
+    wrapperWidth,
+    rem,
+    toRem,
+    fromRem,
+    mqBreakPoint,
+  } from "$lib/spacing";
+
+  import Arrow from "$lib/arrow/Arrow.svelte";
   import type { ArtWithId } from "$lib/typing/art";
 
-  export let artPieces: Array<ArtWithId>;
-  export let artPiece: ArtWithId;
-	import { noScroll } from "$lib/body";
-	import { fade } from "svelte/transition";
+  import { noScroll } from "$lib/body";
+  import { fade } from "svelte/transition";
+  import { onMount } from "svelte";
 
-	export let navArtPieceClick: (_: number) => (e: Event) => void;
+  type PaginationShift = -1 | 1;
 
-  export let expanded: boolean;
-  export let setExpanded: (_:boolean) => void;
+  type NavProps = {
+    expanded: boolean;
+    setExpanded: (v: boolean) => void;
+    categoryTitle: string;
+    analyticsKey: string;
+    parentRoute: string;
+    subnavHeight: number;
+    gallarySectionHeight: number;
+    scrollRequestUpdate: boolean;
+    measureH: number;
+    artPieces: Array<ArtWithId>;
+    artPiece: ArtWithId;
+    navArtPieceClick: (i: number) => (e: Event) => void;
+    shoudPageinateSlider: (apId: number) => void;
+  };
 
-  export let categoryTitle: string;
-  export let analyticsKey: string;
-  export let parentRoute: string;
-  export let subnavHeight: number;
-  export let gallarySectionHeight: number;
-  export let scrollRequestUpdate: boolean;
-  export let measureH: number;
+  let {
+    expanded,
+    setExpanded,
+    categoryTitle,
+    analyticsKey,
+    parentRoute,
+    subnavHeight = $bindable(),
+    scrollRequestUpdate = $bindable(),
+    measureH,
+    artPieces,
+    artPiece,
+    navArtPieceClick,
+    shoudPageinateSlider = $bindable(),
+    gallarySectionHeight,
+  }: NavProps = $props();
 
-  let windowHeight: number;
-  let windowWidth: number;
-  
-  let scrollY: number;
+  let windowHeight: number = $state();
 
-  let activeItemIndex = 0;
-  
-  let scrollLogged = false;
-  
-  let subnavWidth: number;
-  let itemsPerPage = 0;
+  let windowWidth: number = $state();
+  let navHeight = $derived(windowHeight * 0.72);
+
+  let subnavWidth: number = $state();
+
+  let isAbsolute: boolean = $state();
+
+  let scrollY: number = $state();
+  let scrollLogged = $state(false);
+
+  let activeItemIndex = $state(0);
+  let itemsPerPage = $state(0);
 
   const thubmnailWidth = fromRem(6);
 
-  let isAbsolute: boolean;
   const checkIsAbsolute = () => {
-    if(windowWidth  > mqBreakPoint) return;
-    if(!scrollRequestUpdate) scrollRequestUpdate = true;
+    if (windowWidth > mqBreakPoint) return;
+
+    if (!scrollRequestUpdate) scrollRequestUpdate = true;
 
     isAbsolute = scrollY + windowHeight - subnavHeight > measureH;
   };
 
   const initNav = () => {
     checkIsAbsolute();
-    itemsPerPage = Math.floor((subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem));
-  }
 
-  afterUpdate(initNav);
-	afterNavigate(initNav);
+    if (windowWidth < mqBreakPoint) return;
 
-  $: artPieceChanged(artPiece.id)
-  $: navHeight = windowHeight * 0.72;
+    itemsPerPage = Math.floor(
+      (subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem)
+    );
+  };
 
-  $: if(subnavWidth && scrollY) initNav();
-  $: if(scrollY || windowWidth || gallarySectionHeight) checkIsAbsolute();
+  $effect(() => {
+    if (scrollY || windowWidth || gallarySectionHeight) checkIsAbsolute();
+  });
 
-  const apPosition = (apid: number) => artPieces.findIndex(_ => _.id === apid);
-  
-  const paginate = (n: number) => {
-    const aii = activeItemIndex + (n * (itemsPerPage - 1));
-    activeItemIndex = aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
+  afterNavigate(initNav);
+  onMount(initNav);
+
+  const apPosition = (apid: number) =>
+    artPieces.findIndex((p) => p.id === apid);
+
+  const paginate = (ps: PaginationShift) => {
+    const aii = activeItemIndex + ps * (itemsPerPage - 1);
+    activeItemIndex =
+      aii < 0 ? 0 : aii > artPieces.length ? artPieces.length : aii;
   };
 
   const artPieceChanged = (apId: number) => {
     const apP = apPosition(apId);
     if (activeItemIndex !== 0 && apP < activeItemIndex) {
       paginate(-1);
-    } else if (apP > activeItemIndex + (itemsPerPage -1)) {
+    } else if (apP > activeItemIndex + (itemsPerPage - 1)) {
+      console.log("art piece changed else statement");
       paginate(1);
     }
-  }
+  };
 
-  const paginateClick = (n: number) => {
-    paginate(n);
+  const paginateClick = (ps: PaginationShift) => {
+    paginate(ps);
     captureBehavior(
-			`${analyticsKey} click slider ${n > 0 ? "next" : "last"}`, 
-			{
+      `${analyticsKey} click slider ${ps > 0 ? "next" : "last"}`,
+      {
         activeIndex: activeItemIndex,
-        itemsPerPage: itemsPerPage
+        itemsPerPage: itemsPerPage,
       }
-		);
-  }
+    );
+  };
 
   const handleNavArtPieceClick = (id: number) => {
-    setExpanded(false)
+    setExpanded(false);
     scrollLogged = false;
     return navArtPieceClick(id);
-  }
+  };
 
   const handleMNavClick = () => {
-    setExpanded(!expanded)
-    captureBehavior(`${analyticsKey} click expand mobile nav`, {expanded: expanded});
-    scrollLogged = false
-  }
+    setExpanded(!expanded);
+    captureBehavior(`${analyticsKey} click expand mobile nav`, {
+      expanded: expanded,
+    });
+    scrollLogged = false;
+  };
 
   const scrollMNav = () => {
     if (!scrollLogged) {
       captureBehavior(`${analyticsKey} scroll mobile nav`);
       scrollLogged = true;
     }
-  }
-  
+  };
+
+  shoudPageinateSlider = artPieceChanged;
 </script>
 
-<svelte:window 
-  bind:innerHeight={windowHeight} 
+<svelte:window
+  bind:innerHeight={windowHeight}
   bind:innerWidth={windowWidth}
-  bind:scrollY={scrollY}
+  bind:scrollY
+  onresize={initNav}
 />
 <svelte:body use:noScroll={expanded} />
-  
+
 {#if expanded}
-  <div class="bg-overlay"
-    on:click={handleMNavClick}
-    on:keypress={handleMNavClick}
-    transition:fade={{duration: 200}} 
-    />
+  <div
+    class="bg-overlay"
+    role="button"
+    tabindex="0"
+    onclick={handleMNavClick}
+    onkeypress={handleMNavClick}
+    transition:fade|global={{ duration: 200 }}
+  ></div>
 {/if}
-  <nav class="bnav subnav" 
+<nav
+  class="bnav subnav"
   class:absolute={isAbsolute}
-  bind:clientWidth={subnavWidth} 
-  bind:clientHeight={subnavHeight} 
-  style={`--window-width: ${windowWidth / rem}rem`}>  
-    <div class="subnav-wrap">
-    <div class="subnav-handle" on:click={handleMNavClick} on:keypress={handleMNavClick}>
-      <h3>{expanded ? categoryTitle: artPiece.attributes.title}</h3>
+  bind:clientWidth={subnavWidth}
+  bind:clientHeight={subnavHeight}
+  style={`--window-width: ${windowWidth / rem}rem`}
+>
+  <div class="subnav-wrap">
+    <button
+      class="subnav-handle"
+      onclick={handleMNavClick}
+      onkeypress={handleMNavClick}
+    >
+      <h3>{expanded ? categoryTitle : artPiece.attributes.title}</h3>
       <div class="subnav-icon">
-        <Arrow direction={expanded ? "bottom": "top"} color="white" size="medium" />
+        <Arrow
+          direction={expanded ? "bottom" : "top"}
+          color="white"
+          size="medium"
+        />
       </div>
-    </div>
+    </button>
     {#if activeItemIndex > 0}
-      <div class="last" on:click={() => paginateClick(-1)} on:keypress={() => paginateClick(-1)}>
+      <button
+        class="last"
+        onclick={() => paginateClick(-1)}
+        onkeypress={() => paginateClick(-1)}
+      >
         <Arrow direction="left" color="white" size="large" />
-      </div>
+      </button>
     {/if}
     <div class="subnav-content">
-      <ul 
-        on:scroll={scrollMNav}
-        class:expanded={expanded} 
+      <ul
+        onscroll={scrollMNav}
+        class:expanded
         style={`
           --nav-height: ${toRem(navHeight)}rem;
           --nav-offset: ${toRem(activeItemIndex * thubmnailWidth) * -1}rem;
         `}
       >
-        {#each artPieces as _}
-          <li class:active={_.id === artPiece.id}>
+        {#each artPieces as p}
+          <li class:active={p.id === artPiece.id}>
             <a
-              on:click={handleNavArtPieceClick(_.id)}
-              href="{`${parentRoute}${_.id}/${cleanUrlSlug(_.attributes.title)}`}"
-              class:active="{_.id === artPiece.id}" 
+              onclick={() => handleNavArtPieceClick(p.id)}
+              href={`${parentRoute}${p.id}/${cleanUrlSlug(p.attributes.title)}`}
+              class:active={p.id === artPiece.id}
             >
-              <img 
-                src={`${_.attributes.image.data.attributes.formats.thumbnail.url}`} 
-                alt={_.attributes.description} 
+              <img
+                src={`${p.attributes.image.data.attributes.formats.thumbnail.url}`}
+                alt={p.attributes.description}
               />
             </a>
           </li>
         {/each}
-      </ul>  
+      </ul>
     </div>
     {#if activeItemIndex + itemsPerPage < artPieces.length}
-      <div class="next" on:click={() => paginateClick(1)} on:keypress={() => paginateClick(1)}>
+      <button
+        class="next"
+        onclick={() => paginateClick(1)}
+        onkeypress={() => paginateClick(1)}
+      >
         <Arrow direction="right" color="white" size="large" />
-      </div>
+      </button>
     {/if}
-  </div> 
+  </div>
 </nav>
 
 <style>
@@ -189,7 +246,7 @@
     align-items: center;
     overflow: hidden;
     background-image: linear-gradient(var(--p-dk), var(--p-md));
-	}
+  }
   .subnav {
     width: var(--window-width);
     border-top: var(--space-md) solid var(--y-md);
@@ -213,29 +270,28 @@
     z-index: 10;
     background: var(--p-dk);
     background-image: linear-gradient(var(--p-dk), var(--p-md));
-    
   }
   .subnav-wrap:before {
     left: 0;
     mask-image: linear-gradient(to left, transparent 25%, black 50%);
-
   }
   .subnav-wrap:after {
     right: 0;
     mask-image: linear-gradient(to right, transparent 25%, black 50%);
-
   }
   .subnav-content {
     width: 100%;
     height: 100%;
     position: relative;
   }
-  .last, .next {
+  .last,
+  .next {
     position: absolute;
     z-index: 20;
     transition: transform 0.2s ease-in-out;
   }
-  .last:hover, .next:hover {
+  .last:hover,
+  .next:hover {
     transform: scale(1.15);
   }
   .last {
@@ -246,19 +302,18 @@
   }
   ul {
     height: 100%;
-		display: flex;
+    display: flex;
     align-items: center;
     position: absolute;
-		padding: 0;
+    padding: 0;
     left: 0;
     margin-left: var(--nav-offset);
-    transition: 
+    transition:
       height 0.33s ease-in-out,
-      margin-left 0.4s ease-in-out, 
-      opacity 0.4s ease-in-out 0.2s
-    ;
-	}
-	li img {
+      margin-left 0.4s ease-in-out,
+      opacity 0.4s ease-in-out 0.2s;
+  }
+  li img {
     height: auto;
     width: 100%;
     object-fit: cover;
@@ -279,7 +334,7 @@
   li.active {
     outline: 0.2rem solid var(--y-md);
   }
-  
+
   li a {
     width: 5rem;
     height: 4rem;
@@ -288,7 +343,7 @@
   .bg-overlay {
     display: none;
   }
-  @media (max-width: 767.98px) { 
+  @media (max-width: 767.98px) {
     nav {
       height: auto;
       width: auto;
@@ -318,35 +373,29 @@
       flex-wrap: wrap;
       margin-left: 0 !important;
       justify-content: space-around;
-      opacity: 1!important;
+      opacity: 1 !important;
     }
     .subnav ul {
       height: 0;
-      overflow: hidden;
-      transition: height 0.33s ease-in-out;
-    }
-    ul.expanded {
-      height: var(--nav-height);
       overflow: scroll;
+      transition: height 0.33s ease-in-out;
     }
     .subnav ul.expanded {
       height: var(--nav-height);
     }
-
     li {
       margin: 1.5rem 0.5rem;
     }
-  
     li a {
       width: 8rem;
       height: 8rem;
     }
-    .next, .last {
+    .next,
+    .last {
       display: none;
     }
     .bg-overlay {
       display: block;
     }
   }
-
 </style>

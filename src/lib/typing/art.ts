@@ -2,15 +2,15 @@ import * as t from "io-ts";
 import { strapiBaseC, strapiDataArrC, strapiUpdatedC, withIdC } from "./strapi";
 
 const imageBaseC = t.type({
-	ext: t.string,
-	height: t.number,
-	hash: t.string,
-	mime: t.string,
-	name: t.string,
-	size: t.number,
-	url: t.string,
-	width: t.number,
-  path: t.union([t.string, t.null])
+  ext: t.string,
+  height: t.number,
+  hash: t.string,
+  mime: t.string,
+  name: t.string,
+  size: t.number,
+  url: t.string,
+  width: t.number,
+  path: t.union([t.string, t.null]),
 });
 
 const imageAttrsC = t.intersection([
@@ -28,19 +28,19 @@ const imageAttrsC = t.intersection([
       t.type({
         small: imageBaseC,
         medium: t.union([imageBaseC, t.undefined]),
-        thumbnail: imageBaseC
-      })
-    ])
-  })
+        thumbnail: imageBaseC,
+      }),
+    ]),
+  }),
 ]);
 
 export const imageC = t.union([imageBaseC, imageAttrsC]);
 
 export const strapiImageDataC = t.type({
-	data: t.union([withIdC(imageAttrsC), t.null])
+  data: t.union([withIdC(imageAttrsC), t.null]),
 });
 
-export type StrapiImageData = t.TypeOf<typeof strapiImageDataC>
+export type StrapiImageData = t.TypeOf<typeof strapiImageDataC>;
 
 export const artBaseC = t.intersection([
   t.any,
@@ -48,8 +48,8 @@ export const artBaseC = t.intersection([
   t.type({
     description: t.string,
     order: t.number,
-    image: strapiImageDataC
-  })
+    image: strapiImageDataC,
+  }),
 ]);
 
 export const artC = t.intersection([
@@ -58,17 +58,17 @@ export const artC = t.intersection([
     title: t.string,
     createdDate: t.string,
     medium: t.string,
-  })
+  }),
 ]);
 
 const artWithId = withIdC(artC);
 export type ArtWithId = t.TypeOf<typeof artWithId>;
 
 export const artCategoryC = t.intersection([
-  strapiBaseC, 
+  strapiBaseC,
   t.type({
     title: t.string,
     art_pieces: t.union([strapiDataArrC(artC), t.undefined]),
-    omit:  t.union([strapiDataArrC(t.null), t.undefined])
-  })
+    omit: t.union([strapiDataArrC(t.null), t.undefined]),
+  }),
 ]);

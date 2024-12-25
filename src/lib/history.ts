@@ -1,10 +1,11 @@
-export const cleanUrlSlug = (_: string) => {
-  let str = _
-    .replace(/[^A-Za-z0-9]/g, "-")
+import { pushState } from "$app/navigation";
+
+export const cleanUrlSlug = (slug: string) => {
+  let str = slug.replace(/[^A-Za-z0-9]/g, "-")
     .toLowerCase()
     .split("--")
-    .reduce((acc, _) => `${acc}-${_}`);
-  
+    .reduce((acc, v) => `${acc}-${v}`);
+
   if (str[0] === "-") str = str.substring(1, str.length);
   if (str[str.length - 1] === "-") str = str.substring(0, str.length - 1);
 
@@ -13,6 +14,8 @@ export const cleanUrlSlug = (_: string) => {
 
 export const clientNavigate = (scroll: boolean) => (url: string, slug?: string) => {
   const s = slug ? `/${cleanUrlSlug(slug)}` : "";
-  history.pushState({}, "", `${url}${s}`);
-  scroll && window.scrollTo({top: 0});
+  pushState(`${url}${s}`, {});
+  if (scroll) {
+    window.scrollTo({ top: 0 });
+  } 
 };
