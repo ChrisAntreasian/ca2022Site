@@ -1,12 +1,12 @@
-import adapterauto from "@sveltejs/adapter-auto";
-import preprocess from "svelte-preprocess";
+import adapter from '@sveltejs/adapter-vercel';
+import { sveltePreprocess } from 'svelte-preprocess';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   extensions: [".svelte", ".md"],
-  preprocess: preprocess(),
+  preprocess: sveltePreprocess(),
   kit: {
-    adapter: adapterauto(),
+    adapter: adapter(),
     alias: {
       $lib: "./src/lib",
       $data: "./src/data",
