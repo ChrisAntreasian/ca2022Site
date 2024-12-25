@@ -1,202 +1,234 @@
 <script lang="ts">
-  import { afterNavigate } from '$app/navigation';
+  import { afterNavigate } from "$app/navigation";
   import { fade } from "svelte/transition";
-  import SvelteMarkdown from 'svelte-markdown'
+  import SvelteMarkdown from "svelte-exmarkdown";
 
   import { rem } from "$lib/spacing";
-  import Arrow from '$lib/arrow/Arrow.svelte';
-  import FullScreen from '../Fullscreen/index.svelte';
+  import Arrow from "$lib/arrow/Arrow.svelte";
+  import FullScreen from "../Fullscreen/index.svelte";
 
   import { contextHeightKey, mqBreakPoint } from "$lib/spacing";
-	import { getContext } from "svelte";
+  import { getContext } from "svelte";
   import type { ArtWithId } from "$lib/typing/art";
 
-  export let artPiece: ArtWithId;
-  export let imageWidth: number;
-  export let detailsWidth: number;
-  export let showMore: boolean;
-  export let gallerySectionHeight: number;
-  export let windowWidth: number;
-  export let analyticsKey: string;
-  export let subnavHeight: number;
-  export let measureH: number;
-  export let scrollRequestUpdate: boolean;
-  export let hideMobileTitle: boolean;
-  export let readMoreClick: (_: boolean) => void;
-
-  export let paginateItem: (s:string) => (n: number) => void;
-  export let paginationDetails: {
-    length: number,
-    position: number
+  interface Props {
+    artPiece: ArtWithId;
+    imageWidth: number;
+    detailsWidth: number;
+    showMore: boolean;
+    gallerySectionHeight: number;
+    windowWidth: number;
+    analyticsKey: string;
+    subnavHeight: number;
+    measureH: number;
+    scrollRequestUpdate: boolean;
+    hideMobileTitle: boolean;
+    readMoreClick: (b: boolean) => void;
+    paginateItem: (s: string) => (n: number) => void;
+    paginationDetails: {
+      length: number;
+      position: number;
+    };
   }
 
-  let transitioning = false;
-  let headlineHeight: number;
-  let metaHeight: number;
-  let needsReadmore = false;
-  let detailsDiv: HTMLDivElement;
-  let contentHeight: number;
-  let scrollY: number;
-  
+  let {
+    artPiece,
+    imageWidth,
+    detailsWidth,
+    showMore,
+    gallerySectionHeight = $bindable(),
+    windowWidth = $bindable(),
+    analyticsKey,
+    subnavHeight,
+    measureH = $bindable(),
+    scrollRequestUpdate,
+    hideMobileTitle,
+    readMoreClick,
+    paginateItem,
+    paginationDetails,
+  }: Props = $props();
+
+  let transitioning = $state(false);
+  let headlineHeight: number = $state();
+  let metaHeight: number = $state();
+  let needsReadmore = $state(false);
+  let detailsDiv: HTMLDivElement = $state();
+  let contentHeight: number = $state();
+  let scrollY: number = $state();
+
   const setOverflow = () => {
     if (!detailsDiv || windowWidth < mqBreakPoint) return;
     needsReadmore = detailsDiv.scrollHeight > detailsDiv.clientHeight;
   };
   const setContentHeight = () => {
-    contentHeight = (gallerySectionHeight * rem - metaHeight - headlineHeight -  4 * rem) / rem;
+    contentHeight =
+      (gallerySectionHeight * rem - metaHeight - headlineHeight - 4 * rem) /
+      rem;
   };
 
   const init = () => {
-    setOverflow()
+    setOverflow();
     setContentHeight();
-  }
+  };
 
-  afterNavigate(init);  
+  afterNavigate(init);
 
-  $: if(windowWidth) init();
-  $: if(artPiece.id || detailsDiv.scrollHeight || detailsDiv.clientHeight) setOverflow();
+  $effect(() => {
+    if (windowHeight < mqBreakPoint) return;
+    init();
+  });
 
-  let windowHeight: number;
+  let windowHeight: number = $state();
 
-  const { getHeaderHeight }: {
-    getHeaderHeight: () => number,
-    getFooterHeight: () => number
+  const {
+    getHeaderHeight,
+  }: {
+    getHeaderHeight: () => number;
+    getFooterHeight: () => number;
   } = getContext(contextHeightKey);
 
   const handleReadMoreClick = () => {
     readMoreClick(!showMore);
-    detailsDiv.scrollTo({top: 0})
-  }
+    detailsDiv.scrollTo({ top: 0 });
+  };
 
   const paginateGal = paginateItem(analyticsKey);
-  
 </script>
+
 <svelte:window
-  bind:innerHeight={windowHeight} 
+  bind:innerHeight={windowHeight}
   bind:innerWidth={windowWidth}
-  bind:scrollY={scrollY}
+  bind:scrollY
 />
-  <article style={`
+<article
+  style={`
     --min-height-mobile: ${(windowHeight - getHeaderHeight()) / rem}rem;
     --gallery-section-height: ${gallerySectionHeight}rem;
     --snh: ${subnavHeight / rem}rem;
-  `}>
-   {#key scrollRequestUpdate}
-      <div bind:offsetHeight={measureH} class="mh" />
-    {/key}
-    <div class="wrap">
-      <FullScreen 
-        id={artPiece.id}
-        title={artPiece.attributes.title}
-        img={artPiece.attributes.image.data.attributes.url}
-        altText={artPiece.attributes.image.data.attributes.alternativeText} 
-        analyticsKey={analyticsKey} 
-        paginateItem={paginateItem} 
-        paginationDetails={paginationDetails}
-        btnOffset={100 - detailsWidth}
-      />
-      {#key artPiece.id}
-        <figure
-          class:transition={transitioning}
-          in:fade={{duration: 500}}
-          out:fade={{duration: 300}}
-          on:introend="{() => {    
-            setOverflow()
-            transitioning = false;
-          }}"
-          on:outrostart="{() => {
-            needsReadmore = false;
-            transitioning = true;
-          }}"
-        >       
-          <div class="image" style={`width: ${imageWidth}%`}>
-            <img
-              src={`${artPiece.attributes.image.data.attributes.url}`}
-              alt={artPiece.attributes.description}
-            />
-            
-          </div>
-          <figcaption style={`--caption-width: ${detailsWidth}%`}>
-            <div>
-              <h3 bind:clientHeight={headlineHeight}>{artPiece.attributes.title}</h3>
-              <div class={`md-wrap ${!showMore ? "overflow" : needsReadmore ? "needs-overflow" : ""}`}>
-                <div 
-                  bind:this={detailsDiv}
-                  class="md-content"
-                  style={`--height: ${windowWidth > mqBreakPoint ? `${contentHeight}rem;` : "auto"}`}>
-                  <span class="md-content-desktop">
-                    <SvelteMarkdown source={artPiece.attributes.description} />
-                  </span>
-                  <span class="md-content-mobile">
-                    <SvelteMarkdown source={`${hideMobileTitle ? "" : artPiece.attributes.title} ${artPiece.attributes.description}`} />
-                  </span>
-                  {#if needsReadmore}
-                    <div class="readmore"
-                      transition:fade={{duration: 300}}
-                      on:click={handleReadMoreClick}
-                      on:keypress={handleReadMoreClick}
-                    >
-                      {!showMore ? "read less" : "read more"}
-                    </div>
-                  {/if}
-                </div>
-                {#if showMore}
-                  <div
-                    class="fade"
-                    transition:fade={{duration: 300}}
+  `}
+>
+  {#key scrollRequestUpdate}
+    <div bind:offsetHeight={measureH} class="mh"></div>
+  {/key}
+  <div class="wrap">
+    <FullScreen
+      id={artPiece.id}
+      title={artPiece.attributes.title}
+      img={artPiece.attributes.image.data.attributes.url}
+      altText={artPiece.attributes.image.data.attributes.alternativeText}
+      {analyticsKey}
+      {paginateItem}
+      {paginationDetails}
+      btnOffset={100 - detailsWidth}
+    />
+    {#key artPiece.id}
+      <figure
+        class:transition={transitioning}
+        in:fade|global={{ duration: 500 }}
+        out:fade|global={{ duration: 300 }}
+        onintroend={() => {
+          setOverflow();
+          transitioning = false;
+        }}
+        onoutrostart={() => {
+          needsReadmore = false;
+          transitioning = true;
+        }}
+      >
+        <div class="image" style={`width: ${imageWidth}%`}>
+          <img
+            src={`${artPiece.attributes.image.data.attributes.url}`}
+            alt={artPiece.attributes.description}
+          />
+        </div>
+        <figcaption style={`--caption-width: ${detailsWidth}%`}>
+          <div>
+            <h3 bind:clientHeight={headlineHeight}>
+              {artPiece.attributes.title}
+            </h3>
+            <div
+              class={`md-wrap ${!showMore ? "overflow" : needsReadmore ? "needs-overflow" : ""}`}
+            >
+              <div
+                bind:this={detailsDiv}
+                class="md-content"
+                style={`--height: ${windowWidth > mqBreakPoint ? `${contentHeight}rem;` : "auto"}`}
+              >
+                <span class="md-content-desktop">
+                  <SvelteMarkdown md={artPiece.attributes.description} />
+                </span>
+                <span class="md-content-mobile">
+                  <SvelteMarkdown
+                    md={`${hideMobileTitle ? "" : artPiece.attributes.title} ${artPiece.attributes.description}`}
                   />
+                </span>
+                {#if needsReadmore}
+                  <button
+                    class="readmore"
+                    transition:fade|global={{ duration: 300 }}
+                    onclick={handleReadMoreClick}
+                    onkeypress={handleReadMoreClick}
+                  >
+                    {!showMore ? "read less" : "read more"}
+                  </button>
                 {/if}
               </div>
+              {#if showMore}
+                <div
+                  class="fade"
+                  transition:fade|global={{ duration: 300 }}
+                ></div>
+              {/if}
             </div>
-            <div class="details" bind:clientHeight={metaHeight}>
-              <div>
-                {#if artPiece.attributes.createdDate}
-                  <div class="meta">
-                    <span>date: </span>
-                    {new Date(artPiece.attributes.createdDate).getFullYear()}
-                  </div>
-                {/if}
-                {#if artPiece.attributes.medium}
-                  <div class="meta">
-                    <span>medium:</span>
-                    {artPiece.attributes.medium}
-                  </div>
-                {/if}
-              </div>
-              <div>
-                <div class="pagination">
-                  {#if paginationDetails.position !== 0 }
-                    <span
-                      class="pagination-link last"
-                      on:click={() => paginateGal(-1)}
-                      on:keypress={() => paginateGal(-1)}
-                    >
-                      <Arrow color="blue" size="small" direction="left" />
-                      last
-                    </span>
-                  {/if}
-                  {#if paginationDetails.position !== 0 && paginationDetails.position + 1 < paginationDetails.length}
-                    <span>|</span>
-                  {/if}
-                  {#if paginationDetails.position + 1 < paginationDetails.length}
-                    <span
-                      class="pagination-link next"
-                      on:click={() => paginateGal(1)}
-                      on:keypress={() => paginateGal(1)}
-                    >
-                      next
-                      <Arrow color="blue" size="small" direction="right" />
-                    </span>
-                  {/if}
+          </div>
+          <div class="details" bind:clientHeight={metaHeight}>
+            <div>
+              {#if artPiece.attributes.createdDate}
+                <div class="meta">
+                  <span>date: </span>
+                  {new Date(artPiece.attributes.createdDate).getFullYear()}
                 </div>
+              {/if}
+              {#if artPiece.attributes.medium}
+                <div class="meta">
+                  <span>medium:</span>
+                  {artPiece.attributes.medium}
+                </div>
+              {/if}
+            </div>
+            <div>
+              <div class="pagination">
+                {#if paginationDetails.position !== 0}
+                  <button
+                    class="pagination-link last"
+                    onclick={() => paginateGal(-1)}
+                    onkeypress={() => paginateGal(-1)}
+                  >
+                    <Arrow color="blue" size="small" direction="left" />
+                    last
+                  </button>
+                {/if}
+                {#if paginationDetails.position !== 0 && paginationDetails.position + 1 < paginationDetails.length}
+                  <span>|</span>
+                {/if}
+                {#if paginationDetails.position + 1 < paginationDetails.length}
+                  <button
+                    class="pagination-link next"
+                    onclick={() => paginateGal(1)}
+                    onkeypress={() => paginateGal(1)}
+                  >
+                    next
+                    <Arrow color="blue" size="small" direction="right" />
+                  </button>
+                {/if}
               </div>
             </div>
-          </figcaption>
-        </figure>
-      {/key}
-    </div>
-  </article>
-
+          </div>
+        </figcaption>
+      </figure>
+    {/key}
+  </div>
+</article>
 
 <style>
   article {
@@ -234,14 +266,14 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: var( --caption-width);
+    width: var(--caption-width);
   }
   .pagination {
     color: var(--off-bk);
     text-align: right;
   }
   .md-wrap {
-    position: relative
+    position: relative;
   }
   .md-content {
     overflow: hidden;
@@ -249,7 +281,7 @@
   }
   .md-content-mobile {
     display: none;
-    margin-top:1rem;
+    margin-top: 1rem;
   }
   .needs-overflow .fade {
     position: absolute;
@@ -262,8 +294,8 @@
     pointer-events: none;
     height: 3rem;
   }
-  .overflow .md-content{
-    overflow: scroll;
+  .overflow .md-content {
+    overflow-y: scroll;
   }
   .meta,
   .meta span {
@@ -330,7 +362,7 @@
     }
     figcaption {
       align-items: flex-start;
-      padding-left: 0;
+      padding: 0;
     }
     .md-content {
       height: auto;
@@ -357,5 +389,4 @@
       display: none;
     }
   }
-
 </style>

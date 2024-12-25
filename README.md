@@ -1,9 +1,12 @@
 # Christopher Antreasians ART SITE
 
-Built this silly thing with my blood and tears. 
+Built this silly thing with my blood and tears.
+
 ## Svelte
 
 React is ok, now for something completely different.
+
+Update to Svelte 5!
 
 Yay!
 
