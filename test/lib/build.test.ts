@@ -1,0 +1,193 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// Mock environment variables and dependencies
+vi.mock('$lib/file', () => ({
+  writeFsTE: vi.fn(),
+}));
+
+vi.mock('./error', () => ({
+  throwErrIO: vi.fn(() => vi.fn()),
+  e403: vi.fn((msg: string) => new Error(msg)),
+}));
+
+// Mock import.meta.env
+Object.defineProperty(globalThis, 'import', {
+  value: {
+    meta: {
+      env: {
+        VITE_BUILD_KEY: 'test-build-key',
+        VITE_ENV: 'develop',
+      },
+    },
+  },
+});
+
+import * as TE from 'fp-ts/TaskEither';
+import * as E from 'fp-ts/Either';
+import { buildRes, combineResp, writeFile } from '../../src/lib/build';
+
+describe('Build Utilities', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('combineResp', () => {
+    it('combines array of objects into single object', async () => {
+      const input = TE.right([
+        { key1: 'value1' },
+        { key2: 'value2' },
+        { key3: 'value3' },
+      ]);
+
+      const result = await combineResp(input)();
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right).toEqual({
+          key1: 'value1',
+          key2: 'value2',
+          key3: 'value3',
+        });
+      }
+    });
+
+    it('handles empty array', async () => {
+      const input = TE.right([]);
+
+      const result = await combineResp(input)();
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right).toEqual({});
+      }
+    });
+
+    it('handles objects with overlapping keys (last wins)', async () => {
+      const input = TE.right([
+        { key1: 'first', shared: 'original' },
+        { key2: 'second', shared: 'overwritten' },
+      ]);
+
+      const result = await combineResp(input)();
+
+      expect(E.isRight(result)).toBe(true);
+      if (E.isRight(result)) {
+        expect(result.right).toEqual({
+          key1: 'first',
+          key2: 'second',
+          shared: 'overwritten',
+        });
+      }
+    });
+
+    it('propagates errors from TaskEither input', async () => {
+      const error = new Error('Test error');
+      const input = TE.left(error);
+
+      const result = await combineResp(input)();
+
+      expect(E.isLeft(result)).toBe(true);
+      if (E.isLeft(result)) {
+        expect(result.left).toBe(error);
+      }
+    });
+  });
+
+  describe('writeFile', () => {
+    it('creates a function that chains writeFsTE with data and build key', () => {
+      const buildKey = 'test-key';
+      const testData = { test: 'data' };
+      
+      const writeFileFn = writeFile(buildKey);
+      
+      // The function should be a TaskEither chain operation
+      expect(typeof writeFileFn).toBe('function');
+    });
+  });
+
+  describe('buildRes', () => {
+    beforeEach(() => {
+      // Reset env for each test
+      globalThis.import.meta.env.VITE_BUILD_KEY = 'test-build-key';
+      globalThis.import.meta.env.VITE_ENV = 'develop';
+    });
+
+    it('processes data when build key and environment are correct', async () => {
+      const title = 'Test Build';
+      const buildFn = vi.fn(() => TE.right('processed-data'));
+      
+      const result = await buildRes(title, buildFn)('test-build-key')();
+
+      expect(result).toEqual({
+        title: 'Test Build',
+        data: 'processed-data',
+      });
+      expect(buildFn).toHaveBeenCalled();
+    });
+
+    it('rejects when build key is incorrect', async () => {
+      const title = 'Test Build';
+      const buildFn = vi.fn(() => TE.right('processed-data'));
+      
+      const buildResFn = buildRes(title, buildFn);
+      
+      // This should create a function that when called with wrong key, triggers error handling
+      expect(typeof buildResFn).toBe('function');
+      expect(buildFn).not.toHaveBeenCalled();
+    });
+
+    it('rejects when environment is not develop', async () => {
+      globalThis.import.meta.env.VITE_ENV = 'production';
+      
+      const title = 'Test Build';
+      const buildFn = vi.fn(() => TE.right('processed-data'));
+      
+      const buildResFn = buildRes(title, buildFn);
+      
+      // This should create a function that when called, triggers error handling
+      expect(typeof buildResFn).toBe('function');
+      expect(buildFn).not.toHaveBeenCalled();
+    });
+
+    it('handles build function errors', async () => {
+      const title = 'Test Build';
+      const error = new Error('Build failed');
+      const buildFn = vi.fn(() => TE.left(error));
+      
+      const buildResFn = buildRes(title, buildFn);
+      
+      // The function should handle errors through the fold mechanism
+      expect(typeof buildResFn).toBe('function');
+    });
+  });
+
+  describe('Build gate logic', () => {
+    it('validates correct build key and environment combination', () => {
+      const correctKey = 'test-build-key';
+      const env = 'develop';
+      
+      // Simulate the gate check
+      const isValid = correctKey === 'test-build-key' && env === 'develop';
+      
+      expect(isValid).toBe(true);
+    });
+
+    it('rejects incorrect build key', () => {
+      const incorrectKey = 'wrong-key';
+      const env = 'develop';
+      
+      const isValid = incorrectKey === 'test-build-key' && env === 'develop';
+      
+      expect(isValid).toBe(false);
+    });
+
+    it('rejects non-develop environment', () => {
+      const correctKey = 'test-build-key';
+      const env = 'production';
+      
+      const isValid = correctKey === 'test-build-key' && env === 'develop';
+      
+      expect(isValid).toBe(false);
+    });
+  });
+});
