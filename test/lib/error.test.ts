@@ -10,19 +10,13 @@ import {
 } from '../../src/lib/error';
 
 // Mock SvelteKit error function - it throws by design
-const createMockError = (status: number, message: string) => {
-  const err = new Error(message) as any;
-  err.status = status;
-  err.body = { message };
-  return err;
-};
-
-const mockError = vi.fn((status: number, message: string) => {
-  throw createMockError(status, message);
-});
-
 vi.mock('@sveltejs/kit', () => ({
-  error: mockError
+  error: vi.fn((status: number, message: string) => {
+    const err = new Error(message) as any;
+    err.status = status;
+    err.body = { message };
+    throw err;
+  })
 }));
 
 describe('Error Handling Utilities', () => {
@@ -119,7 +113,7 @@ describe('Error Handling Utilities', () => {
 
     it('throws 500 error with correct message', () => {
       expect(() => e500('Internal server error occurred')).toThrow();
-      expect(mockError).toHaveBeenCalledWith(500, 'Internal server error occurred');
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Internal server error occurred');
     });
 
     it('throws different 500 errors with different messages', () => {
@@ -127,25 +121,25 @@ describe('Error Handling Utilities', () => {
       expect(() => e500('File system error')).toThrow();
       expect(() => e500('Configuration error')).toThrow();
       
-      expect(mockError).toHaveBeenCalledWith(500, 'Database connection failed');
-      expect(mockError).toHaveBeenCalledWith(500, 'File system error');
-      expect(mockError).toHaveBeenCalledWith(500, 'Configuration error');
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Database connection failed');
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'File system error');
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Configuration error');
     });
 
     it('handles empty message', () => {
       expect(() => e500('')).toThrow();
-      expect(mockError).toHaveBeenCalledWith(500, '');
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, '');
     });
 
     it('handles special characters in message', () => {
       expect(() => e500('Error: "quotes" & symbols @#$%')).toThrow();
-      expect(mockError).toHaveBeenCalledWith(500, 'Error: "quotes" & symbols @#$%');
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Error: "quotes" & symbols @#$%');
     });
 
     it('handles very long messages', () => {
       const longMessage = 'A very long error message that contains many details about what went wrong. '.repeat(10);
       expect(() => e500(longMessage)).toThrow();
-      expect(mockError).toHaveBeenCalledWith(500, longMessage);
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, longMessage);
     });
   });
 
@@ -160,7 +154,7 @@ describe('Error Handling Utilities', () => {
       // This should be: export const e403 = (msg: string) => error(403, msg);
       
       expect(() => e403('Access forbidden')).toThrow();
-      expect(mockError).toHaveBeenCalledWith(500, 'Access forbidden'); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Access forbidden'); // BUG: Should be 403
     });
 
     it('creates different error messages (bug affects all calls)', () => {
@@ -169,17 +163,17 @@ describe('Error Handling Utilities', () => {
       expect(() => e403('Admin role required')).toThrow();
       
       // All should use 403, but due to bug they use 500
-      expect(mockError).toHaveBeenCalledWith(500, 'Authentication required'); // BUG: Should be 403
-      expect(mockError).toHaveBeenCalledWith(500, 'Insufficient permissions'); // BUG: Should be 403 
-      expect(mockError).toHaveBeenCalledWith(500, 'Admin role required'); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Authentication required'); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Insufficient permissions'); // BUG: Should be 403 
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Admin role required'); // BUG: Should be 403
     });
 
     it('handles empty and special characters', () => {
       expect(() => e403('')).toThrow();
       expect(() => e403('Access denied: "admin" role required')).toThrow();
       
-      expect(mockError).toHaveBeenCalledWith(500, ''); // BUG: Should be 403
-      expect(mockError).toHaveBeenCalledWith(500, 'Access denied: "admin" role required'); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, ''); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Access denied: "admin" role required'); // BUG: Should be 403
     });
   });
 
@@ -192,8 +186,8 @@ describe('Error Handling Utilities', () => {
       expect(() => e500('Server error')).toThrow();
       expect(() => e403('Access denied')).toThrow();
       
-      expect(mockError).toHaveBeenNthCalledWith(1, 500, 'Server error');
-      expect(mockError).toHaveBeenNthCalledWith(2, 500, 'Access denied'); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenNthCalledWith(1, 500, 'Server error');
+      expect(vi.mocked(error)).toHaveBeenNthCalledWith(2, 500, 'Access denied'); // BUG: Should be 403
       
       // Both currently use 500 due to bug in e403 implementation
     });
@@ -205,8 +199,8 @@ describe('Error Handling Utilities', () => {
       expect(() => e500(message500)).toThrow();
       expect(() => e403(message403)).toThrow();
       
-      expect(mockError).toHaveBeenCalledWith(500, message500);
-      expect(mockError).toHaveBeenCalledWith(500, message403); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, message500);
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, message403); // BUG: Should be 403
     });
   });
 
@@ -222,8 +216,8 @@ describe('Error Handling Utilities', () => {
       expect(() => e500('Task failed')).toThrow();
       expect(() => e403('Access denied')).toThrow();
       
-      expect(mockError).toHaveBeenCalledWith(500, 'Task failed');
-      expect(mockError).toHaveBeenCalledWith(500, 'Access denied'); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Task failed');
+      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Access denied'); // BUG: Should be 403
     });
 
     it('shows that both helpers currently use status 500 (bug in e403)', () => {
@@ -231,8 +225,8 @@ describe('Error Handling Utilities', () => {
       expect(() => e500('Server error')).toThrow();
       expect(() => e403('Forbidden error')).toThrow();
       
-      expect(mockError).toHaveBeenNthCalledWith(1, 500, 'Server error');
-      expect(mockError).toHaveBeenNthCalledWith(2, 500, 'Forbidden error'); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenNthCalledWith(1, 500, 'Server error');
+      expect(vi.mocked(error)).toHaveBeenNthCalledWith(2, 500, 'Forbidden error'); // BUG: Should be 403
     });
   });
 });
