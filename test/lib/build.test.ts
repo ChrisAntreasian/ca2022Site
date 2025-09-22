@@ -81,7 +81,7 @@ describe('Build Utilities', () => {
     });
 
     it('propagates errors from TaskEither input', async () => {
-      const error = new Error('Test error');
+      const error = { status: 500, body: { message: 'Test error' } } as const;
       const input = TE.left(error);
 
       const result = await combineResp(input)();
@@ -96,7 +96,6 @@ describe('Build Utilities', () => {
   describe('writeFile', () => {
     it('creates a function that chains writeFsTE with data and build key', () => {
       const buildKey = 'test-key';
-      const testData = { test: 'data' };
       
       const writeFileFn = writeFile(buildKey);
       
@@ -108,13 +107,19 @@ describe('Build Utilities', () => {
   describe('buildRes', () => {
     beforeEach(() => {
       // Reset env for each test
-      globalThis.import.meta.env.VITE_BUILD_KEY = 'test-build-key';
-      globalThis.import.meta.env.VITE_ENV = 'develop';
+      vi.stubGlobal('import', {
+        meta: {
+          env: {
+            VITE_BUILD_KEY: 'test-build-key',
+            VITE_ENV: 'develop'
+          }
+        }
+      });
     });
 
     it('processes data when build key and environment are correct', async () => {
       const title = 'Test Build';
-      const buildFn = vi.fn(() => TE.right('processed-data'));
+      const buildFn = vi.fn().mockReturnValue(TE.right('processed-data'));
       
       const result = await buildRes(title, buildFn)('test-build-key')();
 
@@ -127,7 +132,7 @@ describe('Build Utilities', () => {
 
     it('rejects when build key is incorrect', async () => {
       const title = 'Test Build';
-      const buildFn = vi.fn(() => TE.right('processed-data'));
+      const buildFn = vi.fn().mockReturnValue(TE.right('processed-data'));
       
       const buildResFn = buildRes(title, buildFn);
       
@@ -137,10 +142,17 @@ describe('Build Utilities', () => {
     });
 
     it('rejects when environment is not develop', async () => {
-      globalThis.import.meta.env.VITE_ENV = 'production';
+      vi.stubGlobal('import', {
+        meta: {
+          env: {
+            VITE_BUILD_KEY: 'test-build-key',
+            VITE_ENV: 'production'
+          }
+        }
+      });
       
       const title = 'Test Build';
-      const buildFn = vi.fn(() => TE.right('processed-data'));
+      const buildFn = vi.fn().mockReturnValue(TE.right('processed-data'));
       
       const buildResFn = buildRes(title, buildFn);
       
@@ -152,7 +164,7 @@ describe('Build Utilities', () => {
     it('handles build function errors', async () => {
       const title = 'Test Build';
       const error = new Error('Build failed');
-      const buildFn = vi.fn(() => TE.left(error));
+      const buildFn = vi.fn().mockReturnValue(TE.left(error));
       
       const buildResFn = buildRes(title, buildFn);
       
@@ -173,18 +185,20 @@ describe('Build Utilities', () => {
     });
 
     it('rejects incorrect build key', () => {
-      const incorrectKey = 'wrong-key';
-      const env = 'develop';
+      const incorrectKey: string = 'wrong-key';
+      const env: string = 'develop';
       
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const isValid = incorrectKey === 'test-build-key' && env === 'develop';
       
       expect(isValid).toBe(false);
     });
 
     it('rejects non-develop environment', () => {
-      const correctKey = 'test-build-key';
-      const env = 'production';
+      const correctKey: string = 'test-build-key';
+      const env: string = 'production';
       
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const isValid = correctKey === 'test-build-key' && env === 'develop';
       
       expect(isValid).toBe(false);

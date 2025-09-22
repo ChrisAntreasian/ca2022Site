@@ -32,9 +32,6 @@ vi.mock('$lib/analytics', () => ({
   captureDetails: vi.fn()
 }));
 
-// Mock history
-vi.mock('$lib/history', () => ({
-  clientNavigate: vi.fn(() => vi.fn())
-}));
+// Mock history - removed clientNavigate mock to allow real testing
 
 // Mock spacing utilities - removed to use actual implementation

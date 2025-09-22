@@ -32,8 +32,8 @@ describe('Article Logic Tests', () => {
     });
 
     it('allows navigation to different item', () => {
-      const currentItemId = 1;
-      const targetItemId = 2;
+      const currentItemId: number = 1;
+      const targetItemId: number = 2;
       
       const shouldNavigate = currentItemId !== targetItemId;
       

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { error, type HttpError } from '@sveltejs/kit';
-import { taskEither as TE, either as E, io as IO } from 'fp-ts';
+import { error } from '@sveltejs/kit';
+import { taskEither as TE, either as E } from 'fp-ts';
 import {
   throwErrIO,
   e500,

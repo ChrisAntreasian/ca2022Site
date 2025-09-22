@@ -1,9 +1,13 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Simple mock event object
 const mockLoadEvent = {};
 
 describe('Main Page Server Logic', () => {
+  beforeEach(() => {
+    vi.resetModules(); // Clear module cache between tests
+  });
+
   describe('Landing Page Load Function', () => {
     it('should process landing data correctly', async () => {
       // Mock the landing data import

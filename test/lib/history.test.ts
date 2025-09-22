@@ -1,11 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { cleanUrlSlug, clientNavigate } from '../../src/lib/history';
 
-// Mock $app/navigation
+// Mock $app/navigation before importing anything else
 vi.mock('$app/navigation', () => ({
   pushState: vi.fn(),
 }));
 
+// Un-mock $lib/history to test the real implementation
+vi.doUnmock('$lib/history');
+
+import { cleanUrlSlug, clientNavigate } from '$lib/history';
 import { pushState } from '$app/navigation';
 
 describe('History Utilities', () => {
@@ -70,13 +73,14 @@ describe('History Utilities', () => {
 
   describe('clientNavigate', () => {
     beforeEach(() => {
-      vi.clearAllMocks();
+      vi.mocked(pushState).mockClear();
       
       // Mock window.scrollTo
       Object.defineProperty(window, 'scrollTo', {
         value: vi.fn(),
         writable: true,
       });
+      vi.mocked(window.scrollTo).mockClear();
     });
 
     it('navigates to URL without slug when scroll is false', () => {
@@ -154,7 +158,8 @@ describe('History Utilities', () => {
       scrollNavigate('/path1');
       expect(window.scrollTo).toHaveBeenCalledWith({ top: 0 });
 
-      vi.clearAllMocks();
+      vi.mocked(pushState).mockClear();
+      vi.mocked(window.scrollTo).mockClear();
 
       noScrollNavigate('/path2');
       expect(window.scrollTo).not.toHaveBeenCalled();
