@@ -34,9 +34,9 @@ describe('Article Logic Tests', () => {
     it('allows navigation to different item', () => {
       const currentItemId: number = 1;
       const targetItemId: number = 2;
-      
-      const shouldNavigate = currentItemId !== targetItemId;
-      
+
+      const shouldNavigate: boolean = currentItemId !== targetItemId;
+
       expect(shouldNavigate).toBe(true);
     });
   });

@@ -12,7 +12,7 @@ import {
 // Mock SvelteKit error function - it throws by design
 vi.mock('@sveltejs/kit', () => ({
   error: vi.fn((status: number, message: string) => {
-    const err = new Error(message) as any;
+    const err = new Error(message) as unknown;
     err.status = status;
     err.body = { message };
     throw err;
