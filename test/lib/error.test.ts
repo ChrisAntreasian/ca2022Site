@@ -9,10 +9,10 @@ import {
   type HttpErrE
 } from '../../src/lib/error';
 
-// Mock SvelteKit error function - it throws by design
+// Mock SvelteKit error function - throw like the real implementation  
 vi.mock('@sveltejs/kit', () => ({
   error: vi.fn((status: number, message: string) => {
-    const err = new Error(message) as unknown;
+    const err = new Error(message) as Error & { status: number; body: { message: string } };
     err.status = status;
     err.body = { message };
     throw err;
@@ -32,8 +32,13 @@ describe('Error Handling Utilities', () => {
     });
 
     it('HttpErrTE type works with error cases', async () => {
-      const mockError = error(404, 'Not found');
-      const errorTask: HttpErrTE<string> = TE.left(mockError);
+      let mockError: Error & { status: number; body: { message: string } } | undefined;
+      try {
+        error(404, 'Not found');
+      } catch (err) {
+        mockError = err as Error & { status: number; body: { message: string } };
+      }
+      const errorTask: HttpErrTE<string> = TE.left(mockError!);
       const result = await errorTask();
       
       expect(E.isLeft(result)).toBe(true);
@@ -52,8 +57,13 @@ describe('Error Handling Utilities', () => {
     });
 
     it('HttpErrE type works with error cases', () => {
-      const mockError = error(500, 'Server error');
-      const errorEither: HttpErrE<number> = E.left(mockError);
+      let mockError: Error & { status: number; body: { message: string } } | undefined;
+      try {
+        error(500, 'Server error');
+      } catch (err) {
+        mockError = err as Error & { status: number; body: { message: string } };
+      }
+      const errorEither: HttpErrE<number> = E.left(mockError!);
       
       expect(E.isLeft(errorEither)).toBe(true);
       if (E.isLeft(errorEither)) {
@@ -64,18 +74,28 @@ describe('Error Handling Utilities', () => {
 
   describe('throwErrIO function', () => {
     it('creates IO that can throw errors', () => {
-      const mockError = error(404, 'Resource not found');
+      let mockError: Error & { status: number; body: { message: string } } | undefined;
+      try {
+        error(404, 'Resource not found');
+      } catch (err) {
+        mockError = err as Error & { status: number; body: { message: string } };
+      }
       const throwFn = throwErrIO();
       
-      expect(() => throwFn(mockError)).toThrow();
+      expect(() => throwFn(mockError!)).toThrow();
     });
 
     it('preserves error information when throwing', () => {
-      const mockError = error(403, 'Forbidden access');
+      let mockError: Error & { status: number; body: { message: string } } | undefined;
+      try {
+        error(403, 'Forbidden access');
+      } catch (err) {
+        mockError = err as Error & { status: number; body: { message: string } };
+      }
       const throwFn = throwErrIO();
       
       try {
-        throwFn(mockError);
+        throwFn(mockError!);
         expect.fail('Should have thrown an error');
       } catch (thrownError) {
         expect(thrownError).toBe(mockError);
@@ -83,11 +103,22 @@ describe('Error Handling Utilities', () => {
     });
 
     it('works with different error types', () => {
-      const errors = [
-        error(400, 'Bad Request'),
-        error(401, 'Unauthorized'),
-        error(500, 'Internal Server Error')
+      const errors: Array<Error & { status: number; body: { message: string } }> = [];
+      
+      // Create errors by catching thrown exceptions
+      const errorData = [
+        [400, 'Bad Request'],
+        [401, 'Unauthorized'], 
+        [500, 'Internal Server Error']
       ];
+      
+      errorData.forEach(([status, message]) => {
+        try {
+          error(status as number, message as string);
+        } catch (err) {
+          errors.push(err as Error & { status: number; body: { message: string } });
+        }
+      });
       
       const throwFn = throwErrIO();
       
@@ -97,7 +128,12 @@ describe('Error Handling Utilities', () => {
     });
 
     it('can be used in fp-ts patterns', () => {
-      const mockError = error(500, 'Database connection failed');
+      let mockError: Error & { status: number; body: { message: string } } | undefined;
+      try {
+        error(500, 'Database connection failed');
+      } catch (err) {
+        mockError = err as Error & { status: number; body: { message: string } };
+      }
       const throwFn = throwErrIO();
       
       // Test that it creates a proper IO function

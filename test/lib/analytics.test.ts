@@ -1,19 +1,43 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock mixpanel-browser
-const mockMixpanel = {
-  init: vi.fn(),
-  track: vi.fn()
-};
+// Mock mixpanel-browser - must use factory function without external variables
 vi.mock('mixpanel-browser', () => ({
-  default: mockMixpanel
+  default: {
+    init: vi.fn(),
+    track: vi.fn()
+  }
 }));
 
+// Mock node:crypto module
+vi.mock('node:crypto', () => ({
+  randomBytes: vi.fn(() => ({
+    toString: () => 'mock-hex-string'
+  }))
+}));
+
+// Override the global analytics mock to use actual implementations for testing
+vi.mock('$lib/analytics', async (importOriginal) => {
+  const actual = await importOriginal() as Record<string, unknown>;
+  return {
+    ...actual,
+    captureBehavior: vi.fn(actual.captureBehavior as (...args: unknown[]) => unknown),
+    initMixpanel: vi.fn(actual.initMixpanel as (...args: unknown[]) => unknown),
+    initDistinctId: vi.fn(actual.initDistinctId as (...args: unknown[]) => unknown)
+  };
+});
+
+import mixpanel from 'mixpanel-browser';
 import {
   captureDetails,
   captureBehavior,
   captureClickThis,
-} from '../../src/lib/analytics';
+} from '$lib/analytics';
+
+// Get the mocked mixpanel
+const mockMixpanel = mixpanel as {
+  init: ReturnType<typeof vi.fn>;
+  track: ReturnType<typeof vi.fn>;
+};
 
 describe('Analytics Module Tests', () => {
   beforeEach(() => {

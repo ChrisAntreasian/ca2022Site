@@ -5,13 +5,14 @@ describe('date utilities', () => {
   describe('daysFromNow', () => {
     
     beforeEach(() => {
-      // Mock Date.now to return a fixed timestamp for consistent testing
+      // Mock Date constructor to return a fixed timestamp for consistent testing
       const fixedTime = new Date('2024-01-01T12:00:00.000Z').getTime();
-      vi.spyOn(Date, 'now').mockImplementation(() => fixedTime);
+      vi.useFakeTimers();
+      vi.setSystemTime(fixedTime);
     });
 
     afterEach(() => {
-      vi.restoreAllMocks();
+      vi.useRealTimers();
     });
 
     it('should return a date that is the specified number of days from now', () => {
@@ -44,7 +45,7 @@ describe('date utilities', () => {
 
     it('should handle large numbers of days', () => {
       const result = daysFromNow(365);
-      const expected = new Date('2025-01-01T12:00:00.000Z');
+      const expected = new Date('2024-12-31T12:00:00.000Z'); // 365 days from Jan 1 2024 is Dec 31 2024
       
       expect(result.getTime()).toBe(expected.getTime());
     });

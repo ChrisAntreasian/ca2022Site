@@ -29,7 +29,10 @@ vi.mock('$app/stores', () => ({
 // Mock analytics
 vi.mock('$lib/analytics', () => ({
   captureBehavior: vi.fn(),
-  captureDetails: vi.fn()
+  captureDetails: vi.fn(),
+  captureClickThis: vi.fn(),
+  initMixpanel: vi.fn(),
+  initDistinctId: vi.fn()
 }));
 
 // Mock history - removed clientNavigate mock to allow real testing
