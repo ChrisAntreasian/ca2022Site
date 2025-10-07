@@ -1,19 +1,30 @@
-import mixpanel from "mixpanel-browser";
 import type { Cookies } from "@sveltejs/kit";
-import * as crypto from "node:crypto";
+import { browser } from "$app/environment";
 import { daysFromNow } from "$lib/date";
 // import { getS3File, uploadS3File } from '$lib/s3';
 // import type { S3 } from "aws-sdk";
 
-export const initMixpanel = () =>
+let mixpanel: typeof import("mixpanel-browser").default | null = null;
+
+export const initMixpanel = async () => {
+  if (!browser) return;
+  if (!mixpanel) {
+    const mixpanelModule = await import("mixpanel-browser");
+    mixpanel = mixpanelModule.default;
+  }
   mixpanel.init(import.meta.env.VITE_MIXPANEL_PROJECT_TOKEN, { debug: true });
+};
 
 // const fileName = "distinctIds.json";
 
 const mkDistinctId = (arr: string[]): string => {
-  const dId = crypto.randomBytes(20).toString("hex");
+  // Generate a simple random ID for browser environments
+  const dId = browser 
+    ? Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+    : `server-${Date.now()}-${Math.random()}`;
+  
   if (!arr.includes(dId)) return dId;
-  mkDistinctId(arr);
+  return mkDistinctId(arr);
 };
 //import.meta.env.PROD;
 export const initDistinctId = async (cookies: Cookies) => {
@@ -41,9 +52,11 @@ export const captureDetails = (
   resourceName: name,
 });
 
-export const captureBehavior = async (eKey: string, props?: any) => {
+export const captureBehavior = async (eKey: string, props?: Record<string, unknown>) => {
   if (!import.meta.env.PROD) return;
-  const details: Record<string, any> = { ...props };
+  if (!browser || !mixpanel) return;
+  
+  const details: Record<string, unknown> = { ...props };
   mixpanel.track(eKey, details);
 };
 
