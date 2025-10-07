@@ -6,8 +6,16 @@ describe('Image Utilities', () => {
   describe('safeImageString', () => {
     const createMockImageData = (hasFormat: boolean = true, size: string = 'medium'): StrapiImageData => ({
       data: {
+        id: 1,
         attributes: {
+          createdAt: '2023-01-01T00:00:00.000Z',
+          updatedAt: '2023-01-01T00:00:00.000Z',
+          caption: 'Test image',
           url: '/default-image.jpg',
+          alternativeText: 'Test alt text',
+          provider: 'local',
+          provider_metadata: null,
+          previewUrl: null,
           formats: hasFormat ? {
             [size]: {
               url: `/image-${size}.jpg`,
@@ -57,8 +65,16 @@ describe('Image Utilities', () => {
     it('falls back to default URL for non-existent format', () => {
       const imageData: StrapiImageData = {
         data: {
+          id: 1,
           attributes: {
+            createdAt: '2023-01-01T00:00:00.000Z',
+            updatedAt: '2023-01-01T00:00:00.000Z',
+            caption: 'Test image',
             url: '/fallback-image.jpg',
+            alternativeText: 'Test alt text',
+            provider: 'local',
+            provider_metadata: null,
+            previewUrl: null,
             formats: {
               large: {
                 url: '/image-large.jpg',
@@ -78,8 +94,16 @@ describe('Image Utilities', () => {
     it('handles empty formats object', () => {
       const imageData: StrapiImageData = {
         data: {
+          id: 1,
           attributes: {
+            createdAt: '2023-01-01T00:00:00.000Z',
+            updatedAt: '2023-01-01T00:00:00.000Z',
+            caption: 'Test image',
             url: '/default.jpg',
+            alternativeText: 'Test alt text',
+            provider: 'local',
+            provider_metadata: null,
+            previewUrl: null,
             formats: {},
           },
         },
@@ -93,8 +117,16 @@ describe('Image Utilities', () => {
     it('works with complex image data structure', () => {
       const complexImageData: StrapiImageData = {
         data: {
+          id: 1,
           attributes: {
+            createdAt: '2023-01-01T00:00:00.000Z',
+            updatedAt: '2023-01-01T00:00:00.000Z',
+            caption: 'Test image',
             url: '/original-high-res.jpg',
+            alternativeText: 'Test alt text',
+            provider: 'local',
+            provider_metadata: null,
+            previewUrl: null,
             formats: {
               small: {
                 url: '/optimized-small.webp',
@@ -139,8 +171,16 @@ describe('Image Utilities', () => {
     it('handles different URL patterns', () => {
       const imageWithAbsoluteUrl: StrapiImageData = {
         data: {
+          id: 1,
           attributes: {
+            createdAt: '2023-01-01T00:00:00.000Z',
+            updatedAt: '2023-01-01T00:00:00.000Z',
+            caption: 'Test image',
             url: 'https://cdn.example.com/default.jpg',
+            alternativeText: 'Test alt text',
+            provider: 'local',
+            provider_metadata: null,
+            previewUrl: null,
             formats: {
               medium: {
                 url: 'https://cdn.example.com/medium.jpg',

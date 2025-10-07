@@ -14,20 +14,20 @@ const mockS3Instance = {
 vi.mock('$lib/s3', () => ({
   initS3: vi.fn(() => {
     // Call the mocked AWS.S3 constructor to satisfy tests
-    const mockConstructor = AWS.S3 as unknown as vi.MockedFunction<typeof AWS.S3>;
-    mockConstructor({
+    const mockConstructor = AWS.S3 as unknown;
+    (mockConstructor as unknown)({
       region: 'us-east-1',
       accessKeyId: 'test-access-key',
       secretAccessKey: 'test-secret-key',
     });
     return mockS3Instance;
   }),
-  getS3File: vi.fn((s3) => (key) => 
-    s3.getObject({ Bucket: 'test-bucket', Key: key }).promise()
+  getS3File: vi.fn((s3: unknown) => (key: string) => 
+    (s3 as unknown).getObject({ Bucket: 'test-bucket', Key: key }).promise()
   ),
-  uploadS3File: vi.fn((s3) => async (key, body) => {
+  uploadS3File: vi.fn((s3: unknown) => async (key: string, body: unknown) => {
     try {
-      await s3.upload({ Bucket: 'test-bucket', Key: key, Body: body }).promise();
+      await (s3 as unknown).upload({ Bucket: 'test-bucket', Key: key, Body: body }).promise();
       return undefined; // Upload doesn't return a value
     } catch (err) {
       console.error(err);
@@ -47,7 +47,7 @@ vi.mock('aws-sdk', () => {
 });
 
 import AWS from 'aws-sdk';
-import { initS3, getS3File, uploadS3File } from '$lib/s3';
+import { initS3, getS3File, uploadS3File } from '../../src/lib/s3';
 
 describe('S3 Utilities', () => {
   beforeEach(() => {
@@ -102,7 +102,7 @@ describe('S3 Utilities', () => {
       const mockPromise = vi.fn().mockResolvedValue({ Body: 'file content' });
       mockS3Instance.getObject.mockReturnValue({ promise: mockPromise });
 
-      const getFile = getS3File(mockS3Instance as AWS.S3);
+      const getFile = getS3File(mockS3Instance as unknown as AWS.S3);
       await getFile('test-key');
 
       expect(mockS3Instance.getObject).toHaveBeenCalledWith({
@@ -117,14 +117,14 @@ describe('S3 Utilities', () => {
       const mockPromise = vi.fn().mockResolvedValue(expectedResult);
       mockS3Instance.getObject.mockReturnValue({ promise: mockPromise });
 
-      const getFile = getS3File(mockS3Instance as AWS.S3);
+      const getFile = getS3File(mockS3Instance as unknown as AWS.S3);
       const result = await getFile('test-key');
 
       expect(result).toBe(expectedResult);
     });
 
     it('is a curried function', () => {
-      const getFile = getS3File(mockS3Instance as AWS.S3);
+      const getFile = getS3File(mockS3Instance as unknown as AWS.S3);
       
       expect(typeof getFile).toBe('function');
       expect(getFile.length).toBe(1); // Should take one parameter (the key)
@@ -134,7 +134,7 @@ describe('S3 Utilities', () => {
       const mockPromise = vi.fn().mockResolvedValue({ Body: 'content' });
       mockS3Instance.getObject.mockReturnValue({ promise: mockPromise });
 
-      const getFile = getS3File(mockS3Instance as AWS.S3);
+      const getFile = getS3File(mockS3Instance as unknown as AWS.S3);
       
       await getFile('path/to/file.jpg');
       expect(mockS3Instance.getObject).toHaveBeenCalledWith({
@@ -155,7 +155,7 @@ describe('S3 Utilities', () => {
       const mockPromise = vi.fn().mockResolvedValue({ Location: 'https://bucket.s3.amazonaws.com/key' });
       mockS3Instance.upload.mockReturnValue({ promise: mockPromise });
 
-      const uploadFile = uploadS3File(mockS3Instance as AWS.S3);
+      const uploadFile = uploadS3File(mockS3Instance as unknown as AWS.S3);
       const fileContent = 'test file content';
       
       await uploadFile('test-key', fileContent);
@@ -174,7 +174,7 @@ describe('S3 Utilities', () => {
       const mockPromise = vi.fn().mockRejectedValue(uploadError);
       mockS3Instance.upload.mockReturnValue({ promise: mockPromise });
 
-      const uploadFile = uploadS3File(mockS3Instance as AWS.S3);
+      const uploadFile = uploadS3File(mockS3Instance as unknown as AWS.S3);
       
       // Should not throw
       await expect(uploadFile('test-key', 'content')).resolves.toBeUndefined();
@@ -185,7 +185,7 @@ describe('S3 Utilities', () => {
     });
 
     it('is a curried function', () => {
-      const uploadFile = uploadS3File(mockS3Instance as AWS.S3);
+      const uploadFile = uploadS3File(mockS3Instance as unknown as AWS.S3);
       
       expect(typeof uploadFile).toBe('function');
       expect(uploadFile.length).toBe(2); // Should take two parameters (key, body)
@@ -195,7 +195,7 @@ describe('S3 Utilities', () => {
       const mockPromise = vi.fn().mockResolvedValue({});
       mockS3Instance.upload.mockReturnValue({ promise: mockPromise });
 
-      const uploadFile = uploadS3File(mockS3Instance as AWS.S3);
+      const uploadFile = uploadS3File(mockS3Instance as unknown as AWS.S3);
       
       // Test with string content
       await uploadFile('text-file.txt', 'text content');
@@ -219,7 +219,7 @@ describe('S3 Utilities', () => {
       const mockPromise = vi.fn().mockResolvedValue({ Location: 'https://example.com/file' });
       mockS3Instance.upload.mockReturnValue({ promise: mockPromise });
 
-      const uploadFile = uploadS3File(mockS3Instance as AWS.S3);
+      const uploadFile = uploadS3File(mockS3Instance as unknown as AWS.S3);
       const result = await uploadFile('test-key', 'content');
 
       expect(result).toBeUndefined();
@@ -230,7 +230,7 @@ describe('S3 Utilities', () => {
       const mockPromise = vi.fn().mockRejectedValue(new Error('Network error'));
       mockS3Instance.upload.mockReturnValue({ promise: mockPromise });
 
-      const uploadFile = uploadS3File(mockS3Instance as AWS.S3);
+      const uploadFile = uploadS3File(mockS3Instance as unknown as AWS.S3);
       
       // Should complete without throwing
       const result = await uploadFile('test-key', 'content');

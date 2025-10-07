@@ -1,11 +1,7 @@
 
 import * as qs from "qs";
 
-import { 
-	function as FN,
-	taskEither as TE,
-	apply as AP 
-} from "fp-ts";
+import { pipe, Effect } from "effect";
 import { getNoOpts } from "$lib/api";
 
 import { buildRes, combineResp, writeFile } from '$lib/build';
@@ -38,14 +34,16 @@ const pq =  qs.stringify({
 const getResL = getNoOpts(detailsResC)(`page-slugs?${lq}`);
 const getResP =  getNoOpts(pageResC)(`pages?${pq}`);
 
-const buildTupple = TE.chain(() => FN.pipe(
-  [writeFile<DetailsRes>("layout")(getResL), writeFile<PageRes>("landing")(getResP)] as const,
-  x => AP.sequenceT(TE.ApplyPar)(...x),
-));
-
-const wf = FN.flow(buildTupple, combineResp)
+const wf = () => pipe(
+  Effect.all([
+    Effect.flatMap(getResL, (data) => writeFile<DetailsRes>("layout")(data)),
+    Effect.flatMap(getResP, (data) => writeFile<PageRes>("landing")(data))
+  ], { concurrency: "unbounded" }),
+  Effect.map(results => Array.from(results)),
+  combineResp
+)
 
 export const load: PageServerLoad = async ({ params }) =>  
-  await buildRes("Layout & Landing", wf)(params.bid)();
+  await Effect.runPromise(buildRes("Layout & Landing", wf)(params.bid));
 
 

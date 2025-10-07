@@ -1,19 +1,29 @@
-import * as t from "io-ts";
-import { strapiBaseC, strapiDataArrC, strapiMetaDataC } from "./strapi";
+import { Schema } from "effect";
+import { strapiBaseC, withIdC } from "./strapi";
 
-export const poemC = t.intersection([
+export const poemC = Schema.extend(
   strapiBaseC,
-  t.type({
-    title: t.string,
-    body: t.string,
-    featured: t.boolean,
-    position: t.number,
+  Schema.Struct({
+    title: Schema.String,
+    body: Schema.String,
+    featured: Schema.Boolean,
+    position: Schema.Number,
   }),
-]);
+);
 
-export const strapiPoemC = t.intersection([
-  strapiDataArrC(poemC),
-  strapiMetaDataC,
-]);
+export const strapiPoemC = Schema.Struct({
+  data: Schema.Union(
+    Schema.Array(withIdC(poemC)),
+    Schema.NullOr(Schema.Array(withIdC(poemC)))
+  ),
+  meta: Schema.Struct({
+    pagination: Schema.Struct({
+      page: Schema.Number,
+      pageCount: Schema.Number,
+      pageSize: Schema.Number,
+      total: Schema.Number,
+    }),
+  }),
+});
 
-export type StrapiPoem = t.TypeOf<typeof strapiPoemC>;
+export type StrapiPoem = Schema.Schema.Type<typeof strapiPoemC>;

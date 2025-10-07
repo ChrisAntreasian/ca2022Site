@@ -2,11 +2,11 @@ import type { PageServerLoad } from "./$types";
 
 import * as qs from "qs";
 
+import { Effect } from "effect";
 import { getNoOpts } from "$lib/api";
 import { buildRes, writeFile } from '$lib/build';
 import { mkKeyWDefault } from '$lib/file';
 import { pageResC, type PageRes } from '$lib/typing/page';
-import { taskEither as TE } from "fp-ts";
 
 const pq =  qs.stringify({ 
   filters: { id: { $in: 3 } },
@@ -20,7 +20,7 @@ const pq =  qs.stringify({
 });
 
 const getRes = getNoOpts(pageResC)(`pages?${pq}`);
-const wf = (rid: string) => TE.chain(() => writeFile<PageRes>(mkKeyWDefault(rid))(getRes));
+const wf = (rid: string) => () => Effect.flatMap(getRes, (data) => writeFile<PageRes>(mkKeyWDefault(rid))(data));
 
 export const load: PageServerLoad = async ({ params, route }) => 
-  await buildRes("Web Expereince", wf(route.id))(params.bid)();
+  await Effect.runPromise(buildRes("Web Expereince", wf(route.id))(params.bid));

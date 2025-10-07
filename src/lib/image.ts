@@ -1,18 +1,22 @@
 import type { StrapiImageData } from "$lib/typing/art";
-import { function as FN, option as O, readonlyRecord as RR } from "fp-ts";
+import { pipe, Option, Record } from "effect";
 
 export const safeImageString = (
   size: "small" | "medium" | "thumbnail" | "original",
 ) =>
-  FN.flow(
-    (pd: StrapiImageData) => pd.data.attributes,
-    (attr) =>
-      FN.pipe(
-        attr.formats,
-        RR.lookup(size),
-        O.fold(
-          () => attr.url,
-          (img) => img.url,
-        ),
-      ),
-  );
+  (pd: StrapiImageData) => {
+    const attr = pd.data.attributes;
+    
+    if (size === "original" || !attr.formats || typeof attr.formats !== "object") {
+      return attr.url;
+    }
+    
+    return pipe(
+      attr.formats as Record<string, { url: string }>,
+      Record.get(size),
+      Option.match({
+        onNone: () => attr.url,
+        onSome: (img) => img.url,
+      }),
+    );
+  };

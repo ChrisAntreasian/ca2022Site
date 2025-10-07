@@ -103,7 +103,7 @@
             >Web Experience</a
           >
         </li>
-        <li class:active={$page.url.pathname === "the-quintuplapus"}>
+        <li class:active={$page.url.pathname === "/the-quintuplapus"}>
           <a
             onclick={() => clickNav("The Quintuplapus")}
             href="/the-quintuplapus">The Quintuplapus</a

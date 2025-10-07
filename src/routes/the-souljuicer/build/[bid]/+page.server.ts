@@ -1,7 +1,6 @@
 import type { PageServerLoad } from "./$types";
 import { mkKeyWDefault } from "$lib/file";
-import * as t from "io-ts";
-import { taskEither as TE } from "fp-ts";
+import { Schema, Effect } from "effect";
 
 import * as qs from "qs";
 
@@ -10,8 +9,11 @@ import { buildRes, writeFile } from '$lib/build';
 import { strapiDataArrC, strapiMetaDataC } from "$lib/typing/strapi";
 import { artBaseC } from "$lib/typing/art";
 
-const respC = t.intersection([strapiMetaDataC, strapiDataArrC(artBaseC)]);
-type Resp = t.TypeOf<typeof respC>;
+const respC = Schema.extend(
+  strapiMetaDataC,
+  strapiDataArrC(artBaseC)
+);
+type Resp = Schema.Schema.Type<typeof respC>;
 
 const q = qs.stringify({
   populate: [
@@ -21,7 +23,7 @@ const q = qs.stringify({
 });
 
 const getRes = getNoOpts(respC)(`soul-juices?${q}`);
-const wf = (rid: string) => TE.chain(() => writeFile<Resp>(mkKeyWDefault(rid))(getRes));
+const wf = (rid: string) => () => Effect.flatMap(getRes, (data) => writeFile<Resp>(mkKeyWDefault(rid))(data));
 
 export const load: PageServerLoad = async ({ params, route }) => 
-  await buildRes("The SoulJuicer", wf(route.id))(params.bid)();
+  await Effect.runPromise(buildRes("The SoulJuicer", wf(route.id))(params.bid));

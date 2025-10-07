@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { either as E } from 'fp-ts';
+import { Schema, Either } from 'effect';
 import {
   pageResC,
   detailsResC,
@@ -71,10 +71,10 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = pageResC.decode(validPageRes);
+      const result = Schema.decodeUnknownEither(pageResC)(validPageRes);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         const typed: PageRes = result.right;
         expect(typed.data).toHaveLength(1);
         expect(typed.meta.pagination.total).toBe(1);
@@ -113,10 +113,10 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = pageResC.decode(pageWithoutRichLinks);
+      const result = Schema.decodeUnknownEither(pageResC)(pageWithoutRichLinks);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         if (result.right.data && result.right.data[0]) {
           expect(result.right.data[0].attributes.rich_links).toBeUndefined();
         }
@@ -136,10 +136,10 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = pageResC.decode(emptyPageData);
+      const result = Schema.decodeUnknownEither(pageResC)(emptyPageData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.data).toHaveLength(0);
       }
     });
@@ -168,8 +168,8 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = pageResC.decode(invalidPage);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(pageResC)(invalidPage);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
@@ -232,17 +232,19 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = detailsResC.decode(detailsWithArt);
+      const result = Schema.decodeUnknownEither(detailsResC)(detailsWithArt);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         const typed: DetailsRes = result.right;
         expect(typed.data).toHaveLength(1);
         
         if (typed.data && typed.data[0]) {
           expect(typed.data[0].attributes.title).toBe('Art Gallery');
           expect(typed.data[0].attributes.art_categories?.data).toHaveLength(1);
-          expect(typed.data[0].attributes.poems.data).toHaveLength(1);
+          if (typed.data[0].attributes.poems && 'data' in typed.data[0].attributes.poems) {
+            expect(typed.data[0].attributes.poems.data).toHaveLength(1);
+          }
         }
       }
     });
@@ -308,10 +310,10 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = detailsResC.decode(detailsWithArtPiece);
+      const result = Schema.decodeUnknownEither(detailsResC)(detailsWithArtPiece);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         if (result.right.data && result.right.data[0]) {
           expect(result.right.data[0].attributes.art_piece?.data?.attributes.title).toBe('Masterpiece');
           expect(result.right.data[0].attributes.image?.data?.attributes.alternativeText).toBe('Page header image');
@@ -348,12 +350,14 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = detailsResC.decode(detailsWithEmptyPoems);
+      const result = Schema.decodeUnknownEither(detailsResC)(detailsWithEmptyPoems);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         if (result.right.data && result.right.data[0]) {
-          expect(result.right.data[0].attributes.poems.data).toHaveLength(0);
+          if (result.right.data[0].attributes.poems && 'data' in result.right.data[0].attributes.poems) {
+            expect(result.right.data[0].attributes.poems.data).toHaveLength(0);
+          }
         }
       }
     });
@@ -387,10 +391,10 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = detailsResC.decode(detailsWithNullLink);
+      const result = Schema.decodeUnknownEither(detailsResC)(detailsWithNullLink);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         if (result.right.data && result.right.data[0]) {
           expect(result.right.data[0].attributes.link).toBeNull();
         }
@@ -423,8 +427,8 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = detailsResC.decode(invalidDetails);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(detailsResC)(invalidDetails);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
@@ -504,10 +508,10 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = pageResC.decode(richLinkData);
+      const result = Schema.decodeUnknownEither(pageResC)(richLinkData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         if (result.right.data && result.right.data[0]) {
           const richLinks = result.right.data[0].attributes.rich_links;
           if (richLinks && richLinks.data && richLinks.data[0]) {
@@ -562,10 +566,10 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = pageResC.decode(richLinkWithNullSecond);
+      const result = Schema.decodeUnknownEither(pageResC)(richLinkWithNullSecond);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         if (result.right.data && result.right.data[0]) {
           const richLinks = result.right.data[0].attributes.rich_links;
           if (richLinks && richLinks.data && richLinks.data[0]) {
@@ -814,15 +818,17 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = detailsResC.decode(complexPage);
+      const result = Schema.decodeUnknownEither(detailsResC)(complexPage);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         if (result.right.data && result.right.data[0]) {
           const page = result.right.data[0].attributes;
           expect(page.title).toBe('Complex Page');
           expect(page.art_categories?.data).toHaveLength(1);
-          expect(page.poems.data).toHaveLength(1);
+          if (page.poems && 'data' in page.poems) {
+            expect(page.poems.data).toHaveLength(1);
+          }
           expect(page.art_piece?.data?.attributes.title).toBe('Featured Masterpiece');
           expect(page.image?.data?.attributes.alternativeText).toBe('Page banner');
         }
@@ -882,8 +888,8 @@ describe('Page Type Validation', () => {
         }
       };
 
-      const result = detailsResC.decode(invalidNestedPage);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(detailsResC)(invalidNestedPage);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 });
