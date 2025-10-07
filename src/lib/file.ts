@@ -7,7 +7,7 @@ import {
   function as FN,
 } from "fp-ts";
 
-import { e500, type HttpErrE, type HttpErrTE } from "./error";
+import { e500, type HttpError, type HttpErrE, type HttpErrTE } from "./error";
 
 const dataPath = "src/data";
 
@@ -18,14 +18,20 @@ export const writeFsTE = <A>(d: [A, string]): HttpErrTE<A> =>
       timestamp: Date.now(),
       data: d[0],
     },
-    (d) =>
+    (writeData) =>
       TE.tryCatch(
         () =>
           fs.promises.writeFile(
-            `./${dataPath}/${d[1]}.json`,
-            JSON.stringify(d),
+            `./${dataPath}/${writeData.name}.json`,
+            JSON.stringify(writeData),
           ),
-        () => e500("Failed to write the data."),
+        () => {
+          try {
+            return e500("Failed to write the data.");
+          } catch (error) {
+            return error as HttpError;
+          }
+        },
       ),
     TE.map(() => d[0]),
   );
@@ -46,7 +52,14 @@ const keyGuard = (k: string): k is RouteKeyU =>
 const mkKeyE = (rid: string): HttpErrE<RouteKeyU> =>
   FN.pipe(
     rid.split("/")[1],
-    E.fromPredicate(keyGuard, () => e500(`Data key does not exist.`)),
+    E.fromPredicate(keyGuard, () => {
+      try {
+        return e500(`Data key does not exist.`);
+      } catch (err) {
+        // e500 throws, so we catch it and return the thrown error  
+        return err as HttpError;
+      }
+    }),
   );
 
 export const mkKeyWDefault = FN.flow(
