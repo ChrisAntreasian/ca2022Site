@@ -6,7 +6,7 @@ describe('Component Integration Patterns', () => {
       // Simulate navigation state management between components
       const createNavigationState = () => {
         let currentView = 'gallery';
-        let currentItem = null;
+        let currentItem: unknown = null;
         
         return {
           getCurrentView: () => currentView,

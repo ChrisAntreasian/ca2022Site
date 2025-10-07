@@ -31,10 +31,10 @@ import {
   captureDetails,
   captureBehavior,
   captureClickThis,
-} from '$lib/analytics';
+} from '../../src/lib/analytics';
 
 // Get the mocked mixpanel
-const mockMixpanel = mixpanel as {
+const mockMixpanel = mixpanel as unknown as {
   init: ReturnType<typeof vi.fn>;
   track: ReturnType<typeof vi.fn>;
 };

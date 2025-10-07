@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { either as E } from 'fp-ts';
+import { Schema, Either } from 'effect';
 import {
   imageC,
   strapiImageDataC,
@@ -25,10 +25,10 @@ describe('Art Type Validation', () => {
         path: '/path/to/image'
       };
 
-      const result = imageC.decode(validBaseImage);
+      const result = Schema.decodeUnknownEither(imageC)(validBaseImage);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         // Check if it's a base image (has width/height properties)
         if ('width' in result.right && 'height' in result.right) {
           expect(result.right.name).toBe('test-image.jpg');
@@ -74,10 +74,10 @@ describe('Art Type Validation', () => {
         }
       };
 
-      const result = imageC.decode(validImageAttrs);
+      const result = Schema.decodeUnknownEither(imageC)(validImageAttrs);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         // Check if it's an image attributes object (has alternativeText)
         if ('alternativeText' in result.right) {
           expect(result.right.alternativeText).toBe('Alt text for image');
@@ -101,10 +101,10 @@ describe('Art Type Validation', () => {
         path: null
       };
 
-      const result = imageC.decode(validImageWithNullPath);
+      const result = Schema.decodeUnknownEither(imageC)(validImageWithNullPath);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         // Check if it's a base image (has path property)
         if ('path' in result.right) {
           expect(result.right.path).toBeNull();
@@ -125,10 +125,10 @@ describe('Art Type Validation', () => {
         formats: null
       };
 
-      const result = imageC.decode(validImageWithNullFormats);
+      const result = Schema.decodeUnknownEither(imageC)(validImageWithNullFormats);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         // Check if it's an image attributes object (has formats and previewUrl)
         if ('formats' in result.right && 'previewUrl' in result.right) {
           expect(result.right.formats).toBeNull();
@@ -150,8 +150,8 @@ describe('Art Type Validation', () => {
         path: null
       };
 
-      const result = imageC.decode(invalidImage);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(imageC)(invalidImage);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
@@ -174,10 +174,10 @@ describe('Art Type Validation', () => {
         }
       };
 
-      const result = strapiImageDataC.decode(validImageData);
+      const result = Schema.decodeUnknownEither(strapiImageDataC)(validImageData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         const typed: StrapiImageData = result.right;
         expect(typed.data).not.toBeNull();
         if (typed.data) {
@@ -192,10 +192,10 @@ describe('Art Type Validation', () => {
         data: null
       };
 
-      const result = strapiImageDataC.decode(nullImageData);
+      const result = Schema.decodeUnknownEither(strapiImageDataC)(nullImageData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.data).toBeNull();
       }
     });
@@ -227,10 +227,10 @@ describe('Art Type Validation', () => {
         }
       };
 
-      const result = artBaseC.decode(validArtBase);
+      const result = Schema.decodeUnknownEither(artBaseC)(validArtBase);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.description).toBe('A beautiful piece of art');
         expect(result.right.order).toBe(1);
         expect(result.right.image.data).not.toBeNull();
@@ -249,10 +249,10 @@ describe('Art Type Validation', () => {
         }
       };
 
-      const result = artBaseC.decode(validArtWithNullImage);
+      const result = Schema.decodeUnknownEither(artBaseC)(validArtWithNullImage);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.image.data).toBeNull();
       }
     });
@@ -269,8 +269,8 @@ describe('Art Type Validation', () => {
         }
       };
 
-      const result = artBaseC.decode(invalidArt);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(artBaseC)(invalidArt);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
@@ -290,10 +290,10 @@ describe('Art Type Validation', () => {
         medium: 'Oil on canvas'
       };
 
-      const result = artC.decode(validArt);
+      const result = Schema.decodeUnknownEither(artC)(validArt);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.title).toBe('Untitled #1');
         expect(result.right.createdDate).toBe('2023-01-15');
         expect(result.right.medium).toBe('Oil on canvas');
@@ -314,8 +314,8 @@ describe('Art Type Validation', () => {
         // missing createdDate and medium
       };
 
-      const result = artC.decode(invalidArt);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(artC)(invalidArt);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
@@ -347,10 +347,10 @@ describe('Art Type Validation', () => {
         omit: undefined
       };
 
-      const result = artCategoryC.decode(validCategory);
+      const result = Schema.decodeUnknownEither(artCategoryC)(validCategory);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.title).toBe('Paintings');
         expect(result.right.art_pieces?.data).toHaveLength(1);
       }
@@ -366,10 +366,10 @@ describe('Art Type Validation', () => {
         omit: undefined
       };
 
-      const result = artCategoryC.decode(validCategoryNoArt);
+      const result = Schema.decodeUnknownEither(artCategoryC)(validCategoryNoArt);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.title).toBe('Empty Category');
         expect(result.right.art_pieces).toBeUndefined();
       }
@@ -390,10 +390,10 @@ describe('Art Type Validation', () => {
         }
       };
 
-      const result = artCategoryC.decode(validCategoryWithOmit);
+      const result = Schema.decodeUnknownEither(artCategoryC)(validCategoryWithOmit);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.omit?.data).toHaveLength(2);
       }
     });
@@ -407,8 +407,8 @@ describe('Art Type Validation', () => {
         art_pieces: undefined
       };
 
-      const result = artCategoryC.decode(invalidCategory);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(artCategoryC)(invalidCategory);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
@@ -513,10 +513,10 @@ describe('Art Type Validation', () => {
         }
       };
 
-      const result = strapiImageDataC.decode(complexImageData);
+      const result = Schema.decodeUnknownEither(strapiImageDataC)(complexImageData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result) && result.right.data) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right.data) {
         const formats = result.right.data.attributes.formats;
         if (formats && typeof formats === 'object' && 'small' in formats) {
           expect(formats.small.width).toBe(600);

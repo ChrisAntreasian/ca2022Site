@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { either as E } from 'fp-ts';
+import { Schema, Either } from 'effect';
 import {
   poemC,
   strapiPoemC,
@@ -19,10 +19,10 @@ describe('Poem Type Validation', () => {
         position: 1
       };
 
-      const result = poemC.decode(validPoem);
+      const result = Schema.decodeUnknownEither(poemC)(validPoem);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.title).toBe('The Ocean\'s Song');
         expect(result.right.featured).toBe(true);
         expect(result.right.position).toBe(1);
@@ -41,10 +41,10 @@ describe('Poem Type Validation', () => {
         position: 5
       };
 
-      const result = poemC.decode(poemWithMultilineBody);
+      const result = Schema.decodeUnknownEither(poemC)(poemWithMultilineBody);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.body).toContain('\n');
         expect(result.right.body.split('\n')).toHaveLength(3);
       }
@@ -63,10 +63,10 @@ describe('Poem Type Validation', () => {
         position: 10
       };
 
-      const result = poemC.decode(poemWithLongContent);
+      const result = Schema.decodeUnknownEither(poemC)(poemWithLongContent);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.body.length).toBeGreaterThan(1000);
         expect(result.right.title).toBe('Epic Poem');
       }
@@ -83,10 +83,10 @@ describe('Poem Type Validation', () => {
         position: 100
       };
 
-      const result = poemC.decode(nonFeaturedPoem);
+      const result = Schema.decodeUnknownEither(poemC)(nonFeaturedPoem);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.featured).toBe(false);
         expect(result.right.position).toBe(100);
       }
@@ -103,8 +103,8 @@ describe('Poem Type Validation', () => {
         position: 1
       };
 
-      const result = poemC.decode(invalidPoem);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(poemC)(invalidPoem);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('rejects invalid body type', () => {
@@ -118,8 +118,8 @@ describe('Poem Type Validation', () => {
         position: 1
       };
 
-      const result = poemC.decode(invalidPoem);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(poemC)(invalidPoem);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('rejects invalid featured type', () => {
@@ -133,8 +133,8 @@ describe('Poem Type Validation', () => {
         position: 1
       };
 
-      const result = poemC.decode(invalidPoem);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(poemC)(invalidPoem);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('rejects invalid position type', () => {
@@ -148,8 +148,8 @@ describe('Poem Type Validation', () => {
         position: '1' // should be number
       };
 
-      const result = poemC.decode(invalidPoem);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(poemC)(invalidPoem);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('rejects missing required fields', () => {
@@ -162,8 +162,8 @@ describe('Poem Type Validation', () => {
         // missing featured and position
       };
 
-      const result = poemC.decode(incompletePoem);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(poemC)(incompletePoem);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('rejects missing base fields', () => {
@@ -175,8 +175,8 @@ describe('Poem Type Validation', () => {
         // missing createdAt, updatedAt, publishedAt
       };
 
-      const result = poemC.decode(incompletePoemBase);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(poemC)(incompletePoemBase);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
@@ -219,10 +219,10 @@ describe('Poem Type Validation', () => {
         }
       };
 
-      const result = strapiPoemC.decode(validStrapiPoem);
+      const result = Schema.decodeUnknownEither(strapiPoemC)(validStrapiPoem);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         const typed: StrapiPoem = result.right;
         expect(typed.data).toHaveLength(2);
         expect(typed.meta.pagination.total).toBe(2);
@@ -254,10 +254,10 @@ describe('Poem Type Validation', () => {
         }
       };
 
-      const result = strapiPoemC.decode(emptyPoems);
+      const result = Schema.decodeUnknownEither(strapiPoemC)(emptyPoems);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.data).toHaveLength(0);
         expect(result.right.meta.pagination.total).toBe(0);
       }
@@ -276,10 +276,10 @@ describe('Poem Type Validation', () => {
         }
       };
 
-      const result = strapiPoemC.decode(nullPoems);
+      const result = Schema.decodeUnknownEither(strapiPoemC)(nullPoems);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.data).toBeNull();
       }
     });
@@ -310,10 +310,10 @@ describe('Poem Type Validation', () => {
         }
       };
 
-      const result = strapiPoemC.decode(singlePoem);
+      const result = Schema.decodeUnknownEither(strapiPoemC)(singlePoem);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.data).toHaveLength(1);
         if (result.right.data && result.right.data[0]) {
           expect(result.right.data[0].id).toBe(42);
@@ -360,8 +360,8 @@ describe('Poem Type Validation', () => {
         }
       };
 
-      const result = strapiPoemC.decode(invalidPoemArray);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(strapiPoemC)(invalidPoemArray);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('rejects missing meta field', () => {
@@ -383,8 +383,8 @@ describe('Poem Type Validation', () => {
         // missing meta
       };
 
-      const result = strapiPoemC.decode(noMeta);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(strapiPoemC)(noMeta);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('rejects invalid pagination structure', () => {
@@ -400,8 +400,8 @@ describe('Poem Type Validation', () => {
         }
       };
 
-      const result = strapiPoemC.decode(invalidPagination);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(strapiPoemC)(invalidPagination);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
@@ -452,10 +452,10 @@ describe('Poem Type Validation', () => {
         position: 0
       };
 
-      const result = poemC.decode(edgeCasePoem);
+      const result = Schema.decodeUnknownEither(poemC)(edgeCasePoem);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.title).toContain('Special Characters');
         expect(result.right.body).toContain('\n\n');
         expect(result.right.body).toContain('\t');
@@ -474,10 +474,10 @@ describe('Poem Type Validation', () => {
         position: 999999
       };
 
-      const result = poemC.decode(highPositionPoem);
+      const result = Schema.decodeUnknownEither(poemC)(highPositionPoem);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.position).toBe(999999);
       }
     });

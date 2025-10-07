@@ -21,7 +21,7 @@ describe('Analytics Module Structure', () => {
     it('should have analytics module available for import', async () => {
       // Test that the module can be imported without errors
       try {
-        const analyticsModule = await import('$lib/analytics');
+        const analyticsModule = await import('../../src/lib/analytics');
         expect(analyticsModule).toBeDefined();
       } catch (error) {
         // If module can't be imported, at least check that the mock structure is correct
@@ -37,7 +37,7 @@ describe('Analytics Module Structure', () => {
       delete process.env.VITE_MIXPANEL_TOKEN;
       
       // This should not throw an error during test execution
-      expect(typeof import('$lib/analytics')).toBe('object');
+      expect(typeof import('../../src/lib/analytics')).toBe('object');
       
       // Restore environment
       if (originalEnv) {

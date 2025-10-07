@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { cleanUrlSlug } from '$lib/history';
+import { cleanUrlSlug } from '../../src/lib/history';
 
 describe('History Utilities', () => {
   describe('cleanUrlSlug', () => {

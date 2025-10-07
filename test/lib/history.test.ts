@@ -8,7 +8,7 @@ vi.mock('$app/navigation', () => ({
 // Un-mock $lib/history to test the real implementation
 vi.doUnmock('$lib/history');
 
-import { cleanUrlSlug, clientNavigate } from '$lib/history';
+import { cleanUrlSlug, clientNavigate } from '../../src/lib/history';
 import { pushState } from '$app/navigation';
 
 describe('History Utilities', () => {

@@ -1,74 +1,73 @@
-import * as t from "io-ts";
+import { Schema } from "effect";
 import { strapiBaseC, strapiDataArrC, strapiUpdatedC, withIdC } from "./strapi";
 
-const imageBaseC = t.type({
-  ext: t.string,
-  height: t.number,
-  hash: t.string,
-  mime: t.string,
-  name: t.string,
-  size: t.number,
-  url: t.string,
-  width: t.number,
-  path: t.union([t.string, t.null]),
+const imageBaseC = Schema.Struct({
+  ext: Schema.String,
+  height: Schema.Number,
+  hash: Schema.String,
+  mime: Schema.String,
+  name: Schema.String,
+  size: Schema.Number,
+  url: Schema.String,
+  width: Schema.Number,
+  path: Schema.NullOr(Schema.String),
 });
 
-const imageAttrsC = t.intersection([
+const imageAttrsC = Schema.extend(
   strapiUpdatedC,
-  t.type({
-    alternativeText: t.string,
-    caption: t.string,
-    provider: t.string,
-    provider_metadata: t.any,
-    previewUrl: t.union([t.string, t.null]),
-    url: t.string,
-    formats: t.union([
-      t.null,
-      t.type({}),
-      t.type({
+  Schema.Struct({
+    alternativeText: Schema.String,
+    caption: Schema.String,
+    provider: Schema.String,
+    provider_metadata: Schema.Any,
+    previewUrl: Schema.NullOr(Schema.String),
+    url: Schema.String,
+    formats: Schema.Union(
+      Schema.Null,
+      Schema.Struct({}),
+      Schema.Struct({
         small: imageBaseC,
-        medium: t.union([imageBaseC, t.undefined]),
+        medium: Schema.optional(imageBaseC),
         thumbnail: imageBaseC,
       }),
-    ]),
+    ),
   }),
-]);
+);
 
-export const imageC = t.union([imageBaseC, imageAttrsC]);
+export const imageC = Schema.Union(imageBaseC, imageAttrsC);
 
-export const strapiImageDataC = t.type({
-  data: t.union([withIdC(imageAttrsC), t.null]),
+export const strapiImageDataC = Schema.Struct({
+  data: Schema.NullOr(withIdC(imageAttrsC)),
 });
 
-export type StrapiImageData = t.TypeOf<typeof strapiImageDataC>;
+export type StrapiImageData = Schema.Schema.Type<typeof strapiImageDataC>;
 
-export const artBaseC = t.intersection([
-  t.any,
+export const artBaseC = Schema.extend(
   strapiBaseC,
-  t.type({
-    description: t.string,
-    order: t.number,
+  Schema.Struct({
+    description: Schema.String,
+    order: Schema.Number,
     image: strapiImageDataC,
   }),
-]);
+);
 
-export const artC = t.intersection([
+export const artC = Schema.extend(
   artBaseC,
-  t.type({
-    title: t.string,
-    createdDate: t.string,
-    medium: t.string,
+  Schema.Struct({
+    title: Schema.String,
+    createdDate: Schema.String,
+    medium: Schema.String,
   }),
-]);
+);
 
-const artWithId = withIdC(artC);
-export type ArtWithId = t.TypeOf<typeof artWithId>;
+export const artWithIdC = withIdC(artC);
+export type ArtWithId = Schema.Schema.Type<typeof artWithIdC>;
 
-export const artCategoryC = t.intersection([
+export const artCategoryC = Schema.extend(
   strapiBaseC,
-  t.type({
-    title: t.string,
-    art_pieces: t.union([strapiDataArrC(artC), t.undefined]),
-    omit: t.union([strapiDataArrC(t.null), t.undefined]),
+  Schema.Struct({
+    title: Schema.String,
+    art_pieces: Schema.optional(strapiDataArrC(artC)),
+    omit: Schema.optional(strapiDataArrC(Schema.Null)),
   }),
-]);
+);

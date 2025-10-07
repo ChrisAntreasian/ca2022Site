@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { error } from '@sveltejs/kit';
-import { taskEither as TE, either as E } from 'fp-ts';
+import { error, type HttpError } from '@sveltejs/kit';
+import { Effect, Either } from 'effect';
 import {
   throwErrIO,
   e500,
@@ -22,11 +22,11 @@ vi.mock('@sveltejs/kit', () => ({
 describe('Error Handling Utilities', () => {
   describe('Type aliases', () => {
     it('HttpErrTE type works with TaskEither operations', async () => {
-      const successTask: HttpErrTE<string> = TE.right('success');
-      const result = await successTask();
+      const successTask: HttpErrTE<string> = Effect.succeed('success');
+      const result = await Effect.runPromise(Effect.either(successTask));
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right).toBe('success');
       }
     });
@@ -38,20 +38,20 @@ describe('Error Handling Utilities', () => {
       } catch (err) {
         mockError = err as Error & { status: number; body: { message: string } };
       }
-      const errorTask: HttpErrTE<string> = TE.left(mockError!);
-      const result = await errorTask();
+      const errorTask: HttpErrTE<string> = Effect.fail(mockError!);
+      const result = await Effect.runPromise(Effect.either(errorTask));
       
-      expect(E.isLeft(result)).toBe(true);
-      if (E.isLeft(result)) {
-        expect(result.left.status).toBe(404);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect((result.left as HttpError).status).toBe(404);
       }
     });
 
     it('HttpErrE type works with Either operations', () => {
-      const successEither: HttpErrE<number> = E.right(42);
+      const successEither: HttpErrE<number> = Either.right(42);
       
-      expect(E.isRight(successEither)).toBe(true);
-      if (E.isRight(successEither)) {
+      expect(Either.isRight(successEither)).toBe(true);
+      if (Either.isRight(successEither)) {
         expect(successEither.right).toBe(42);
       }
     });
@@ -63,10 +63,10 @@ describe('Error Handling Utilities', () => {
       } catch (err) {
         mockError = err as Error & { status: number; body: { message: string } };
       }
-      const errorEither: HttpErrE<number> = E.left(mockError!);
+      const errorEither: HttpErrE<number> = Either.left(mockError!);
       
-      expect(E.isLeft(errorEither)).toBe(true);
-      if (E.isLeft(errorEither)) {
+      expect(Either.isLeft(errorEither)).toBe(true);
+      if (Either.isLeft(errorEither)) {
         expect(errorEither.left.status).toBe(500);
       }
     });
@@ -80,7 +80,7 @@ describe('Error Handling Utilities', () => {
       } catch (err) {
         mockError = err as Error & { status: number; body: { message: string } };
       }
-      const throwFn = throwErrIO();
+      const throwFn = throwErrIO;
       
       expect(() => throwFn(mockError!)).toThrow();
     });
@@ -92,7 +92,7 @@ describe('Error Handling Utilities', () => {
       } catch (err) {
         mockError = err as Error & { status: number; body: { message: string } };
       }
-      const throwFn = throwErrIO();
+      const throwFn = throwErrIO;
       
       try {
         throwFn(mockError!);
@@ -120,7 +120,7 @@ describe('Error Handling Utilities', () => {
         }
       });
       
-      const throwFn = throwErrIO();
+      const throwFn = throwErrIO;
       
       errors.forEach(err => {
         expect(() => throwFn(err)).toThrow();
@@ -134,7 +134,7 @@ describe('Error Handling Utilities', () => {
       } catch (err) {
         mockError = err as Error & { status: number; body: { message: string } };
       }
-      const throwFn = throwErrIO();
+      const throwFn = throwErrIO;
       
       // Test that it creates a proper IO function
       expect(typeof throwFn).toBe('function');
