@@ -1,4 +1,4 @@
-import * as t from "io-ts";
+import { Schema } from "effect";
 
 import {
   strapiBaseC,
@@ -9,54 +9,52 @@ import {
 import { artC, artCategoryC, imageC, strapiImageDataC } from "./art";
 import { poemC } from "./poem";
 
-const pageDetailsC = t.intersection([
+const pageDetailsC = Schema.extend(
   strapiBaseC,
-  t.type({
-    title: t.string,
-    description: t.string,
-    art_categories: t.union([strapiDataArrC(artCategoryC), t.undefined]),
-    poems: t.union([strapiDataArrC(poemC), t.undefined, t.type({})]),
-    link: t.union([t.string, t.null]),
-    art_piece: t.union([strapiDataC(artC), t.undefined]),
-    image: t.union([strapiImageDataC, t.undefined]),
+  Schema.Struct({
+    title: Schema.String,
+    description: Schema.String,
+    art_categories: Schema.optional(strapiDataArrC(artCategoryC)),
+    poems: Schema.Union(strapiDataArrC(poemC), Schema.UndefinedOr(Schema.Struct({}))),
+    link: Schema.NullOr(Schema.String),
+    art_piece: Schema.optional(strapiDataC(artC)),
+    image: Schema.optional(strapiImageDataC),
   }),
-]);
-
-const strapiPageDetailsC = strapiDataArrC(
-  t.intersection([pageDetailsC, t.type({ poems: strapiDataArrC(poemC) })]),
 );
-export type StrapiPageDetails = t.TypeOf<typeof strapiPageDetailsC>["data"];
 
-const richLinkC = t.intersection([
+const strapiPageDetailsC = strapiDataArrC(pageDetailsC);
+export type StrapiPageDetails = Schema.Schema.Type<typeof strapiPageDetailsC>["data"];
+
+const richLinkC = Schema.extend(
   strapiBaseC,
-  t.type({
-    title: t.string,
-    body: t.string,
+  Schema.Struct({
+    title: Schema.String,
+    body: Schema.String,
     image: strapiDataArrC(imageC),
     logo: strapiDataC(imageC),
-    link: t.string,
-    secondLink: t.union([t.string, t.null]),
-    position: t.number,
+    link: Schema.String,
+    secondLink: Schema.NullOr(Schema.String),
+    position: Schema.Number,
   }),
-]);
+);
 
-const strapiPageC = t.intersection([
+const strapiPageC = Schema.extend(
   strapiBaseC,
-  t.type({
-    title: t.string,
+  Schema.Struct({
+    title: Schema.String,
     page_details: strapiDataArrC(pageDetailsC),
-    rich_links: t.union([strapiDataArrC(richLinkC), t.undefined]),
+    rich_links: Schema.optional(strapiDataArrC(richLinkC)),
   }),
-]);
+);
 
-export const pageResC = t.intersection([
+export const pageResC = Schema.extend(
   strapiMetaDataC,
   strapiDataArrC(strapiPageC),
-]);
-export type PageRes = t.TypeOf<typeof pageResC>;
+);
+export type PageRes = Schema.Schema.Type<typeof pageResC>;
 
-export const detailsResC = t.intersection([
+export const detailsResC = Schema.extend(
   strapiMetaDataC,
   strapiPageDetailsC,
-]);
-export type DetailsRes = t.TypeOf<typeof detailsResC>;
+);
+export type DetailsRes = Schema.Schema.Type<typeof detailsResC>;

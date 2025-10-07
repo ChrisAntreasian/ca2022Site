@@ -1,43 +1,39 @@
-import {
-  either as E,
-  task as T,
-  taskEither as TE,
-  function as FN,
-  readonlyArray as RA,
-  readonlyRecord as RR,
-} from "fp-ts";
+import { Effect, Array, pipe } from "effect";
+import type { HttpError } from "@sveltejs/kit";
 
 import { writeFsTE } from "$lib/file";
 import { throwErrIO, type HttpErrTE, e403 } from "./error";
 
 const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;
 
-const buildGate = FN.flow(
-  E.fromPredicate(
-    (_) => _ === VITE_BUILD_KEY && VITE_ENV === "develop",
-    () => e403("Permission denied."),
-  ),
-  TE.fromEither,
-);
+const buildGate = (key: string): Effect.Effect<string, HttpError> =>
+  key === VITE_BUILD_KEY && VITE_ENV === "develop"
+    ? Effect.succeed(key)
+    : Effect.fail(e403("Permission denied.") as HttpError);
 
-export const writeFile = <A>(buildKey: string) =>
-  TE.chain((_: A) => writeFsTE<A>([_, buildKey]));
+export const writeFile = <A>(buildKey: string) => (data: A): HttpErrTE<A> =>
+  writeFsTE([data, buildKey]);
 
-export const combineResp: (
-  kd: HttpErrTE<ReadonlyArray<RR.ReadonlyRecord<string, any>>>,
-) => HttpErrTE<RR.ReadonlyRecord<string, any>> = TE.map(
-  RA.reduce({}, (acc, curr) => ({ ...acc, ...curr })),
-);
-
-export const buildRes = <A, B>(
-  title: string,
-  bFn: (ma: HttpErrTE<A>) => HttpErrTE<B>,
-) =>
-  FN.flow(
-    buildGate,
-    bFn,
-    TE.fold(
-      throwErrIO(),
-      FN.flow((_) => ({ title: title, data: _ }), T.of),
+export const combineResp = (
+  effects: HttpErrTE<ReadonlyArray<Record<string, unknown>>>,
+): HttpErrTE<Record<string, unknown>> =>
+  pipe(
+    effects,
+    Effect.map(
+      Array.reduce({} as Record<string, unknown>, (acc, curr) => ({ ...acc, ...curr })),
     ),
   );
+
+export const buildRes = <B>(
+  title: string,
+  bFn: (key: string) => HttpErrTE<B>,
+) =>
+  (key: string) =>
+    pipe(
+      buildGate(key),
+      Effect.flatMap(bFn),
+      Effect.match({
+        onFailure: throwErrIO,
+        onSuccess: (data) => ({ title, data }),
+      }),
+    );

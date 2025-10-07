@@ -12,21 +12,21 @@ export const load: PageServerLoad = async () => {
     ...attrs.page_details.data.reduce(
       (
         acc: {
-          intro: StrapiPageDetails;
-          links: StrapiPageDetails;
+          intro: StrapiPageDetails[0][];
+          links: StrapiPageDetails[0][];
         },
         d: StrapiPageDetails[0],
       ) => {
         if (introIds.includes(d.id)) {
-          acc.intro.push(d);
+          acc.intro = [...acc.intro, d];
         } else {
-          acc.links.push(d);
+          acc.links = [...acc.links, d];
         }
         return acc;
       },
       {
-        intro: [],
-        links: [],
+        intro: [] as StrapiPageDetails[0][],
+        links: [] as StrapiPageDetails[0][],
       },
     ),
   };

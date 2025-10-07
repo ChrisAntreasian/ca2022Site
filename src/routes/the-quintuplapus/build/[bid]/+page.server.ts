@@ -1,6 +1,6 @@
 import type { PageServerLoad } from "./$types";
 
-import * as t from "io-ts";
+import { Schema, Effect } from "effect";
 import * as qs from "qs";
 
 import { getNoOpts } from "$lib/api";
@@ -10,10 +10,12 @@ import { mkKeyWDefault } from '$lib/file';
 
 import { strapiDataArrC, strapiMetaDataC } from "$lib/typing/strapi";
 import { artCategoryC } from "$lib/typing/art";
-import { taskEither as TE } from "fp-ts";
 
-const respC = t.intersection([strapiMetaDataC, strapiDataArrC(artCategoryC)]);
-type Resp = t.TypeOf<typeof respC>
+const respC = Schema.extend(
+  strapiMetaDataC, 
+  strapiDataArrC(artCategoryC)
+);
+type Resp = Schema.Schema.Type<typeof respC>
 
 const q = qs.stringify({
 	filters: {
@@ -29,8 +31,8 @@ const q = qs.stringify({
 });
 
 const getRes = getNoOpts(respC)(`art-categories?${q}`);
-const wf = (rid: string) => TE.chain(() => writeFile<Resp>(mkKeyWDefault(rid))(getRes));
+const wf = (rid: string) => () => Effect.flatMap(getRes, (data) => writeFile<Resp>(mkKeyWDefault(rid))(data));
 
 export const load: PageServerLoad = async ({ params, route }) => 
-  await buildRes("The Quintuplapus", wf(route.id))(params.bid)();
+  await Effect.runPromise(buildRes("The Quintuplapus", wf(route.id))(params.bid));
   

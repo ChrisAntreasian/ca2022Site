@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, type MockedFunction } from 'vitest';
-import * as t from 'io-ts';
-import { either as E } from 'fp-ts';
+import { Schema, Effect } from 'effect';
+import { Either } from 'effect';
 import { getNoOpts, queryStr } from '../../src/lib/api';
 
 // Mock SvelteKit error function
@@ -21,10 +21,10 @@ vi.mock('$lib/api', async () => {
 });
 
 // Simple test codec for validation
-const testDataCodec = t.type({
-  id: t.number,
-  name: t.string,
-  active: t.boolean
+const testDataCodec = Schema.Struct({
+  id: Schema.Number,
+  name: Schema.String,
+  active: Schema.Boolean
 });
 
 // Mock environment variables for Vite
@@ -36,7 +36,7 @@ describe('API Client Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Mock import.meta.env for the api module
+    // Mock imporSchema.meta.env for the api module
     vi.stubEnv('VITE_BASE_API', 'https://test-api.com');
     
     // Reset fetch mock
@@ -108,10 +108,10 @@ describe('API Client Tests', () => {
       // Mock fetch to reject
       global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
-      const apiCall = getNoOpts(testDataCodec)('test-endpoint');
-      const result = await apiCall();
+      const apiCall = getNoOpts(testDataCodec as any)('test-endpoint');
+      const result = await Effect.runPromise(Effect.either(apiCall));
       
-      expect(E.isLeft(result)).toBe(true);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('handles 404 responses correctly', async () => {
@@ -121,10 +121,10 @@ describe('API Client Tests', () => {
         json: vi.fn().mockResolvedValue({ error: 'Not found' })
       });
 
-      const apiCall = getNoOpts(testDataCodec)('nonexistent-endpoint');
-      const result = await apiCall();
+      const apiCall = getNoOpts(testDataCodec as unknown)('nonexistent-endpoint');
+      const result = await Effect.runPromise(Effect.either(apiCall));
       
-      expect(E.isLeft(result)).toBe(true);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('handles 500 server errors correctly', async () => {
@@ -134,10 +134,10 @@ describe('API Client Tests', () => {
         json: vi.fn().mockResolvedValue({ error: 'Server error' })
       });
 
-      const apiCall = getNoOpts(testDataCodec)('failing-endpoint');
-      const result = await apiCall();
+      const apiCall = getNoOpts(testDataCodec as unknown)('failing-endpoint');
+      const result = await Effect.runPromise(Effect.either(apiCall));
       
-      expect(E.isLeft(result)).toBe(true);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('handles JSON parsing failures', async () => {
@@ -147,10 +147,10 @@ describe('API Client Tests', () => {
         json: vi.fn().mockRejectedValue(new Error('Invalid JSON'))
       });
 
-      const apiCall = getNoOpts(testDataCodec)('bad-json-endpoint');
-      const result = await apiCall();
+      const apiCall = getNoOpts(testDataCodec as unknown)('bad-json-endpoint');
+      const result = await Effect.runPromise(Effect.either(apiCall));
       
-      expect(E.isLeft(result)).toBe(true);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('handles codec validation failures', async () => {
@@ -165,10 +165,10 @@ describe('API Client Tests', () => {
         })
       });
 
-      const apiCall = getNoOpts(testDataCodec)('invalid-data-endpoint');
-      const result = await apiCall();
+      const apiCall = getNoOpts(testDataCodec as unknown)('invalid-data-endpoint');
+      const result = await Effect.runPromise(Effect.either(apiCall));
       
-      expect(E.isLeft(result)).toBe(true);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
@@ -186,11 +186,11 @@ describe('API Client Tests', () => {
         json: vi.fn().mockResolvedValue(mockData)
       });
 
-      const apiCall = getNoOpts(testDataCodec)('valid-endpoint');
-      const result = await apiCall();
+      const apiCall = getNoOpts(testDataCodec as unknown)('valid-endpoint');
+      const result = await Effect.runPromise(Effect.either(apiCall));
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right).toEqual(mockData);
       }
     });
@@ -204,8 +204,8 @@ describe('API Client Tests', () => {
         json: vi.fn().mockResolvedValue(mockData)
       });
 
-      const apiCall = getNoOpts(testDataCodec)('test-endpoint');
-      await apiCall();
+      const apiCall = getNoOpts(testDataCodec as unknown)('test-endpoint');
+      await Effect.runPromise(Effect.either(apiCall));
 
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/test-endpoint'),
@@ -227,8 +227,8 @@ describe('API Client Tests', () => {
         json: vi.fn().mockResolvedValue(mockData)
       });
 
-      const apiCall = getNoOpts(testDataCodec)('test-resource');
-      await apiCall();
+      const apiCall = getNoOpts(testDataCodec as unknown)('test-resource');
+      await Effect.runPromise(Effect.either(apiCall));
 
       // The API should make a request to the resource endpoint
       expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -250,12 +250,12 @@ describe('API Client Tests', () => {
         json: vi.fn().mockResolvedValue(null)
       });
 
-      const nullableCodec = t.union([testDataCodec, t.null]);
-      const apiCall = getNoOpts(nullableCodec)('empty-endpoint');
+      const nullableCodec = Schema.Union(testDataCodec, Schema.Null);
+      const apiCall = getNoOpts(nullableCodec as unknown)('empty-endpoint');
       
-      const result = await apiCall();
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      const result = await Effect.runPromise(Effect.either(apiCall));
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right).toBeNull();
       }
     });
@@ -263,11 +263,11 @@ describe('API Client Tests', () => {
     it('handles undefined environment variables gracefully', async () => {
       vi.stubEnv('VITE_BASE_API', undefined);
       
-      const apiCall = getNoOpts(testDataCodec)('test-endpoint');
-      const result = await apiCall();
+      const apiCall = getNoOpts(testDataCodec as any)('test-endpoint');
+      const result = await Effect.runPromise(Effect.either(apiCall));
       
       // Should handle undefined base API - this would likely fail at fetch level
-      expect(E.isLeft(result)).toBe(true);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('handles very large response data', async () => {
@@ -283,13 +283,13 @@ describe('API Client Tests', () => {
         json: vi.fn().mockResolvedValue(largeData)
       });
 
-      const apiCall = getNoOpts(testDataCodec)('large-data-endpoint');
-      const result = await apiCall();
+      const apiCall = getNoOpts(testDataCodec as unknown)('large-data-endpoint');
+      const result = await Effect.runPromise(Effect.either(apiCall));
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
-        expect(result.right.name).toHaveLength(10000);
-        expect(result.right.id).toBe(1);
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
+        expect((result.right as { name: string }).name).toHaveLength(10000);
+        expect((result.right as { id: number }).id).toBe(1);
       }
     });
   });
@@ -307,11 +307,11 @@ describe('API Client Tests', () => {
         )
       );
 
-      const apiCall = getNoOpts(testDataCodec)('slow-endpoint');
-      const result = await apiCall();
+      const apiCall = getNoOpts(testDataCodec as unknown)('slow-endpoint');
+      const result = await Effect.runPromise(Effect.either(apiCall));
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right).toEqual({ id: 1, name: 'slow', active: true });
       }
     });

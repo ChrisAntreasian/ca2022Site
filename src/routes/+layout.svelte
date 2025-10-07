@@ -1,6 +1,7 @@
 <script lang="ts">
   import "../app.css";
 
+  import { onMount } from "svelte";
   import { setContext } from "svelte";
   import { contextHeightKey } from "$lib/spacing";
 
@@ -24,7 +25,9 @@
     children,
   }: Props = $props();
 
-  initMixpanel();
+  onMount(() => {
+    initMixpanel();
+  });
 
   setContext(contextHeightKey, {
     getHeaderHeight: () => headerHeight,

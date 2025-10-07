@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { either as E } from 'fp-ts';
+import { Either, Effect } from 'effect';
 import { writeFsTE, mkKeyWDefault } from '../../src/lib/file';
 
 // Mock fs module
@@ -77,10 +77,10 @@ describe('File Utilities', () => {
       
       vi.mocked(fs.promises.writeFile).mockResolvedValue(undefined);
 
-      const result = await writeFsTE([mockData, filename])();
+      const result = await Effect.runPromise(Effect.either(writeFsTE([mockData, filename])));
 
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right).toEqual(mockData);
       }
 
@@ -97,7 +97,7 @@ describe('File Utilities', () => {
       vi.mocked(fs.promises.writeFile).mockResolvedValue(undefined);
       
       const beforeTime = Date.now();
-      await writeFsTE([mockData, filename])();
+      await Effect.runPromise(Effect.either(writeFsTE([mockData, filename])));
       const afterTime = Date.now();
 
       const writeCall = vi.mocked(fs.promises.writeFile).mock.calls[0];
@@ -113,7 +113,7 @@ describe('File Utilities', () => {
       
       vi.mocked(fs.promises.writeFile).mockResolvedValue(undefined);
 
-      await writeFsTE([mockData, filename])();
+      await Effect.runPromise(Effect.either(writeFsTE([mockData, filename])));
 
       const writeCall = vi.mocked(fs.promises.writeFile).mock.calls[0];
       const writtenData = JSON.parse(writeCall[1] as string);
@@ -128,11 +128,11 @@ describe('File Utilities', () => {
       
       vi.mocked(fs.promises.writeFile).mockRejectedValue(new Error('Write failed'));
 
-      const result = await writeFsTE([mockData, filename])();
+      const result = await Effect.runPromise(Effect.either(writeFsTE([mockData, filename])));
 
-      expect(E.isLeft(result)).toBe(true);
-      if (E.isLeft(result)) {
-        expect(result.left.body.message).toBe('Failed to write the data.');
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect((result.left as { body: { message: string } }).body.message).toBe('Failed to write the data.');
       }
     });
 
@@ -142,7 +142,7 @@ describe('File Utilities', () => {
       
       vi.mocked(fs.promises.writeFile).mockResolvedValue(undefined);
 
-      await writeFsTE([mockData, filename])();
+      await Effect.runPromise(Effect.either(writeFsTE([mockData, filename])));
 
       expect(fs.promises.writeFile).toHaveBeenCalledWith(
         './src/data/path-test.json',
@@ -161,10 +161,10 @@ describe('File Utilities', () => {
       vi.mocked(fs.promises.writeFile).mockResolvedValue(undefined);
 
       for (const [data, filename] of testCases) {
-        const result = await writeFsTE([data, filename as string])();
+        const result = await Effect.runPromise(Effect.either(writeFsTE([data, filename as string])));
         
-        expect(E.isRight(result)).toBe(true);
-        if (E.isRight(result)) {
+        expect(Either.isRight(result)).toBe(true);
+        if (Either.isRight(result)) {
           expect(result.right).toEqual(data);
         }
       }

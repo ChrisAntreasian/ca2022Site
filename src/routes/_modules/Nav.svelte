@@ -41,7 +41,7 @@
         <div>
           <h4>My Favorites</h4>
           <ul>
-            {#each ni.attributes.poems.data as p}
+            {#each ni.attributes.poems && "data" in ni.attributes.poems ? ni.attributes.poems.data : [] as p}
               <li>
                 <a
                   onclick={() => navClick(`poem ${p.attributes.title}`)}

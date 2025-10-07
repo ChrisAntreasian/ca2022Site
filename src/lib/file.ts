@@ -1,44 +1,40 @@
 import * as fs from "fs";
-import {
-  string as s,
-  readonlyArray as RA,
-  either as E,
-  taskEither as TE,
-  function as FN,
-} from "fp-ts";
+import { Effect, Either, pipe, flow, Array } from "effect";
+import type { HttpError } from "@sveltejs/kit";
 
-import { e500, type HttpError, type HttpErrE, type HttpErrTE } from "./error";
+import { e500, type HttpErrE, type HttpErrTE } from "./error";
 
 const dataPath = "src/data";
 
 export const writeFsTE = <A>(d: [A, string]): HttpErrTE<A> =>
-  FN.pipe(
-    {
+  pipe(
+    Effect.sync(() => ({
       name: d[1],
       timestamp: Date.now(),
       data: d[0],
-    },
-    (writeData) =>
-      TE.tryCatch(
-        () =>
+    })),
+    Effect.flatMap((writeData) =>
+      Effect.tryPromise({
+        try: () =>
           fs.promises.writeFile(
             `./${dataPath}/${writeData.name}.json`,
             JSON.stringify(writeData),
           ),
-        () => {
+        catch: () => {
           try {
             return e500("Failed to write the data.");
           } catch (error) {
             return error as HttpError;
           }
         },
-      ),
-    TE.map(() => d[0]),
+      }),
+    ),
+    Effect.map(() => d[0]),
   );
 
 const routeKeys = [
   "landing",
-  "layout",
+  "layout", 
   "poems",
   "the-quintuplapus",
   "the-souljuicer",
@@ -47,22 +43,24 @@ const routeKeys = [
 type RouteKeyU = (typeof routeKeys)[number];
 
 const keyGuard = (k: string): k is RouteKeyU =>
-  FN.pipe(routeKeys, RA.elem(s.Eq)(k));
+  Array.contains(routeKeys, k);
 
-const mkKeyE = (rid: string): HttpErrE<RouteKeyU> =>
-  FN.pipe(
-    rid.split("/")[1],
-    E.fromPredicate(keyGuard, () => {
-      try {
-        return e500(`Data key does not exist.`);
-      } catch (err) {
-        // e500 throws, so we catch it and return the thrown error  
-        return err as HttpError;
-      }
-    }),
-  );
+const mkKeyE = (rid: string): HttpErrE<RouteKeyU> => {
+  const segment = rid.split("/")[1];
+  if (keyGuard(segment)) {
+    return Either.right(segment);
+  } else {
+    try {
+      e500(`Data key does not exist.`);
+      // This should never execute since e500 throws
+      return Either.left({} as HttpError);
+    } catch (err) {
+      return Either.left(err as HttpError);
+    }
+  }
+};
 
-export const mkKeyWDefault = FN.flow(
+export const mkKeyWDefault = flow(
   mkKeyE,
-  E.getOrElse(() => "resource"),
+  Either.getOrElse(() => "resource" as const),
 );

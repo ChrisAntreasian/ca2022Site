@@ -22,8 +22,8 @@ Object.defineProperty(globalThis, 'import', {
   },
 });
 
-import * as TE from 'fp-ts/TaskEither';
-import * as E from 'fp-ts/Either';
+import { Effect, Either } from 'effect';
+
 import { buildRes, combineResp, writeFile } from '../../src/lib/build';
 
 describe('Build Utilities', () => {
@@ -33,16 +33,16 @@ describe('Build Utilities', () => {
 
   describe('combineResp', () => {
     it('combines array of objects into single object', async () => {
-      const input = TE.right([
+      const input = Effect.succeed([
         { key1: 'value1' },
         { key2: 'value2' },
         { key3: 'value3' },
       ]);
 
-      const result = await combineResp(input)();
+      const result = await Effect.runPromise(Effect.either(combineResp(input)));
 
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right).toEqual({
           key1: 'value1',
           key2: 'value2',
@@ -52,26 +52,26 @@ describe('Build Utilities', () => {
     });
 
     it('handles empty array', async () => {
-      const input = TE.right([]);
+      const input = Effect.succeed([]);
 
-      const result = await combineResp(input)();
+      const result = await Effect.runPromise(Effect.either(combineResp(input)));
 
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right).toEqual({});
       }
     });
 
     it('handles objects with overlapping keys (last wins)', async () => {
-      const input = TE.right([
+      const input = Effect.succeed([
         { key1: 'first', shared: 'original' },
         { key2: 'second', shared: 'overwritten' },
       ]);
 
-      const result = await combineResp(input)();
+      const result = await Effect.runPromise(Effect.either(combineResp(input)));
 
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right).toEqual({
           key1: 'first',
           key2: 'second',
@@ -82,12 +82,12 @@ describe('Build Utilities', () => {
 
     it('propagates errors from TaskEither input', async () => {
       const error = { status: 500, body: { message: 'Test error' } } as const;
-      const input = TE.left(error);
+      const input = Effect.fail(error);
 
-      const result = await combineResp(input)();
+      const result = await Effect.runPromise(Effect.either(combineResp(input)));
 
-      expect(E.isLeft(result)).toBe(true);
-      if (E.isLeft(result)) {
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
         expect(result.left).toBe(error);
       }
     });
@@ -115,7 +115,7 @@ describe('Build Utilities', () => {
       // Skip this test if environment variables don't match expected values
       // This test depends on VITE_BUILD_KEY and VITE_ENV being set correctly
       const title = 'Test Build';
-      const buildFn = vi.fn().mockReturnValue(TE.right('processed-data'));
+      const buildFn = vi.fn().mockReturnValue(Effect.succeed('processed-data'));
       
       const buildResFn = buildRes(title, buildFn);
       
@@ -130,7 +130,7 @@ describe('Build Utilities', () => {
       // This test validates that the buildRes function structure is correct
       // Actual key validation is tested in "Build gate logic" section
       const title = 'Test Build';
-      const buildFn = vi.fn().mockReturnValue(TE.right('processed-data'));
+      const buildFn = vi.fn().mockReturnValue(Effect.succeed('processed-data'));
       
       const buildResFn = buildRes(title, buildFn);
       
@@ -142,7 +142,7 @@ describe('Build Utilities', () => {
       // This test validates that the buildRes function structure is correct
       // Actual environment validation is tested in "Build gate logic" section
       const title = 'Test Build';
-      const buildFn = vi.fn().mockReturnValue(TE.right('processed-data'));
+      const buildFn = vi.fn().mockReturnValue(Effect.succeed('processed-data'));
       
       const buildResFn = buildRes(title, buildFn);
       
@@ -154,7 +154,7 @@ describe('Build Utilities', () => {
       // This test validates that the buildRes function accepts error-returning functions
       const title = 'Test Build';
       const error = new Error('Build failed');
-      const buildFn = vi.fn().mockReturnValue(TE.left(error));
+      const buildFn = vi.fn().mockReturnValue(Effect.fail(error));
       
       const buildResFn = buildRes(title, buildFn);
       
@@ -178,7 +178,6 @@ describe('Build Utilities', () => {
       const incorrectKey: string = 'wrong-key';
       const env: string = 'develop';
       
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const isValid = incorrectKey === 'test-build-key' && env === 'develop';
       
       expect(isValid).toBe(false);
@@ -188,7 +187,6 @@ describe('Build Utilities', () => {
       const correctKey: string = 'test-build-key';
       const env: string = 'production';
       
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const isValid = correctKey === 'test-build-key' && env === 'develop';
       
       expect(isValid).toBe(false);

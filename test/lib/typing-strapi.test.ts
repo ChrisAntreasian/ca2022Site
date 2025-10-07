@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import * as t from 'io-ts';
-import { either as E } from 'fp-ts';
+import { Schema, Either } from 'effect';
 import {
   strapiMetaDataC,
   withIdC,
@@ -24,10 +23,10 @@ describe('Strapi Type Validation', () => {
         }
       };
 
-      const result = strapiMetaDataC.decode(validData);
+      const result = Schema.decodeUnknownEither(strapiMetaDataC)(validData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right).toEqual(validData);
       }
     });
@@ -44,8 +43,8 @@ describe('Strapi Type Validation', () => {
         }
       };
 
-      const result = strapiMetaDataC.decode(invalidData);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(strapiMetaDataC)(invalidData);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('rejects missing pagination fields', () => {
@@ -59,8 +58,8 @@ describe('Strapi Type Validation', () => {
         }
       };
 
-      const result = strapiMetaDataC.decode(invalidData);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(strapiMetaDataC)(invalidData);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('rejects null values in required fields', () => {
@@ -75,16 +74,16 @@ describe('Strapi Type Validation', () => {
         }
       };
 
-      const result = strapiMetaDataC.decode(invalidData);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(strapiMetaDataC)(invalidData);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
   describe('withIdC codec factory', () => {
     it('creates codec that validates object with id and attributes', () => {
-      const testCodec = t.type({
-        name: t.string,
-        active: t.boolean
+      const testCodec = Schema.Struct({
+        name: Schema.String,
+        active: Schema.Boolean
       });
 
       const wrappedCodec = withIdC(testCodec);
@@ -97,18 +96,18 @@ describe('Strapi Type Validation', () => {
         }
       };
 
-      const result = wrappedCodec.decode(validData);
+      const result = Schema.decodeUnknownEither(wrappedCodec)(validData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.id).toBe(123);
         expect(result.right.attributes.name).toBe('Test Item');
       }
     });
 
     it('rejects invalid id type', () => {
-      const testCodec = t.type({
-        name: t.string
+      const testCodec = Schema.Struct({
+        name: Schema.String
       });
 
       const wrappedCodec = withIdC(testCodec);
@@ -120,14 +119,14 @@ describe('Strapi Type Validation', () => {
         }
       };
 
-      const result = wrappedCodec.decode(invalidData);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(wrappedCodec)(invalidData);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('rejects invalid attributes structure', () => {
-      const testCodec = t.type({
-        name: t.string,
-        count: t.number
+      const testCodec = Schema.Struct({
+        name: Schema.String,
+        count: Schema.Number
       });
 
       const wrappedCodec = withIdC(testCodec);
@@ -140,15 +139,15 @@ describe('Strapi Type Validation', () => {
         }
       };
 
-      const result = wrappedCodec.decode(invalidData);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(wrappedCodec)(invalidData);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
   describe('strapiDataC codec factory', () => {
     it('validates single data wrapper with valid content', () => {
-      const testCodec = t.type({
-        title: t.string
+      const testCodec = Schema.Struct({
+        title: Schema.String
       });
 
       const dataCodec = strapiDataC(testCodec);
@@ -162,10 +161,10 @@ describe('Strapi Type Validation', () => {
         }
       };
 
-      const result = dataCodec.decode(validData);
+      const result = Schema.decodeUnknownEither(dataCodec)(validData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.data).not.toBeNull();
         if (result.right.data) {
           expect(result.right.data.id).toBe(1);
@@ -175,8 +174,8 @@ describe('Strapi Type Validation', () => {
     });
 
     it('validates data wrapper with null content', () => {
-      const testCodec = t.type({
-        title: t.string
+      const testCodec = Schema.Struct({
+        title: Schema.String
       });
 
       const dataCodec = strapiDataC(testCodec);
@@ -185,17 +184,17 @@ describe('Strapi Type Validation', () => {
         data: null
       };
 
-      const result = dataCodec.decode(validData);
+      const result = Schema.decodeUnknownEither(dataCodec)(validData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.data).toBeNull();
       }
     });
 
     it('rejects invalid content structure', () => {
-      const testCodec = t.type({
-        title: t.string
+      const testCodec = Schema.Struct({
+        title: Schema.String
       });
 
       const dataCodec = strapiDataC(testCodec);
@@ -209,15 +208,15 @@ describe('Strapi Type Validation', () => {
         }
       };
 
-      const result = dataCodec.decode(invalidData);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(dataCodec)(invalidData);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
   describe('strapiDataArrC codec factory', () => {
     it('validates array data wrapper with valid content', () => {
-      const testCodec = t.type({
-        name: t.string
+      const testCodec = Schema.Struct({
+        name: Schema.String
       });
 
       const arrayCodec = strapiDataArrC(testCodec);
@@ -239,10 +238,10 @@ describe('Strapi Type Validation', () => {
         ]
       };
 
-      const result = arrayCodec.decode(validData);
+      const result = Schema.decodeUnknownEither(arrayCodec)(validData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.data).not.toBeNull();
         if (result.right.data && Array.isArray(result.right.data)) {
           expect(result.right.data).toHaveLength(2);
@@ -253,8 +252,8 @@ describe('Strapi Type Validation', () => {
     });
 
     it('validates empty array', () => {
-      const testCodec = t.type({
-        name: t.string
+      const testCodec = Schema.Struct({
+        name: Schema.String
       });
 
       const arrayCodec = strapiDataArrC(testCodec);
@@ -263,10 +262,10 @@ describe('Strapi Type Validation', () => {
         data: []
       };
 
-      const result = arrayCodec.decode(validData);
+      const result = Schema.decodeUnknownEither(arrayCodec)(validData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.data).not.toBeNull();
         if (result.right.data && Array.isArray(result.right.data)) {
           expect(result.right.data).toHaveLength(0);
@@ -275,8 +274,8 @@ describe('Strapi Type Validation', () => {
     });
 
     it('validates null data', () => {
-      const testCodec = t.type({
-        name: t.string
+      const testCodec = Schema.Struct({
+        name: Schema.String
       });
 
       const arrayCodec = strapiDataArrC(testCodec);
@@ -285,17 +284,17 @@ describe('Strapi Type Validation', () => {
         data: null
       };
 
-      const result = arrayCodec.decode(validData);
+      const result = Schema.decodeUnknownEither(arrayCodec)(validData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right.data).toBeNull();
       }
     });
 
     it('rejects invalid array item structure', () => {
-      const testCodec = t.type({
-        name: t.string
+      const testCodec = Schema.Struct({
+        name: Schema.String
       });
 
       const arrayCodec = strapiDataArrC(testCodec);
@@ -317,8 +316,8 @@ describe('Strapi Type Validation', () => {
         ]
       };
 
-      const result = arrayCodec.decode(invalidData);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(arrayCodec)(invalidData);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
@@ -329,10 +328,10 @@ describe('Strapi Type Validation', () => {
         updatedAt: '2023-12-01T15:30:00.000Z'
       };
 
-      const result = strapiUpdatedC.decode(validData);
+      const result = Schema.decodeUnknownEither(strapiUpdatedC)(validData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right).toEqual(validData);
       }
     });
@@ -343,8 +342,8 @@ describe('Strapi Type Validation', () => {
         updatedAt: '2023-12-01T15:30:00.000Z'
       };
 
-      const result = strapiUpdatedC.decode(invalidData);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(strapiUpdatedC)(invalidData);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('rejects missing timestamps', () => {
@@ -353,8 +352,8 @@ describe('Strapi Type Validation', () => {
         // missing updatedAt
       };
 
-      const result = strapiUpdatedC.decode(invalidData);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(strapiUpdatedC)(invalidData);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
@@ -366,10 +365,10 @@ describe('Strapi Type Validation', () => {
         publishedAt: '2023-12-01T16:00:00.000Z'
       };
 
-      const result = strapiBaseC.decode(validData);
+      const result = Schema.decodeUnknownEither(strapiBaseC)(validData);
       
-      expect(E.isRight(result)).toBe(true);
-      if (E.isRight(result)) {
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result)) {
         expect(result.right).toEqual(validData);
       }
     });
@@ -381,8 +380,8 @@ describe('Strapi Type Validation', () => {
         // missing publishedAt
       };
 
-      const result = strapiBaseC.decode(invalidData);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(strapiBaseC)(invalidData);
+      expect(Either.isLeft(result)).toBe(true);
     });
 
     it('rejects non-string publishedAt field', () => {
@@ -392,23 +391,36 @@ describe('Strapi Type Validation', () => {
         publishedAt: null
       };
 
-      const result = strapiBaseC.decode(invalidData);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(strapiBaseC)(invalidData);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 
   describe('Codec composition and nesting', () => {
     it('validates complex nested structure', () => {
-      const complexCodec = t.intersection([
-        strapiMetaDataC,
-        strapiDataArrC(t.intersection([
-          strapiBaseC,
-          t.type({
-            title: t.string,
-            active: t.boolean
+      const complexCodec = Schema.Struct({
+        meta: Schema.Struct({
+          pagination: Schema.Struct({
+            page: Schema.Number,
+            pageCount: Schema.Number,
+            pageSize: Schema.Number,
+            total: Schema.Number
           })
-        ]))
-      ]);
+        }),
+        data: Schema.Union(
+          Schema.Null,
+          Schema.Array(Schema.Struct({
+            id: Schema.Number,
+            attributes: Schema.extend(
+              strapiBaseC,
+              Schema.Struct({
+                title: Schema.String,
+                active: Schema.Boolean
+              })
+            )
+          }))
+        )
+      });
 
       const validData = {
         meta: {
@@ -433,21 +445,34 @@ describe('Strapi Type Validation', () => {
         ]
       };
 
-      const result = complexCodec.decode(validData);
-      expect(E.isRight(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(complexCodec)(validData);
+      expect(Either.isRight(result)).toBe(true);
     });
 
     it('handles partial failures in complex structures', () => {
-      const complexCodec = t.intersection([
-        strapiMetaDataC,
-        strapiDataArrC(t.intersection([
-          strapiBaseC,
-          t.type({
-            title: t.string,
-            count: t.number
+      const complexCodec = Schema.Struct({
+        meta: Schema.Struct({
+          pagination: Schema.Struct({
+            page: Schema.Number,
+            pageCount: Schema.Number,
+            pageSize: Schema.Number,
+            total: Schema.Number
           })
-        ]))
-      ]);
+        }),
+        data: Schema.Union(
+          Schema.Null,
+          Schema.Array(Schema.Struct({
+            id: Schema.Number,
+            attributes: Schema.extend(
+              strapiBaseC,
+              Schema.Struct({
+                title: Schema.String,
+                count: Schema.Number
+              })
+            )
+          }))
+        )
+      });
 
       const invalidData = {
         meta: {
@@ -482,8 +507,8 @@ describe('Strapi Type Validation', () => {
         ]
       };
 
-      const result = complexCodec.decode(invalidData);
-      expect(E.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownEither(complexCodec)(invalidData);
+      expect(Either.isLeft(result)).toBe(true);
     });
   });
 });

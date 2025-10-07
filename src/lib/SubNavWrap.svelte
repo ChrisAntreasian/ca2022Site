@@ -74,6 +74,8 @@
   <div class="subnav-wrap">
     <div
       class="subnav-handle"
+      role="button"
+      tabindex="0"
       onclick={handleMNavClick}
       onkeypress={handleMNavClick}
     >

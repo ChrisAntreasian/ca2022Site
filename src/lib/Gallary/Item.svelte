@@ -19,7 +19,7 @@
     class:active={item.id === artPiece.id}
   >
     <img
-      src={`${item.attributes.image.data.attributes.formats.thumbnail.url}`}
+      src={`${item.attributes.image.data.attributes.formats && "thumbnail" in item.attributes.image.data.attributes.formats ? item.attributes.image.data.attributes.formats.thumbnail.url : item.attributes.image.data.attributes.url}`}
       alt={item.attributes.description}
     />
   </a>
