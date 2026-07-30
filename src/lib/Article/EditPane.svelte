@@ -1,6 +1,5 @@
 <script lang="ts">
   import Button from "$lib/form/Button.svelte";
-  import CheckboxField from "$lib/form/CheckboxField.svelte";
   import MarkdownEditor from "$lib/form/MarkdownEditor.svelte";
   import NumberInput from "$lib/form/NumberInput.svelte";
   import TextInput from "$lib/form/TextInput.svelte";
@@ -40,14 +39,6 @@
     bind:value={poem.sortOrder}
     description="Lower numbers appear earlier in the poem list."
     required
-  />
-
-  <CheckboxField
-    id="featured"
-    name="featured"
-    label="Featured"
-    bind:checked={poem.featured}
-    description="Reserved for future editorial emphasis and homepage use."
   />
 
   <MarkdownEditor

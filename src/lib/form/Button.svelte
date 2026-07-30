@@ -21,11 +21,19 @@
 </script>
 
 {#if href}
-  <a class={`btn ${variant} ${fullWidth ? "full" : ""}`.trim()} {href} {onclick}>
+  <a
+    class={`btn ${variant} ${fullWidth ? "full" : ""}`.trim()}
+    {href}
+    {onclick}
+  >
     {@render children?.()}
   </a>
 {:else}
-  <button class={`btn ${variant} ${fullWidth ? "full" : ""}`.trim()} {type} {onclick}>
+  <button
+    class={`btn ${variant} ${fullWidth ? "full" : ""}`.trim()}
+    {type}
+    {onclick}
+  >
     {@render children?.()}
   </button>
 {/if}

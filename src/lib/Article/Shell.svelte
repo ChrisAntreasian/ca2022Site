@@ -23,17 +23,17 @@
     mainContent,
   }: ShellProps = $props();
 
-  let contentHeight: number = $state();
-  let measureHeight: number = $state();
-  let scrollRequestUpdate: boolean = $state();
+  let contentHeight: number = $state(0);
+  let measureHeight: number = $state(0);
+  let scrollRequestUpdate: boolean = $state(false);
 
-  let subnavHeight: number = $state();
+  let subnavHeight: number = $state(0);
 
-  let windowHeight: number = $state();
-  let windowWidth: number = $state();
-  let scrollY: number = $state();
+  let windowHeight: number = $state(0);
+  let windowWidth: number = $state(0);
+  let scrollY: number = $state(0);
 
-  let isAbsolute: boolean = $state();
+  let isAbsolute: boolean = $state(false);
 
   const checkIsAbsolute = () => {
     if (windowWidth > mqBreakPoint) return;

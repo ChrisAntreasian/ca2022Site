@@ -39,8 +39,20 @@
 
   <div class="editor-grid">
     {#if mode === "edit"}
-      <textarea bind:value {id} {name} {placeholder} {required} {rows}></textarea>
+      <textarea bind:value {id} {name} {placeholder} {required} {rows}
+      ></textarea>
     {:else}
+      <textarea
+        bind:value
+        {id}
+        {name}
+        {placeholder}
+        {required}
+        {rows}
+        class="sr-only-submit"
+        tabindex="-1"
+        aria-hidden="true"
+      ></textarea>
       <div class="preview">
         <div class="preview-head">Preview</div>
         <div class="preview-body">
@@ -112,6 +124,20 @@
     color: var(--off-bk);
     background: var(--w-xl);
     resize: vertical;
+  }
+
+  textarea.sr-only-submit {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    min-height: 1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    pointer-events: none;
   }
 
   textarea:focus {

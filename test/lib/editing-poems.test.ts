@@ -66,14 +66,12 @@ describe("poem editor adapter", () => {
         title: "First",
         bodyMarkdown: "Body 1",
         sortOrder: 10,
-        featured: true,
       },
       {
         id: 4,
         title: "Second",
         bodyMarkdown: "Body 2",
         sortOrder: 20,
-        featured: false,
       },
     ]);
   });
@@ -86,7 +84,6 @@ describe("poem editor adapter", () => {
         title: "Updated First",
         bodyMarkdown: "Updated body",
         sortOrder: 15,
-        featured: false,
       },
       new Date("2024-01-01T00:00:00.000Z"),
     );
@@ -95,6 +92,7 @@ describe("poem editor adapter", () => {
     expect(updated.data.data?.[0].id).toBe(2);
     expect(updated.data.data?.[0].attributes.title).toBe("Updated First");
     expect(updated.data.data?.[0].attributes.position).toBe(15);
+    expect(updated.data.data?.[0].attributes.featured).toBe(true);
     expect(updated.data.data?.[0].attributes.createdAt).toBe("2023-01-02T00:00:00.000Z");
     expect(updated.data.data?.[0].attributes.updatedAt).toBe("2024-01-01T00:00:00.000Z");
   });
@@ -107,7 +105,6 @@ describe("poem editor adapter", () => {
         title: "New Poem",
         bodyMarkdown: "New body",
         sortOrder: 5,
-        featured: false,
       },
       new Date("2024-01-02T00:00:00.000Z"),
     );
@@ -115,6 +112,7 @@ describe("poem editor adapter", () => {
     expect(updated.data.data).toHaveLength(3);
     expect(updated.data.data?.[0].id).toBe(5);
     expect(updated.data.data?.[0].attributes.title).toBe("New Poem");
+    expect(updated.data.data?.[0].attributes.featured).toBe(false);
     expect(updated.data.meta.pagination.total).toBe(3);
   });
 
@@ -124,9 +122,8 @@ describe("poem editor adapter", () => {
       "title",
       "bodyMarkdown",
       "sortOrder",
-      "featured",
     ]);
-    expect(poemEditorDefinition.createDefault().featured).toBe(false);
+    expect(poemEditorDefinition.createDefault().sortOrder).toBe(10);
   });
 
   it("preserves the original file timestamp when creating the first snapshot", () => {

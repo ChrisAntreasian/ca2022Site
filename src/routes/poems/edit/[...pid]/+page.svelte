@@ -25,6 +25,7 @@
 
   let pendingPath: string | null = $state(null);
   let showUnsavedWarning = $state(false);
+  let showSavedNotice = $state(Boolean(data.savedMessage));
   let saveAndContinueForm: HTMLFormElement | null = $state(null);
 
   const requestNavigation = (path: string) => {
@@ -69,6 +70,10 @@
     if (!dirty) return;
     event.preventDefault();
     event.returnValue = "";
+  };
+
+  const closeSavedNotice = () => {
+    showSavedNotice = false;
   };
 </script>
 
@@ -136,6 +141,14 @@
   onStay={closeUnsavedWarning}
   onLeave={handleLeave}
   onSaveAndContinue={handleSaveAndContinue}
+/>
+
+<UnsavedChangesDialog
+  open={showSavedNotice}
+  title="Poem saved"
+  message={data.savedMessage ?? "Your changes were saved."}
+  onContinue={closeSavedNotice}
+  autoDismissMs={1500}
 />
 
 <style>

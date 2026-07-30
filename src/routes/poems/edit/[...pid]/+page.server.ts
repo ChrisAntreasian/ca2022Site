@@ -24,7 +24,7 @@ import {
 
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
   requireEditorEnabled();
 
   const poemId = parsePoemEditorParam(params.pid);
@@ -44,6 +44,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
   return {
     editorEnabled: isEditorEnabled(),
+    savedMessage: url.searchParams.get("saved") === "1" ? "Poem saved." : null,
     editor: {
       key: poemEditorDefinition.key,
       label: poemEditorDefinition.label,
@@ -79,10 +80,11 @@ export const actions: Actions = {
         ? decoded.right.id
         : Math.max(...savedItems.map((item) => item.id));
     const savedItem = savedItems.find((item) => item.id === savedId);
+    const destination = redirectTo || poemEditorPath(savedId, savedItem?.attributes.title ?? decoded.right.title);
 
     throw redirect(
       303,
-      redirectTo || poemEditorPath(savedId, savedItem?.attributes.title ?? decoded.right.title),
+      `${destination}?saved=1`,
     );
   },
 };

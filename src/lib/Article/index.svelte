@@ -48,7 +48,7 @@
     expanded = false;
     captureBehavior(
       `click ${analyticsKey}`,
-      captureDetails({ id: i.id, name: i.title })
+      captureDetails({ id: i.id, name: i.title }),
     );
   };
 </script>

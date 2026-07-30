@@ -31,7 +31,15 @@
   {#if description}
     <span class="description">{description}</span>
   {/if}
-  <input bind:value {id} {name} {type} {placeholder} {required} {autocomplete} />
+  <input
+    bind:value
+    {id}
+    {name}
+    {type}
+    {placeholder}
+    {required}
+    {autocomplete}
+  />
 </label>
 
 <style>

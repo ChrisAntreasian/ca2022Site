@@ -9,7 +9,6 @@ export const poemEditorValueC = Schema.Struct({
   title: Schema.String,
   bodyMarkdown: Schema.String,
   sortOrder: Schema.Number,
-  featured: Schema.Boolean,
 });
 
 export type PoemEditorValue = Schema.Schema.Type<typeof poemEditorValueC>;
@@ -51,18 +50,12 @@ export const poemEditorDefinition = {
       kind: "number",
       required: true,
     },
-    {
-      name: "featured",
-      label: "Featured",
-      kind: "checkbox",
-    },
   ],
   createDefault: () => ({
     id: 0,
     title: "",
     bodyMarkdown: "",
     sortOrder: 10,
-    featured: false,
   }),
 } satisfies EditorDefinition<PoemEditorValue>;
 
@@ -76,7 +69,6 @@ export const toPoemEditorValues = (file: PoemsFile): ReadonlyArray<PoemEditorVal
       title: item.attributes.title,
       bodyMarkdown: item.attributes.body,
       sortOrder: item.attributes.position,
-      featured: item.attributes.featured,
     }));
 
 const nextPoemId = (file: PoemsFile) =>
@@ -102,7 +94,7 @@ const buildStrapiPoemData = (
           publishedAt: existing?.attributes.publishedAt ?? timestamp,
           title: value.title,
           body: value.bodyMarkdown,
-          featured: value.featured,
+          featured: existing?.attributes.featured ?? false,
           position: value.sortOrder,
         },
       };

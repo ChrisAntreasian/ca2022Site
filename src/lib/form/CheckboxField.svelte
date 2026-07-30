@@ -7,7 +7,13 @@
     description?: string;
   }
 
-  let { id, name, label, checked = $bindable(false), description }: Props = $props();
+  let {
+    id,
+    name,
+    label,
+    checked = $bindable(false),
+    description,
+  }: Props = $props();
 </script>
 
 <label class="field" for={id}>

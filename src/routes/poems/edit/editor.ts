@@ -37,7 +37,6 @@ export const parsePoemForm = (formData: FormData): PoemEditorValue => {
       typeof rawSortOrder === "string" && rawSortOrder.trim() !== ""
         ? Number(rawSortOrder)
         : Number.NaN,
-    featured: formData.get("featured") === "on",
   };
 };
 
