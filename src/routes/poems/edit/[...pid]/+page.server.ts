@@ -2,11 +2,8 @@ import { error, fail, redirect } from "@sveltejs/kit";
 import { Either, Schema } from "effect";
 
 import {
-  authorizeEditor,
-  clearEditorAuthorization,
-  hasEditKeyConfigured,
-  isEditorAuthorized,
-  requireEditor,
+  isEditorEnabled,
+  requireEditorEnabled,
 } from "$lib/editing/auth.server";
 import {
   poemEditorDefinition,
@@ -27,7 +24,9 @@ import {
 
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ cookies, params }) => {
+export const load: PageServerLoad = async ({ params }) => {
+  requireEditorEnabled();
+
   const poemId = parsePoemEditorParam(params.pid);
 
   if (poemId === null) {
@@ -44,8 +43,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
   }
 
   return {
-    authorized: isEditorAuthorized(cookies),
-    hasEditKeyConfigured: hasEditKeyConfigured(),
+    editorEnabled: isEditorEnabled(),
     editor: {
       key: poemEditorDefinition.key,
       label: poemEditorDefinition.label,
@@ -58,43 +56,12 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 };
 
 export const actions: Actions = {
-  authorize: async ({ cookies, request }) => {
+  save: async ({ request }) => {
+    requireEditorEnabled();
+
     const formData = await request.formData();
-    const editKey = String(formData.get("editKey") ?? "").trim();
-
-    if (!hasEditKeyConfigured()) {
-      return fail(500, {
-        action: "authorize",
-        message: "CONTENT_EDIT_KEY is not configured.",
-      });
-    }
-
-    if (!authorizeEditor(cookies, editKey)) {
-      return fail(403, {
-        action: "authorize",
-        message: "Invalid edit key.",
-      });
-    }
-
-    return {
-      action: "authorize",
-      message: "Edit mode enabled.",
-    };
-  },
-
-  logout: async ({ cookies }) => {
-    clearEditorAuthorization(cookies);
-
-    return {
-      action: "logout",
-      message: "Edit mode disabled.",
-    };
-  },
-
-  save: async ({ cookies, request }) => {
-    requireEditor(cookies);
-
-    const candidate = parsePoemForm(await request.formData());
+    const candidate = parsePoemForm(formData);
+    const redirectTo = String(formData.get("redirectTo") ?? "").trim();
     const decoded = Schema.decodeUnknownEither(poemEditorDefinition.schema)(candidate);
 
     if (Either.isLeft(decoded)) {
@@ -106,11 +73,16 @@ export const actions: Actions = {
     }
 
     const file = await savePoemEditorValue(decoded.right);
+    const savedItems = file.data.data ?? [];
     const savedId =
       decoded.right.id > 0
         ? decoded.right.id
-        : Math.max(...(file.data.data ?? []).map((item) => item.id));
+        : Math.max(...savedItems.map((item) => item.id));
+    const savedItem = savedItems.find((item) => item.id === savedId);
 
-    throw redirect(303, poemEditorPath(savedId));
+    throw redirect(
+      303,
+      redirectTo || poemEditorPath(savedId, savedItem?.attributes.title ?? decoded.right.title),
+    );
   },
 };

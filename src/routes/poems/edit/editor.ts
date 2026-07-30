@@ -1,16 +1,26 @@
 import type { PoemEditorValue } from "$lib/editing/poems";
+import { cleanUrlSlug } from "$lib/history";
 
 const newPoemParam = "new";
 
-export const poemEditorPath = (poemId: number | typeof newPoemParam) =>
-  `/poems/edit/${poemId}`;
+export const poemEditorPath = (
+  poemId: number | typeof newPoemParam,
+  title?: string,
+) =>
+  poemId === newPoemParam
+    ? `/poems/edit/${poemId}`
+    : title
+      ? `/poems/edit/${poemId}/${cleanUrlSlug(title)}`
+      : `/poems/edit/${poemId}`;
 
 export const parsePoemEditorParam = (param: string) => {
-  if (param === newPoemParam) {
+  const [idSegment] = param.split("/");
+
+  if (idSegment === newPoemParam) {
     return 0;
   }
 
-  const poemId = Number(param);
+  const poemId = Number(idSegment);
 
   return Number.isInteger(poemId) && poemId > 0 ? poemId : null;
 };
