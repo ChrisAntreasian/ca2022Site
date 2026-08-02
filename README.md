@@ -23,16 +23,17 @@ To get Around needed to pay too much for hosting a DB I am using SvelteKit to ge
 
 ### Local editor config
 
-To view the poems editor locally, add a `CONTENT_EDIT_KEY` to your environment.
+To view the poems editor locally, enable the editor in your environment.
 
 - Local editor route: `/poems/edit/new`
 - Existing poem editor route: `/poems/edit/{poem_id}`
+- Existing poem editor route with slug: `/poems/edit/{poem_id}/{poem_slug}`
 
 Local setup:
 
 1. Copy `.env.example` to `.env` if needed.
 2. Start the app.
-3. Open the editor route.
-4. Enter the configured edit key to unlock edit mode.
+3. Set `ENABLE_CONTENT_EDITOR=true`.
+4. Open the editor route.
 
-The editor uses a server-only key and an httpOnly cookie. The current implementation is owner-only and intended for local/dev use until a fuller auth flow is added.
+The editor is gated by a server-side environment flag. If the flag is missing or set to any value other than `true`, the route returns `403`.

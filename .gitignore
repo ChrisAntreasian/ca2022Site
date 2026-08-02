@@ -11,3 +11,4 @@ node_modules
 /coverage
 /test-results
 .specstory
+src/data/history/
