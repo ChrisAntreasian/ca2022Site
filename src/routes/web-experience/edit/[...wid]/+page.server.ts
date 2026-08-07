@@ -5,13 +5,19 @@ import {
   requireEditorEnabled,
 } from "$lib/editing/auth.server";
 import {
+  applyWebExperienceMediaPatch,
+  buildWebExperienceTarget,
   toWebExperienceEditorValue,
   webExperienceEditorDefinition,
+  type WebExperienceEntry,
 } from "$lib/editing/web-experience";
 import {
+  deleteWebExperienceMedia,
   ensureWebExperienceBaselineSnapshot,
+  persistWebExperienceUpload,
   readWebExperienceFile,
   saveWebExperienceEditorValue,
+  writeWebExperienceFile,
 } from "$lib/editing/web-experience.server";
 
 import {
@@ -23,6 +29,14 @@ import {
 } from "../editor";
 
 import type { Actions, PageServerLoad } from "./$types";
+
+const resolveSavedEntry = (
+  entries: ReadonlyArray<WebExperienceEntry>,
+  requestedEntryId: number,
+) =>
+  requestedEntryId > 0
+    ? entries.find((entry) => entry.id === requestedEntryId) ?? null
+    : [...entries].sort((left, right) => right.id - left.id)[0] ?? null;
 
 export const load: PageServerLoad = async ({ params, url }) => {
   requireEditorEnabled();
@@ -36,7 +50,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
   const source = await readWebExperienceFile();
   await ensureWebExperienceBaselineSnapshot(source);
   const editorValue = toWebExperienceEditorValue(source);
-  const target = selectWebExperienceTarget(editorValue, selection);
+  const target = buildWebExperienceTarget(source, editorValue, selection);
 
   if (!target) {
     throw error(404, "Web experience target not found.");
@@ -50,6 +64,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
       key: webExperienceEditorDefinition.key,
       label: webExperienceEditorDefinition.label,
       introPath: webExperienceEditorPath({ kind: "intro" }),
+      newPath: webExperienceEditorPath({ kind: "new" }),
     },
     pageTitle: editorValue.pageTitle,
     entries: editorValue.entries,
@@ -62,28 +77,11 @@ export const actions: Actions = {
     requireEditorEnabled();
 
     const source = await readWebExperienceFile();
-    const current = toWebExperienceEditorValue(source);
     const formData = await request.formData();
+    const parsedForm = parseWebExperienceForm(formData);
+    const current = toWebExperienceEditorValue(source);
     const redirectTo = String(formData.get("redirectTo") ?? "").trim();
-    const merged = mergeWebExperienceValue(current, parseWebExperienceForm(formData));
-    const saved = await saveWebExperienceEditorValue(merged);
-    const savedValue = toWebExperienceEditorValue(saved);
-
-    const targetPath = redirectTo
-      ? redirectTo
-      : formData.get("kind") === "intro"
-        ? webExperienceEditorPath({ kind: "intro" })
-        : (() => {
-            const selected = savedValue.entries.find(
-              (entry) => entry.id === Number(formData.get("id") ?? "0"),
-            );
-
-            if (!selected) {
-              throw error(404, "Saved web experience entry not found.");
-            }
-
-            return webExperienceEditorPath({ kind: "entry", id: selected.id }, selected.title);
-          })();
+    const merged = mergeWebExperienceValue(current, parsedForm);
 
     if (
       !merged.pageTitle.trim() ||
@@ -100,19 +98,113 @@ export const actions: Actions = {
       return fail(400, {
         action: "save",
         message: "Please complete the required fields before saving.",
-        values: formData.get("kind") === "intro"
-          ? {
-              kind: "intro",
-              pageTitle: merged.pageTitle,
-              title: merged.introTitle,
-              bodyMarkdown: merged.introBodyMarkdown,
-            }
-          : selectWebExperienceTarget(merged, {
-              kind: "entry",
-              id: Number(formData.get("id") ?? "0"),
-            }),
+        values:
+          formData.get("kind") === "intro"
+            ? {
+                kind: "intro",
+                pageTitle: merged.pageTitle,
+                title: merged.introTitle,
+                bodyMarkdown: merged.introBodyMarkdown,
+              }
+            : selectWebExperienceTarget(merged, {
+                kind: "entry",
+                id: Number(formData.get("id") ?? "0"),
+              }),
       });
     }
+
+    const removeLogo = parsedForm.kind === "entry" && formData.has("removeLogo");
+    const removeImageIds = parsedForm.kind === "entry"
+      ? formData
+          .getAll("removeImageIds")
+          .map((value) => Number(String(value)))
+          .filter((value) => Number.isInteger(value) && value > 0)
+      : [];
+
+    const logoRaw = formData.get("logoFile");
+    const logoFile =
+      parsedForm.kind === "entry" && logoRaw instanceof File && logoRaw.size > 0
+        ? logoRaw
+        : null;
+    const screenshotFiles =
+      parsedForm.kind === "entry"
+        ? formData
+            .getAll("imageFiles")
+            .filter((candidate): candidate is File =>
+              candidate instanceof File && candidate.size > 0,
+            )
+        : [];
+
+    const uploadedLogo = logoFile
+      ? await persistWebExperienceUpload(logoFile)
+      : undefined;
+    const uploadedScreenshots =
+      screenshotFiles.length > 0
+        ? await Promise.all(
+            screenshotFiles.map((file) => persistWebExperienceUpload(file)),
+          )
+        : undefined;
+
+    let saved = await saveWebExperienceEditorValue(merged, new Date(), source);
+    let savedValue = toWebExperienceEditorValue(saved);
+    const requestedEntryId = parsedForm.kind === "entry" ? parsedForm.id : 0;
+    const selectedEntry =
+      parsedForm.kind === "entry"
+        ? resolveSavedEntry(savedValue.entries, requestedEntryId)
+        : null;
+
+    if (parsedForm.kind === "entry" && selectedEntry) {
+      const shouldUpdateMedia =
+        removeLogo ||
+        removeImageIds.length > 0 ||
+        uploadedLogo !== undefined ||
+        uploadedScreenshots !== undefined;
+
+      if (shouldUpdateMedia) {
+        const originalEntry = source.data.data?.[0]?.attributes.rich_links?.data?.find(
+          (entry) => entry.id === selectedEntry.id,
+        );
+
+        saved = applyWebExperienceMediaPatch(saved, {
+          entryId: selectedEntry.id,
+          removeLogo,
+          logo: uploadedLogo,
+          removeImageIds,
+          images: uploadedScreenshots,
+        });
+
+        await writeWebExperienceFile(saved);
+
+        const deleteTargets = [
+          ...(removeLogo || uploadedLogo !== undefined
+            ? [originalEntry?.attributes.logo.data?.attributes.url]
+            : []),
+          ...(removeImageIds.length > 0
+            ? (originalEntry?.attributes.image.data ?? [])
+                .filter((image) => removeImageIds.includes(image.id))
+                .map((image) => image?.attributes.url)
+            : []),
+        ].filter((url): url is string => Boolean(url));
+
+        await Promise.all(deleteTargets.map((url) => deleteWebExperienceMedia(url)));
+
+        savedValue = toWebExperienceEditorValue(saved);
+      }
+    }
+
+    const targetPath = redirectTo
+      ? redirectTo
+      : parsedForm.kind === "intro"
+        ? webExperienceEditorPath({ kind: "intro" })
+        : (() => {
+            const selected = selectedEntry;
+
+            if (!selected) {
+              throw error(404, "Saved web experience entry not found.");
+            }
+
+            return webExperienceEditorPath({ kind: "entry", id: selected.id }, selected.title);
+          })();
 
     throw redirect(303, `${targetPath}?saved=1`);
   },

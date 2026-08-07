@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Either, Schema } from "effect";
 
 import {
+  applyWebExperienceMediaPatch,
   toWebExperienceEditorValue,
   upsertWebExperienceEditorValue,
   webExperienceEditorDefinition,
@@ -187,6 +188,49 @@ describe("web experience editor adapter", () => {
     expect(entry?.attributes.image.data[0].attributes.url).toBe("/shot.jpg");
   });
 
+  it("replaces logo and screenshots when upload media patch is applied", () => {
+    const patched = applyWebExperienceMediaPatch(
+      baseFile,
+      {
+        entryId: 2,
+        logo: {
+          name: "new-logo.svg",
+          mime: "image/svg+xml",
+          size: 2048,
+          url: "/uploads/web-experience/new-logo.svg",
+        },
+        images: [
+          {
+            name: "shot-1.jpg",
+            mime: "image/jpeg",
+            size: 5120,
+            url: "/uploads/web-experience/shot-1.jpg",
+          },
+          {
+            name: "shot-2.jpg",
+            mime: "image/jpeg",
+            size: 6144,
+            url: "/uploads/web-experience/shot-2.jpg",
+          },
+        ],
+      },
+      new Date("2024-01-02T00:00:00.000Z"),
+    );
+
+    const entry = patched.data.data?.[0].attributes.rich_links?.data?.[0];
+    expect(entry?.attributes.logo.data?.attributes.url).toBe(
+      "/uploads/web-experience/new-logo.svg",
+    );
+    expect(entry?.attributes.logo.data?.attributes.provider).toBe("local");
+    expect(entry?.attributes.image.data.length).toBe(2);
+    expect(entry?.attributes.image.data[0].attributes.formats.small.url).toBe(
+      "/uploads/web-experience/shot-1.jpg",
+    );
+    expect(entry?.attributes.image.data[1].attributes.formats.thumbnail.url).toBe(
+      "/uploads/web-experience/shot-2.jpg",
+    );
+  });
+
   it("defines a reusable editor contract for the web experience page", () => {
     expect(webExperienceEditorDefinition.key).toBe("web-experience");
     expect(webExperienceEditorDefinition.fields.map((field) => field.name)).toEqual([
@@ -199,10 +243,12 @@ describe("web experience editor adapter", () => {
 
   it("builds and parses editor routes for intro and entry targets", () => {
     expect(webExperienceEditorPath({ kind: "intro" })).toBe("/web-experience/edit/intro");
+    expect(webExperienceEditorPath({ kind: "new" })).toBe("/web-experience/edit/new");
     expect(webExperienceEditorPath({ kind: "entry", id: 7 }, "BondLink Work")).toBe(
       "/web-experience/edit/7/bondlink-work",
     );
     expect(parseWebExperienceEditorParam("intro")).toEqual({ kind: "intro" });
+    expect(parseWebExperienceEditorParam("new")).toEqual({ kind: "new" });
     expect(parseWebExperienceEditorParam("7")).toEqual({ kind: "entry", id: 7 });
     expect(parseWebExperienceEditorParam("not-a-number")).toBeNull();
   });
@@ -247,5 +293,45 @@ describe("web experience editor adapter", () => {
       secondaryLink: "https://backup.example",
       sortOrder: 5,
     });
+  });
+
+  it("creates a new entry from new selection and assigns an id on upsert", () => {
+    const value = toWebExperienceEditorValue(baseFile);
+    const newTarget = selectWebExperienceTarget(value, { kind: "new" });
+
+    expect(newTarget).toMatchObject({
+      kind: "entry",
+      id: 0,
+      title: "",
+      bodyMarkdown: "",
+      primaryLink: "",
+      secondaryLink: null,
+    });
+
+    const formData = new FormData();
+    formData.set("kind", "entry");
+    formData.set("id", "0");
+    formData.set("title", "Brand new experience");
+    formData.set("bodyMarkdown", "new body");
+    formData.set("primaryLink", "https://new.example");
+    formData.set("secondaryLink", "");
+    formData.set("sortOrder", "25");
+
+    const merged = mergeWebExperienceValue(value, parseWebExperienceForm(formData));
+    const saved = upsertWebExperienceEditorValue(
+      baseFile,
+      merged,
+      new Date("2024-01-03T00:00:00.000Z"),
+    );
+    const richLinks = saved.data.data?.[0].attributes.rich_links?.data ?? [];
+
+    const created = richLinks.find(
+      (entry: (typeof richLinks)[number]) =>
+        entry.attributes.title === "Brand new experience",
+    );
+
+    expect(created).toBeTruthy();
+    expect(created?.id).toBeGreaterThan(0);
+    expect(created?.attributes.link).toBe("https://new.example");
   });
 });

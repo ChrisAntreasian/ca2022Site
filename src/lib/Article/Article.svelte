@@ -83,12 +83,22 @@
     activeShot = { i: i, src: img };
   };
 
-  const makeLinkText = (l: string) => {
-    const brokenup = l.split("//")[1].split("/");
-    const domain = `${brokenup[0].split(".")[1]}.${brokenup[0].split(".")[2]}`;
-    return domain === "betterlesson.com"
-      ? `${domain}/${brokenup[brokenup.length - 1]}`
-      : domain;
+  const makeLinkText = (l?: string | null) => {
+    if (!l) {
+      return "";
+    }
+
+    try {
+      const url = new URL(l);
+      const parts = url.hostname.split(".");
+      const domain = parts.length >= 2 ? `${parts[parts.length - 2]}.${parts[parts.length - 1]}` : url.hostname;
+
+      return domain === "betterlesson.com"
+        ? `${domain}${url.pathname}`
+        : domain;
+    } catch {
+      return l;
+    }
   };
 </script>
 

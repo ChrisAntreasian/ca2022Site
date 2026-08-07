@@ -1,18 +1,16 @@
 import { cleanUrlSlug } from "$lib/history";
 
-import type { WebExperienceEditorValue, WebExperienceEntry } from "./web-experience";
+import type {
+  WebExperienceEditorValue,
+  WebExperienceEntry,
+  WebExperienceTarget,
+} from "./web-experience";
 
-export type WebExperienceTarget =
-  | {
-      kind: "intro";
-      title: string;
-      bodyMarkdown: string;
-      pageTitle: string;
-    }
-  | ({ kind: "entry" } & WebExperienceEntry);
+const newWebExperienceParam = "new";
 
 export type WebExperienceSelection =
   | { kind: "intro" }
+  | { kind: "new" }
   | { kind: "entry"; id: number };
 
 export const webExperienceEditorPath = (
@@ -21,6 +19,8 @@ export const webExperienceEditorPath = (
 ) =>
   selection.kind === "intro"
     ? "/web-experience/edit/intro"
+    : selection.kind === "new"
+      ? `/web-experience/edit/${newWebExperienceParam}`
     : title
       ? `/web-experience/edit/${selection.id}/${cleanUrlSlug(title)}`
       : `/web-experience/edit/${selection.id}`;
@@ -30,6 +30,10 @@ export const parseWebExperienceEditorParam = (param: string) => {
 
   if (segment === "intro") {
     return { kind: "intro" } as const;
+  }
+
+  if (segment === newWebExperienceParam) {
+    return { kind: "new" } as const;
   }
 
   const entryId = Number(segment);
@@ -49,6 +53,21 @@ export const selectWebExperienceTarget = (
       title: value.introTitle,
       bodyMarkdown: value.introBodyMarkdown,
       pageTitle: value.pageTitle,
+    };
+  }
+
+  if (selection.kind === "new") {
+    const nextSortOrder =
+      value.entries.reduce((maxOrder, entry) => Math.max(maxOrder, entry.sortOrder), 0) + 10;
+
+    return {
+      kind: "entry" as const,
+      id: 0,
+      title: "",
+      bodyMarkdown: "",
+      primaryLink: "",
+      secondaryLink: null,
+      sortOrder: nextSortOrder,
     };
   }
 
@@ -105,18 +124,29 @@ export const mergeWebExperienceValue = (
     };
   }
 
+  const updatedEntry: WebExperienceEntry = {
+    id: formValue.id,
+    title: formValue.title,
+    bodyMarkdown: formValue.bodyMarkdown,
+    primaryLink: formValue.primaryLink,
+    secondaryLink: formValue.secondaryLink,
+    sortOrder: formValue.sortOrder,
+  };
+
+  const index = current.entries.findIndex((entry) => entry.id === formValue.id);
+
+  if (index < 0 || formValue.id <= 0) {
+    return {
+      ...current,
+      entries: [...current.entries, updatedEntry],
+    };
+  }
+
   return {
     ...current,
     entries: current.entries.map((entry) =>
       entry.id === formValue.id
-        ? ({
-            ...entry,
-            title: formValue.title,
-            bodyMarkdown: formValue.bodyMarkdown,
-            primaryLink: formValue.primaryLink,
-            secondaryLink: formValue.secondaryLink,
-            sortOrder: formValue.sortOrder,
-          } satisfies WebExperienceEntry)
+        ? ({ ...entry, ...updatedEntry } satisfies WebExperienceEntry)
         : entry,
     ),
   };

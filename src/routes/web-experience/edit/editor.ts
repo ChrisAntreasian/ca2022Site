@@ -1,3 +1,5 @@
+export { buildWebExperienceTarget, type WebExperienceTarget } from "$lib/editing/web-experience";
+
 export {
   mergeWebExperienceValue,
   parseWebExperienceEditorParam,
@@ -5,6 +7,5 @@ export {
   selectWebExperienceTarget,
   webExperienceEditorPath,
   type WebExperienceSelection,
-  type WebExperienceTarget,
 } from "$lib/editing/web-experience-editor";
 

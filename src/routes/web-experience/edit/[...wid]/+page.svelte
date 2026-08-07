@@ -112,12 +112,27 @@
       <WebExperienceEditPane
         bind:target={currentTarget}
         bind:formElement={saveAndContinueForm}
-        saveLabel="Save entry"
+        saveLabel={currentTarget.kind === "entry" && currentTarget.id > 0
+          ? "Save entry"
+          : "Create entry"}
       />
     </article>
   {/snippet}
 
   {#snippet navContent()}
+    <li class="nav-action-item">
+      <a
+        class="sidebar-link"
+        href={data.editor.newPath}
+        onclick={(event) => {
+          event.preventDefault();
+          requestNavigation(data.editor.newPath);
+        }}
+      >
+        + New experience
+      </a>
+    </li>
+
     <li class:active={currentTarget.kind === "intro"} class="nav-action-item">
       <a
         class="sidebar-link"
