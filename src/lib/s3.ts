@@ -35,7 +35,7 @@ export const initS3 = () =>
     });
   })();
 
-export const getS3File = (s3: AWS.S3) => async (k) =>
+export const getS3File = (s3: AWS.S3) => async (k: string) =>
   s3
     .getObject({
       Bucket: getS3Config().bucket,

@@ -39,11 +39,16 @@
 
   let fadeOut = $state(false);
 
-  let windowHeight: number = $state();
-  const defaultActiveShot = { i: null, src: null };
+  let windowHeight: number = $state(0);
+  const defaultActiveShot: { i: number | null; src: string | null } = {
+    i: null,
+    src: null,
+  };
 
-  let paginationDetails = $state(null);
-  let activeShot: { i: number; src: string } = $state(defaultActiveShot);
+  let paginationDetails: { position: number; length: number } | null =
+    $state(null);
+  let activeShot: { i: number | null; src: string | null } =
+    $state(defaultActiveShot);
 
   const resetFullScreen = () => {
     activeShot = defaultActiveShot;
@@ -51,17 +56,34 @@
   };
 
   const setPaginationDetails = (id: number) => {
+    const images = item.images ?? [];
+
     paginationDetails = {
-      position: item.images.findIndex((img) => img.id === id),
-      length: item.images ? item.images.length : 0,
+      position: images.findIndex((img) => img.id === id),
+      length: images.length,
     };
   };
 
   const paginateItem = (k?: string) => (n: number) => {
-    const index = item.images.findIndex(
-      (img) => img.id === item.images[activeShot.i + n].id,
-    );
-    const { id, large } = item.images[index];
+    const images = item.images ?? [];
+
+    if (activeShot.i === null || images.length === 0) {
+      return;
+    }
+
+    const nextIndex = activeShot.i + n;
+
+    if (nextIndex < 0 || nextIndex >= images.length) {
+      return;
+    }
+
+    const index = images.findIndex((img) => img.id === images[nextIndex].id);
+
+    if (index < 0) {
+      return;
+    }
+
+    const { id, large } = images[index];
 
     setPaginationDetails(id);
     activeShot = { i: index, src: large };
@@ -71,8 +93,8 @@
         `${k} click paginate`,
         captureDetails(
           {
-            id: activeShot.i + n,
-            name: `${item.title} screenshot ${activeShot.i}`,
+            id: nextIndex,
+            name: `${item.title} screenshot ${index}`,
           },
           { direction: n > 0 ? "next" : "last" },
         ),
@@ -143,7 +165,7 @@
                   img={activeShot.src || img.large}
                   targetImage={img.small}
                   analyticsKey={`${analyticsKey} ${item.title}`}
-                  altText={`${item.title} screenshot ${(activeShot.i || i) + 1}`}
+                  altText={`${item.title} screenshot ${(activeShot.i ?? i) + 1}`}
                   paginationDetails={paginationDetails || {
                     length: item.images.length,
                     position: i,
