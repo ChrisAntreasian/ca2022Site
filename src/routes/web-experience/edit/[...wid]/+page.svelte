@@ -1,6 +1,6 @@
 <script lang="ts">
-  import EditorShell from "$lib/Article/EditorShell.svelte";
-  import WebExperienceEditPane from "$lib/Article/WebExperienceEditPane.svelte";
+  import EditorShell from "$lib/editing/EditorShell.svelte";
+  import EditPane from "../_components/EditPane.svelte";
   import { webExperienceEditorPath } from "$lib/editing/web-experience-editor";
   import type { WebExperienceTarget } from "$lib/editing/web-experience";
 
@@ -47,7 +47,7 @@
   bind:formElement={saveAndContinueForm}
 >
   {#snippet editorPane()}
-    <WebExperienceEditPane
+    <EditPane
       bind:target={currentTarget}
       bind:formElement={saveAndContinueForm}
       saveLabel={currentTarget.kind === "entry" && currentTarget.id > 0

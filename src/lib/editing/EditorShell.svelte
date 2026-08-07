@@ -3,8 +3,7 @@
   import type { Snippet } from "svelte";
 
   import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
-
-  import Shell from "./Shell.svelte";
+  import Shell from "$lib/Article/Shell.svelte";
 
   interface Props {
     activeTitle: string;
