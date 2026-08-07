@@ -14,6 +14,7 @@ import {
   readPoemsFile,
   savePoemEditorValue,
 } from "$lib/editing/poems.server";
+import { getFormDataString } from "$lib/form-data";
 
 import {
   parsePoemEditorParam,
@@ -62,7 +63,7 @@ export const actions: Actions = {
 
     const formData = await request.formData();
     const candidate = parsePoemForm(formData);
-    const redirectTo = String(formData.get("redirectTo") ?? "").trim();
+    const redirectTo = getFormDataString(formData, "redirectTo").trim();
     const decoded = Schema.decodeUnknownEither(poemEditorDefinition.schema)(candidate);
 
     if (Either.isLeft(decoded)) {

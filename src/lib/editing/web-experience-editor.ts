@@ -1,4 +1,5 @@
 import { cleanUrlSlug } from "$lib/history";
+import { getFormDataString } from "$lib/form-data";
 
 import type {
   WebExperienceEditorValue,
@@ -84,14 +85,14 @@ export const selectWebExperienceTarget = (
 };
 
 export const parseWebExperienceForm = (formData: FormData) => {
-  const kind = String(formData.get("kind") ?? "");
+  const kind = getFormDataString(formData, "kind");
 
   if (kind === "intro") {
     return {
       kind: "intro" as const,
-      pageTitle: String(formData.get("pageTitle") ?? ""),
-      introTitle: String(formData.get("introTitle") ?? ""),
-      introBodyMarkdown: String(formData.get("introBodyMarkdown") ?? ""),
+      pageTitle: getFormDataString(formData, "pageTitle"),
+      introTitle: getFormDataString(formData, "introTitle"),
+      introBodyMarkdown: getFormDataString(formData, "introBodyMarkdown"),
     };
   }
 
@@ -100,10 +101,10 @@ export const parseWebExperienceForm = (formData: FormData) => {
   return {
     kind: "entry" as const,
     id: Number(formData.get("id") ?? "0"),
-    title: String(formData.get("title") ?? ""),
-    bodyMarkdown: String(formData.get("bodyMarkdown") ?? ""),
-    primaryLink: String(formData.get("primaryLink") ?? ""),
-    secondaryLink: String(formData.get("secondaryLink") ?? "") || null,
+    title: getFormDataString(formData, "title"),
+    bodyMarkdown: getFormDataString(formData, "bodyMarkdown"),
+    primaryLink: getFormDataString(formData, "primaryLink"),
+    secondaryLink: getFormDataString(formData, "secondaryLink") || null,
     sortOrder:
       typeof rawSortOrder === "string" && rawSortOrder.trim() !== ""
         ? Number(rawSortOrder)

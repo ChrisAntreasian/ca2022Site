@@ -18,8 +18,7 @@
   let {
     open = $bindable(false),
     title = "Unsaved changes",
-    message =
-      "You have unsaved changes. You can stay on this poem, leave and discard them, or save first and continue to the next poem.",
+    message = "You have unsaved changes. You can stay on this poem, leave and discard them, or save first and continue to the next poem.",
     onStay,
     onLeave,
     onSaveAndContinue,
@@ -61,13 +60,19 @@
       <p>{message}</p>
       <div class="actions">
         {#if onStay}
-          <Button type="button" variant="secondary" onclick={onStay}>Stay</Button>
+          <Button type="button" variant="secondary" onclick={onStay}
+            >Stay</Button
+          >
         {/if}
         {#if onLeave}
-          <Button type="button" variant="secondary" onclick={onLeave}>Leave</Button>
+          <Button type="button" variant="secondary" onclick={onLeave}
+            >Leave</Button
+          >
         {/if}
         {#if onSaveAndContinue}
-          <Button type="button" onclick={onSaveAndContinue}>Save and continue</Button>
+          <Button type="button" onclick={onSaveAndContinue}
+            >Save and continue</Button
+          >
         {/if}
         {#if onContinue}
           <Button type="button" onclick={onContinue}>Continue</Button>

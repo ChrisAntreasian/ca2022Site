@@ -1,4 +1,5 @@
 import type { PoemEditorValue } from "$lib/editing/poems";
+import { getFormDataString } from "$lib/form-data";
 import { cleanUrlSlug } from "$lib/history";
 
 const newPoemParam = "new";
@@ -31,8 +32,8 @@ export const parsePoemForm = (formData: FormData): PoemEditorValue => {
 
   return {
     id: typeof rawId === "string" && rawId.trim() !== "" ? Number(rawId) : 0,
-    title: String(formData.get("title") ?? ""),
-    bodyMarkdown: String(formData.get("bodyMarkdown") ?? ""),
+    title: getFormDataString(formData, "title"),
+    bodyMarkdown: getFormDataString(formData, "bodyMarkdown"),
     sortOrder:
       typeof rawSortOrder === "string" && rawSortOrder.trim() !== ""
         ? Number(rawSortOrder)

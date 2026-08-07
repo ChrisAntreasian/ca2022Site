@@ -15,7 +15,7 @@ import {
   parseWebExperienceForm,
   selectWebExperienceTarget,
   webExperienceEditorPath,
-} from "../../src/routes/web-experience/edit/editor";
+} from "../../src/lib/editing/web-experience-editor";
 
 describe("web experience editor adapter", () => {
   const baseFile: WebExperienceFile = {

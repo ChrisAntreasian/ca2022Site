@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { page } from "$app/state";
-  import Shell from "$lib/Article/Shell.svelte";
+  import EditorShell from "$lib/Article/EditorShell.svelte";
   import WebExperienceEditPane from "$lib/Article/WebExperienceEditPane.svelte";
-  import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
+  import { webExperienceEditorPath } from "$lib/editing/web-experience-editor";
+  import type { WebExperienceTarget } from "$lib/editing/web-experience";
 
-  import { webExperienceEditorPath, type WebExperienceTarget } from "../editor";
   import type { ActionData, PageData } from "./$types";
 
   interface Props {
@@ -25,58 +24,7 @@
     JSON.stringify(currentTarget) !== JSON.stringify(baselineTarget),
   );
 
-  let pendingPath: string | null = $state(null);
-  let showUnsavedWarning = $state(false);
-  let showSavedNotice = $state(Boolean(data.savedMessage));
   let saveAndContinueForm: HTMLFormElement | null = $state(null);
-
-  const requestNavigation = (path: string) => {
-    if (path === page.url.pathname) return;
-    if (!dirty) {
-      window.location.href = path;
-      return;
-    }
-
-    pendingPath = path;
-    showUnsavedWarning = true;
-  };
-
-  const closeUnsavedWarning = () => {
-    pendingPath = null;
-    showUnsavedWarning = false;
-  };
-
-  const handleLeave = () => {
-    if (!pendingPath) return;
-    const nextPath = pendingPath;
-    closeUnsavedWarning();
-    window.location.href = nextPath;
-  };
-
-  const handleSaveAndContinue = () => {
-    if (!pendingPath || !saveAndContinueForm) return;
-
-    const redirectInput = saveAndContinueForm.querySelector(
-      'input[name="redirectTo"]',
-    ) as HTMLInputElement | null;
-
-    if (redirectInput) {
-      redirectInput.value = pendingPath;
-    }
-
-    showUnsavedWarning = false;
-    saveAndContinueForm.requestSubmit();
-  };
-
-  const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-    if (!dirty) return;
-    event.preventDefault();
-    event.returnValue = "";
-  };
-
-  const closeSavedNotice = () => {
-    showSavedNotice = false;
-  };
 
   const entryPath = (entryId: number, title: string) =>
     webExperienceEditorPath({ kind: "entry", id: entryId }, title);
@@ -86,29 +34,19 @@
   <title>Web Experience Editor</title>
 </svelte:head>
 
-<svelte:window onbeforeunload={handleBeforeUnload} />
-
-<Shell
+<EditorShell
   activeTitle={currentTarget.title}
   defaultHeadline="Web Experience"
   wrapBasis={100}
+  editorTitle="Web Experience Editor"
+  editorDescription="Edit the intro block and the existing work entries while preserving linked logos and screenshots."
+  formMessage={form?.message}
+  savedMessage={data.savedMessage}
+  savedTitle="Web experience saved"
+  isDirty={dirty}
+  bind:formElement={saveAndContinueForm}
 >
-  {#snippet mainContent()}
-    <article class="edit-article">
-      <div class="edit-head">
-        <div>
-          <h2>Web Experience Editor</h2>
-          <p>
-            Edit the intro block and the existing work entries while preserving
-            linked logos and screenshots.
-          </p>
-        </div>
-      </div>
-
-      {#if form?.message}
-        <p class="message">{form.message}</p>
-      {/if}
-
+  {#snippet editorPane()}
       <WebExperienceEditPane
         bind:target={currentTarget}
         bind:formElement={saveAndContinueForm}
@@ -116,10 +54,9 @@
           ? "Save entry"
           : "Create entry"}
       />
-    </article>
   {/snippet}
 
-  {#snippet navContent()}
+  {#snippet navigationPane(requestNavigation)}
     <li class="nav-action-item">
       <a
         class="sidebar-link"
@@ -165,44 +102,9 @@
       </li>
     {/each}
   {/snippet}
-</Shell>
-
-<UnsavedChangesDialog
-  open={showUnsavedWarning}
-  onStay={closeUnsavedWarning}
-  onLeave={handleLeave}
-  onSaveAndContinue={handleSaveAndContinue}
-/>
-
-<UnsavedChangesDialog
-  open={showSavedNotice}
-  title="Web experience saved"
-  message={data.savedMessage ?? "Your changes were saved."}
-  onContinue={closeSavedNotice}
-  autoDismissMs={1500}
-/>
+</EditorShell>
 
 <style>
-  .edit-article {
-    width: 66.66%;
-    min-height: var(--min-height);
-    padding: 1.3333rem 2rem 2rem;
-    box-sizing: border-box;
-  }
-
-  .edit-head {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-  }
-
-  .message {
-    margin: 0 0 1rem;
-    color: var(--o-dk);
-  }
-
   .entry-list-item,
   .nav-action-item {
     list-style: none;
@@ -216,15 +118,6 @@
   }
 
   @media (max-width: 767.98px) {
-    .edit-article {
-      width: 100%;
-      padding: 1.3333rem 1rem calc(var(--snh) + 2rem);
-    }
-
-    .edit-head {
-      flex-direction: column;
-    }
-
     .entry-list-item,
     .nav-action-item {
       padding: 0 1.5rem;

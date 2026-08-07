@@ -3,6 +3,7 @@
   import SvelteMarkdown from "svelte-exmarkdown";
 
   import { contextHeightKey, rem, type LayoutElemH } from "$lib/spacing";
+  import { getDisplayLinkText } from "$lib/url";
   import { getContext } from "svelte";
   import type { Item } from "./types";
   import Fullscreen from "$lib/Fullscreen/index.svelte";
@@ -58,7 +59,7 @@
 
   const paginateItem = (k?: string) => (n: number) => {
     const index = item.images.findIndex(
-      (img) => img.id === item.images[activeShot.i + n].id
+      (img) => img.id === item.images[activeShot.i + n].id,
     );
     const { id, large } = item.images[index];
 
@@ -73,32 +74,14 @@
             id: activeShot.i + n,
             name: `${item.title} screenshot ${activeShot.i}`,
           },
-          { direction: n > 0 ? "next" : "last" }
-        )
+          { direction: n > 0 ? "next" : "last" },
+        ),
       );
     }
   };
 
   const setActiveShot = (i: number, img: string) => {
     activeShot = { i: i, src: img };
-  };
-
-  const makeLinkText = (l?: string | null) => {
-    if (!l) {
-      return "";
-    }
-
-    try {
-      const url = new URL(l);
-      const parts = url.hostname.split(".");
-      const domain = parts.length >= 2 ? `${parts[parts.length - 2]}.${parts[parts.length - 1]}` : url.hostname;
-
-      return domain === "betterlesson.com"
-        ? `${domain}${url.pathname}`
-        : domain;
-    } catch {
-      return l;
-    }
   };
 </script>
 
@@ -135,14 +118,14 @@
         {#if item.link}
           <div>
             <a href={item.link} target="_blank" rel="noreferrer">
-              {makeLinkText(item.link)}
+              {getDisplayLinkText(item.link)}
             </a>
           </div>
         {/if}
         {#if item.secondLink}
           <div>
             <a href={item.secondLink} target="_blank" rel="noreferrer">
-              {makeLinkText(item.secondLink)}
+              {getDisplayLinkText(item.secondLink)}
             </a>
           </div>
         {/if}

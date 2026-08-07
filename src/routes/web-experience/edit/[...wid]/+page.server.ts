@@ -19,14 +19,14 @@ import {
   saveWebExperienceEditorValue,
   writeWebExperienceFile,
 } from "$lib/editing/web-experience.server";
-
 import {
   mergeWebExperienceValue,
   parseWebExperienceEditorParam,
   parseWebExperienceForm,
   selectWebExperienceTarget,
   webExperienceEditorPath,
-} from "../editor";
+} from "$lib/editing/web-experience-editor";
+import { getFormDataString } from "$lib/form-data";
 
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -80,7 +80,7 @@ export const actions: Actions = {
     const formData = await request.formData();
     const parsedForm = parseWebExperienceForm(formData);
     const current = toWebExperienceEditorValue(source);
-    const redirectTo = String(formData.get("redirectTo") ?? "").trim();
+    const redirectTo = getFormDataString(formData, "redirectTo").trim();
     const merged = mergeWebExperienceValue(current, parsedForm);
 
     if (
@@ -108,7 +108,7 @@ export const actions: Actions = {
               }
             : selectWebExperienceTarget(merged, {
                 kind: "entry",
-                id: Number(formData.get("id") ?? "0"),
+                id: Number(getFormDataString(formData, "id") || "0"),
               }),
       });
     }

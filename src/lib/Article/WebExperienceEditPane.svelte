@@ -16,6 +16,18 @@
     saveLabel,
     formElement = $bindable(null),
   }: Props = $props();
+
+  const getSecondaryLinkValue = () =>
+    target.kind === "entry" ? (target.secondaryLink ?? "") : "";
+
+  const setSecondaryLinkValue = (value: string) => {
+    if (target.kind !== "entry") return;
+
+    target = {
+      ...target,
+      secondaryLink: value.trim() === "" ? null : value,
+    };
+  };
 </script>
 
 <form
@@ -82,16 +94,7 @@
       id="secondaryLink"
       name="secondaryLink"
       label="Secondary Link"
-      bind:value={
-        () => (target.kind === "entry" ? (target.secondaryLink ?? "") : ""),
-        (value) => {
-          if (target.kind !== "entry") return;
-          target = {
-            ...target,
-            secondaryLink: value.trim() === "" ? null : value,
-          };
-        }
-      }
+      bind:value={getSecondaryLinkValue, setSecondaryLinkValue}
       placeholder="https://backup-link.com"
     />
 
@@ -99,7 +102,11 @@
       <div class="media-section-head">Logo</div>
       {#if target.logoUrl}
         <div class="media-preview-card">
-          <img class="media-preview-image" src={target.logoUrl} alt={`${target.title} logo`} />
+          <img
+            class="media-preview-image"
+            src={target.logoUrl}
+            alt={`${target.title} logo`}
+          />
           <label class="media-toggle">
             <input name="removeLogo" type="checkbox" value="1" />
             Remove current logo
@@ -109,7 +116,9 @@
 
       <label class="upload-field" for="logoFile">
         <span class="upload-label">Replace Logo</span>
-        <span class="upload-description">Upload a new logo image to replace the current one.</span>
+        <span class="upload-description"
+          >Upload a new logo image to replace the current one.</span
+        >
         <input id="logoFile" name="logoFile" type="file" accept="image/*" />
       </label>
     </div>
@@ -136,8 +145,16 @@
 
       <label class="upload-field" for="imageFiles">
         <span class="upload-label">Add Screenshots</span>
-        <span class="upload-description">Upload one or more images to append to the screenshot gallery.</span>
-        <input id="imageFiles" name="imageFiles" type="file" accept="image/*" multiple />
+        <span class="upload-description"
+          >Upload one or more images to append to the screenshot gallery.</span
+        >
+        <input
+          id="imageFiles"
+          name="imageFiles"
+          type="file"
+          accept="image/*"
+          multiple
+        />
       </label>
     </div>
 
