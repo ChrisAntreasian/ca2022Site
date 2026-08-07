@@ -47,6 +47,7 @@
       bind:poem={currentPoem}
       bind:formElement={saveAndContinueForm}
       saveLabel={currentPoem.id > 0 ? "Save poem" : "Create poem"}
+      submitFailed={form?.action === "save" && !!form?.message}
     />
   {/snippet}
 

@@ -10,13 +10,37 @@
     target: WebExperienceTarget;
     saveLabel: string;
     formElement?: HTMLFormElement | null;
+    submitFailed?: boolean;
   };
 
   let {
     target = $bindable(),
     saveLabel,
     formElement = $bindable(null),
+    submitFailed = false,
   }: Props = $props();
+
+  const pageTitleError = $derived(
+    submitFailed && target.kind === "intro" && !target.pageTitle.trim()
+      ? "Page title is required."
+      : undefined,
+  );
+  const introTitleError = $derived(
+    submitFailed && !target.title.trim() ? "Title is required." : undefined,
+  );
+  const bodyError = $derived(
+    submitFailed && !target.bodyMarkdown.trim() ? "Body is required." : undefined,
+  );
+  const primaryLinkError = $derived(
+    submitFailed && target.kind === "entry" && !target.primaryLink.trim()
+      ? "Primary link is required."
+      : undefined,
+  );
+  const sortOrderError = $derived(
+    submitFailed && target.kind === "entry" && Number.isNaN(target.sortOrder)
+      ? "Sort order must be a number."
+      : undefined,
+  );
 
   const getSecondaryLinkValue = () =>
     target.kind === "entry" ? (target.secondaryLink ?? "") : "";
@@ -56,6 +80,7 @@
       bind:value={target.pageTitle}
       placeholder="Web Experience"
       required
+      error={pageTitleError}
     />
 
     <TextInput
@@ -65,6 +90,7 @@
       bind:value={target.title}
       placeholder="Intro headline"
       required
+      error={introTitleError}
     />
 
     <MarkdownEditor
@@ -76,6 +102,7 @@
       placeholder="Write the introduction in markdown"
       required
       rows={16}
+      error={bodyError}
     />
   {:else}
     <input name="id" type="hidden" value={target.id} />
@@ -87,6 +114,7 @@
       bind:value={target.title}
       placeholder="Entry title"
       required
+      error={introTitleError}
     />
 
     <TextInput
@@ -96,6 +124,7 @@
       bind:value={target.primaryLink}
       placeholder="https://example.com"
       required
+      error={primaryLinkError}
     />
 
     <TextInput
@@ -166,6 +195,7 @@
       bind:value={target.sortOrder}
       description="Lower numbers appear earlier in the work list."
       required
+      error={sortOrderError}
     />
 
     <MarkdownEditor
@@ -177,6 +207,7 @@
       placeholder="Write the entry body in markdown"
       required
       rows={18}
+      error={bodyError}
     />
   {/if}
 

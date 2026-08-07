@@ -10,13 +10,25 @@
     poem: PoemEditorValue;
     saveLabel: string;
     formElement?: HTMLFormElement | null;
+    submitFailed?: boolean;
   }
 
   let {
     poem = $bindable(),
     saveLabel,
     formElement = $bindable(null),
+    submitFailed = false,
   }: Props = $props();
+
+  const titleError = $derived(
+    submitFailed && !poem.title.trim() ? "Title is required." : undefined,
+  );
+  const bodyError = $derived(
+    submitFailed && !poem.bodyMarkdown.trim() ? "Body is required." : undefined,
+  );
+  const sortOrderError = $derived(
+    submitFailed && Number.isNaN(poem.sortOrder) ? "Sort order must be a number." : undefined,
+  );
 </script>
 
 <form bind:this={formElement} class="poem-form" method="POST" action="?/save">
@@ -30,6 +42,7 @@
     bind:value={poem.title}
     placeholder="Poem title"
     required
+    error={titleError}
   />
 
   <NumberInput
@@ -39,6 +52,7 @@
     bind:value={poem.sortOrder}
     description="Lower numbers appear earlier in the poem list."
     required
+    error={sortOrderError}
   />
 
   <MarkdownEditor
@@ -50,6 +64,7 @@
     placeholder="Write the poem body in markdown"
     required
     rows={20}
+    error={bodyError}
   />
 
   <div class="actions">

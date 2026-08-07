@@ -12,6 +12,7 @@
     entry: QuintuplapusEditorEntry;
     saveLabel: string;
     formElement?: HTMLFormElement | null;
+    submitFailed?: boolean;
   }
 
   let {
@@ -19,7 +20,27 @@
     entry = $bindable(),
     saveLabel,
     formElement = $bindable(null),
+    submitFailed = false,
   }: Props = $props();
+
+  const categoryTitleError = $derived(
+    submitFailed && !categoryTitle.trim() ? "Category title is required." : undefined,
+  );
+  const titleError = $derived(
+    submitFailed && !entry.title.trim() ? "Entry title is required." : undefined,
+  );
+  const createdDateError = $derived(
+    submitFailed && !entry.createdDate.trim() ? "Created date is required." : undefined,
+  );
+  const mediumError = $derived(
+    submitFailed && !entry.medium.trim() ? "Medium is required." : undefined,
+  );
+  const sortOrderError = $derived(
+    submitFailed && Number.isNaN(entry.sortOrder) ? "Sort order must be a number." : undefined,
+  );
+  const descriptionError = $derived(
+    submitFailed && !entry.description.trim() ? "Description is required." : undefined,
+  );
 </script>
 
 <form
@@ -40,6 +61,7 @@
       bind:value={categoryTitle}
       placeholder="The Quintuplapus"
       required
+      error={categoryTitleError}
     />
 
     <TextInput
@@ -49,6 +71,7 @@
       bind:value={entry.title}
       placeholder="Entry title"
       required
+      error={titleError}
     />
 
     <TextInput
@@ -58,6 +81,7 @@
       bind:value={entry.createdDate}
       placeholder="YYYY-MM-DD"
       required
+      error={createdDateError}
     />
 
     <TextInput
@@ -67,6 +91,7 @@
       bind:value={entry.medium}
       placeholder="water color, color pencil"
       required
+      error={mediumError}
     />
 
     <NumberInput
@@ -76,6 +101,7 @@
       bind:value={entry.sortOrder}
       description="Lower numbers appear earlier in the sequence."
       required
+      error={sortOrderError}
     />
   </section>
 
@@ -89,6 +115,7 @@
       placeholder="Write the entry description"
       required
       rows={16}
+      error={descriptionError}
     />
   </section>
 

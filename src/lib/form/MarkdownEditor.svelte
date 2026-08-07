@@ -11,6 +11,7 @@
     required?: boolean;
     rows?: number;
     description?: string;
+    error?: string;
   }
 
   let {
@@ -22,6 +23,7 @@
     required = false,
     rows = 16,
     description,
+    error,
   }: Props = $props();
 
   let mode = $state<"edit" | "preview">("edit");
@@ -36,10 +38,21 @@
       {/if}
     </div>
   </div>
+  {#if error}
+    <span id="{id}-error" class="field-error" role="alert">{error}</span>
+  {/if}
 
   <div class="editor-grid">
     {#if mode === "edit"}
-      <textarea bind:value {id} {name} {placeholder} {required} {rows}
+      <textarea
+        bind:value
+        {id}
+        {name}
+        {placeholder}
+        {required}
+        {rows}
+        aria-describedby={error ? `${id}-error` : undefined}
+        class:textarea-error={!!error}
       ></textarea>
     {:else}
       <textarea
@@ -143,6 +156,15 @@
   textarea:focus {
     outline: 2px solid var(--bg-lt);
     border-color: var(--b-md);
+  }
+
+  .textarea-error {
+    border-color: var(--error, #c00);
+  }
+
+  .field-error {
+    font-size: 0.875rem;
+    color: var(--error, #c00);
   }
 
   .preview {

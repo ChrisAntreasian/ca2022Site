@@ -7,6 +7,7 @@
     placeholder?: string;
     required?: boolean;
     description?: string;
+    error?: string;
   }
 
   let {
@@ -17,6 +18,7 @@
     placeholder,
     required = false,
     description,
+    error,
   }: Props = $props();
 </script>
 
@@ -25,7 +27,19 @@
   {#if description}
     <span class="description">{description}</span>
   {/if}
-  <input bind:value {id} {name} type="number" {placeholder} {required} />
+  <input
+    bind:value
+    {id}
+    {name}
+    type="number"
+    {placeholder}
+    {required}
+    aria-describedby={error ? `${id}-error` : undefined}
+    class:input-error={!!error}
+  />
+  {#if error}
+    <span id="{id}-error" class="field-error" role="alert">{error}</span>
+  {/if}
 </label>
 
 <style>
@@ -60,5 +74,14 @@
   input:focus {
     outline: 2px solid var(--bg-lt);
     border-color: var(--b-md);
+  }
+
+  .input-error {
+    border-color: var(--error, #c00);
+  }
+
+  .field-error {
+    font-size: 0.875rem;
+    color: var(--error, #c00);
   }
 </style>

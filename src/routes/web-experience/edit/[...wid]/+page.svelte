@@ -53,6 +53,7 @@
       saveLabel={currentTarget.kind === "entry" && currentTarget.id > 0
         ? "Save entry"
         : "Create entry"}
+      submitFailed={form?.action === "save" && !!form?.message}
     />
   {/snippet}
 

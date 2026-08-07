@@ -11,13 +11,31 @@
     entry: SouljuicerEditorEntry;
     saveLabel: string;
     formElement?: HTMLFormElement | null;
+    submitFailed?: boolean;
   }
 
   let {
     entry = $bindable(),
     saveLabel,
     formElement = $bindable(null),
+    submitFailed = false,
   }: Props = $props();
+
+  const titleError = $derived(
+    submitFailed && !entry.title.trim() ? "Title is required." : undefined,
+  );
+  const createdDateError = $derived(
+    submitFailed && !entry.createdDate.trim() ? "Created date is required." : undefined,
+  );
+  const mediumError = $derived(
+    submitFailed && !entry.medium.trim() ? "Medium is required." : undefined,
+  );
+  const sortOrderError = $derived(
+    submitFailed && Number.isNaN(entry.sortOrder) ? "Sort order must be a number." : undefined,
+  );
+  const descriptionError = $derived(
+    submitFailed && !entry.description.trim() ? "Description is required." : undefined,
+  );
 </script>
 
 <form
@@ -38,6 +56,7 @@
       bind:value={entry.title}
       placeholder="the SoulJuicer"
       required
+      error={titleError}
     />
 
     <TextInput
@@ -47,6 +66,7 @@
       bind:value={entry.createdDate}
       placeholder="2023-01-10"
       required
+      error={createdDateError}
     />
 
     <TextInput
@@ -56,6 +76,7 @@
       bind:value={entry.medium}
       placeholder="pencil"
       required
+      error={mediumError}
     />
 
     <NumberInput
@@ -65,6 +86,7 @@
       bind:value={entry.sortOrder}
       description="Lower numbers appear earlier in the sequence."
       required
+      error={sortOrderError}
     />
   </section>
 
@@ -78,6 +100,7 @@
       placeholder="Write the scene description"
       required
       rows={16}
+      error={descriptionError}
     />
   </section>
 

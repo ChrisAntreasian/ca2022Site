@@ -48,6 +48,7 @@
       bind:entry={currentEntry}
       bind:formElement={saveAndContinueForm}
       saveLabel="Save entry"
+      submitFailed={form?.action === "save" && !!form?.message}
     />
   {/snippet}
 
