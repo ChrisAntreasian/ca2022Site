@@ -30,72 +30,81 @@
   <input name="id" type="hidden" value={entry.id} />
   <input name="redirectTo" type="hidden" value="" />
 
-  <TextInput
-    id="title"
-    name="title"
-    label="Title"
-    bind:value={entry.title}
-    placeholder="the SoulJuicer"
-    required
-  />
+  <section class="form-section" aria-label="Scene metadata">
+    <TextInput
+      id="title"
+      name="title"
+      label="Title"
+      bind:value={entry.title}
+      placeholder="the SoulJuicer"
+      required
+    />
 
-  <TextInput
-    id="createdDate"
-    name="createdDate"
-    label="Created Date"
-    bind:value={entry.createdDate}
-    placeholder="2023-01-10"
-    required
-  />
+    <TextInput
+      id="createdDate"
+      name="createdDate"
+      label="Created Date"
+      bind:value={entry.createdDate}
+      placeholder="2023-01-10"
+      required
+    />
 
-  <TextInput
-    id="medium"
-    name="medium"
-    label="Medium"
-    bind:value={entry.medium}
-    placeholder="pencil"
-    required
-  />
+    <TextInput
+      id="medium"
+      name="medium"
+      label="Medium"
+      bind:value={entry.medium}
+      placeholder="pencil"
+      required
+    />
 
-  <NumberInput
-    id="sortOrder"
-    name="sortOrder"
-    label="Sort Order"
-    bind:value={entry.sortOrder}
-    description="Lower numbers appear earlier in the sequence."
-    required
-  />
+    <NumberInput
+      id="sortOrder"
+      name="sortOrder"
+      label="Sort Order"
+      bind:value={entry.sortOrder}
+      description="Lower numbers appear earlier in the sequence."
+      required
+    />
+  </section>
 
-  <MarkdownEditor
-    id="description"
-    name="description"
-    label="Description"
-    bind:value={entry.description}
-    description="Scene copy in markdown format."
-    placeholder="Write the scene description"
-    required
-    rows={16}
-  />
+  <section class="form-section" aria-label="Scene description">
+    <MarkdownEditor
+      id="description"
+      name="description"
+      label="Description"
+      bind:value={entry.description}
+      description="Scene copy in markdown format."
+      placeholder="Write the scene description"
+      required
+      rows={16}
+    />
+  </section>
 
-  <ImageUploadSection
-    sectionTitle="Scene Image"
-    uploadInputId="imageFile"
-    uploadInputName="imageFile"
-    uploadLabel="Replace Image"
-    uploadDescription="Upload a new image to replace the current scene image."
-  >
-    {#snippet preview()}
-      {#if entry.imageUrl}
-        <div class="media-preview-card">
-          <img
-            class="media-preview-image"
-            src={entry.imageUrl}
-            alt={`Souljuicer scene ${entry.id}`}
-          />
-        </div>
-      {/if}
-    {/snippet}
-  </ImageUploadSection>
+  <section class="form-section" aria-label="Scene image">
+    <ImageUploadSection
+      sectionTitle="Scene Image"
+      uploadInputId="imageFile"
+      uploadInputName="imageFile"
+      uploadLabel="Replace Image"
+      uploadDescription="Upload a new image to replace the current scene image."
+    >
+      {#snippet preview()}
+        {#if entry.imageUrl}
+          <div class="media-preview-card">
+            <img
+              class="media-preview-image"
+              src={entry.imageUrl}
+              alt={`Souljuicer scene ${entry.id}`}
+            />
+            <p class="media-preview-caption">Current scene image</p>
+          </div>
+        {:else}
+          <p class="media-preview-empty">No image uploaded for this scene yet.</p>
+        {/if}
+      {/snippet}
+    </ImageUploadSection>
+  </section>
 
   <div class="actions">
     <Button type="submit">{saveLabel}</Button>
@@ -104,6 +113,12 @@
 
 <style>
   .editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-section {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -126,6 +141,13 @@
     object-fit: cover;
     border: 1px solid var(--w-dk);
     background: var(--w-xl);
+  }
+
+  .media-preview-caption,
+  .media-preview-empty {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--w-md);
   }
 
   @media (max-width: 767.98px) {

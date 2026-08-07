@@ -36,7 +36,7 @@
   defaultHeadline="the SoulJuicer"
   wrapBasis={100}
   editorTitle="The SoulJuicer Editor"
-  editorDescription="Edit scene descriptions, sort order, and image assets."
+  editorDescription="Edit entry metadata, markdown copy, ordering, and image assets."
   formMessage={form?.message}
   savedMessage={data.savedMessage}
   savedTitle="Souljuicer entry saved"
@@ -47,7 +47,7 @@
     <EditPane
       bind:entry={currentEntry}
       bind:formElement={saveAndContinueForm}
-      saveLabel="Save scene"
+      saveLabel="Save entry"
     />
   {/snippet}
 

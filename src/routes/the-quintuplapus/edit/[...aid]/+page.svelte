@@ -50,7 +50,7 @@
   defaultHeadline="the Quintuplapus"
   wrapBasis={100}
   editorTitle="The Quintuplapus Editor"
-  editorDescription="Edit category metadata, scene metadata, and image assets."
+  editorDescription="Edit category title, entry metadata, markdown copy, ordering, and image assets."
   formMessage={form?.message}
   savedMessage={data.savedMessage}
   savedTitle="Quintuplapus entry saved"
