@@ -1,44 +1,27 @@
-import * as fs from "fs";
-
-import { Either, Schema } from "effect";
-
-import { e500 } from "$lib/error";
-import {
-  ensureDataBaselineSnapshot,
-  writeVersionedDataFile,
-} from "$lib/file";
-
 import {
   poemsFileC,
   upsertPoemEditorValue,
   type PoemEditorValue,
   type PoemsFile,
 } from "./poems";
+import { createJsonEditorStore } from "./store.server";
 
 const poemsFilePath = "./src/data/poems.json";
+const poemsStore = createJsonEditorStore<PoemsFile>({
+  filePath: poemsFilePath,
+  schema: poemsFileC,
+  contentKey: "poems",
+  invalidDataMessage: "Invalid poems data file.",
+});
 
-export const readPoemsFile = async (): Promise<PoemsFile> => {
-  const source = await fs.promises.readFile(poemsFilePath, "utf8");
-  const parsed = JSON.parse(source) as unknown;
-  const decoded = Schema.decodeUnknownEither(poemsFileC)(parsed);
-
-  if (Either.isLeft(decoded)) {
-    throw e500("Invalid poems data file.");
-  }
-
-  return decoded.right;
-};
+export const readPoemsFile = async (): Promise<PoemsFile> => poemsStore.readFile();
 
 export const ensurePoemsBaselineSnapshot = async (file?: PoemsFile) => {
-  if (file) {
-    return ensureDataBaselineSnapshot(file.name);
-  }
-
-  return ensureDataBaselineSnapshot("poems");
+  return poemsStore.ensureBaselineSnapshot(file);
 };
 
 export const writePoemsFile = async (file: PoemsFile) => {
-  await writeVersionedDataFile(file);
+  await poemsStore.writeFile(file);
 };
 
 export const savePoemEditorValue = async (

@@ -1,7 +1,7 @@
 <script lang="ts">
   import EditorShell from "$lib/Article/EditorShell.svelte";
   import EditPane from "$lib/Article/EditPane.svelte";
-  import { poemEditorPath } from "../editor";
+  import { poemEditorPath } from "$lib/editing/poems-editor";
 
   import type { ActionData, PageData } from "./$types";
 

@@ -5,7 +5,7 @@ import {
   parsePoemForm,
   poemEditorPath,
   selectPoem,
-} from "../../src/routes/poems/edit/editor";
+} from "../../src/lib/editing/poems-editor";
 
 describe("poems edit route helpers", () => {
   it("builds slug-aware editor paths", () => {

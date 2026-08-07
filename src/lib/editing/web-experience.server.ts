@@ -1,8 +1,5 @@
-import * as fs from "fs";
 import { randomUUID } from "crypto";
 import * as path from "path";
-
-import { Either, Schema } from "effect";
 
 import { e500 } from "$lib/error";
 import {
@@ -12,20 +9,22 @@ import {
 } from "$lib/s3";
 
 import {
-  ensureDataBaselineSnapshot,
-  writeVersionedDataFile,
-} from "$lib/file";
-
-import {
   upsertWebExperienceEditorValue,
   webExperienceFileC,
   type UploadedImageAsset,
   type WebExperienceEditorValue,
   type WebExperienceFile,
 } from "./web-experience";
+import { createJsonEditorStore } from "./store.server";
 
 const webExperienceFilePath = "./src/data/web-experience.json";
 const webExperienceUploadKeyPrefix = "web-experience";
+const webExperienceStore = createJsonEditorStore<WebExperienceFile>({
+  filePath: webExperienceFilePath,
+  schema: webExperienceFileC,
+  contentKey: "web-experience",
+  invalidDataMessage: "Invalid web experience data file.",
+});
 
 const webExperienceS3 = initS3();
 
@@ -78,30 +77,17 @@ export const deleteWebExperienceMedia = async (url?: string | null) => {
   }
 };
 
-export const readWebExperienceFile = async (): Promise<WebExperienceFile> => {
-  const source = await fs.promises.readFile(webExperienceFilePath, "utf8");
-  const parsed = JSON.parse(source) as unknown;
-  const decoded = Schema.decodeUnknownEither(webExperienceFileC)(parsed);
-
-  if (Either.isLeft(decoded)) {
-    throw e500("Invalid web experience data file.");
-  }
-
-  return decoded.right;
-};
+export const readWebExperienceFile = async (): Promise<WebExperienceFile> =>
+  webExperienceStore.readFile();
 
 export const ensureWebExperienceBaselineSnapshot = async (
   file?: WebExperienceFile,
 ) => {
-  if (file) {
-    return ensureDataBaselineSnapshot(file.name);
-  }
-
-  return ensureDataBaselineSnapshot("web-experience");
+  return webExperienceStore.ensureBaselineSnapshot(file);
 };
 
 export const writeWebExperienceFile = async (file: WebExperienceFile) => {
-  await writeVersionedDataFile(file);
+  await webExperienceStore.writeFile(file);
 };
 
 export const saveWebExperienceEditorValue = async (

@@ -1,6 +1,7 @@
-import type { PoemEditorValue } from "$lib/editing/poems";
 import { getFormDataString } from "$lib/form-data";
 import { cleanUrlSlug } from "$lib/history";
+
+import type { PoemEditorValue } from "./poems";
 
 const newPoemParam = "new";
 
