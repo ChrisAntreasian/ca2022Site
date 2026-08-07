@@ -12,6 +12,11 @@ import {
   type SouljuicerFile,
   type UploadedImageAsset,
 } from "./souljuicer";
+import {
+  deleteMediaByUrl,
+  persistUploadedMedia,
+  replaceEntryImageMedia,
+} from "./media.server";
 import { createJsonEditorStore } from "./store.server";
 
 const souljuicerFilePath = "./src/data/the-souljuicer.json";
@@ -24,13 +29,6 @@ const souljuicerStore = createJsonEditorStore<SouljuicerFile>({
 });
 
 const souljuicerS3 = initS3();
-
-const sanitizeFileStem = (name: string) =>
-  name
-    .toLowerCase()
-    .replace(/\.[a-z0-9]+$/i, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "") || "upload";
 
 export const readSouljuicerFile = async (): Promise<SouljuicerFile> =>
   souljuicerStore.readFile();
@@ -60,23 +58,13 @@ export const persistSouljuicerUpload = async (
   file: File,
   now = new Date(),
 ): Promise<UploadedImageAsset> => {
-  const ext = path.extname(file.name || "") || ".bin";
-  const fileName = `${now.getTime()}-${randomUUID()}-${sanitizeFileStem(file.name)}${ext}`;
-  const key = `${souljuicerUploadKeyPrefix}/${fileName}`;
-  const bytes = Buffer.from(await file.arrayBuffer());
-
-  const uploaded = await uploadS3File(souljuicerS3)(key, bytes);
-
-  if (!uploaded?.Location) {
-    throw e500("Failed to upload Souljuicer media.");
-  }
-
-  return {
-    name: file.name || fileName,
-    mime: file.type || "application/octet-stream",
-    size: file.size,
-    url: uploaded.Location,
-  };
+  return persistUploadedMedia({
+    file,
+    prefix: souljuicerUploadKeyPrefix,
+    uploadFile: uploadS3File(souljuicerS3),
+    errorMessage: "Failed to upload Souljuicer media.",
+    now,
+  });
 };
 
 export const replaceSouljuicerEntryImage = async (
@@ -85,25 +73,18 @@ export const replaceSouljuicerEntryImage = async (
   image: UploadedImageAsset,
   now = new Date(),
 ) => {
-  const originalUrl = file.data.data
-    .find((entry) => entry.id === entryId)
-    ?.attributes.image.data?.attributes.url;
-  const updated = applySouljuicerImagePatch(file, entryId, image, now);
-
-  await writeSouljuicerFile(updated);
-
-  if (originalUrl) {
-    try {
-      const parsed = new URL(originalUrl);
-      const key = parsed.pathname.replace(/^\/+/, "");
-
-      if (key) {
-        await deleteS3File(souljuicerS3)(key);
-      }
-    } catch {
-      return updated;
-    }
-  }
-
-  return updated;
+  return replaceEntryImageMedia({
+    file,
+    entryId,
+    image,
+    getOriginalMediaUrl: (current, targetEntryId) =>
+      current.data.data
+        .find((entry) => entry.id === targetEntryId)
+        ?.attributes.image.data?.attributes.url,
+    applyPatch: (current, targetEntryId, asset, patchNow) =>
+      applySouljuicerImagePatch(current, targetEntryId, asset, patchNow),
+    saveFile: writeSouljuicerFile,
+    deleteFile: (key) => deleteS3File(souljuicerS3)(key),
+    now,
+  });
 };
