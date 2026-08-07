@@ -43,11 +43,11 @@
   bind:formElement={saveAndContinueForm}
 >
   {#snippet editorPane()}
-      <EditPane
-        bind:poem={currentPoem}
-        bind:formElement={saveAndContinueForm}
-        saveLabel={currentPoem.id > 0 ? "Save poem" : "Create poem"}
-      />
+    <EditPane
+      bind:poem={currentPoem}
+      bind:formElement={saveAndContinueForm}
+      saveLabel={currentPoem.id > 0 ? "Save poem" : "Create poem"}
+    />
   {/snippet}
 
   {#snippet navigationPane(requestNavigation)}

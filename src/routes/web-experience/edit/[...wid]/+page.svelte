@@ -47,13 +47,13 @@
   bind:formElement={saveAndContinueForm}
 >
   {#snippet editorPane()}
-      <WebExperienceEditPane
-        bind:target={currentTarget}
-        bind:formElement={saveAndContinueForm}
-        saveLabel={currentTarget.kind === "entry" && currentTarget.id > 0
-          ? "Save entry"
-          : "Create entry"}
-      />
+    <WebExperienceEditPane
+      bind:target={currentTarget}
+      bind:formElement={saveAndContinueForm}
+      saveLabel={currentTarget.kind === "entry" && currentTarget.id > 0
+        ? "Save entry"
+        : "Create entry"}
+    />
   {/snippet}
 
   {#snippet navigationPane(requestNavigation)}
