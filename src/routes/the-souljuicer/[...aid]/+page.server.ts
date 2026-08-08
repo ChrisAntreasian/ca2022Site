@@ -1,5 +1,6 @@
 import type { PageServerLoad } from "./$types";
 import * as D from "$data/the-souljuicer.json";
+import { isEditorEnabled } from "$lib/editing/auth.server";
 
 const defaultTitle = "the SoulJuicer";
 const defaultMedium = "pencil";
@@ -36,5 +37,6 @@ export const load: PageServerLoad = async ({ params }) => {
     categoryTitle: defaultTitle,
     artPieces,
     artPiece,
+    editorEnabled: isEditorEnabled(),
   };
 };

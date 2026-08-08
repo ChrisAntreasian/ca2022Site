@@ -1,4 +1,5 @@
 import type { Item } from "$lib/Article/types";
+import { isEditorEnabled } from "$lib/editing/auth.server";
 
 import type { PageServerLoad } from "./$types";
 import * as D from "$data/poems.json";
@@ -25,5 +26,5 @@ export const load: PageServerLoad = async ({ params }) => {
 
   const item = items.filter((i: Item) => i.id === pid)[0];
 
-  return { items, item };
+  return { items, item, editorEnabled: isEditorEnabled() };
 };

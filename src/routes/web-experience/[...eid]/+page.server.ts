@@ -1,4 +1,5 @@
 import type { Item } from "$lib/Article/types";
+import { isEditorEnabled } from "$lib/editing/auth.server";
 
 import type { PageServerLoad } from "./$types";
 import * as D from "$data/web-experience.json";
@@ -38,5 +39,6 @@ export const load: PageServerLoad = async ({ params }) => {
   return {
     items: [pageItem, ...workExpItems],
     item: workExpItems.filter((item: Item) => item.id === eid)[0] || pageItem,
+    editorEnabled: isEditorEnabled(),
   };
 };

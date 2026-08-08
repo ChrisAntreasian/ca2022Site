@@ -1,6 +1,7 @@
 <script lang="ts">
   import EditorShell from "$lib/editing/EditorShell.svelte";
   import EditPane from "../_components/EditPane.svelte";
+  import { cleanUrlSlug } from "$lib/history";
   import { webExperienceEditorPath } from "$lib/editing/web-experience-editor";
   import type { WebExperienceTarget } from "$lib/editing/web-experience";
 
@@ -28,6 +29,14 @@
 
   const entryPath = (entryId: number, title: string) =>
     webExperienceEditorPath({ kind: "entry", id: entryId }, title);
+
+  const viewHref = $derived(
+    currentTarget.kind === "intro"
+      ? "/web-experience"
+      : currentTarget.id > 0
+        ? `/web-experience/${currentTarget.id}/${cleanUrlSlug(currentTarget.title)}`
+        : null,
+  );
 </script>
 
 <svelte:head>
@@ -40,6 +49,8 @@
   wrapBasis={100}
   editorTitle="Web Experience Editor"
   editorDescription="Edit the intro block and the existing work entries while preserving linked logos and screenshots."
+  actionHref={viewHref}
+  actionLabel="View post"
   formMessage={form?.message}
   savedMessage={data.savedMessage}
   savedTitle="Web experience saved"

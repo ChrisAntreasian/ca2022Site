@@ -23,8 +23,10 @@
     measureH: number;
     scrollRequestUpdate: boolean;
     hideMobileTitle: boolean;
+    actionHref?: string | null;
+    actionLabel?: string;
     readMoreClick: (b: boolean) => void;
-    paginateItem: (s: string) => (n: number) => void;
+    paginateItem: (s?: string) => (n: number) => void;
     paginationDetails: {
       length: number;
       position: number;
@@ -43,18 +45,20 @@
     measureH = $bindable(),
     scrollRequestUpdate,
     hideMobileTitle,
+    actionHref = null,
+    actionLabel = "Edit post",
     readMoreClick,
     paginateItem,
     paginationDetails,
   }: Props = $props();
 
   let transitioning = $state(false);
-  let headlineHeight: number = $state();
-  let metaHeight: number = $state();
+  let headlineHeight = $state(0);
+  let metaHeight = $state(0);
   let needsReadmore = $state(false);
-  let detailsDiv: HTMLDivElement = $state();
-  let contentHeight: number = $state();
-  let scrollY: number = $state();
+  let detailsDiv = $state<HTMLDivElement | null>(null);
+  let contentHeight = $state(0);
+  let scrollY = $state(0);
 
   const setOverflow = () => {
     if (!detailsDiv || windowWidth < mqBreakPoint) return;
@@ -78,7 +82,7 @@
     init();
   });
 
-  let windowHeight: number = $state();
+  let windowHeight = $state(0);
 
   const {
     getHeaderHeight,
@@ -89,10 +93,11 @@
 
   const handleReadMoreClick = () => {
     readMoreClick(!showMore);
-    detailsDiv.scrollTo({ top: 0 });
+    detailsDiv?.scrollTo({ top: 0 });
   };
 
-  const paginateGal = paginateItem(analyticsKey);
+  const paginateGal = (n: number) => paginateItem(analyticsKey)(n);
+  const imageData = $derived(artPiece.attributes.image.data);
 </script>
 
 <svelte:window
@@ -111,16 +116,18 @@
     <div bind:offsetHeight={measureH} class="mh"></div>
   {/key}
   <div class="wrap">
-    <FullScreen
-      id={artPiece.id}
-      title={artPiece.attributes.title}
-      img={artPiece.attributes.image.data.attributes.url}
-      altText={artPiece.attributes.image.data.attributes.alternativeText}
-      {analyticsKey}
-      {paginateItem}
-      {paginationDetails}
-      btnOffset={100 - detailsWidth}
-    />
+    {#if imageData}
+      <FullScreen
+        id={artPiece.id}
+        title={artPiece.attributes.title}
+        img={imageData.attributes.url}
+        altText={imageData.attributes.alternativeText}
+        {analyticsKey}
+        {paginateItem}
+        {paginationDetails}
+        btnOffset={100 - detailsWidth}
+      />
+    {/if}
     {#key artPiece.id}
       <figure
         class:transition={transitioning}
@@ -135,14 +142,21 @@
           transitioning = true;
         }}
       >
-        <div class="image" style={`width: ${imageWidth}%`}>
-          <img
-            src={`${artPiece.attributes.image.data.attributes.url}`}
-            alt={artPiece.attributes.description}
-          />
-        </div>
+        {#if imageData}
+          <div class="image" style={`width: ${imageWidth}%`}>
+            <img
+              src={imageData.attributes.url}
+              alt={artPiece.attributes.description}
+            />
+          </div>
+        {/if}
         <figcaption style={`--caption-width: ${detailsWidth}%`}>
           <div>
+            {#if actionHref}
+              <div class="article-actions">
+                <a class="post-action-link" href={actionHref}>{actionLabel}</a>
+              </div>
+            {/if}
             <h3 bind:clientHeight={headlineHeight}>
               {artPiece.attributes.title}
             </h3>
@@ -272,6 +286,27 @@
     color: var(--off-bk);
     text-align: right;
   }
+  .article-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+  .post-action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--bg-dk);
+    text-decoration: none;
+    font-family: var(--font-jsf);
+    font-size: 1.15rem;
+    line-height: 1.5rem;
+  }
+  .post-action-link:hover {
+    color: var(--bg-lt);
+  }
   .md-wrap {
     position: relative;
   }
@@ -363,6 +398,9 @@
     figcaption {
       align-items: flex-start;
       padding: 0;
+    }
+    .article-actions {
+      margin-top: 1rem;
     }
     .md-content {
       height: auto;

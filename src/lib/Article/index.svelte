@@ -17,6 +17,8 @@
     parentRoute: string;
     defaultHeadline: string;
     wrapBasis?: number;
+    actionHref?: string | null;
+    actionLabel?: string;
     children?: Snippet;
   };
 
@@ -27,6 +29,8 @@
     parentRoute,
     defaultHeadline,
     wrapBasis = 100,
+    actionHref = null,
+    actionLabel = "Edit post",
     children,
   }: ArticleProps = $props();
 
@@ -62,6 +66,8 @@
       measureHeight={0}
       {analyticsKey}
       {wrapBasis}
+      {actionHref}
+      {actionLabel}
     />
   {/snippet}
 

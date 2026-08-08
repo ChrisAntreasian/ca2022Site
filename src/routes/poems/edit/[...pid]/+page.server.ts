@@ -27,15 +27,17 @@ import type { Actions, PageServerLoad } from "./$types";
 export const load: PageServerLoad = async ({ params, url }) => {
   requireEditorEnabled();
 
-  const poemId = parsePoemEditorParam(params.pid);
-
-  if (poemId === null) {
-    throw error(404, "Poem editor route not found.");
-  }
-
   const poemsFile = await readPoemsFile();
   await ensurePoemsBaselineSnapshot(poemsFile);
   const poems = toPoemEditorValues(poemsFile);
+  const fallbackPoemId = poems[0]?.id ?? 0;
+  const parsedPoemId = params.pid ? parsePoemEditorParam(params.pid) : null;
+  const poemId = parsedPoemId ?? fallbackPoemId;
+
+  if (parsedPoemId === null && params.pid) {
+    throw error(404, "Poem editor route not found.");
+  }
+
   const selectedPoem = selectPoem(poems, poemId, poemEditorDefinition.createDefault);
 
   if (!selectedPoem) {

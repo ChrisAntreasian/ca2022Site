@@ -1,5 +1,6 @@
 <script lang="ts">
   import Article from "$lib/Article/index.svelte";
+  import { poemEditorPath } from "$lib/editing/poems-editor";
   import type { PageServerData } from "./$types";
 
   interface Props {
@@ -7,6 +8,10 @@
   }
 
   let { data }: Props = $props();
+
+  const editHref = data.editorEnabled
+    ? poemEditorPath(data.item.id, data.item.title)
+    : null;
 </script>
 
 <svelte:head>
@@ -20,4 +25,6 @@
   parentRoute="poems"
   defaultHeadline="poetry"
   wrapBasis={70}
+  actionHref={editHref}
+  actionLabel="Edit post"
 />

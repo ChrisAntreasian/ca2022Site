@@ -24,6 +24,8 @@
     scrollRequestUpdate: boolean;
     analyticsKey: string;
     wrapBasis: number;
+    actionHref?: string | null;
+    actionLabel?: string;
   }
 
   let {
@@ -33,6 +35,8 @@
     scrollRequestUpdate,
     analyticsKey,
     wrapBasis,
+    actionHref = null,
+    actionLabel = "Edit post",
   }: Props = $props();
 
   const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
@@ -131,6 +135,12 @@
           fadeOut = false;
         }}
       >
+        {#if actionHref}
+          <div class="article-actions">
+            <a class="post-action-link" href={actionHref}>{actionLabel}</a>
+          </div>
+        {/if}
+
         {#if item.logo}
           <img src={item.logo} alt={item.title} />
         {:else}
@@ -157,7 +167,7 @@
         {#if item.images}
           <h4>Screenshots</h4>
           <ul>
-            {#each item.images as img, i}
+            {#each item.images as img, i (img.id)}
               <li>
                 <Fullscreen
                   id={img.id}
@@ -200,6 +210,29 @@
   h4 {
     margin-top: 1rem;
   }
+  .article-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .post-action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--bg-dk);
+    text-decoration: none;
+    font-family: var(--font-jsf);
+    font-size: 1.15rem;
+    line-height: 1.5rem;
+  }
+  .post-action-link:hover {
+    color: var(--bg-lt);
+  }
   ul {
     display: flex;
     flex-wrap: wrap;
@@ -234,6 +267,10 @@
     }
     .wrap {
       max-width: 30rem;
+    }
+    .article-actions {
+      position: static;
+      margin: 0 0 1rem;
     }
     h3 {
       display: none;

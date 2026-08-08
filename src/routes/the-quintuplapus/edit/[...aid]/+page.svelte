@@ -1,5 +1,6 @@
 <script lang="ts">
   import EditorShell from "$lib/editing/EditorShell.svelte";
+  import { cleanUrlSlug } from "$lib/history";
   import { quintuplapusEditorPath } from "$lib/editing/quintuplapus-editor";
 
   import EditPane from "../_components/EditPane.svelte";
@@ -39,6 +40,12 @@
   );
 
   let saveAndContinueForm: HTMLFormElement | null = $state(null);
+
+  const viewHref = $derived(
+    currentEntry.id > 0
+      ? `/the-quintuplapus/${currentEntry.id}/${cleanUrlSlug(currentEntry.title)}`
+      : null,
+  );
 </script>
 
 <svelte:head>
@@ -51,6 +58,8 @@
   wrapBasis={100}
   editorTitle="The Quintuplapus Editor"
   editorDescription="Edit category title, entry metadata, markdown copy, ordering, and image assets."
+  actionHref={viewHref}
+  actionLabel="View post"
   formMessage={form?.message}
   savedMessage={data.savedMessage}
   savedTitle="Quintuplapus entry saved"

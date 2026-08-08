@@ -41,16 +41,26 @@ const resolveSavedEntry = (
 export const load: PageServerLoad = async ({ params, url }) => {
   requireEditorEnabled();
 
-  const selection = parseWebExperienceEditorParam(params.wid);
+  const requestedSelection = params.wid
+    ? parseWebExperienceEditorParam(params.wid)
+    : null;
 
-  if (!selection) {
+  if (!requestedSelection && params.wid) {
     throw error(404, "Web experience editor route not found.");
   }
 
   const source = await readWebExperienceFile();
   await ensureWebExperienceBaselineSnapshot(source);
   const editorValue = toWebExperienceEditorValue(source);
-  const target = buildWebExperienceTarget(source, editorValue, selection);
+  const selection = requestedSelection ??
+    (editorValue.entries[0]
+      ? ({ kind: "entry", id: editorValue.entries[0].id } as const)
+      : ({ kind: "intro" } as const));
+  const target = buildWebExperienceTarget(
+    source,
+    editorValue,
+    selection,
+  );
 
   if (!target) {
     throw error(404, "Web experience target not found.");

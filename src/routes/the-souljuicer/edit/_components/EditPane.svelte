@@ -96,7 +96,6 @@
       name="description"
       label="Description"
       bind:value={entry.description}
-      description="Scene copy in markdown format."
       placeholder="Write the scene description"
       required
       rows={16}

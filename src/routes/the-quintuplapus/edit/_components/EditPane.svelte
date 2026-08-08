@@ -111,7 +111,6 @@
       name="description"
       label="Description"
       bind:value={entry.description}
-      description="Entry narrative in markdown format."
       placeholder="Write the entry description"
       required
       rows={16}

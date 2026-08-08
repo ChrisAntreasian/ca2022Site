@@ -1,5 +1,6 @@
 <script lang="ts">
   import EditorShell from "$lib/editing/EditorShell.svelte";
+  import { cleanUrlSlug } from "$lib/history";
   import { souljuicerEditorPath } from "$lib/editing/souljuicer-editor";
 
   import EditPane from "../_components/EditPane.svelte";
@@ -25,6 +26,12 @@
   );
 
   let saveAndContinueForm: HTMLFormElement | null = $state(null);
+
+  const viewHref = $derived(
+    currentEntry.id > 0
+      ? `/the-souljuicer/${currentEntry.id}/${cleanUrlSlug(currentEntry.title)}`
+      : null,
+  );
 </script>
 
 <svelte:head>
@@ -37,6 +44,8 @@
   wrapBasis={100}
   editorTitle="The SoulJuicer Editor"
   editorDescription="Edit entry metadata, markdown copy, ordering, and image assets."
+  actionHref={viewHref}
+  actionLabel="View post"
   formMessage={form?.message}
   savedMessage={data.savedMessage}
   savedTitle="Souljuicer entry saved"
@@ -53,7 +62,7 @@
   {/snippet}
 
   {#snippet navigationPane(requestNavigation)}
-    {#each data.entries as entry}
+    {#each data.entries as entry, index}
       <li class:active={entry.id === currentEntry.id} class="entry-list-item">
         <a
           class="sidebar-link"
@@ -63,7 +72,7 @@
             requestNavigation(souljuicerEditorPath(entry.id));
           }}
         >
-          {entry.title}
+          {`Page ${index + 1}`}
         </a>
       </li>
     {/each}

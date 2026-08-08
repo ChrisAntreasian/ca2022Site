@@ -11,6 +11,8 @@
     wrapBasis?: number;
     editorTitle: string;
     editorDescription: string;
+    actionHref?: string | null;
+    actionLabel?: string;
     formMessage?: string;
     savedMessage?: string | null;
     savedTitle: string;
@@ -26,6 +28,8 @@
     wrapBasis = 100,
     editorTitle,
     editorDescription,
+    actionHref = null,
+    actionLabel = "View post",
     formMessage,
     savedMessage = null,
     savedTitle,
@@ -37,7 +41,7 @@
 
   let pendingPath: string | null = $state(null);
   let showUnsavedWarning = $state(false);
-  let showSavedNotice = $state(Boolean(savedMessage));
+  let showSavedNotice = $state(false);
 
   $effect(() => {
     showSavedNotice = Boolean(savedMessage);
@@ -100,8 +104,10 @@
       <div class="edit-head">
         <div>
           <h2>{editorTitle}</h2>
-          <p>{editorDescription}</p>
         </div>
+        {#if actionHref}
+          <a class="post-action-link" href={actionHref}>{actionLabel}</a>
+        {/if}
       </div>
 
       {#if formMessage}
@@ -151,6 +157,25 @@
   .message {
     margin: 0 0 1rem;
     color: var(--o-dk);
+  }
+
+  .post-action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--bg-dk);
+    text-decoration: none;
+    white-space: nowrap;
+    font-family: var(--font-jsf);
+    font-size: 1.15rem;
+    line-height: 1.5rem;
+  }
+
+  .post-action-link:hover {
+    color: var(--bg-lt);
   }
 
   @media (max-width: 767.98px) {

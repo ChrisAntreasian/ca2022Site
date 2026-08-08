@@ -98,7 +98,6 @@
       name="introBodyMarkdown"
       label="Intro Body"
       bind:value={target.bodyMarkdown}
-      description="Intro copy for the page landing pane."
       placeholder="Write the introduction in markdown"
       required
       rows={16}
@@ -203,7 +202,6 @@
       name="bodyMarkdown"
       label="Entry Body"
       bind:value={target.bodyMarkdown}
-      description="Entry description and markdown content."
       placeholder="Write the entry body in markdown"
       required
       rows={18}

@@ -60,7 +60,6 @@
     name="bodyMarkdown"
     label="Body"
     bind:value={poem.bodyMarkdown}
-    description="Write in markdown and toggle inline between edit and preview."
     placeholder="Write the poem body in markdown"
     required
     rows={20}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import EditorShell from "$lib/editing/EditorShell.svelte";
+  import { cleanUrlSlug } from "$lib/history";
   import EditPane from "../_components/EditPane.svelte";
   import { poemEditorPath } from "$lib/editing/poems-editor";
 
@@ -24,6 +25,12 @@
   );
 
   let saveAndContinueForm: HTMLFormElement | null = $state(null);
+
+  const viewHref = $derived(
+    currentPoem.id > 0
+      ? `/poems/${currentPoem.id}/${cleanUrlSlug(currentPoem.title)}`
+      : null,
+  );
 </script>
 
 <svelte:head>
@@ -36,6 +43,8 @@
   wrapBasis={70}
   editorTitle="Poems Editor"
   editorDescription="Edit the current poem in the article pane while keeping the existing poems navigation structure."
+  actionHref={viewHref}
+  actionLabel="View post"
   formMessage={form?.message}
   savedMessage={data.savedMessage}
   savedTitle="Poem saved"
