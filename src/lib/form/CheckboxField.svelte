@@ -16,8 +16,8 @@
   }: Props = $props();
 </script>
 
-<label class="field" for={id}>
-  <span class="label">{label}</span>
+<label class="form-field" for={id}>
+  <span class="form-field__label">{label}</span>
   <span class="row">
     <input bind:checked {id} {name} type="checkbox" />
     <span class="copy">{description ?? "Enable this option"}</span>
@@ -25,17 +25,7 @@
 </label>
 
 <style>
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
-  }
-
-  .label {
-    font-family: var(--font-th);
-    letter-spacing: 0.08rem;
-    font-size: 1.25rem;
-  }
+  @import "./field.css";
 
   .row {
     display: flex;

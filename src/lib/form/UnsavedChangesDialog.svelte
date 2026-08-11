@@ -60,22 +60,22 @@
       <p>{message}</p>
       <div class="actions">
         {#if onStay}
-          <Button type="button" variant="secondary" onclick={onStay}
+          <Button type="button" variant="action" onclick={onStay}
             >Stay</Button
           >
         {/if}
         {#if onLeave}
-          <Button type="button" variant="secondary" onclick={onLeave}
+          <Button type="button" variant="warning" onclick={onLeave}
             >Leave</Button
           >
         {/if}
         {#if onSaveAndContinue}
-          <Button type="button" onclick={onSaveAndContinue}
+          <Button type="button" variant="submit" onclick={onSaveAndContinue}
             >Save and continue</Button
           >
         {/if}
         {#if onContinue}
-          <Button type="button" onclick={onContinue}>Continue</Button>
+          <Button type="button" variant="submit" onclick={onContinue}>Continue</Button>
         {/if}
       </div>
     </div>

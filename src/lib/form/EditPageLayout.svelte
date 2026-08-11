@@ -51,7 +51,7 @@
 
       {#if authorized}
         <form method="POST" action={logoutAction}>
-          <Button type="submit" variant="secondary">Lock editor</Button>
+          <Button type="submit" variant="warning">Lock editor</Button>
         </form>
       {/if}
     </header>
@@ -76,7 +76,7 @@
             label="Edit key"
             autocomplete="current-password"
           />
-          <Button type="submit" fullWidth>Unlock</Button>
+          <Button type="submit" variant="submit" fullWidth>Unlock</Button>
         </form>
       </div>
     {:else}
@@ -88,7 +88,7 @@
         <aside class="sidebar-panel">
           <div class="sidebar-head">
             <h2>{sidebarTitle}</h2>
-            <Button href={newHref} variant="secondary">{newLabel}</Button>
+            <Button href={newHref} variant="action">{newLabel}</Button>
           </div>
           {@render sidebar?.()}
         </aside>

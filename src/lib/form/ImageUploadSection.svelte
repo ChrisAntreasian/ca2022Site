@@ -25,13 +25,12 @@
 </script>
 
 <div class="media-section">
-  <div class="media-section-head">{sectionTitle}</div>
+  <div class="form-field__label">{sectionTitle}</div>
 
   {@render preview?.()}
 
   <label class="upload-field" for={uploadInputId}>
     <span class="upload-label">{uploadLabel}</span>
-    <span class="upload-description">{uploadDescription}</span>
     <input
       id={uploadInputId}
       name={uploadInputName}
@@ -55,24 +54,10 @@
     font-size: 1.25rem;
   }
 
-  .upload-description {
-    font-size: 0.95rem;
-    line-height: 1.25rem;
-    color: var(--b-dk);
-  }
-
   .media-section {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    padding: 1rem;
-    border: 1px solid var(--w-dk);
-    background: color-mix(in srgb, var(--w-xl) 86%, transparent);
-  }
-
-  .media-section-head {
-    font-family: var(--font-th);
-    letter-spacing: 0.08rem;
-    font-size: 1.15rem;
+    padding-bottom: 0.5rem;
   }
 </style>

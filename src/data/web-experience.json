@@ -1,6 +1,6 @@
 {
   "name": "web-experience",
-  "timestamp": 1786027475843,
+  "timestamp": 1786235037425,
   "data": {
     "meta": {
       "pagination": {
@@ -15,7 +15,7 @@
         "id": 3,
         "attributes": {
           "createdAt": "2023-05-09T17:41:58.082Z",
-          "updatedAt": "2026-08-06T14:44:35.843Z",
+          "updatedAt": "2026-08-09T00:23:57.425Z",
           "publishedAt": "2023-05-09T18:07:14.336Z",
           "title": "Web Experience",
           "page_details": {
@@ -24,7 +24,7 @@
                 "id": 3,
                 "attributes": {
                   "createdAt": "2022-08-16T04:48:21.432Z",
-                  "updatedAt": "2026-08-06T14:44:35.843Z",
+                  "updatedAt": "2026-08-09T00:23:57.425Z",
                   "publishedAt": "2023-05-09T18:06:52.054Z",
                   "title": "Web Development",
                   "description": "For over 15 years I have been working as a Web developer and am proficient in several scripting languages, frameworks, software, and coding paradigms. I have worked in both front and back end environments, but due to of my visual background I have always gravitated towards Front End technologies. Over the couse of my career some of my work either no longer exists or is behind a paywall, but some projects are still available to the public Here are some of those publicly available projects that I was a major contributor to.",
@@ -42,7 +42,7 @@
                 "id": 2,
                 "attributes": {
                   "createdAt": "2022-04-25T01:58:14.656Z",
-                  "updatedAt": "2026-08-06T14:44:35.843Z",
+                  "updatedAt": "2026-08-09T00:23:57.425Z",
                   "publishedAt": "2022-04-25T01:59:44.387Z",
                   "title": "BondLink",
                   "body": "_2020 - 2023_\r\n\r\nAt BondLink I was a Senior Front Engineer contributing to multiple projects. There I had the opportunity to lead some projects as well. One such project was the external facing corporate site. This site was developed using Typescript, NextJS, Plasmic, FP-TS, IO-TS and several third party APIs.\r\n\r\n_design credit: the BondLink design team_",
@@ -363,7 +363,7 @@
                 "id": 3,
                 "attributes": {
                   "createdAt": "2023-05-05T21:02:22.710Z",
-                  "updatedAt": "2026-08-06T14:44:35.843Z",
+                  "updatedAt": "2026-08-09T00:23:57.425Z",
                   "publishedAt": "2023-05-05T21:14:41.681Z",
                   "title": "BetterLesson",
                   "body": "_2013 - 2020_\r\n\r\nAt BetterLesson I was a major contributing Full Stack Engineer on multiple projects. Two of the projects I worked on were the Master Teacher Project, and Instructional Strategies. Initially much of this work was built using CakePHP and jQuery, but later we migrated them to React, using Flask for newer features.\r\n\r\n_design credit: the BetterLesson design team_",
@@ -684,7 +684,7 @@
                 "id": 4,
                 "attributes": {
                   "createdAt": "2023-05-09T17:09:54.502Z",
-                  "updatedAt": "2026-08-06T14:44:35.843Z",
+                  "updatedAt": "2026-08-09T00:23:57.425Z",
                   "publishedAt": "2023-05-09T18:07:04.160Z",
                   "title": "PixMix",
                   "body": "\n_2017 - 2020_\n\nAt PixMix I worked as a freelance developer, inheriting a codebase that existed prior to my employment. My work  included resolving bugs, implementing a mobile version, adding new gallery features and redesigning elements. This work was done with HTML, CSS, and PHP.\n\n_design credit: unsure, mobile designs by me_\n",
@@ -1005,45 +1005,45 @@
                 "id": 5,
                 "attributes": {
                   "createdAt": "2026-08-02T19:06:22.140Z",
-                  "updatedAt": "2026-08-06T14:44:35.860Z",
+                  "updatedAt": "2026-08-09T00:23:57.425Z",
                   "publishedAt": "2026-08-02T19:06:22.140Z",
-                  "title": "Dummy Experiment",
-                  "body": "test test test",
+                  "title": "Dummy Experiment I hope this works",
+                  "body": "Work Work Work sdfsdf sdf asdfas dfasdf asdf asdf",
                   "image": {
                     "data": [
                       {
-                        "id": 108,
+                        "id": 110,
                         "attributes": {
-                          "createdAt": "2026-08-06T14:44:35.860Z",
-                          "updatedAt": "2026-08-06T14:44:35.860Z",
-                          "alternativeText": "fire1.avif",
-                          "caption": "fire1.avif",
+                          "createdAt": "2026-08-09T00:21:27.395Z",
+                          "updatedAt": "2026-08-09T00:21:27.395Z",
+                          "alternativeText": "wombat1.webp",
+                          "caption": "wombat1.webp",
                           "provider": "local",
                           "provider_metadata": null,
                           "previewUrl": null,
-                          "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1786027475465-0cec916a-d1b3-48d4-94de-8e84e980bc12-fire1.avif",
+                          "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1786234887182-d552f29f-54b6-4a8f-a629-e8a384af9014-wombat1.webp",
                           "formats": {
                             "small": {
-                              "name": "small_fire1.avif",
-                              "hash": "small_fire1",
-                              "ext": ".avif",
-                              "mime": "image/avif",
+                              "name": "small_wombat1.webp",
+                              "hash": "small_wombat1",
+                              "ext": ".webp",
+                              "mime": "image/webp",
                               "path": null,
                               "width": 0,
                               "height": 0,
-                              "size": 109.64,
-                              "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1786027475465-0cec916a-d1b3-48d4-94de-8e84e980bc12-fire1.avif"
+                              "size": 16.82,
+                              "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1786234887182-d552f29f-54b6-4a8f-a629-e8a384af9014-wombat1.webp"
                             },
                             "thumbnail": {
-                              "name": "thumbnail_fire1.avif",
-                              "hash": "thumbnail_fire1",
-                              "ext": ".avif",
-                              "mime": "image/avif",
+                              "name": "thumbnail_wombat1.webp",
+                              "hash": "thumbnail_wombat1",
+                              "ext": ".webp",
+                              "mime": "image/webp",
                               "path": null,
                               "width": 0,
                               "height": 0,
-                              "size": 109.64,
-                              "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1786027475465-0cec916a-d1b3-48d4-94de-8e84e980bc12-fire1.avif"
+                              "size": 16.82,
+                              "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1786234887182-d552f29f-54b6-4a8f-a629-e8a384af9014-wombat1.webp"
                             }
                           }
                         }
@@ -1052,46 +1052,46 @@
                   },
                   "logo": {
                     "data": {
-                      "id": 106,
+                      "id": 109,
                       "attributes": {
-                        "createdAt": "2026-08-02T19:15:14.705Z",
-                        "updatedAt": "2026-08-02T19:15:14.705Z",
-                        "alternativeText": "watching-the-shake.jpg",
-                        "caption": "watching-the-shake.jpg",
+                        "createdAt": "2026-08-09T00:21:27.395Z",
+                        "updatedAt": "2026-08-09T00:21:27.395Z",
+                        "alternativeText": "racoon.jpg",
+                        "caption": "racoon.jpg",
                         "provider": "local",
                         "provider_metadata": null,
                         "previewUrl": null,
-                        "url": "/uploads/web-experience/1785698114685-59df20ba-c79a-471a-a4fd-b55c49ad8011-watching-the-shake.jpg",
+                        "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1786234886598-2696438f-988b-4565-9acb-9c1d84d1c635-racoon.jpg",
                         "formats": {
                           "small": {
-                            "name": "small_watching-the-shake.jpg",
-                            "hash": "small_watching_the_shake",
+                            "name": "small_racoon.jpg",
+                            "hash": "small_racoon",
                             "ext": ".jpg",
                             "mime": "image/jpeg",
                             "path": null,
                             "width": 0,
                             "height": 0,
-                            "size": 6.79,
-                            "url": "/uploads/web-experience/1785698114685-59df20ba-c79a-471a-a4fd-b55c49ad8011-watching-the-shake.jpg"
+                            "size": 235.46,
+                            "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1786234886598-2696438f-988b-4565-9acb-9c1d84d1c635-racoon.jpg"
                           },
                           "thumbnail": {
-                            "name": "thumbnail_watching-the-shake.jpg",
-                            "hash": "thumbnail_watching_the_shake",
+                            "name": "thumbnail_racoon.jpg",
+                            "hash": "thumbnail_racoon",
                             "ext": ".jpg",
                             "mime": "image/jpeg",
                             "path": null,
                             "width": 0,
                             "height": 0,
-                            "size": 6.79,
-                            "url": "/uploads/web-experience/1785698114685-59df20ba-c79a-471a-a4fd-b55c49ad8011-watching-the-shake.jpg"
+                            "size": 235.46,
+                            "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1786234886598-2696438f-988b-4565-9acb-9c1d84d1c635-racoon.jpg"
                           }
                         }
                       }
                     }
                   },
-                  "link": "chris-a.me",
+                  "link": "chris-a.meeee",
                   "secondLink": null,
-                  "position": 40
+                  "position": 200
                 }
               }
             ]

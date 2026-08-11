@@ -29,17 +29,17 @@
   let mode = $state<"edit" | "preview">("edit");
 </script>
 
-<label class="field" for={id}>
+<label class="form-field" for={id} style="--form-field-gap: 0.75rem;">
   <div class="head">
     <div>
-      <span class="label">{label}</span>
+      <span class="form-field__label">{label}</span>
       {#if description}
-        <span class="description">{description}</span>
+        <span class="form-field__description">{description}</span>
       {/if}
     </div>
   </div>
   {#if error}
-    <span id="{id}-error" class="field-error" role="alert">{error}</span>
+    <span id="{id}-error" class="form-field__error" role="alert">{error}</span>
   {/if}
 
   <div class="editor-grid">
@@ -52,7 +52,8 @@
         {required}
         {rows}
         aria-describedby={error ? `${id}-error` : undefined}
-        class:textarea-error={!!error}
+        class="form-control form-control--textarea"
+        class:form-control--error={!!error}
       ></textarea>
     {:else}
       <textarea
@@ -78,14 +79,14 @@
   <div class="toggle-row">
     <Button
       type="button"
-      variant={mode === "edit" ? "primary" : "secondary"}
+      variant={mode === "edit" ? "submit" : "action"}
       onclick={() => (mode = "edit")}
     >
       Edit
     </Button>
     <Button
       type="button"
-      variant={mode === "preview" ? "primary" : "secondary"}
+      variant={mode === "preview" ? "submit" : "action"}
       onclick={() => (mode = "preview")}
     >
       Preview
@@ -94,11 +95,7 @@
 </label>
 
 <style>
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
+  @import "./field.css";
 
   .head {
     display: flex;
@@ -107,35 +104,13 @@
     gap: 1rem;
   }
 
-  .label {
-    display: block;
-    font-family: var(--font-th);
-    letter-spacing: 0.08rem;
-    font-size: 1.25rem;
-  }
-
-  .description {
-    display: block;
-    margin-top: 0.25rem;
-    font-size: 0.95rem;
-    line-height: 1.25rem;
-    color: var(--b-dk);
-  }
-
   .editor-grid {
     display: block;
   }
 
-  textarea {
-    width: 100%;
+  .form-control--textarea {
     min-height: 18rem;
-    box-sizing: border-box;
-    border: 1px solid var(--w-dk);
-    padding: 0.75rem;
-    font: inherit;
     line-height: 1.5rem;
-    color: var(--off-bk);
-    background: var(--w-xl);
     resize: vertical;
   }
 
@@ -151,20 +126,6 @@
     clip-path: inset(50%);
     white-space: nowrap;
     pointer-events: none;
-  }
-
-  textarea:focus {
-    outline: 2px solid var(--bg-lt);
-    border-color: var(--b-md);
-  }
-
-  .textarea-error {
-    border-color: var(--error, #c00);
-  }
-
-  .field-error {
-    font-size: 0.875rem;
-    color: var(--error, #c00);
   }
 
   .preview {
