@@ -138,54 +138,31 @@
       sectionTitle="Logo"
       uploadInputId="logoFile"
       uploadInputName="logoFile"
-      uploadLabel="Replace Logo"
       uploadDescription="Upload a new logo image to replace the current one."
-    >
-      {#snippet preview()}
-        {#if entryLogoUrl}
-          <div class="media-preview-card">
-            <img
-              class="media-preview-image"
-              src={entryLogoUrl}
-              alt={`${target.title} logo`}
-            />
-            <label class="media-toggle">
-              <input name="removeLogo" type="checkbox" value="1" />
-              Remove current logo
-            </label>
-          </div>
-        {/if}
-      {/snippet}
-    </ImageUploadSection>
+      singleImage={
+        entryLogoUrl
+          ? {
+              url: entryLogoUrl,
+              alt: `${target.title} logo`,
+              removeFieldName: "removeLogo",
+            }
+          : null
+      }
+    />
 
     <ImageUploadSection
       sectionTitle="Screenshots"
       uploadInputId="imageFiles"
       uploadInputName="imageFiles"
-      uploadLabel="Add Screenshots"
       uploadDescription="Upload one or more images to append to the screenshot gallery."
       multiple
-    >
-      {#snippet preview()}
-        {#if entryImagePreviews.length}
-          <div class="media-grid">
-            {#each entryImagePreviews as image}
-              <div class="media-preview-card">
-                <img
-                  class="media-preview-image"
-                  src={image.small}
-                  alt={`${target.title} screenshot ${image.id}`}
-                />
-                <label class="media-toggle">
-                  <input name="removeImageIds" type="checkbox" value={image.id} />
-                  Remove image
-                </label>
-              </div>
-            {/each}
-          </div>
-        {/if}
-      {/snippet}
-    </ImageUploadSection>
+      removeFieldName="removeImageIds"
+      galleryImages={entryImagePreviews.map((image) => ({
+        id: image.id,
+        url: image.small,
+        alt: `${target.title} screenshot ${image.id}`,
+      }))}
+    />
 
     <NumberInput
       id="sortOrder"
@@ -224,33 +201,6 @@
   .actions {
     display: flex;
     justify-content: flex-end;
-  }
-
-  .media-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 0.75rem;
-  }
-
-  .media-preview-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .media-preview-image {
-    width: 100%;
-    max-height: 220px;
-    object-fit: cover;
-    border: 1px solid var(--w-dk);
-    background: var(--w-xl);
-  }
-
-  .media-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
   }
 
   @media (max-width: 767.98px) {

@@ -123,24 +123,16 @@
       sectionTitle="Entry Image"
       uploadInputId="imageFile"
       uploadInputName="imageFile"
-      uploadLabel="Replace Image"
       uploadDescription="Upload a new image to replace the current entry image."
-    >
-      {#snippet preview()}
-        {#if entry.imageUrl}
-          <div class="media-preview-card">
-            <img
-              class="media-preview-image"
-              src={entry.imageUrl}
-              alt={entry.title}
-            />
-            <p class="media-preview-caption">Current entry image</p>
-          </div>
-        {:else}
-          <p class="media-preview-empty">No image uploaded for this entry yet.</p>
-        {/if}
-      {/snippet}
-    </ImageUploadSection>
+      singleImage={
+        entry.imageUrl
+          ? {
+              url: entry.imageUrl,
+              alt: entry.title,
+            }
+          : null
+      }
+    />
   </section>
 
   <div class="actions">
@@ -164,27 +156,6 @@
   .actions {
     display: flex;
     justify-content: flex-end;
-  }
-
-  .media-preview-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .media-preview-image {
-    width: 100%;
-    max-height: 320px;
-    object-fit: cover;
-    border: 1px solid var(--w-dk);
-    background: var(--w-xl);
-  }
-
-  .media-preview-caption,
-  .media-preview-empty {
-    margin: 0;
-    font-size: 0.9rem;
-    color: var(--w-md);
   }
 
   @media (max-width: 767.98px) {
