@@ -29,7 +29,7 @@
     sectionTitle,
     uploadInputId,
     uploadInputName,
-    uploadDescription,
+    uploadDescription: _uploadDescription,
     accept = "image/*",
     multiple = false,
     singleImage = null,
@@ -57,28 +57,16 @@
     };
   });
 
-  const visibleGallery = $derived.by(() => {
+  const galleryItems = $derived.by(() => {
     if (!multiple) {
-      return [] as Array<GalleryImage>;
+      return [] as Array<GalleryImage & { removed: boolean }>;
     }
 
     const removed = new Set(removedGalleryIds);
-    return galleryImages.filter((image) => !removed.has(String(image.id)));
-  });
-
-  const removedGallery = $derived.by(() => {
-    if (!multiple) {
-      return [] as Array<{ id: string; name: string }>;
-    }
-
-    return removedGalleryIds.map((id) => {
-      const image = galleryImages.find((candidate) => String(candidate.id) === id);
-
-      return {
-        id,
-        name: image ? fileNameFromUrl(image.url) : `Image ${id}`,
-      };
-    });
+    return galleryImages.map((image) => ({
+      ...image,
+      removed: removed.has(String(image.id)),
+    }));
   });
 
   const hasSinglePreview = $derived.by(() =>
@@ -97,9 +85,29 @@
     singleImage ? fileNameFromUrl(singleImage.url) : "image",
   );
 
+  const singleFileName = $derived.by(() => {
+    if (stagedMedia.length > 0) {
+      return stagedMedia[0].name;
+    }
+
+    if (singleImage) {
+      return fileNameFromUrl(singleImage.url);
+    }
+
+    return "";
+  });
+
+  const canShowSingleRemove = $derived.by(() => {
+    if (stagedMedia.length > 0) {
+      return true;
+    }
+
+    return !!singleImage?.removeFieldName && !removedSingle;
+  });
+
   const showMediaColumn = $derived.by(() =>
     multiple
-      ? visibleGallery.length > 0 || removedGallery.length > 0 || stagedMedia.length > 0
+      ? galleryItems.length > 0 || stagedMedia.length > 0
       : hasSinglePreview || removedSingle,
   );
 
@@ -147,6 +155,30 @@
     removedGalleryIds = [...removedGalleryIds, nextId];
   };
 
+  const clearSingleSelection = () => {
+    if (stagedFiles.length > 0) {
+      stagedFiles = [];
+
+      if (uploadInput) {
+        uploadInput.value = "";
+      }
+
+      return;
+    }
+
+    removeSingleImage();
+  };
+
+  const removeStagedGalleryImage = (index: number) => {
+    const next = stagedFiles.filter((_, candidateIndex) => candidateIndex !== index);
+
+    stagedFiles = next;
+
+    if (uploadInput && next.length === 0) {
+      uploadInput.value = "";
+    }
+  };
+
   function fileNameFromUrl(url: string) {
     try {
       const parsed = new URL(url, "https://example.invalid");
@@ -165,68 +197,84 @@
   <div class="upload-shell form-control">
     <div class="upload-main">
       <Button type="button" onclick={openPicker}>{actionLabel}</Button>
-      <span class="upload-description">{uploadDescription}</span>
+      {#if !multiple && singleFileName}
+        <span class="selected-file">{singleFileName}</span>
+      {/if}
+      {#if !multiple && canShowSingleRemove}
+        <button type="button" class="remove-link" onclick={clearSingleSelection}>
+          Remove
+        </button>
+      {/if}
     </div>
 
     {#if showMediaColumn}
       <div class="media-column">
         {#if multiple}
-          {#each visibleGallery as image (image.id)}
+          {#each galleryItems as image (image.id)}
             <div class="media-card" data-kind="existing">
               <div class="media-thumb-wrap">
-                <img class="media-thumb" src={image.url} alt={image.alt} />
+                <img
+                  class="media-thumb"
+                  class:is-removed={image.removed}
+                  src={image.url}
+                  alt={image.alt}
+                />
+              </div>
+              <span class="selected-file">{fileNameFromUrl(image.url)}</span>
+              {#if !image.removed}
                 <button
                   type="button"
-                  class="remove-chip"
+                  class="remove-link"
                   aria-label={`Remove ${fileNameFromUrl(image.url)}`}
                   onclick={() => removeGalleryImage(image.id)}
                 >
-                  ×
+                  Remove
                 </button>
-              </div>
+              {/if}
             </div>
           {/each}
 
-          {#each stagedMedia as media (media.url)}
+          {#each stagedMedia as media, index (media.url)}
             <div class="media-card" data-kind="staged">
               <div class="media-thumb-wrap">
-                <img class="media-thumb" src={media.url} alt={media.alt} />
+                <img class="media-thumb is-staged" src={media.url} alt={media.alt} />
               </div>
-              <div class="status-banner">Staged {media.name}</div>
-            </div>
-          {/each}
-
-          {#each removedGallery as removed (removed.id)}
-            <div class="removed-row">
-              <div class="status-banner">Removed {removed.name}</div>
+              <span class="selected-file">{media.name}</span>
+              <button
+                type="button"
+                class="remove-link"
+                aria-label={`Remove ${media.name}`}
+                onclick={() => removeStagedGalleryImage(index)}
+              >
+                Remove
+              </button>
             </div>
           {/each}
         {:else if stagedMedia.length > 0}
           <div class="media-card" data-kind="staged">
             <div class="media-thumb-wrap">
-              <img class="media-thumb" src={stagedMedia[0].url} alt={stagedMedia[0].alt} />
+              <img
+                class="media-thumb is-staged"
+                src={stagedMedia[0].url}
+                alt={stagedMedia[0].alt}
+              />
             </div>
-            <div class="status-banner">Staged {stagedMedia[0].name}</div>
           </div>
         {:else if singleImage && !removedSingle}
           <div class="media-card" data-kind="existing">
             <div class="media-thumb-wrap">
               <img class="media-thumb" src={singleImage.url} alt={singleImage.alt} />
-              {#if singleImage.removeFieldName}
-                <button
-                  type="button"
-                  class="remove-chip"
-                  aria-label={`Remove ${fileNameFromUrl(singleImage.url)}`}
-                  onclick={removeSingleImage}
-                >
-                  ×
-                </button>
-              {/if}
             </div>
           </div>
         {:else if removedSingle}
-          <div class="removed-row">
-            <div class="status-banner">Removed {singleRemovedName}</div>
+          <div class="media-card" data-kind="removed">
+            <div class="media-thumb-wrap">
+              <img
+                class="media-thumb is-removed"
+                src={singleImage?.url}
+                alt={singleImage?.alt ?? singleRemovedName}
+              />
+            </div>
           </div>
         {/if}
       </div>
@@ -276,15 +324,16 @@
   .upload-main {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.35rem;
     align-items: flex-start;
     min-width: 13rem;
   }
 
-  .upload-description {
+  .selected-file {
     color: var(--b-dk);
-    font-size: 0.95rem;
-    line-height: 1.25rem;
+    font-size: 0.9rem;
+    line-height: 1.1rem;
+    word-break: break-word;
   }
 
   .native-file-input {
@@ -310,7 +359,12 @@
   .media-card {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.35rem;
+  }
+
+  .media-card + .media-card {
+    border-top: 1px solid var(--b-md);
+    padding-top: 0.65rem;
   }
 
   .media-thumb-wrap {
@@ -322,45 +376,42 @@
     display: block;
     width: 100%;
     aspect-ratio: 16 / 10;
-    max-height: 14rem;
+    max-height: 8rem;
     object-fit: cover;
-    border: 1px solid var(--w-dk);
+    border: 3px solid transparent;
+    box-sizing: border-box;
     background: var(--w-xl);
   }
 
-  .remove-chip {
-    position: absolute;
-    top: 0.4rem;
-    right: 0.4rem;
-    width: 1.65rem;
-    height: 1.65rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 0;
-    border-radius: 999px;
-    font-size: 1.35rem;
-    line-height: 1;
-    color: var(--w);
-    background: rgba(27, 55, 80, 0.84);
+  .media-thumb.is-staged {
+    border-color: var(--b-md);
+  }
+
+  .media-thumb.is-removed {
+    border-color: var(--p-dk);
+  }
+
+  .remove-link {
+    all: unset;
+    color: var(--p-dk);
+    font-size: 0.9rem;
+    line-height: 1.1rem;
+    text-decoration: underline;
     cursor: pointer;
   }
 
-  .remove-chip:hover {
-    background: rgba(46, 95, 138, 0.92);
+  .remove-link:hover {
+    color: var(--p-md);
   }
 
-  .status-banner {
-    padding: 0.35rem 0.65rem;
-    color: var(--w);
-    font-size: 0.86rem;
-    line-height: 1.1rem;
-    background: linear-gradient(var(--b-md), var(--p-md));
+  .remove-link:focus-visible {
+    outline: 2px solid var(--b-md);
+    outline-offset: 2px;
   }
 
-  .removed-row {
-    display: flex;
-    flex-direction: column;
+  .native-file-input,
+  .remove-link {
+    border: 0;
   }
 
   @media (max-width: 860px) {
