@@ -81,6 +81,18 @@
     return hasSinglePreview ? "Replace" : "Upload";
   });
 
+  const showAddUploadButton = $derived.by(() => {
+    if (multiple) {
+      return true;
+    }
+
+    return !singleImage || removedSingle;
+  });
+
+  const showInlineReplaceLink = $derived.by(() =>
+    !multiple && !!singleImage && !removedSingle,
+  );
+
   const singleRemovedName = $derived.by(() =>
     singleImage ? fileNameFromUrl(singleImage.url) : "image",
   );
@@ -111,8 +123,39 @@
       : hasSinglePreview || removedSingle,
   );
 
+  const singlePreviewState = $derived.by(() => {
+    if (stagedMedia.length > 0) {
+      return "staged" as const;
+    }
+
+    if (removedSingle) {
+      return "removed" as const;
+    }
+
+    return "idle" as const;
+  });
+
   const openPicker = () => {
     uploadInput?.click();
+  };
+
+  const syncInputFiles = (files: ReadonlyArray<File>) => {
+    if (!uploadInput) {
+      return;
+    }
+
+    if (files.length === 0) {
+      uploadInput.value = "";
+      return;
+    }
+
+    const transfer = new DataTransfer();
+
+    files.forEach((file) => {
+      transfer.items.add(file);
+    });
+
+    uploadInput.files = transfer.files;
   };
 
   const onInputChange = (event: Event) => {
@@ -120,11 +163,15 @@
     const files = input.files ? Array.from(input.files) : [];
 
     if (multiple) {
-      stagedFiles = files;
+      const nextFiles = [...stagedFiles, ...files];
+
+      stagedFiles = nextFiles;
+      syncInputFiles(nextFiles);
       return;
     }
 
     stagedFiles = files.slice(0, 1);
+    syncInputFiles(stagedFiles);
 
     if (stagedFiles.length > 0) {
       removedSingle = false;
@@ -173,10 +220,7 @@
     const next = stagedFiles.filter((_, candidateIndex) => candidateIndex !== index);
 
     stagedFiles = next;
-
-    if (uploadInput && next.length === 0) {
-      uploadInput.value = "";
-    }
+    syncInputFiles(next);
   };
 
   function fileNameFromUrl(url: string) {
@@ -195,23 +239,32 @@
   <div class="form-field__label">{sectionTitle}</div>
 
   <div class="upload-shell form-control">
-    <div class="upload-main">
-      <Button type="button" onclick={openPicker}>{actionLabel}</Button>
-      {#if !multiple && singleFileName}
-        <span class="selected-file">{singleFileName}</span>
-      {/if}
-      {#if !multiple && canShowSingleRemove}
-        <button type="button" class="remove-link" onclick={clearSingleSelection}>
-          Remove
-        </button>
-      {/if}
-    </div>
+    {#if !showInlineReplaceLink}
+      <div class="control-row">
+        {#if showAddUploadButton}
+          <Button type="button" onclick={openPicker}>{actionLabel}</Button>
+        {/if}
+      </div>
+    {/if}
 
     {#if showMediaColumn}
       <div class="media-column">
         {#if multiple}
           {#each galleryItems as image (image.id)}
             <div class="media-card" data-kind="existing">
+              <div class="media-meta">
+                <span class="selected-file">{fileNameFromUrl(image.url)}</span>
+                {#if !image.removed}
+                  <button
+                    type="button"
+                    class="action-link remove-link"
+                    aria-label={`Remove ${fileNameFromUrl(image.url)}`}
+                    onclick={() => removeGalleryImage(image.id)}
+                  >
+                    Remove
+                  </button>
+                {/if}
+              </div>
               <div class="media-thumb-wrap">
                 <img
                   class="media-thumb"
@@ -220,41 +273,48 @@
                   alt={image.alt}
                 />
               </div>
-              <span class="selected-file">{fileNameFromUrl(image.url)}</span>
-              {#if !image.removed}
-                <button
-                  type="button"
-                  class="remove-link"
-                  aria-label={`Remove ${fileNameFromUrl(image.url)}`}
-                  onclick={() => removeGalleryImage(image.id)}
-                >
-                  Remove
-                </button>
-              {/if}
             </div>
           {/each}
 
           {#each stagedMedia as media, index (media.url)}
             <div class="media-card" data-kind="staged">
+              <div class="media-meta">
+                <span class="selected-file">{media.name}</span>
+                <button
+                  type="button"
+                  class="action-link remove-link"
+                  aria-label={`Remove ${media.name}`}
+                  onclick={() => removeStagedGalleryImage(index)}
+                >
+                  Remove
+                </button>
+              </div>
               <div class="media-thumb-wrap">
                 <img class="media-thumb is-staged" src={media.url} alt={media.alt} />
               </div>
-              <span class="selected-file">{media.name}</span>
-              <button
-                type="button"
-                class="remove-link"
-                aria-label={`Remove ${media.name}`}
-                onclick={() => removeStagedGalleryImage(index)}
-              >
-                Remove
-              </button>
             </div>
           {/each}
         {:else if stagedMedia.length > 0}
           <div class="media-card" data-kind="staged">
+            <div class="media-meta">
+              <span class="selected-file">{singleFileName}</span>
+              {#if showInlineReplaceLink}
+                <button type="button" class="action-link replace-link" onclick={openPicker}>
+                  Replace
+                </button>
+              {/if}
+              <button
+                type="button"
+                class="action-link remove-link"
+                onclick={clearSingleSelection}
+              >
+                Remove
+              </button>
+            </div>
             <div class="media-thumb-wrap">
               <img
-                class="media-thumb is-staged"
+                class="media-thumb"
+                class:is-staged={singlePreviewState === "staged"}
                 src={stagedMedia[0].url}
                 alt={stagedMedia[0].alt}
               />
@@ -262,12 +322,32 @@
           </div>
         {:else if singleImage && !removedSingle}
           <div class="media-card" data-kind="existing">
+            <div class="media-meta">
+              <span class="selected-file">{singleFileName}</span>
+              {#if showInlineReplaceLink}
+                <button type="button" class="action-link replace-link" onclick={openPicker}>
+                  Replace
+                </button>
+              {/if}
+              {#if canShowSingleRemove}
+                <button
+                  type="button"
+                  class="action-link remove-link"
+                  onclick={clearSingleSelection}
+                >
+                  Remove
+                </button>
+              {/if}
+            </div>
             <div class="media-thumb-wrap">
               <img class="media-thumb" src={singleImage.url} alt={singleImage.alt} />
             </div>
           </div>
         {:else if removedSingle}
           <div class="media-card" data-kind="removed">
+            <div class="media-meta">
+              <span class="selected-file">{singleRemovedName}</span>
+            </div>
             <div class="media-thumb-wrap">
               <img
                 class="media-thumb is-removed"
@@ -315,18 +395,16 @@
 
   .upload-shell {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    min-height: 8.5rem;
+    flex-direction: column;
+    gap: 0.65rem;
   }
 
-  .upload-main {
+  .control-row {
     display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
     align-items: flex-start;
-    min-width: 13rem;
+    width: 100%;
+    padding-bottom: 0.65rem;
+    border-bottom: 0.0625rem solid var(--b-md);
   }
 
   .selected-file {
@@ -353,75 +431,92 @@
     display: flex;
     flex-direction: column;
     gap: 0.65rem;
-    width: min(25rem, 100%);
+    width: 100%;
   }
 
   .media-card {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(12rem, 16rem);
+    column-gap: 1rem;
+    align-items: start;
     gap: 0.35rem;
   }
 
   .media-card + .media-card {
-    border-top: 1px solid var(--b-md);
+    border-top: 0.0625rem solid var(--b-md);
     padding-top: 0.65rem;
   }
 
+  .media-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    padding-top: 0.1rem;
+  }
+
   .media-thumb-wrap {
-    position: relative;
-    width: 100%;
+    width: 16rem;
+    max-width: 100%;
   }
 
   .media-thumb {
     display: block;
     width: 100%;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 4 / 3;
     max-height: 8rem;
     object-fit: cover;
-    border: 3px solid transparent;
+    border: 0.1875rem solid transparent;
     box-sizing: border-box;
     background: var(--w-xl);
   }
 
   .media-thumb.is-staged {
-    border-color: var(--b-md);
+    border-color: var(--b-lt);
   }
 
   .media-thumb.is-removed {
-    border-color: var(--p-dk);
+    border-color: var(--o-md);
   }
 
-  .remove-link {
+  .action-link {
     all: unset;
-    color: var(--p-dk);
     font-size: 0.9rem;
     line-height: 1.1rem;
     text-decoration: underline;
     cursor: pointer;
   }
 
+  .remove-link {
+    color: var(--p-dk);
+  }
+
   .remove-link:hover {
     color: var(--p-md);
   }
 
-  .remove-link:focus-visible {
-    outline: 2px solid var(--b-md);
-    outline-offset: 2px;
+  .replace-link {
+    color: var(--b-md);
+  }
+
+  .replace-link:hover {
+    color: var(--b-dk);
+  }
+
+  .action-link:focus-visible {
+    outline: 0.125rem solid var(--b-md);
+    outline-offset: 0.125rem;
   }
 
   .native-file-input,
-  .remove-link {
+  .action-link {
     border: 0;
   }
 
   @media (max-width: 860px) {
-    .upload-shell {
-      flex-direction: column;
-    }
-
-    .upload-main,
-    .media-column {
-      width: 100%;
+    .media-card {
+      grid-template-columns: minmax(0, 1fr) minmax(9rem, 12rem);
+      column-gap: 0.75rem;
     }
   }
 </style>

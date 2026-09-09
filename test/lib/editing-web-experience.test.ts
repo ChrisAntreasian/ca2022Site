@@ -188,7 +188,7 @@ describe("web experience editor adapter", () => {
     expect(entry?.attributes.image.data[0].attributes.url).toBe("/shot.jpg");
   });
 
-  it("replaces logo and screenshots when upload media patch is applied", () => {
+  it("replaces logo and appends screenshots when upload media patch is applied", () => {
     const patched = applyWebExperienceMediaPatch(
       baseFile,
       {
@@ -222,11 +222,12 @@ describe("web experience editor adapter", () => {
       "/uploads/web-experience/new-logo.svg",
     );
     expect(entry?.attributes.logo.data?.attributes.provider).toBe("local");
-    expect(entry?.attributes.image.data.length).toBe(2);
-    expect(entry?.attributes.image.data[0].attributes.formats.small.url).toBe(
+    expect(entry?.attributes.image.data.length).toBe(3);
+    expect(entry?.attributes.image.data[0].attributes.url).toBe("/shot.jpg");
+    expect(entry?.attributes.image.data[1].attributes.formats.small.url).toBe(
       "/uploads/web-experience/shot-1.jpg",
     );
-    expect(entry?.attributes.image.data[1].attributes.formats.thumbnail.url).toBe(
+    expect(entry?.attributes.image.data[2].attributes.formats.thumbnail.url).toBe(
       "/uploads/web-experience/shot-2.jpg",
     );
   });

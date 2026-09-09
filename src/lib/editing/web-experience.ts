@@ -359,19 +359,21 @@ export const applyWebExperienceMediaPatch = (
       nextAttributes.logo = { data: null };
     }
 
-    if (patch.images !== undefined) {
+    const hasImageRemovals = Boolean(patch.removeImageIds?.length);
+    const hasImageUploads = patch.images !== undefined;
+
+    if (hasImageRemovals || hasImageUploads) {
+      const removeIds = new Set(patch.removeImageIds ?? []);
+      const retainedImages = (entry.attributes.image.data ?? []).filter(
+        (image) => !removeIds.has(image.id),
+      );
+      const uploadedImages = (patch.images ?? []).map((asset) => ({
+        id: assignId(),
+        attributes: toStrapiImageAttributes(asset, timestamp),
+      }));
+
       nextAttributes.image = {
-        data: (patch.images ?? []).map((asset) => ({
-          id: assignId(),
-          attributes: toStrapiImageAttributes(asset, timestamp),
-        })),
-      };
-    } else if (patch.removeImageIds?.length) {
-      const removeIds = new Set(patch.removeImageIds);
-      nextAttributes.image = {
-        data: (entry.attributes.image.data ?? []).filter(
-          (image) => !removeIds.has(image.id),
-        ),
+        data: [...retainedImages, ...uploadedImages],
       };
     }
 
