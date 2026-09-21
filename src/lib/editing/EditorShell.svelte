@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { beforeNavigate, goto } from "$app/navigation";
   import { page } from "$app/state";
   import type { Snippet } from "svelte";
 
@@ -50,7 +51,7 @@
   const requestNavigation = (path: string) => {
     if (path === page.url.pathname) return;
     if (!isDirty) {
-      window.location.href = path;
+      void goto(path);
       return;
     }
 
@@ -67,7 +68,7 @@
     if (!pendingPath) return;
     const nextPath = pendingPath;
     closeUnsavedWarning();
-    window.location.href = nextPath;
+    void goto(nextPath);
   };
 
   const handleSaveAndContinue = () => {
@@ -90,6 +91,37 @@
     event.preventDefault();
     event.returnValue = "";
   };
+
+  beforeNavigate((navigation) => {
+    if (!isDirty) {
+      return;
+    }
+
+    if (navigation.type !== "link" && navigation.type !== "popstate") {
+      return;
+    }
+
+    const nextUrl = navigation.to?.url;
+
+    if (!nextUrl) {
+      return;
+    }
+
+    if (navigation.to.route?.id === null) {
+      return;
+    }
+
+    const nextPath = `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
+    const currentPath = `${page.url.pathname}${page.url.search}${page.url.hash}`;
+
+    if (nextPath === currentPath) {
+      return;
+    }
+
+    pendingPath = nextPath;
+    showUnsavedWarning = true;
+    navigation.cancel();
+  });
 
   const closeSavedNotice = () => {
     showSavedNotice = false;

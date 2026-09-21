@@ -1,5 +1,6 @@
 import {
   poemsFileC,
+  removePoemEditorValue,
   upsertPoemEditorValue,
   type PoemEditorValue,
   type PoemsFile,
@@ -31,6 +32,20 @@ export const savePoemEditorValue = async (
   const current = await readPoemsFile();
   await ensurePoemsBaselineSnapshot(current);
   const updated = upsertPoemEditorValue(current, value, now);
+
+  await writePoemsFile(updated);
+
+  return updated;
+};
+
+export const deletePoemEditorValue = async (
+  poemId: number,
+  now = new Date(),
+  sourceFile?: PoemsFile,
+) => {
+  const current = sourceFile ?? (await readPoemsFile());
+  await ensurePoemsBaselineSnapshot(current);
+  const updated = removePoemEditorValue(current, poemId, now);
 
   await writePoemsFile(updated);
 

@@ -6,6 +6,7 @@ import { deleteS3File, initS3, uploadS3File } from "$lib/s3";
 
 import {
   applySouljuicerImagePatch,
+  removeSouljuicerEntry,
   souljuicerFileC,
   upsertSouljuicerEditorValue,
   type SouljuicerEditorValue,
@@ -48,6 +49,20 @@ export const saveSouljuicerEditorValue = async (
   const current = sourceFile ?? (await readSouljuicerFile());
   await ensureSouljuicerBaselineSnapshot(current);
   const updated = upsertSouljuicerEditorValue(current, value, now);
+
+  await writeSouljuicerFile(updated);
+
+  return updated;
+};
+
+export const deleteSouljuicerEntry = async (
+  entryId: number,
+  now = new Date(),
+  sourceFile?: SouljuicerFile,
+) => {
+  const current = sourceFile ?? (await readSouljuicerFile());
+  await ensureSouljuicerBaselineSnapshot(current);
+  const updated = removeSouljuicerEntry(current, entryId, now);
 
   await writeSouljuicerFile(updated);
 

@@ -12,6 +12,7 @@ import {
   type WebExperienceEntry,
 } from "$lib/editing/web-experience";
 import {
+  deleteWebExperienceEntry,
   deleteWebExperienceMedia,
   ensureWebExperienceBaselineSnapshot,
   persistWebExperienceUpload,
@@ -217,5 +218,39 @@ export const actions: Actions = {
           })();
 
     throw redirect(303, `${targetPath}?saved=1`);
+  },
+  delete: async ({ request }) => {
+    requireEditorEnabled();
+
+    const source = await readWebExperienceFile();
+    const current = toWebExperienceEditorValue(source);
+    const formData = await request.formData();
+    const parsedForm = parseWebExperienceForm(formData);
+
+    if (parsedForm.kind !== "entry") {
+      return fail(400, {
+        action: "delete",
+        message: "Only saved entries can be deleted.",
+      });
+    }
+
+    if (parsedForm.id <= 0 || !Number.isInteger(parsedForm.id)) {
+      return fail(400, {
+        action: "delete",
+        message: "Please select a saved entry before deleting.",
+      });
+    }
+
+    if (!current.entries.some((entry) => entry.id === parsedForm.id)) {
+      throw error(404, "Web experience entry not found.");
+    }
+
+    const updated = await deleteWebExperienceEntry(parsedForm.id, new Date(), source);
+    const remaining = toWebExperienceEditorValue(updated).entries[0];
+    const destination = remaining
+      ? webExperienceEditorPath({ kind: "entry", id: remaining.id }, remaining.title)
+      : webExperienceEditorPath({ kind: "intro" });
+
+    throw redirect(303, `${destination}?saved=1`);
   },
 };

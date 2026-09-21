@@ -188,6 +188,22 @@ export const upsertSouljuicerEditorValue = (
   };
 };
 
+export const removeSouljuicerEntry = (
+  file: SouljuicerFile,
+  entryId: number,
+  now = new Date(),
+): SouljuicerFile => {
+  const value = toSouljuicerEditorValue(file);
+
+  return upsertSouljuicerEditorValue(
+    file,
+    {
+      entries: value.entries.filter((entry) => entry.id !== entryId),
+    },
+    now,
+  );
+};
+
 const sanitizeMediaHash = (name: string) =>
   name
     .toLowerCase()

@@ -14,6 +14,7 @@ import {
 } from "$lib/editing/souljuicer-editor";
 import { toSouljuicerEditorValue } from "$lib/editing/souljuicer";
 import {
+  deleteSouljuicerEntry,
   ensureSouljuicerBaselineSnapshot,
   persistSouljuicerUpload,
   readSouljuicerFile,
@@ -94,5 +95,40 @@ export const actions: Actions = {
       redirectTo || souljuicerEditorPath(formValue.id);
 
     throw redirect(303, `${destination}?saved=1`);
+  },
+  delete: async ({ request }) => {
+    requireEditorEnabled();
+
+    const source = await readSouljuicerFile();
+    const current = toSouljuicerEditorValue(source);
+    const formData = await request.formData();
+    const entryId = Number(getFormDataString(formData, "id") || "0");
+
+    if (!Number.isInteger(entryId) || entryId <= 0) {
+      return fail(400, {
+        action: "delete",
+        message: "Please select a saved entry before deleting.",
+      });
+    }
+
+    if (!current.entries.some((entry) => entry.id === entryId)) {
+      throw error(404, "Souljuicer entry not found.");
+    }
+
+    if (current.entries.length <= 1) {
+      return fail(400, {
+        action: "delete",
+        message: "The final Souljuicer entry cannot be deleted.",
+      });
+    }
+
+    const updated = await deleteSouljuicerEntry(entryId, new Date(), source);
+    const nextEntry = toSouljuicerEditorValue(updated).entries[0];
+
+    if (!nextEntry) {
+      throw error(500, "No Souljuicer entries remain after delete.");
+    }
+
+    throw redirect(303, `${souljuicerEditorPath(nextEntry.id)}?saved=1`);
   },
 };

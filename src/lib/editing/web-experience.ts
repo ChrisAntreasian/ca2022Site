@@ -239,6 +239,23 @@ export const upsertWebExperienceEditorValue = (
   };
 };
 
+export const removeWebExperienceEntry = (
+  file: WebExperienceFile,
+  entryId: number,
+  now = new Date(),
+): WebExperienceFile => {
+  const value = toWebExperienceEditorValue(file);
+
+  return upsertWebExperienceEditorValue(
+    file,
+    {
+      ...value,
+      entries: value.entries.filter((entry) => entry.id !== entryId),
+    },
+    now,
+  );
+};
+
 const sanitizeMediaHash = (name: string) =>
   name
     .toLowerCase()

@@ -1,6 +1,7 @@
 <script lang="ts">
   import EditorShell from "$lib/editing/EditorShell.svelte";
   import EditPane from "../_components/EditPane.svelte";
+  import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
   import { cleanUrlSlug } from "$lib/history";
   import { webExperienceEditorPath } from "$lib/editing/web-experience-editor";
   import type { WebExperienceTarget } from "$lib/editing/web-experience";
@@ -26,6 +27,26 @@
   );
 
   let saveAndContinueForm: HTMLFormElement | null = $state(null);
+  let deleteSubmitElement: HTMLButtonElement | null = $state(null);
+  let showDeleteConfirm = $state(false);
+
+  const canDelete = $derived(
+    currentTarget.kind === "entry" && currentTarget.id > 0,
+  );
+
+  const openDeleteConfirm = () => {
+    if (!canDelete) return;
+    showDeleteConfirm = true;
+  };
+
+  const cancelDelete = () => {
+    showDeleteConfirm = false;
+  };
+
+  const confirmDelete = () => {
+    showDeleteConfirm = false;
+    deleteSubmitElement?.click();
+  };
 
   const entryPath = (entryId: number, title: string) =>
     webExperienceEditorPath({ kind: "entry", id: entryId }, title);
@@ -61,9 +82,12 @@
     <EditPane
       bind:target={currentTarget}
       bind:formElement={saveAndContinueForm}
+      bind:deleteSubmitElement
       saveLabel={currentTarget.kind === "entry" && currentTarget.id > 0
         ? "Save entry"
         : "Create entry"}
+      showDeleteButton={canDelete}
+      onRequestDelete={openDeleteConfirm}
       submitFailed={form?.action === "save" && !!form?.message}
     />
   {/snippet}
@@ -115,6 +139,16 @@
     {/each}
   {/snippet}
 </EditorShell>
+
+<UnsavedChangesDialog
+  open={showDeleteConfirm}
+  title="Delete entry?"
+  message="This removes the entry from the live site. A history snapshot is retained so it can be restored later."
+  stayLabel="Cancel"
+  leaveLabel="Delete"
+  onStay={cancelDelete}
+  onLeave={confirmDelete}
+/>
 
 <style>
   .entry-list-item,

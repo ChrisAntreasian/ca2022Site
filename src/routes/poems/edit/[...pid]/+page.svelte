@@ -1,5 +1,6 @@
 <script lang="ts">
   import EditorShell from "$lib/editing/EditorShell.svelte";
+  import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
   import { cleanUrlSlug } from "$lib/history";
   import EditPane from "../_components/EditPane.svelte";
   import { poemEditorPath } from "$lib/editing/poems-editor";
@@ -25,6 +26,24 @@
   );
 
   let saveAndContinueForm: HTMLFormElement | null = $state(null);
+  let deleteSubmitElement: HTMLButtonElement | null = $state(null);
+  let showDeleteConfirm = $state(false);
+
+  const canDelete = $derived(currentPoem.id > 0);
+
+  const openDeleteConfirm = () => {
+    if (!canDelete) return;
+    showDeleteConfirm = true;
+  };
+
+  const cancelDelete = () => {
+    showDeleteConfirm = false;
+  };
+
+  const confirmDelete = () => {
+    showDeleteConfirm = false;
+    deleteSubmitElement?.click();
+  };
 
   const viewHref = $derived(
     currentPoem.id > 0
@@ -55,7 +74,10 @@
     <EditPane
       bind:poem={currentPoem}
       bind:formElement={saveAndContinueForm}
+      bind:deleteSubmitElement
       saveLabel={currentPoem.id > 0 ? "Save poem" : "Create poem"}
+      showDeleteButton={canDelete}
+      onRequestDelete={openDeleteConfirm}
       submitFailed={form?.action === "save" && !!form?.message}
     />
   {/snippet}
@@ -90,6 +112,16 @@
     {/each}
   {/snippet}
 </EditorShell>
+
+<UnsavedChangesDialog
+  open={showDeleteConfirm}
+  title="Delete poem?"
+  message="This removes the poem from the live site. A history snapshot is retained so it can be restored later."
+  stayLabel="Cancel"
+  leaveLabel="Delete"
+  onStay={cancelDelete}
+  onLeave={confirmDelete}
+/>
 
 <style>
   .poem-list-item,

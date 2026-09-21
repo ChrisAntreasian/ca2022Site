@@ -174,6 +174,23 @@ export const upsertQuintuplapusEditorValue = (
   };
 };
 
+export const removeQuintuplapusEntry = (
+  file: QuintuplapusFile,
+  entryId: number,
+  now = new Date(),
+): QuintuplapusFile => {
+  const value = toQuintuplapusEditorValue(file);
+
+  return upsertQuintuplapusEditorValue(
+    file,
+    {
+      ...value,
+      entries: value.entries.filter((entry) => entry.id !== entryId),
+    },
+    now,
+  );
+};
+
 const sanitizeMediaHash = (name: string) =>
   name
     .toLowerCase()

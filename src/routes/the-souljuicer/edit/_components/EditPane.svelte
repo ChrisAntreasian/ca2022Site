@@ -11,6 +11,9 @@
     entry: SouljuicerEditorEntry;
     saveLabel: string;
     formElement?: HTMLFormElement | null;
+    deleteSubmitElement?: HTMLButtonElement | null;
+    showDeleteButton?: boolean;
+    onRequestDelete?: () => void;
     submitFailed?: boolean;
   }
 
@@ -18,6 +21,9 @@
     entry = $bindable(),
     saveLabel,
     formElement = $bindable(null),
+    deleteSubmitElement = $bindable(null),
+    showDeleteButton = false,
+    onRequestDelete,
     submitFailed = false,
   }: Props = $props();
 
@@ -121,7 +127,18 @@
   </section>
 
   <div class="actions">
+    {#if showDeleteButton}
+      <Button type="button" variant="warning" onclick={onRequestDelete}>Delete entry</Button>
+    {/if}
     <Button type="submit">{saveLabel}</Button>
+    <button
+      type="submit"
+      formaction="?/delete"
+      class="hidden-submit"
+      bind:this={deleteSubmitElement}
+    >
+      Delete
+    </button>
   </div>
 </form>
 
@@ -141,6 +158,21 @@
   .actions {
     display: flex;
     justify-content: flex-end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .hidden-submit {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    border: 0;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   @media (max-width: 767.98px) {

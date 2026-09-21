@@ -193,4 +193,100 @@ describe("poems edit page server", () => {
       location: "/poems/edit/2/cheese?saved=1",
     });
   });
+
+  it("deletes a poem and redirects to the next remaining poem", async () => {
+    vi.doMock("@sveltejs/kit", async () => {
+      const actual = await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
+      return {
+        ...actual,
+        redirect: (status: number, location: string) => {
+          throw { status, location };
+        },
+      };
+    });
+
+    vi.doMock("$lib/editing/auth.server", () => ({
+      isEditorEnabled: vi.fn(() => true),
+      requireEditorEnabled: vi.fn(),
+    }));
+
+    const toPoemEditorValues = vi
+      .fn()
+      .mockReturnValueOnce(mockPoems)
+      .mockReturnValueOnce([mockPoems[1]]);
+    const deletePoemEditorValue = vi.fn(async () => ({ name: "poems" }));
+
+    vi.doMock("$lib/editing/poems", () => ({
+      poemEditorDefinition: {
+        key: "poems",
+        label: "Poems",
+        fields: [],
+        createDefault: () => ({ id: 0, title: "", bodyMarkdown: "", sortOrder: 10 }),
+        schema: {},
+      },
+      toPoemEditorValues,
+    }));
+
+    vi.doMock("$lib/editing/poems.server", () => ({
+      deletePoemEditorValue,
+      ensurePoemsBaselineSnapshot: vi.fn(),
+      readPoemsFile: vi.fn(async () => ({ name: "poems" })),
+      savePoemEditorValue: vi.fn(async () => mockSavedFile),
+    }));
+
+    const { actions } = await import("../../src/routes/poems/edit/[...pid]/+page.server");
+    const formData = new FormData();
+    formData.set("id", "2");
+
+    await expect(
+      actions.delete({
+        request: { formData: async () => formData },
+      } as never),
+    ).rejects.toMatchObject({
+      status: 303,
+      location: "/poems/edit/4/the-carpal-tunnel?saved=1",
+    });
+
+    expect(deletePoemEditorValue).toHaveBeenCalledWith(2, expect.any(Date), { name: "poems" });
+  });
+
+  it("rejects poem delete for invalid id", async () => {
+    vi.doMock("$lib/editing/auth.server", () => ({
+      isEditorEnabled: vi.fn(() => true),
+      requireEditorEnabled: vi.fn(),
+    }));
+
+    vi.doMock("$lib/editing/poems", () => ({
+      poemEditorDefinition: {
+        key: "poems",
+        label: "Poems",
+        fields: [],
+        createDefault: () => ({ id: 0, title: "", bodyMarkdown: "", sortOrder: 10 }),
+        schema: {},
+      },
+      toPoemEditorValues: vi.fn(() => mockPoems),
+    }));
+
+    vi.doMock("$lib/editing/poems.server", () => ({
+      deletePoemEditorValue: vi.fn(),
+      ensurePoemsBaselineSnapshot: vi.fn(),
+      readPoemsFile: vi.fn(async () => ({ name: "poems" })),
+      savePoemEditorValue: vi.fn(async () => mockSavedFile),
+    }));
+
+    const { actions } = await import("../../src/routes/poems/edit/[...pid]/+page.server");
+    const formData = new FormData();
+    formData.set("id", "0");
+
+    const result = await actions.delete({
+      request: { formData: async () => formData },
+    } as never);
+
+    expect(result).toMatchObject({
+      status: 400,
+      data: {
+        action: "delete",
+      },
+    });
+  });
 });

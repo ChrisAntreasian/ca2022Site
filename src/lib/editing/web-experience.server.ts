@@ -9,6 +9,7 @@ import {
 } from "$lib/s3";
 
 import {
+  removeWebExperienceEntry,
   upsertWebExperienceEditorValue,
   webExperienceFileC,
   type UploadedImageAsset,
@@ -67,6 +68,20 @@ export const saveWebExperienceEditorValue = async (
   const current = sourceFile ?? (await readWebExperienceFile());
   await ensureWebExperienceBaselineSnapshot(current);
   const updated = upsertWebExperienceEditorValue(current, value, now);
+
+  await writeWebExperienceFile(updated);
+
+  return updated;
+};
+
+export const deleteWebExperienceEntry = async (
+  entryId: number,
+  now = new Date(),
+  sourceFile?: WebExperienceFile,
+) => {
+  const current = sourceFile ?? (await readWebExperienceFile());
+  await ensureWebExperienceBaselineSnapshot(current);
+  const updated = removeWebExperienceEntry(current, entryId, now);
 
   await writeWebExperienceFile(updated);
 

@@ -7,6 +7,7 @@ import { deleteS3File, initS3, uploadS3File } from "$lib/s3";
 import {
   applyQuintuplapusImagePatch,
   quintuplapusFileC,
+  removeQuintuplapusEntry,
   upsertQuintuplapusEditorValue,
   type QuintuplapusEditorValue,
   type QuintuplapusFile,
@@ -49,6 +50,20 @@ export const saveQuintuplapusEditorValue = async (
   const current = sourceFile ?? (await readQuintuplapusFile());
   await ensureQuintuplapusBaselineSnapshot(current);
   const updated = upsertQuintuplapusEditorValue(current, value, now);
+
+  await writeQuintuplapusFile(updated);
+
+  return updated;
+};
+
+export const deleteQuintuplapusEntry = async (
+  entryId: number,
+  now = new Date(),
+  sourceFile?: QuintuplapusFile,
+) => {
+  const current = sourceFile ?? (await readQuintuplapusFile());
+  await ensureQuintuplapusBaselineSnapshot(current);
+  const updated = removeQuintuplapusEntry(current, entryId, now);
 
   await writeQuintuplapusFile(updated);
 

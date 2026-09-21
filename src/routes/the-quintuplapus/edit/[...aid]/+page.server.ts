@@ -14,6 +14,7 @@ import {
 } from "$lib/editing/quintuplapus-editor";
 import { toQuintuplapusEditorValue } from "$lib/editing/quintuplapus";
 import {
+  deleteQuintuplapusEntry,
   ensureQuintuplapusBaselineSnapshot,
   persistQuintuplapusUpload,
   readQuintuplapusFile,
@@ -100,5 +101,40 @@ export const actions: Actions = {
       redirectTo || quintuplapusEditorPath(formValue.id, formValue.title);
 
     throw redirect(303, `${destination}?saved=1`);
+  },
+  delete: async ({ request }) => {
+    requireEditorEnabled();
+
+    const source = await readQuintuplapusFile();
+    const current = toQuintuplapusEditorValue(source);
+    const formData = await request.formData();
+    const entryId = Number(getFormDataString(formData, "id") || "0");
+
+    if (!Number.isInteger(entryId) || entryId <= 0) {
+      return fail(400, {
+        action: "delete",
+        message: "Please select a saved entry before deleting.",
+      });
+    }
+
+    if (!current.entries.some((entry) => entry.id === entryId)) {
+      throw error(404, "Quintuplapus entry not found.");
+    }
+
+    if (current.entries.length <= 1) {
+      return fail(400, {
+        action: "delete",
+        message: "The final Quintuplapus entry cannot be deleted.",
+      });
+    }
+
+    const updated = await deleteQuintuplapusEntry(entryId, new Date(), source);
+    const nextEntry = toQuintuplapusEditorValue(updated).entries[0];
+
+    if (!nextEntry) {
+      throw error(500, "No Quintuplapus entries remain after delete.");
+    }
+
+    throw redirect(303, `${quintuplapusEditorPath(nextEntry.id, nextEntry.title)}?saved=1`);
   },
 };

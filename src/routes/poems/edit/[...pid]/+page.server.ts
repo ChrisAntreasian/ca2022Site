@@ -10,6 +10,7 @@ import {
   toPoemEditorValues,
 } from "$lib/editing/poems";
 import {
+  deletePoemEditorValue,
   ensurePoemsBaselineSnapshot,
   readPoemsFile,
   savePoemEditorValue,
@@ -88,5 +89,34 @@ export const actions: Actions = {
       303,
       `${destination}?saved=1`,
     );
+  },
+  delete: async ({ request }) => {
+    requireEditorEnabled();
+
+    const formData = await request.formData();
+    const poemId = Number(getFormDataString(formData, "id") || "0");
+
+    if (!Number.isInteger(poemId) || poemId <= 0) {
+      return fail(400, {
+        action: "delete",
+        message: "Please select a saved poem before deleting.",
+      });
+    }
+
+    const source = await readPoemsFile();
+    const poems = toPoemEditorValues(source);
+
+    if (!poems.some((poem) => poem.id === poemId)) {
+      throw error(404, "Poem not found.");
+    }
+
+    const updated = await deletePoemEditorValue(poemId, new Date(), source);
+    const remaining = toPoemEditorValues(updated);
+    const nextPoem = remaining[0];
+    const destination = nextPoem
+      ? poemEditorPath(nextPoem.id, nextPoem.title)
+      : poemEditorPath("new");
+
+    throw redirect(303, `${destination}?saved=1`);
   },
 };

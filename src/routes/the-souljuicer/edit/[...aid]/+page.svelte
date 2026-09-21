@@ -1,5 +1,6 @@
 <script lang="ts">
   import EditorShell from "$lib/editing/EditorShell.svelte";
+  import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
   import { cleanUrlSlug } from "$lib/history";
   import { souljuicerEditorPath } from "$lib/editing/souljuicer-editor";
 
@@ -26,6 +27,24 @@
   );
 
   let saveAndContinueForm: HTMLFormElement | null = $state(null);
+  let deleteSubmitElement: HTMLButtonElement | null = $state(null);
+  let showDeleteConfirm = $state(false);
+
+  const canDelete = $derived(currentEntry.id > 0);
+
+  const openDeleteConfirm = () => {
+    if (!canDelete) return;
+    showDeleteConfirm = true;
+  };
+
+  const cancelDelete = () => {
+    showDeleteConfirm = false;
+  };
+
+  const confirmDelete = () => {
+    showDeleteConfirm = false;
+    deleteSubmitElement?.click();
+  };
 
   const viewHref = $derived(
     currentEntry.id > 0
@@ -56,7 +75,10 @@
     <EditPane
       bind:entry={currentEntry}
       bind:formElement={saveAndContinueForm}
+      bind:deleteSubmitElement
       saveLabel="Save entry"
+      showDeleteButton={canDelete}
+      onRequestDelete={openDeleteConfirm}
       submitFailed={form?.action === "save" && !!form?.message}
     />
   {/snippet}
@@ -78,6 +100,16 @@
     {/each}
   {/snippet}
 </EditorShell>
+
+<UnsavedChangesDialog
+  open={showDeleteConfirm}
+  title="Delete entry?"
+  message="This removes the entry from the live site. A history snapshot is retained so it can be restored later."
+  stayLabel="Cancel"
+  leaveLabel="Delete"
+  onStay={cancelDelete}
+  onLeave={confirmDelete}
+/>
 
 <style>
   .entry-list-item {

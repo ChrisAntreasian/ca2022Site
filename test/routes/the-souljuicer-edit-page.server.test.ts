@@ -130,4 +130,90 @@ describe("SoulJuicer edit page server", () => {
       sortOrder: 15,
     });
   });
+
+  it("deletes an entry and redirects to the next remaining entry", async () => {
+    vi.doMock("@sveltejs/kit", async () => {
+      const actual = await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
+      return {
+        ...actual,
+        redirect: (status: number, location: string) => {
+          throw { status, location };
+        },
+      };
+    });
+
+    vi.doMock("$lib/editing/auth.server", () => ({
+      isEditorEnabled: vi.fn(() => true),
+      requireEditorEnabled: vi.fn(),
+    }));
+
+    const deleteSouljuicerEntry = vi.fn(async () => mockFile);
+    const toSouljuicerEditorValue = vi
+      .fn()
+      .mockReturnValueOnce({ entries: mockEntries })
+      .mockReturnValueOnce({ entries: [mockEntries[0]] });
+
+    vi.doMock("$lib/editing/souljuicer", () => ({
+      toSouljuicerEditorValue,
+    }));
+
+    vi.doMock("$lib/editing/souljuicer.server", () => ({
+      deleteSouljuicerEntry,
+      ensureSouljuicerBaselineSnapshot: vi.fn(),
+      persistSouljuicerUpload: vi.fn(),
+      readSouljuicerFile: vi.fn(async () => mockFile),
+      replaceSouljuicerEntryImage: vi.fn(),
+      saveSouljuicerEditorValue: vi.fn(async () => mockFile),
+    }));
+
+    const { actions } = await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
+    const formData = new FormData();
+    formData.set("id", "4");
+
+    await expect(
+      actions.delete({
+        request: { formData: async () => formData },
+      } as never),
+    ).rejects.toMatchObject({
+      status: 303,
+      location: "/the-souljuicer/edit/2?saved=1",
+    });
+
+    expect(deleteSouljuicerEntry).toHaveBeenCalledWith(4, expect.any(Date), mockFile);
+  });
+
+  it("blocks deleting the final remaining entry", async () => {
+    vi.doMock("$lib/editing/auth.server", () => ({
+      isEditorEnabled: vi.fn(() => true),
+      requireEditorEnabled: vi.fn(),
+    }));
+
+    vi.doMock("$lib/editing/souljuicer", () => ({
+      toSouljuicerEditorValue: vi.fn(() => ({ entries: [mockEntries[0]] })),
+    }));
+
+    vi.doMock("$lib/editing/souljuicer.server", () => ({
+      deleteSouljuicerEntry: vi.fn(),
+      ensureSouljuicerBaselineSnapshot: vi.fn(),
+      persistSouljuicerUpload: vi.fn(),
+      readSouljuicerFile: vi.fn(async () => mockFile),
+      replaceSouljuicerEntryImage: vi.fn(),
+      saveSouljuicerEditorValue: vi.fn(async () => mockFile),
+    }));
+
+    const { actions } = await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
+    const formData = new FormData();
+    formData.set("id", "2");
+
+    const result = await actions.delete({
+      request: { formData: async () => formData },
+    } as never);
+
+    expect(result).toMatchObject({
+      status: 400,
+      data: {
+        action: "delete",
+      },
+    });
+  });
 });

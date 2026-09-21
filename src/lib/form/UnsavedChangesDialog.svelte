@@ -8,6 +8,10 @@
     open: boolean;
     title?: string;
     message?: string;
+    stayLabel?: string;
+    leaveLabel?: string;
+    saveAndContinueLabel?: string;
+    continueLabel?: string;
     onStay?: () => void;
     onLeave?: () => void;
     onSaveAndContinue?: () => void;
@@ -19,6 +23,10 @@
     open = $bindable(false),
     title = "Unsaved changes",
     message = "You have unsaved changes. You can stay on this poem, leave and discard them, or save first and continue to the next poem.",
+    stayLabel = "Stay",
+    leaveLabel = "Leave",
+    saveAndContinueLabel = "Save and continue",
+    continueLabel = "Continue",
     onStay,
     onLeave,
     onSaveAndContinue,
@@ -61,21 +69,21 @@
       <div class="actions">
         {#if onStay}
           <Button type="button" variant="action" onclick={onStay}
-            >Stay</Button
+            >{stayLabel}</Button
           >
         {/if}
         {#if onLeave}
           <Button type="button" variant="warning" onclick={onLeave}
-            >Leave</Button
+            >{leaveLabel}</Button
           >
         {/if}
         {#if onSaveAndContinue}
           <Button type="button" variant="submit" onclick={onSaveAndContinue}
-            >Save and continue</Button
+            >{saveAndContinueLabel}</Button
           >
         {/if}
         {#if onContinue}
-          <Button type="button" variant="submit" onclick={onContinue}>Continue</Button>
+          <Button type="button" variant="submit" onclick={onContinue}>{continueLabel}</Button>
         {/if}
       </div>
     </div>

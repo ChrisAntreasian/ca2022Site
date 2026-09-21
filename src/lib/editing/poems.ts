@@ -130,3 +130,19 @@ export const upsertPoemEditorValue = (
     data: buildStrapiPoemData(file, [...withoutCurrent, nextValue], timestamp),
   };
 };
+
+export const removePoemEditorValue = (
+  file: PoemsFile,
+  poemId: number,
+  now = new Date(),
+): PoemsFile => {
+  const timestamp = now.toISOString();
+  const currentValues = toPoemEditorValues(file);
+  const remainingValues = currentValues.filter((item) => item.id !== poemId);
+
+  return {
+    ...file,
+    timestamp: now.getTime(),
+    data: buildStrapiPoemData(file, remainingValues, timestamp),
+  };
+};
