@@ -67,10 +67,17 @@ export const load: PageServerLoad = async ({ params, url }) => {
     throw error(404, "Web experience target not found.");
   }
 
+  const status =
+    url.searchParams.get("deleted") === "1"
+      ? ({ title: "Web experience entry deleted", message: "Web experience entry deleted." } as const)
+      : url.searchParams.get("saved") === "1"
+        ? ({ title: "Web experience entry saved", message: "Web experience entry saved." } as const)
+        : null;
+
   return {
     editorEnabled: isEditorEnabled(),
-    savedMessage:
-      url.searchParams.get("saved") === "1" ? "Web experience entry saved." : null,
+    savedTitle: status?.title ?? null,
+    savedMessage: status?.message ?? null,
     editor: {
       key: webExperienceEditorDefinition.key,
       label: webExperienceEditorDefinition.label,
@@ -251,6 +258,6 @@ export const actions: Actions = {
       ? webExperienceEditorPath({ kind: "entry", id: remaining.id }, remaining.title)
       : webExperienceEditorPath({ kind: "intro" });
 
-    throw redirect(303, `${destination}?saved=1`);
+    throw redirect(303, `${destination}?deleted=1`);
   },
 };

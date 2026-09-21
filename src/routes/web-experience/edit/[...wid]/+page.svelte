@@ -15,13 +15,18 @@
 
   let { data, form }: Props = $props();
 
-  let currentTarget: WebExperienceTarget = $state(
+  const incomingTarget: WebExperienceTarget = $derived(
     form && form.action === "save" && "values" in form && form.values
       ? (form.values as WebExperienceTarget)
       : data.target,
   );
+  let currentTarget: WebExperienceTarget = $state(data.target);
 
-  const baselineTarget = data.target;
+  $effect(() => {
+    currentTarget = incomingTarget;
+  });
+
+  const baselineTarget = $derived(data.target);
   const dirty = $derived(
     JSON.stringify(currentTarget) !== JSON.stringify(baselineTarget),
   );
@@ -47,6 +52,12 @@
     showDeleteConfirm = false;
     deleteSubmitElement?.click();
   };
+
+  const deleteTitle = $derived(
+    currentTarget.kind === "entry" && currentTarget.title.trim()
+      ? `Delete ${currentTarget.title}?`
+      : "Delete this entry?",
+  );
 
   const entryPath = (entryId: number, title: string) =>
     webExperienceEditorPath({ kind: "entry", id: entryId }, title);
@@ -74,7 +85,7 @@
   actionLabel="View post"
   formMessage={form?.message}
   savedMessage={data.savedMessage}
-  savedTitle="Web experience saved"
+  savedTitle={data.savedTitle ?? "Web experience saved"}
   isDirty={dirty}
   bind:formElement={saveAndContinueForm}
 >
@@ -142,7 +153,7 @@
 
 <UnsavedChangesDialog
   open={showDeleteConfirm}
-  title="Delete entry?"
+  title={deleteTitle}
   message="This removes the entry from the live site. A history snapshot is retained so it can be restored later."
   stayLabel="Cancel"
   leaveLabel="Delete"

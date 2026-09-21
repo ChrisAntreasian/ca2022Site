@@ -14,13 +14,18 @@
 
   let { data, form }: Props = $props();
 
-  let currentPoem = $state(
+  const incomingPoem = $derived(
     form && form.action === "save" && "values" in form && form.values
       ? form.values
       : data.selectedPoem,
   );
+  let currentPoem = $state(data.selectedPoem);
 
-  const baselinePoem = data.selectedPoem;
+  $effect(() => {
+    currentPoem = incomingPoem;
+  });
+
+  const baselinePoem = $derived(data.selectedPoem);
   const dirty = $derived(
     JSON.stringify(currentPoem) !== JSON.stringify(baselinePoem),
   );
@@ -45,6 +50,10 @@
     deleteSubmitElement?.click();
   };
 
+  const deleteTitle = $derived(
+    currentPoem.title.trim() ? `Delete ${currentPoem.title}?` : "Delete this poem?",
+  );
+
   const viewHref = $derived(
     currentPoem.id > 0
       ? `/poems/${currentPoem.id}/${cleanUrlSlug(currentPoem.title)}`
@@ -66,7 +75,7 @@
   actionLabel="View post"
   formMessage={form?.message}
   savedMessage={data.savedMessage}
-  savedTitle="Poem saved"
+  savedTitle={data.savedTitle ?? "Poem saved"}
   isDirty={dirty}
   bind:formElement={saveAndContinueForm}
 >
@@ -115,7 +124,7 @@
 
 <UnsavedChangesDialog
   open={showDeleteConfirm}
-  title="Delete poem?"
+  title={deleteTitle}
   message="This removes the poem from the live site. A history snapshot is retained so it can be restored later."
   stayLabel="Cancel"
   leaveLabel="Delete"

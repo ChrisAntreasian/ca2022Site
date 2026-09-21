@@ -45,9 +45,17 @@ export const load: PageServerLoad = async ({ params, url }) => {
     throw error(404, "Poem not found.");
   }
 
+  const status =
+    url.searchParams.get("deleted") === "1"
+      ? ({ title: "Poem deleted", message: "Poem deleted." } as const)
+      : url.searchParams.get("saved") === "1"
+        ? ({ title: "Poem saved", message: "Poem saved." } as const)
+        : null;
+
   return {
     editorEnabled: isEditorEnabled(),
-    savedMessage: url.searchParams.get("saved") === "1" ? "Poem saved." : null,
+    savedTitle: status?.title ?? null,
+    savedMessage: status?.message ?? null,
     editor: {
       key: poemEditorDefinition.key,
       label: poemEditorDefinition.label,
@@ -117,6 +125,6 @@ export const actions: Actions = {
       ? poemEditorPath(nextPoem.id, nextPoem.title)
       : poemEditorPath("new");
 
-    throw redirect(303, `${destination}?saved=1`);
+    throw redirect(303, `${destination}?deleted=1`);
   },
 };

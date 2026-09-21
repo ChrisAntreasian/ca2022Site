@@ -39,10 +39,17 @@ export const load: PageServerLoad = async ({ params, url }) => {
     throw error(404, "Souljuicer entry not found.");
   }
 
+  const status =
+    url.searchParams.get("deleted") === "1"
+      ? ({ title: "Souljuicer entry deleted", message: "Souljuicer entry deleted." } as const)
+      : url.searchParams.get("saved") === "1"
+        ? ({ title: "Souljuicer entry saved", message: "Souljuicer entry saved." } as const)
+        : null;
+
   return {
     editorEnabled: isEditorEnabled(),
-    savedMessage:
-      url.searchParams.get("saved") === "1" ? "Souljuicer entry saved." : null,
+    savedTitle: status?.title ?? null,
+    savedMessage: status?.message ?? null,
     editor: {
       key: "the-souljuicer",
       label: "The SoulJuicer",
@@ -129,6 +136,6 @@ export const actions: Actions = {
       throw error(500, "No Souljuicer entries remain after delete.");
     }
 
-    throw redirect(303, `${souljuicerEditorPath(nextEntry.id)}?saved=1`);
+    throw redirect(303, `${souljuicerEditorPath(nextEntry.id)}?deleted=1`);
   },
 };

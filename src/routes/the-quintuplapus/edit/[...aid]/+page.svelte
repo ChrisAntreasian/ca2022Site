@@ -15,12 +15,12 @@
 
   let { data, form }: Props = $props();
 
-  let currentCategoryTitle = $state(
+  const incomingCategoryTitle = $derived(
     form && form.action === "save" && "values" in form && form.values?.categoryTitle
       ? form.values.categoryTitle
       : data.categoryTitle,
   );
-  let currentEntry = $state(
+  const incomingEntry = $derived(
     form && form.action === "save" && "values" in form && form.values?.id
       ? {
           ...data.selectedEntry,
@@ -28,11 +28,18 @@
         }
       : data.selectedEntry,
   );
+  let currentCategoryTitle = $state(data.categoryTitle);
+  let currentEntry = $state(data.selectedEntry);
 
-  const baseline = {
+  $effect(() => {
+    currentCategoryTitle = incomingCategoryTitle;
+    currentEntry = incomingEntry;
+  });
+
+  const baseline = $derived({
     categoryTitle: data.categoryTitle,
     entry: data.selectedEntry,
-  };
+  });
   const dirty = $derived(
     JSON.stringify({
       categoryTitle: currentCategoryTitle,
@@ -60,6 +67,10 @@
     deleteSubmitElement?.click();
   };
 
+  const deleteTitle = $derived(
+    currentEntry.title.trim() ? `Delete ${currentEntry.title}?` : "Delete this entry?",
+  );
+
   const viewHref = $derived(
     currentEntry.id > 0
       ? `/the-quintuplapus/${currentEntry.id}/${cleanUrlSlug(currentEntry.title)}`
@@ -81,7 +92,7 @@
   actionLabel="View post"
   formMessage={form?.message}
   savedMessage={data.savedMessage}
-  savedTitle="Quintuplapus entry saved"
+  savedTitle={data.savedTitle ?? "Quintuplapus entry saved"}
   isDirty={dirty}
   bind:formElement={saveAndContinueForm}
 >
@@ -118,7 +129,7 @@
 
 <UnsavedChangesDialog
   open={showDeleteConfirm}
-  title="Delete entry?"
+  title={deleteTitle}
   message="This removes the entry from the live site. A history snapshot is retained so it can be restored later."
   stayLabel="Cancel"
   leaveLabel="Delete"

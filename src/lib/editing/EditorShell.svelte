@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { beforeNavigate, goto } from "$app/navigation";
+  import { afterNavigate, beforeNavigate, goto } from "$app/navigation";
+  import { onDestroy } from "svelte";
   import { page } from "$app/state";
   import type { Snippet } from "svelte";
 
@@ -41,8 +42,27 @@
   }: Props = $props();
 
   let pendingPath: string | null = $state(null);
+  let confirmedPath: string | null = $state(null);
   let showUnsavedWarning = $state(false);
   let showSavedNotice = $state(false);
+  let suppressBeforeUnload = $state(false);
+  let suppressTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const clearSuppressTimer = () => {
+    if (suppressTimer) {
+      clearTimeout(suppressTimer);
+      suppressTimer = null;
+    }
+  };
+
+  const suppressUnloadPrompt = () => {
+    suppressBeforeUnload = true;
+    clearSuppressTimer();
+    suppressTimer = setTimeout(() => {
+      suppressBeforeUnload = false;
+      suppressTimer = null;
+    }, 2000);
+  };
 
   $effect(() => {
     showSavedNotice = Boolean(savedMessage);
@@ -68,6 +88,7 @@
     if (!pendingPath) return;
     const nextPath = pendingPath;
     closeUnsavedWarning();
+    confirmedPath = nextPath;
     void goto(nextPath);
   };
 
@@ -82,15 +103,42 @@
       redirectInput.value = pendingPath;
     }
 
+    suppressUnloadPrompt();
     showUnsavedWarning = false;
     formElement.requestSubmit();
   };
 
   const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    if (suppressBeforeUnload) return;
     if (!isDirty) return;
     event.preventDefault();
     event.returnValue = "";
   };
+
+  $effect(() => {
+    if (!formElement) {
+      return;
+    }
+
+    const onSubmit = () => {
+      suppressUnloadPrompt();
+    };
+
+    formElement.addEventListener("submit", onSubmit);
+
+    return () => {
+      formElement.removeEventListener("submit", onSubmit);
+    };
+  });
+
+  afterNavigate(() => {
+    suppressBeforeUnload = false;
+    clearSuppressTimer();
+  });
+
+  onDestroy(() => {
+    clearSuppressTimer();
+  });
 
   beforeNavigate((navigation) => {
     if (!isDirty) {
@@ -113,6 +161,11 @@
 
     const nextPath = `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
     const currentPath = `${page.url.pathname}${page.url.search}${page.url.hash}`;
+
+    if (confirmedPath && nextPath === confirmedPath) {
+      confirmedPath = null;
+      return;
+    }
 
     if (nextPath === currentPath) {
       return;

@@ -15,13 +15,18 @@
 
   let { data, form }: Props = $props();
 
-  let currentEntry = $state(
+  const incomingEntry = $derived(
     form && form.action === "save" && "values" in form && form.values
       ? form.values
       : data.selectedEntry,
   );
+  let currentEntry = $state(data.selectedEntry);
 
-  const baselineEntry = data.selectedEntry;
+  $effect(() => {
+    currentEntry = incomingEntry;
+  });
+
+  const baselineEntry = $derived(data.selectedEntry);
   const dirty = $derived(
     JSON.stringify(currentEntry) !== JSON.stringify(baselineEntry),
   );
@@ -46,6 +51,10 @@
     deleteSubmitElement?.click();
   };
 
+  const deleteTitle = $derived(
+    currentEntry.title.trim() ? `Delete ${currentEntry.title}?` : "Delete this entry?",
+  );
+
   const viewHref = $derived(
     currentEntry.id > 0
       ? `/the-souljuicer/${currentEntry.id}/${cleanUrlSlug(currentEntry.title)}`
@@ -67,7 +76,7 @@
   actionLabel="View post"
   formMessage={form?.message}
   savedMessage={data.savedMessage}
-  savedTitle="Souljuicer entry saved"
+  savedTitle={data.savedTitle ?? "Souljuicer entry saved"}
   isDirty={dirty}
   bind:formElement={saveAndContinueForm}
 >
@@ -103,7 +112,7 @@
 
 <UnsavedChangesDialog
   open={showDeleteConfirm}
-  title="Delete entry?"
+  title={deleteTitle}
   message="This removes the entry from the live site. A history snapshot is retained so it can be restored later."
   stayLabel="Cancel"
   leaveLabel="Delete"

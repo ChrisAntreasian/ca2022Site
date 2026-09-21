@@ -39,10 +39,17 @@ export const load: PageServerLoad = async ({ params, url }) => {
     throw error(404, "Quintuplapus entry not found.");
   }
 
+  const status =
+    url.searchParams.get("deleted") === "1"
+      ? ({ title: "Quintuplapus entry deleted", message: "Quintuplapus entry deleted." } as const)
+      : url.searchParams.get("saved") === "1"
+        ? ({ title: "Quintuplapus entry saved", message: "Quintuplapus entry saved." } as const)
+        : null;
+
   return {
     editorEnabled: isEditorEnabled(),
-    savedMessage:
-      url.searchParams.get("saved") === "1" ? "Quintuplapus entry saved." : null,
+    savedTitle: status?.title ?? null,
+    savedMessage: status?.message ?? null,
     editor: {
       key: "the-quintuplapus",
       label: "The Quintuplapus",
@@ -135,6 +142,6 @@ export const actions: Actions = {
       throw error(500, "No Quintuplapus entries remain after delete.");
     }
 
-    throw redirect(303, `${quintuplapusEditorPath(nextEntry.id, nextEntry.title)}?saved=1`);
+    throw redirect(303, `${quintuplapusEditorPath(nextEntry.id, nextEntry.title)}?deleted=1`);
   },
 };
