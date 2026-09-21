@@ -1,6 +1,6 @@
 {
   "name": "web-experience",
-  "timestamp": 1790021970017,
+  "timestamp": 1790024094694,
   "data": {
     "meta": {
       "pagination": {
@@ -15,7 +15,7 @@
         "id": 3,
         "attributes": {
           "createdAt": "2023-05-09T17:41:58.082Z",
-          "updatedAt": "2026-09-21T20:19:30.017Z",
+          "updatedAt": "2026-09-21T20:54:54.694Z",
           "publishedAt": "2023-05-09T18:07:14.336Z",
           "title": "Web Experience",
           "page_details": {
@@ -24,7 +24,7 @@
                 "id": 3,
                 "attributes": {
                   "createdAt": "2022-08-16T04:48:21.432Z",
-                  "updatedAt": "2026-09-21T20:19:30.017Z",
+                  "updatedAt": "2026-09-21T20:54:54.694Z",
                   "publishedAt": "2023-05-09T18:06:52.054Z",
                   "title": "Web Development",
                   "description": "For over 15 years I have been working as a Web developer and am proficient in several scripting languages, frameworks, software, and coding paradigms. I have worked in both front and back end environments, but due to of my visual background I have always gravitated towards Front End technologies. Over the couse of my career some of my work either no longer exists or is behind a paywall, but some projects are still available to the public Here are some of those publicly available projects that I was a major contributor to.",
@@ -42,7 +42,7 @@
                 "id": 2,
                 "attributes": {
                   "createdAt": "2022-04-25T01:58:14.656Z",
-                  "updatedAt": "2026-09-21T20:19:30.017Z",
+                  "updatedAt": "2026-09-21T20:54:54.694Z",
                   "publishedAt": "2022-04-25T01:59:44.387Z",
                   "title": "BondLink",
                   "body": "_2020 - 2023_\r\n\r\nAt BondLink I was a Senior Front Engineer contributing to multiple projects. There I had the opportunity to lead some projects as well. One such project was the external facing corporate site. This site was developed using Typescript, NextJS, Plasmic, FP-TS, IO-TS and several third party APIs.\r\n\r\n_design credit: the BondLink design team_",
@@ -363,7 +363,7 @@
                 "id": 3,
                 "attributes": {
                   "createdAt": "2023-05-05T21:02:22.710Z",
-                  "updatedAt": "2026-09-21T20:19:30.017Z",
+                  "updatedAt": "2026-09-21T20:54:54.694Z",
                   "publishedAt": "2023-05-05T21:14:41.681Z",
                   "title": "BetterLesson",
                   "body": "_2013 - 2020_\r\n\r\nAt BetterLesson I was a major contributing Full Stack Engineer on multiple projects. Two of the projects I worked on were the Master Teacher Project, and Instructional Strategies. Initially much of this work was built using CakePHP and jQuery, but later we migrated them to React, using Flask for newer features.\r\n\r\n_design credit: the BetterLesson design team_",
@@ -684,7 +684,7 @@
                 "id": 4,
                 "attributes": {
                   "createdAt": "2023-05-09T17:09:54.502Z",
-                  "updatedAt": "2026-09-21T20:19:30.017Z",
+                  "updatedAt": "2026-09-21T20:54:54.694Z",
                   "publishedAt": "2023-05-09T18:07:04.160Z",
                   "title": "PixMix",
                   "body": "\n_2017 - 2020_\n\nAt PixMix I worked as a freelance developer, inheriting a codebase that existed prior to my employment. My work  included resolving bugs, implementing a mobile version, adding new gallery features and redesigning elements. This work was done with HTML, CSS, and PHP.\n\n_design credit: unsure, mobile designs by me_\n",
@@ -999,173 +999,6 @@
                   "link": "https://www.pixmix.net",
                   "secondLink": null,
                   "position": 30
-                }
-              },
-              {
-                "id": 5,
-                "attributes": {
-                  "createdAt": "2026-08-02T19:06:22.140Z",
-                  "updatedAt": "2026-09-21T20:19:30.017Z",
-                  "publishedAt": "2026-08-02T19:06:22.140Z",
-                  "title": "Dummy Experiment I hope this works",
-                  "body": "Work Work Work sdfsdf sdf asdfas dfasdf asdf asdf ggg f",
-                  "image": {
-                    "data": [
-                      {
-                        "id": 114,
-                        "attributes": {
-                          "createdAt": "2026-09-10T04:25:54.446Z",
-                          "updatedAt": "2026-09-10T04:25:54.446Z",
-                          "alternativeText": "souljuice.jpg",
-                          "caption": "souljuice.jpg",
-                          "provider": "local",
-                          "provider_metadata": null,
-                          "previewUrl": null,
-                          "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1789014353537-f783f96c-57fc-46e4-ba8d-c328a33d0c32-souljuice.jpg",
-                          "formats": {
-                            "small": {
-                              "name": "small_souljuice.jpg",
-                              "hash": "small_souljuice",
-                              "ext": ".jpg",
-                              "mime": "image/jpeg",
-                              "path": null,
-                              "width": 0,
-                              "height": 0,
-                              "size": 4.7,
-                              "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1789014353537-f783f96c-57fc-46e4-ba8d-c328a33d0c32-souljuice.jpg"
-                            },
-                            "thumbnail": {
-                              "name": "thumbnail_souljuice.jpg",
-                              "hash": "thumbnail_souljuice",
-                              "ext": ".jpg",
-                              "mime": "image/jpeg",
-                              "path": null,
-                              "width": 0,
-                              "height": 0,
-                              "size": 4.7,
-                              "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1789014353537-f783f96c-57fc-46e4-ba8d-c328a33d0c32-souljuice.jpg"
-                            }
-                          }
-                        }
-                      },
-                      {
-                        "id": 115,
-                        "attributes": {
-                          "createdAt": "2026-09-10T04:25:54.446Z",
-                          "updatedAt": "2026-09-10T04:25:54.446Z",
-                          "alternativeText": "taking-off-the-headgear.jpg",
-                          "caption": "taking-off-the-headgear.jpg",
-                          "provider": "local",
-                          "provider_metadata": null,
-                          "previewUrl": null,
-                          "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1789014353537-273c116a-0e23-4d37-b9a4-a793b72e4487-taking-off-the-headgear.jpg",
-                          "formats": {
-                            "small": {
-                              "name": "small_taking-off-the-headgear.jpg",
-                              "hash": "small_taking_off_the_headgear",
-                              "ext": ".jpg",
-                              "mime": "image/jpeg",
-                              "path": null,
-                              "width": 0,
-                              "height": 0,
-                              "size": 2215.13,
-                              "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1789014353537-273c116a-0e23-4d37-b9a4-a793b72e4487-taking-off-the-headgear.jpg"
-                            },
-                            "thumbnail": {
-                              "name": "thumbnail_taking-off-the-headgear.jpg",
-                              "hash": "thumbnail_taking_off_the_headgear",
-                              "ext": ".jpg",
-                              "mime": "image/jpeg",
-                              "path": null,
-                              "width": 0,
-                              "height": 0,
-                              "size": 2215.13,
-                              "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1789014353537-273c116a-0e23-4d37-b9a4-a793b72e4487-taking-off-the-headgear.jpg"
-                            }
-                          }
-                        }
-                      },
-                      {
-                        "id": 117,
-                        "attributes": {
-                          "createdAt": "2026-09-10T04:27:57.096Z",
-                          "updatedAt": "2026-09-10T04:27:57.096Z",
-                          "alternativeText": "the-souljuicer.jpg",
-                          "caption": "the-souljuicer.jpg",
-                          "provider": "local",
-                          "provider_metadata": null,
-                          "previewUrl": null,
-                          "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1789014476438-9a7d9eff-4b47-4e44-b8ea-e48eb5871252-the-souljuicer.jpg",
-                          "formats": {
-                            "small": {
-                              "name": "small_the-souljuicer.jpg",
-                              "hash": "small_the_souljuicer",
-                              "ext": ".jpg",
-                              "mime": "image/jpeg",
-                              "path": null,
-                              "width": 0,
-                              "height": 0,
-                              "size": 1620.59,
-                              "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1789014476438-9a7d9eff-4b47-4e44-b8ea-e48eb5871252-the-souljuicer.jpg"
-                            },
-                            "thumbnail": {
-                              "name": "thumbnail_the-souljuicer.jpg",
-                              "hash": "thumbnail_the_souljuicer",
-                              "ext": ".jpg",
-                              "mime": "image/jpeg",
-                              "path": null,
-                              "width": 0,
-                              "height": 0,
-                              "size": 1620.59,
-                              "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1789014476438-9a7d9eff-4b47-4e44-b8ea-e48eb5871252-the-souljuicer.jpg"
-                            }
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  "logo": {
-                    "data": {
-                      "id": 116,
-                      "attributes": {
-                        "createdAt": "2026-09-10T04:27:57.096Z",
-                        "updatedAt": "2026-09-10T04:27:57.096Z",
-                        "alternativeText": "dr-letting-closeup.jpg",
-                        "caption": "dr-letting-closeup.jpg",
-                        "provider": "local",
-                        "provider_metadata": null,
-                        "previewUrl": null,
-                        "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1789014475525-4a411d29-4e06-4144-be9b-99bfeef03a59-dr-letting-closeup.jpg",
-                        "formats": {
-                          "small": {
-                            "name": "small_dr-letting-closeup.jpg",
-                            "hash": "small_dr_letting_closeup",
-                            "ext": ".jpg",
-                            "mime": "image/jpeg",
-                            "path": null,
-                            "width": 0,
-                            "height": 0,
-                            "size": 2610.19,
-                            "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1789014475525-4a411d29-4e06-4144-be9b-99bfeef03a59-dr-letting-closeup.jpg"
-                          },
-                          "thumbnail": {
-                            "name": "thumbnail_dr-letting-closeup.jpg",
-                            "hash": "thumbnail_dr_letting_closeup",
-                            "ext": ".jpg",
-                            "mime": "image/jpeg",
-                            "path": null,
-                            "width": 0,
-                            "height": 0,
-                            "size": 2610.19,
-                            "url": "https://ca2022s3.s3.amazonaws.com/web-experience/1789014475525-4a411d29-4e06-4144-be9b-99bfeef03a59-dr-letting-closeup.jpg"
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "link": "chris-a.meeee",
-                  "secondLink": null,
-                  "position": 200
                 }
               }
             ]
