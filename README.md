@@ -51,6 +51,8 @@ Current editor routes:
 
 - Poems new: /poems/edit/new
 - Poems existing: /poems/edit/{id} or /poems/edit/{id}/{slug}
+- Terms of service page: /terms-of-service
+- Terms of service editor: /terms-of-service/edit
 - Web experience intro: /web-experience/edit/intro
 - Web experience new: /web-experience/edit/new
 - Web experience existing: /web-experience/edit/{id} or /web-experience/edit/{id}/{slug}

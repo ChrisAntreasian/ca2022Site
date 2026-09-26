@@ -1,0 +1,8 @@
+{
+  "name": "terms-of-service",
+  "timestamp": 1790467200000,
+  "data": {
+    "title": "AI Training and Data Use Terms",
+    "bodyMarkdown": "All text, images, and media on this site remain the property of Christopher Antreasian unless otherwise noted.\n\nContent from this site may not be used to train, fine-tune, evaluate, or improve machine learning or AI systems without explicit prior written consent.\n\nPermission for normal search indexing does not grant permission to copy, scrape, or process content for AI training datasets or model development.\n\nOperators of automated systems are expected to honor these terms and all crawler directives in /robots.txt."
+  }
+}

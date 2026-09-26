@@ -39,9 +39,16 @@
         </li>
         <li class:active={$page.url.pathname === "/web-experience"}>
           <a
-            href="/poems"
+            href="/web-experience"
             onclick={() => navClick("Web Experience")}
             onkeypress={() => navClick("Web Experience")}>Web Experience</a
+          >
+        </li>
+        <li class:active={$page.url.pathname === "/terms-of-service"}>
+          <a
+            href="/terms-of-service"
+            onclick={() => navClick("Terms of Service")}
+            onkeypress={() => navClick("Terms of Service")}>Terms of Service</a
           >
         </li>
       </ul>
@@ -49,7 +56,7 @@
     <div class="details">
       <a href="https://github.com/ChrisAntreasian/ca2022Site" target="_blank">
         <div class="github-icon" style={`--github-icon: ${githubIcon}`}></div>
-        <img src={githubIcon} alt={"check the source out on github"} />
+        <img src={githubIcon} alt="check the source out on github" />
         <h4>Built with SvelteKit</h4>
       </a>
       <span>&copy; Christopher Antreasian</span>
