@@ -80,6 +80,7 @@ const routeKeys = [
   "landing",
   "layout", 
   "poems",
+  "terms-of-service",
   "the-quintuplapus",
   "the-souljuicer",
   "web-experience",
