@@ -83,7 +83,9 @@
           >
         {/if}
         {#if onContinue}
-          <Button type="button" variant="submit" onclick={onContinue}>{continueLabel}</Button>
+          <Button type="button" variant="submit" onclick={onContinue}
+            >{continueLabel}</Button
+          >
         {/if}
       </div>
     </div>

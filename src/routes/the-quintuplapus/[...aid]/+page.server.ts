@@ -1,6 +1,6 @@
 import type { PageServerLoad } from "./$types";
 import * as D from "$data/the-quintuplapus.json";
-import { isEditorEnabled } from "$lib/editing/auth.server";
+import { isEditorEnabled } from "$lib/editing/core/auth.server";
 
 export const load: PageServerLoad = async ({ params }) => {
   const aid = parseInt(params.aid) || 2;

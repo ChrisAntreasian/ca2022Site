@@ -4,7 +4,7 @@
   import MarkdownEditor from "$lib/form/MarkdownEditor.svelte";
   import NumberInput from "$lib/form/NumberInput.svelte";
   import TextInput from "$lib/form/TextInput.svelte";
-  import type { WebExperienceTarget } from "$lib/editing/web-experience";
+  import type { WebExperienceTarget } from "$lib/editing/resources/web-experience/web-experience";
 
   type Props = {
     target: WebExperienceTarget;
@@ -35,7 +35,9 @@
     submitFailed && !target.title.trim() ? "Title is required." : undefined,
   );
   const bodyError = $derived(
-    submitFailed && !target.bodyMarkdown.trim() ? "Body is required." : undefined,
+    submitFailed && !target.bodyMarkdown.trim()
+      ? "Body is required."
+      : undefined,
   );
   const primaryLinkError = $derived(
     submitFailed && target.kind === "entry" && !target.primaryLink.trim()
@@ -145,15 +147,13 @@
       uploadInputId="logoFile"
       uploadInputName="logoFile"
       uploadDescription="Upload a new logo image to replace the current one."
-      singleImage={
-        entryLogoUrl
-          ? {
-              url: entryLogoUrl,
-              alt: `${target.title} logo`,
-              removeFieldName: "removeLogo",
-            }
-          : null
-      }
+      singleImage={entryLogoUrl
+        ? {
+            url: entryLogoUrl,
+            alt: `${target.title} logo`,
+            removeFieldName: "removeLogo",
+          }
+        : null}
     />
 
     <ImageUploadSection
@@ -194,7 +194,9 @@
 
   <div class="actions">
     {#if showDeleteButton}
-      <Button type="button" variant="warning" onclick={onRequestDelete}>Delete entry</Button>
+      <Button type="button" variant="warning" onclick={onRequestDelete}
+        >Delete entry</Button
+      >
     {/if}
     <Button type="submit">{saveLabel}</Button>
     <button

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import EditorShell from "$lib/editing/EditorShell.svelte";
+  import EditorShell from "$lib/editing/core/EditorShell.svelte";
   import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
   import { cleanUrlSlug } from "$lib/history";
-  import { quintuplapusEditorPath } from "$lib/editing/quintuplapus-editor";
+  import { quintuplapusEditorPath } from "$lib/editing/resources/quintuplapus/quintuplapus-editor";
 
   import EditPane from "../_components/EditPane.svelte";
 
@@ -16,7 +16,10 @@
   let { data, form }: Props = $props();
 
   const incomingCategoryTitle = $derived(
-    form && form.action === "save" && "values" in form && form.values?.categoryTitle
+    form &&
+      form.action === "save" &&
+      "values" in form &&
+      form.values?.categoryTitle
       ? form.values.categoryTitle
       : data.categoryTitle,
   );
@@ -68,7 +71,9 @@
   };
 
   const deleteTitle = $derived(
-    currentEntry.title.trim() ? `Delete ${currentEntry.title}?` : "Delete this entry?",
+    currentEntry.title.trim()
+      ? `Delete ${currentEntry.title}?`
+      : "Delete this entry?",
   );
 
   const viewHref = $derived(

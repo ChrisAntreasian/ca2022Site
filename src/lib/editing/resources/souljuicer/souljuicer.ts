@@ -3,7 +3,7 @@ import { Schema } from "effect";
 import { strapiBaseC, strapiMetaDataC } from "$lib/typing/strapi";
 import { strapiImageDataC } from "$lib/typing/art";
 
-import type { EditorDefinition } from "./definitions";
+import type { EditorDefinition } from "../../core/definitions";
 
 export const souljuicerEntryC = Schema.Struct({
   id: Schema.Number,

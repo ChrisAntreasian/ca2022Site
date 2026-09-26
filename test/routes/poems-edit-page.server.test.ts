@@ -26,12 +26,12 @@ describe("poems edit page server", () => {
   });
 
   it("loads the selected poem and saved message", async () => {
-    vi.doMock("$lib/editing/auth.server", () => ({
+    vi.doMock("$lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/poems", () => ({
+    vi.doMock("$lib/editing/resources/poems/poems", () => ({
       poemEditorDefinition: {
         key: "poems",
         label: "Poems",
@@ -42,7 +42,7 @@ describe("poems edit page server", () => {
       toPoemEditorValues: vi.fn(() => mockPoems),
     }));
 
-    vi.doMock("$lib/editing/poems.server", () => ({
+    vi.doMock("$lib/editing/resources/poems/poems.server", () => ({
       ensurePoemsBaselineSnapshot: vi.fn(),
       readPoemsFile: vi.fn(async () => ({ name: "poems" })),
       savePoemEditorValue: vi.fn(),
@@ -72,12 +72,12 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/auth.server", () => ({
+    vi.doMock("$lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/poems", () => ({
+    vi.doMock("$lib/editing/resources/poems/poems", () => ({
       poemEditorDefinition: {
         key: "poems",
         label: "Poems",
@@ -104,7 +104,7 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/poems.server", () => ({
+    vi.doMock("$lib/editing/resources/poems/poems.server", () => ({
       ensurePoemsBaselineSnapshot: vi.fn(),
       readPoemsFile: vi.fn(),
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
@@ -138,12 +138,12 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/auth.server", () => ({
+    vi.doMock("$lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/poems", () => ({
+    vi.doMock("$lib/editing/resources/poems/poems", () => ({
       poemEditorDefinition: {
         key: "poems",
         label: "Poems",
@@ -170,7 +170,7 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/poems.server", () => ({
+    vi.doMock("$lib/editing/resources/poems/poems.server", () => ({
       ensurePoemsBaselineSnapshot: vi.fn(),
       readPoemsFile: vi.fn(),
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
@@ -205,7 +205,7 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/auth.server", () => ({
+    vi.doMock("$lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
@@ -216,7 +216,7 @@ describe("poems edit page server", () => {
       .mockReturnValueOnce([mockPoems[1]]);
     const deletePoemEditorValue = vi.fn(async () => ({ name: "poems" }));
 
-    vi.doMock("$lib/editing/poems", () => ({
+    vi.doMock("$lib/editing/resources/poems/poems", () => ({
       poemEditorDefinition: {
         key: "poems",
         label: "Poems",
@@ -227,7 +227,7 @@ describe("poems edit page server", () => {
       toPoemEditorValues,
     }));
 
-    vi.doMock("$lib/editing/poems.server", () => ({
+    vi.doMock("$lib/editing/resources/poems/poems.server", () => ({
       deletePoemEditorValue,
       ensurePoemsBaselineSnapshot: vi.fn(),
       readPoemsFile: vi.fn(async () => ({ name: "poems" })),
@@ -251,12 +251,12 @@ describe("poems edit page server", () => {
   });
 
   it("rejects poem delete for invalid id", async () => {
-    vi.doMock("$lib/editing/auth.server", () => ({
+    vi.doMock("$lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/poems", () => ({
+    vi.doMock("$lib/editing/resources/poems/poems", () => ({
       poemEditorDefinition: {
         key: "poems",
         label: "Poems",
@@ -267,7 +267,7 @@ describe("poems edit page server", () => {
       toPoemEditorValues: vi.fn(() => mockPoems),
     }));
 
-    vi.doMock("$lib/editing/poems.server", () => ({
+    vi.doMock("$lib/editing/resources/poems/poems.server", () => ({
       deletePoemEditorValue: vi.fn(),
       ensurePoemsBaselineSnapshot: vi.fn(),
       readPoemsFile: vi.fn(async () => ({ name: "poems" })),

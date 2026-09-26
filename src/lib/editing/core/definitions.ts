@@ -23,7 +23,7 @@ export type EditorFieldConfig = {
 export type EditorDefinition<A> = {
   key: string;
   label: string;
-  schema: Schema.Schema<A, any, never>;
+  schema: Schema.Schema<A, unknown, never>;
   fields: readonly EditorFieldConfig[];
   createDefault: () => A;
 };

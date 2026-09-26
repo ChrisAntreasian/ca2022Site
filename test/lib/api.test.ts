@@ -108,7 +108,7 @@ describe('API Client Tests', () => {
       // Mock fetch to reject
       global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
-      const apiCall = getNoOpts(testDataCodec as any)('test-endpoint');
+      const apiCall = getNoOpts(testDataCodec as unknown)('test-endpoint');
       const result = await Effect.runPromise(Effect.either(apiCall));
       
       expect(Either.isLeft(result)).toBe(true);
@@ -263,7 +263,7 @@ describe('API Client Tests', () => {
     it('handles undefined environment variables gracefully', async () => {
       vi.stubEnv('VITE_BASE_API', undefined);
       
-      const apiCall = getNoOpts(testDataCodec as any)('test-endpoint');
+      const apiCall = getNoOpts(testDataCodec as unknown)('test-endpoint');
       const result = await Effect.runPromise(Effect.either(apiCall));
       
       // Should handle undefined base API - this would likely fail at fetch level

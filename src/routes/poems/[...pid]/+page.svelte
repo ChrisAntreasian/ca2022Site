@@ -1,6 +1,6 @@
 <script lang="ts">
   import Article from "$lib/Article/index.svelte";
-  import { poemEditorPath } from "$lib/editing/poems-editor";
+  import { poemEditorPath } from "$lib/editing/resources/poems/poems-editor";
   import type { PageServerData } from "./$types";
 
   interface Props {

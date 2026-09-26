@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PageServerData } from "./$types";
-  import { quintuplapusEditorPath } from "$lib/editing/quintuplapus-editor";
+  import { quintuplapusEditorPath } from "$lib/editing/resources/quintuplapus/quintuplapus-editor";
 
   import Gallary from "$lib/Gallary/index.svelte";
   interface Props {

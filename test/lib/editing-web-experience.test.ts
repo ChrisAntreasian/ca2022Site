@@ -8,14 +8,14 @@ import {
   webExperienceEditorDefinition,
   webExperienceFileC,
   type WebExperienceFile,
-} from "../../src/lib/editing/web-experience";
+} from "../../src/lib/editing/resources/web-experience/web-experience";
 import {
   mergeWebExperienceValue,
   parseWebExperienceEditorParam,
   parseWebExperienceForm,
   selectWebExperienceTarget,
   webExperienceEditorPath,
-} from "../../src/lib/editing/web-experience-editor";
+} from "../../src/lib/editing/resources/web-experience/web-experience-editor";
 
 describe("web experience editor adapter", () => {
   const baseFile: WebExperienceFile = {

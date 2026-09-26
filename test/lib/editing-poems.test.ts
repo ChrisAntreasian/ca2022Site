@@ -6,7 +6,7 @@ import {
   toPoemEditorValues,
   upsertPoemEditorValue,
   type PoemsFile,
-} from "../../src/lib/editing/poems";
+} from "../../src/lib/editing/resources/poems/poems";
 import { Schema, Either } from "effect";
 
 describe("poem editor adapter", () => {

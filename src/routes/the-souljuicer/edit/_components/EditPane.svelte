@@ -5,7 +5,7 @@
   import NumberInput from "$lib/form/NumberInput.svelte";
   import TextInput from "$lib/form/TextInput.svelte";
 
-  import type { SouljuicerEditorEntry } from "$lib/editing/souljuicer";
+  import type { SouljuicerEditorEntry } from "$lib/editing/resources/souljuicer/souljuicer";
 
   interface Props {
     entry: SouljuicerEditorEntry;
@@ -31,16 +31,22 @@
     submitFailed && !entry.title.trim() ? "Title is required." : undefined,
   );
   const createdDateError = $derived(
-    submitFailed && !entry.createdDate.trim() ? "Created date is required." : undefined,
+    submitFailed && !entry.createdDate.trim()
+      ? "Created date is required."
+      : undefined,
   );
   const mediumError = $derived(
     submitFailed && !entry.medium.trim() ? "Medium is required." : undefined,
   );
   const sortOrderError = $derived(
-    submitFailed && Number.isNaN(entry.sortOrder) ? "Sort order must be a number." : undefined,
+    submitFailed && Number.isNaN(entry.sortOrder)
+      ? "Sort order must be a number."
+      : undefined,
   );
   const descriptionError = $derived(
-    submitFailed && !entry.description.trim() ? "Description is required." : undefined,
+    submitFailed && !entry.description.trim()
+      ? "Description is required."
+      : undefined,
   );
 </script>
 
@@ -115,20 +121,20 @@
       uploadInputId="imageFile"
       uploadInputName="imageFile"
       uploadDescription="Upload a new image to replace the current scene image."
-      singleImage={
-        entry.imageUrl
-          ? {
-              url: entry.imageUrl,
-              alt: `Souljuicer scene ${entry.id}`,
-            }
-          : null
-      }
+      singleImage={entry.imageUrl
+        ? {
+            url: entry.imageUrl,
+            alt: `Souljuicer scene ${entry.id}`,
+          }
+        : null}
     />
   </section>
 
   <div class="actions">
     {#if showDeleteButton}
-      <Button type="button" variant="warning" onclick={onRequestDelete}>Delete entry</Button>
+      <Button type="button" variant="warning" onclick={onRequestDelete}
+        >Delete entry</Button
+      >
     {/if}
     <Button type="submit">{saveLabel}</Button>
     <button

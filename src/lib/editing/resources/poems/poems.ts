@@ -2,7 +2,7 @@ import { Schema } from "effect";
 
 import { strapiPoemC, type StrapiPoem } from "$lib/typing/poem";
 
-import type { EditorDefinition } from "./definitions";
+import type { EditorDefinition } from "../../core/definitions";
 
 export const poemEditorValueC = Schema.Struct({
   id: Schema.Number,

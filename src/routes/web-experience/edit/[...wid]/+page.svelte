@@ -1,10 +1,10 @@
 <script lang="ts">
-  import EditorShell from "$lib/editing/EditorShell.svelte";
+  import EditorShell from "$lib/editing/core/EditorShell.svelte";
   import EditPane from "../_components/EditPane.svelte";
   import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
   import { cleanUrlSlug } from "$lib/history";
-  import { webExperienceEditorPath } from "$lib/editing/web-experience-editor";
-  import type { WebExperienceTarget } from "$lib/editing/web-experience";
+  import { webExperienceEditorPath } from "$lib/editing/resources/web-experience/web-experience-editor";
+  import type { WebExperienceTarget } from "$lib/editing/resources/web-experience/web-experience";
 
   import type { ActionData, PageData } from "./$types";
 

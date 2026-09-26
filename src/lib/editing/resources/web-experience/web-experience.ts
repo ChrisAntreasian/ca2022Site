@@ -2,7 +2,7 @@ import { Schema } from "effect";
 
 import { pageResC, type PageRes } from "$lib/typing/page";
 
-import type { EditorDefinition } from "./definitions";
+import type { EditorDefinition } from "../../core/definitions";
 
 export const webExperienceEntryC = Schema.Struct({
   id: Schema.Number,

@@ -1,5 +1,5 @@
 import type { Item } from "$lib/Article/types";
-import { isEditorEnabled } from "$lib/editing/auth.server";
+import { isEditorEnabled } from "$lib/editing/core/auth.server";
 
 import type { PageServerLoad } from "./$types";
 import * as D from "$data/poems.json";

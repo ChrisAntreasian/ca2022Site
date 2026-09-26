@@ -5,7 +5,7 @@ import {
   type PoemEditorValue,
   type PoemsFile,
 } from "./poems";
-import { createJsonEditorStore } from "./store.server";
+import { createJsonEditorStore } from "../../core/store.server";
 
 const poemsFilePath = "./src/data/poems.json";
 const poemsStore = createJsonEditorStore<PoemsFile>({

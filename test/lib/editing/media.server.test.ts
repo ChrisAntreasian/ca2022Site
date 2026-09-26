@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { deleteMediaByUrl, persistUploadedMedia } from "../../../src/lib/editing/media.server";
+import { deleteMediaByUrl, persistUploadedMedia } from "../../../src/lib/editing/core/media.server";
 
 describe("media server helpers", () => {
   it("uploads files with the configured prefix and returns a normalized asset", async () => {

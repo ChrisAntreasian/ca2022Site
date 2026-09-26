@@ -1,8 +1,8 @@
 <script lang="ts">
-  import EditorShell from "$lib/editing/EditorShell.svelte";
+  import EditorShell from "$lib/editing/core/EditorShell.svelte";
   import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
   import { cleanUrlSlug } from "$lib/history";
-  import { souljuicerEditorPath } from "$lib/editing/souljuicer-editor";
+  import { souljuicerEditorPath } from "$lib/editing/resources/souljuicer/souljuicer-editor";
 
   import EditPane from "../_components/EditPane.svelte";
 
@@ -52,7 +52,9 @@
   };
 
   const deleteTitle = $derived(
-    currentEntry.title.trim() ? `Delete ${currentEntry.title}?` : "Delete this entry?",
+    currentEntry.title.trim()
+      ? `Delete ${currentEntry.title}?`
+      : "Delete this entry?",
   );
 
   const viewHref = $derived(

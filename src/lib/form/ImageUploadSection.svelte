@@ -39,7 +39,9 @@
 
   let uploadInput = $state<HTMLInputElement | null>(null);
   let stagedFiles = $state<ReadonlyArray<File>>([]);
-  let stagedMedia = $state<ReadonlyArray<{ name: string; url: string; alt: string }>>([]);
+  let stagedMedia = $state<
+    ReadonlyArray<{ name: string; url: string; alt: string }>
+  >([]);
   let removedSingle = $state(false);
   let removedGalleryIds = $state<ReadonlyArray<string>>([]);
 
@@ -69,8 +71,8 @@
     }));
   });
 
-  const hasSinglePreview = $derived.by(() =>
-    stagedMedia.length > 0 || (!!singleImage && !removedSingle),
+  const hasSinglePreview = $derived.by(
+    () => stagedMedia.length > 0 || (!!singleImage && !removedSingle),
   );
 
   const actionLabel = $derived.by(() => {
@@ -89,8 +91,8 @@
     return !singleImage || removedSingle;
   });
 
-  const showInlineReplaceLink = $derived.by(() =>
-    !multiple && !!singleImage && !removedSingle,
+  const showInlineReplaceLink = $derived.by(
+    () => !multiple && !!singleImage && !removedSingle,
   );
 
   const singleRemovedName = $derived.by(() =>
@@ -217,7 +219,9 @@
   };
 
   const removeStagedGalleryImage = (index: number) => {
-    const next = stagedFiles.filter((_, candidateIndex) => candidateIndex !== index);
+    const next = stagedFiles.filter(
+      (_, candidateIndex) => candidateIndex !== index,
+    );
 
     stagedFiles = next;
     syncInputFiles(next);
@@ -290,7 +294,11 @@
                 </button>
               </div>
               <div class="media-thumb-wrap">
-                <img class="media-thumb is-staged" src={media.url} alt={media.alt} />
+                <img
+                  class="media-thumb is-staged"
+                  src={media.url}
+                  alt={media.alt}
+                />
               </div>
             </div>
           {/each}
@@ -299,7 +307,11 @@
             <div class="media-meta">
               <span class="selected-file">{singleFileName}</span>
               {#if showInlineReplaceLink}
-                <button type="button" class="action-link replace-link" onclick={openPicker}>
+                <button
+                  type="button"
+                  class="action-link replace-link"
+                  onclick={openPicker}
+                >
                   Replace
                 </button>
               {/if}
@@ -325,7 +337,11 @@
             <div class="media-meta">
               <span class="selected-file">{singleFileName}</span>
               {#if showInlineReplaceLink}
-                <button type="button" class="action-link replace-link" onclick={openPicker}>
+                <button
+                  type="button"
+                  class="action-link replace-link"
+                  onclick={openPicker}
+                >
                   Replace
                 </button>
               {/if}
@@ -340,7 +356,11 @@
               {/if}
             </div>
             <div class="media-thumb-wrap">
-              <img class="media-thumb" src={singleImage.url} alt={singleImage.alt} />
+              <img
+                class="media-thumb"
+                src={singleImage.url}
+                alt={singleImage.alt}
+              />
             </div>
           </div>
         {:else if removedSingle}

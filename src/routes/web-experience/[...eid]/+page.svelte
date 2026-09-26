@@ -1,6 +1,6 @@
 <script lang="ts">
   import Article from "$lib/Article/index.svelte";
-  import { webExperienceEditorPath } from "$lib/editing/web-experience-editor";
+  import { webExperienceEditorPath } from "$lib/editing/resources/web-experience/web-experience-editor";
   import type { PageServerData } from "./$types";
   interface Props {
     data: PageServerData;

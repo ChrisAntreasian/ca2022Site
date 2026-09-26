@@ -1,7 +1,3 @@
-import { randomUUID } from "crypto";
-import * as path from "path";
-
-import { e500 } from "$lib/error";
 import {
   deleteS3File,
   initS3,
@@ -16,8 +12,8 @@ import {
   type WebExperienceEditorValue,
   type WebExperienceFile,
 } from "./web-experience";
-import { deleteMediaByUrl, persistUploadedMedia } from "./media.server";
-import { createJsonEditorStore } from "./store.server";
+import { deleteMediaByUrl, persistUploadedMedia } from "../../core/media.server";
+import { createJsonEditorStore } from "../../core/store.server";
 
 const webExperienceFilePath = "./src/data/web-experience.json";
 const webExperienceUploadKeyPrefix = "web-experience";

@@ -3,7 +3,7 @@ import { error, fail, redirect } from "@sveltejs/kit";
 import {
   isEditorEnabled,
   requireEditorEnabled,
-} from "$lib/editing/auth.server";
+} from "$lib/editing/core/auth.server";
 import { getFormDataString } from "$lib/form-data";
 import {
   mergeQuintuplapusEntry,
@@ -11,8 +11,8 @@ import {
   parseQuintuplapusForm,
   quintuplapusEditorPath,
   selectQuintuplapusEntry,
-} from "$lib/editing/quintuplapus-editor";
-import { toQuintuplapusEditorValue } from "$lib/editing/quintuplapus";
+} from "$lib/editing/resources/quintuplapus/quintuplapus-editor";
+import { toQuintuplapusEditorValue } from "$lib/editing/resources/quintuplapus/quintuplapus";
 import {
   deleteQuintuplapusEntry,
   ensureQuintuplapusBaselineSnapshot,
@@ -20,7 +20,7 @@ import {
   readQuintuplapusFile,
   replaceQuintuplapusEntryImage,
   saveQuintuplapusEditorValue,
-} from "$lib/editing/quintuplapus.server";
+} from "$lib/editing/resources/quintuplapus/quintuplapus.server";
 
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -93,7 +93,7 @@ export const actions: Actions = {
       });
     }
 
-    let saved = await saveQuintuplapusEditorValue(candidate, new Date(), file);
+    const saved = await saveQuintuplapusEditorValue(candidate, new Date(), file);
 
     const imageRaw = formData.get("imageFile");
     const imageFile =
@@ -101,7 +101,7 @@ export const actions: Actions = {
 
     if (imageFile) {
       const uploaded = await persistQuintuplapusUpload(imageFile);
-      saved = await replaceQuintuplapusEntryImage(saved, formValue.id, uploaded);
+      await replaceQuintuplapusEntryImage(saved, formValue.id, uploaded);
     }
 
     const destination =

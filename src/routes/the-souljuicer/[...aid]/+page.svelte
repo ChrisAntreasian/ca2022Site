@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PageServerData } from "./$types";
-  import { souljuicerEditorPath } from "$lib/editing/souljuicer-editor";
+  import { souljuicerEditorPath } from "$lib/editing/resources/souljuicer/souljuicer-editor";
 
   import Gallary from "$lib/Gallary/index.svelte";
   interface Props {

@@ -4,7 +4,7 @@
   import NumberInput from "$lib/form/NumberInput.svelte";
   import TextInput from "$lib/form/TextInput.svelte";
 
-  import type { PoemEditorValue } from "$lib/editing/poems";
+  import type { PoemEditorValue } from "$lib/editing/resources/poems/poems";
 
   interface Props {
     poem: PoemEditorValue;
@@ -33,7 +33,9 @@
     submitFailed && !poem.bodyMarkdown.trim() ? "Body is required." : undefined,
   );
   const sortOrderError = $derived(
-    submitFailed && Number.isNaN(poem.sortOrder) ? "Sort order must be a number." : undefined,
+    submitFailed && Number.isNaN(poem.sortOrder)
+      ? "Sort order must be a number."
+      : undefined,
   );
 </script>
 
@@ -74,7 +76,9 @@
 
   <div class="actions">
     {#if showDeleteButton}
-      <Button type="button" variant="warning" onclick={onRequestDelete}>Delete poem</Button>
+      <Button type="button" variant="warning" onclick={onRequestDelete}
+        >Delete poem</Button
+      >
     {/if}
     <Button type="submit">{saveLabel}</Button>
     <button
