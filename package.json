@@ -6,6 +6,8 @@
     "build": "vite build",
     "package": "svelte-kit package",
     "preview": "vite preview",
+    "check:encoding": "node scripts/check-mojibake.mjs",
+    "check:encoding:all": "node scripts/check-mojibake.mjs --include-history",
     "test": "playwright test",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",

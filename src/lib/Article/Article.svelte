@@ -3,6 +3,7 @@
   import SvelteMarkdown from "svelte-exmarkdown";
 
   import { contextHeightKey, rem, type LayoutElemH } from "$lib/spacing";
+  import { getDisplayLinkText } from "$lib/url";
   import { getContext } from "svelte";
   import type { Item } from "./types";
   import Fullscreen from "$lib/Fullscreen/index.svelte";
@@ -23,6 +24,8 @@
     scrollRequestUpdate: boolean;
     analyticsKey: string;
     wrapBasis: number;
+    actionHref?: string | null;
+    actionLabel?: string;
   }
 
   let {
@@ -32,17 +35,24 @@
     scrollRequestUpdate,
     analyticsKey,
     wrapBasis,
+    actionHref = null,
+    actionLabel = "Edit post",
   }: Props = $props();
 
   const { getHeaderHeight }: LayoutElemH = getContext(contextHeightKey);
 
   let fadeOut = $state(false);
 
-  let windowHeight: number = $state();
-  const defaultActiveShot = { i: null, src: null };
+  let windowHeight: number = $state(0);
+  const defaultActiveShot: { i: number | null; src: string | null } = {
+    i: null,
+    src: null,
+  };
 
-  let paginationDetails = $state(null);
-  let activeShot: { i: number; src: string } = $state(defaultActiveShot);
+  let paginationDetails: { position: number; length: number } | null =
+    $state(null);
+  let activeShot: { i: number | null; src: string | null } =
+    $state(defaultActiveShot);
 
   const resetFullScreen = () => {
     activeShot = defaultActiveShot;
@@ -50,17 +60,34 @@
   };
 
   const setPaginationDetails = (id: number) => {
+    const images = item.images ?? [];
+
     paginationDetails = {
-      position: item.images.findIndex((img) => img.id === id),
-      length: item.images ? item.images.length : 0,
+      position: images.findIndex((img) => img.id === id),
+      length: images.length,
     };
   };
 
   const paginateItem = (k?: string) => (n: number) => {
-    const index = item.images.findIndex(
-      (img) => img.id === item.images[activeShot.i + n].id
-    );
-    const { id, large } = item.images[index];
+    const images = item.images ?? [];
+
+    if (activeShot.i === null || images.length === 0) {
+      return;
+    }
+
+    const nextIndex = activeShot.i + n;
+
+    if (nextIndex < 0 || nextIndex >= images.length) {
+      return;
+    }
+
+    const index = images.findIndex((img) => img.id === images[nextIndex].id);
+
+    if (index < 0) {
+      return;
+    }
+
+    const { id, large } = images[index];
 
     setPaginationDetails(id);
     activeShot = { i: index, src: large };
@@ -70,25 +97,17 @@
         `${k} click paginate`,
         captureDetails(
           {
-            id: activeShot.i + n,
-            name: `${item.title} screenshot ${activeShot.i}`,
+            id: nextIndex,
+            name: `${item.title} screenshot ${index}`,
           },
-          { direction: n > 0 ? "next" : "last" }
-        )
+          { direction: n > 0 ? "next" : "last" },
+        ),
       );
     }
   };
 
   const setActiveShot = (i: number, img: string) => {
     activeShot = { i: i, src: img };
-  };
-
-  const makeLinkText = (l: string) => {
-    const brokenup = l.split("//")[1].split("/");
-    const domain = `${brokenup[0].split(".")[1]}.${brokenup[0].split(".")[2]}`;
-    return domain === "betterlesson.com"
-      ? `${domain}/${brokenup[brokenup.length - 1]}`
-      : domain;
   };
 </script>
 
@@ -116,6 +135,12 @@
           fadeOut = false;
         }}
       >
+        {#if actionHref}
+          <div class="article-actions">
+            <a class="post-action-link" href={actionHref}>{actionLabel}</a>
+          </div>
+        {/if}
+
         {#if item.logo}
           <img src={item.logo} alt={item.title} />
         {:else}
@@ -125,14 +150,14 @@
         {#if item.link}
           <div>
             <a href={item.link} target="_blank" rel="noreferrer">
-              {makeLinkText(item.link)}
+              {getDisplayLinkText(item.link)}
             </a>
           </div>
         {/if}
         {#if item.secondLink}
           <div>
             <a href={item.secondLink} target="_blank" rel="noreferrer">
-              {makeLinkText(item.secondLink)}
+              {getDisplayLinkText(item.secondLink)}
             </a>
           </div>
         {/if}
@@ -142,7 +167,7 @@
         {#if item.images}
           <h4>Screenshots</h4>
           <ul>
-            {#each item.images as img, i}
+            {#each item.images as img, i (img.id)}
               <li>
                 <Fullscreen
                   id={img.id}
@@ -150,7 +175,7 @@
                   img={activeShot.src || img.large}
                   targetImage={img.small}
                   analyticsKey={`${analyticsKey} ${item.title}`}
-                  altText={`${item.title} screenshot ${(activeShot.i || i) + 1}`}
+                  altText={`${item.title} screenshot ${(activeShot.i ?? i) + 1}`}
                   paginationDetails={paginationDetails || {
                     length: item.images.length,
                     position: i,
@@ -185,21 +210,44 @@
   h4 {
     margin-top: 1rem;
   }
+  .article-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .post-action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--bg-dk);
+    text-decoration: none;
+    font-family: var(--font-jsf);
+    font-size: 1.15rem;
+    line-height: 1.5rem;
+  }
+  .post-action-link:hover {
+    color: var(--bg-lt);
+  }
   ul {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 1rem;
     margin-top: 0.5rem;
   }
   li {
     display: flex;
-    width: calc(33.333% - 0.5rem);
+    width: calc((100% - 2rem) / 3);
     aspect-ratio: 1 / 0.75;
     border: var(--space-md) solid var(--bg-dk);
     border-radius: 0.333rem;
     box-sizing: border-box;
     overflow: hidden;
-    margin-bottom: 0.75rem;
     transition: border 250ms ease-out;
   }
   li:hover {
@@ -219,6 +267,10 @@
     }
     .wrap {
       max-width: 30rem;
+    }
+    .article-actions {
+      position: static;
+      margin: 0 0 1rem;
     }
     h3 {
       display: none;

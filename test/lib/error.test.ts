@@ -184,32 +184,27 @@ describe('Error Handling Utilities', () => {
       vi.clearAllMocks();
     });
 
-    it('throws error with correct message (documents bug)', () => {
-      // Note: This test reveals a bug - e403 currently creates 500 errors instead of 403
-      // The current implementation is: export const e403 = (msg: string) => error(500, msg);
-      // This should be: export const e403 = (msg: string) => error(403, msg);
-      
+    it('throws 403 error with correct message', () => {
       expect(() => e403('Access forbidden')).toThrow();
-      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Access forbidden'); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenCalledWith(403, 'Access forbidden');
     });
 
-    it('creates different error messages (bug affects all calls)', () => {
+    it('creates different error messages', () => {
       expect(() => e403('Authentication required')).toThrow();
       expect(() => e403('Insufficient permissions')).toThrow();
       expect(() => e403('Admin role required')).toThrow();
       
-      // All should use 403, but due to bug they use 500
-      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Authentication required'); // BUG: Should be 403
-      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Insufficient permissions'); // BUG: Should be 403 
-      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Admin role required'); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenCalledWith(403, 'Authentication required');
+      expect(vi.mocked(error)).toHaveBeenCalledWith(403, 'Insufficient permissions');
+      expect(vi.mocked(error)).toHaveBeenCalledWith(403, 'Admin role required');
     });
 
     it('handles empty and special characters', () => {
       expect(() => e403('')).toThrow();
       expect(() => e403('Access denied: "admin" role required')).toThrow();
       
-      expect(vi.mocked(error)).toHaveBeenCalledWith(500, ''); // BUG: Should be 403
-      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Access denied: "admin" role required'); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenCalledWith(403, '');
+      expect(vi.mocked(error)).toHaveBeenCalledWith(403, 'Access denied: "admin" role required');
     });
   });
 
@@ -218,14 +213,12 @@ describe('Error Handling Utilities', () => {
       vi.clearAllMocks();
     });
 
-    it('e500 and e403 should create different status codes (documents bug)', () => {
+    it('e500 and e403 should create different status codes', () => {
       expect(() => e500('Server error')).toThrow();
       expect(() => e403('Access denied')).toThrow();
       
       expect(vi.mocked(error)).toHaveBeenNthCalledWith(1, 500, 'Server error');
-      expect(vi.mocked(error)).toHaveBeenNthCalledWith(2, 500, 'Access denied'); // BUG: Should be 403
-      
-      // Both currently use 500 due to bug in e403 implementation
+      expect(vi.mocked(error)).toHaveBeenNthCalledWith(2, 403, 'Access denied');
     });
 
     it('both helpers preserve message content correctly', () => {
@@ -236,7 +229,7 @@ describe('Error Handling Utilities', () => {
       expect(() => e403(message403)).toThrow();
       
       expect(vi.mocked(error)).toHaveBeenCalledWith(500, message500);
-      expect(vi.mocked(error)).toHaveBeenCalledWith(500, message403); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenCalledWith(403, message403);
     });
   });
 
@@ -246,23 +239,22 @@ describe('Error Handling Utilities', () => {
     });
 
     it('documents that error helpers throw and cannot be used in fp-ts directly', () => {
-      // Since e500/e403 throw (via SvelteKit error function), they cannot be used 
+      // Since e500/e403 throw (via SvelteKit error function), they cannot be used
       // directly in TaskEither/Either contexts. This test documents the limitation.
       
       expect(() => e500('Task failed')).toThrow();
       expect(() => e403('Access denied')).toThrow();
       
       expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Task failed');
-      expect(vi.mocked(error)).toHaveBeenCalledWith(500, 'Access denied'); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenCalledWith(403, 'Access denied');
     });
 
-    it('shows that both helpers currently use status 500 (bug in e403)', () => {
-      // This test documents the bug where e403 creates 500 errors instead of 403
+    it('shows helper status mapping', () => {
       expect(() => e500('Server error')).toThrow();
       expect(() => e403('Forbidden error')).toThrow();
       
       expect(vi.mocked(error)).toHaveBeenNthCalledWith(1, 500, 'Server error');
-      expect(vi.mocked(error)).toHaveBeenNthCalledWith(2, 500, 'Forbidden error'); // BUG: Should be 403
+      expect(vi.mocked(error)).toHaveBeenNthCalledWith(2, 403, 'Forbidden error');
     });
   });
 });

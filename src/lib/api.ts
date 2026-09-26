@@ -15,14 +15,14 @@ const toJSON = async (res: Response) => await res.json();
 
 
 const decode = <A>(
-  schema: Schema.Schema<A, unknown>,
+  schema: Schema.Schema<A, A>,
 ): ((res: unknown) => Effect.Effect<A, HttpError>) =>
   flow(
     Schema.decodeUnknown(schema),
     Effect.mapError(() => error(500, "Data Did Not Match The Schema") as HttpError),
   );
 
-const parseResponse = <A>(schema: Schema.Schema<A, unknown>) => (resource: string) =>
+const parseResponse = <A>(schema: Schema.Schema<A, A>) => (resource: string) =>
   pipe(
     Effect.tryPromise({
       try: () => fetch(`${baseApi}/api/${resource}`, {
@@ -43,7 +43,7 @@ const parseResponse = <A>(schema: Schema.Schema<A, unknown>) => (resource: strin
     Effect.flatMap(decode(schema)),
   );
 
-export const getNoOpts = <A>(schema: Schema.Schema<A, unknown>) =>
+export const getNoOpts = <A>(schema: Schema.Schema<A, A>) =>
   parseResponse(schema);
 
 export const queryStr = (p: QueryProps) =>

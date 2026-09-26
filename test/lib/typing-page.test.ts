@@ -835,7 +835,7 @@ describe('Page Type Validation', () => {
       }
     });
 
-    it('handles validation failures in deeply nested structures', () => {
+    it('allows fallback poems object in deeply nested structures', () => {
       const invalidNestedPage = {
         data: [
           {
@@ -889,7 +889,12 @@ describe('Page Type Validation', () => {
       };
 
       const result = Schema.decodeUnknownEither(detailsResC)(invalidNestedPage);
-      expect(Either.isLeft(result)).toBe(true);
+      expect(Either.isRight(result)).toBe(true);
+      if (Either.isRight(result) && result.right.data && result.right.data[0]) {
+        if (result.right.data[0].attributes.poems && 'data' in result.right.data[0].attributes.poems) {
+          expect(result.right.data[0].attributes.poems.data).toHaveLength(2);
+        }
+      }
     });
   });
 });

@@ -1,13 +1,21 @@
 {
   "name": "web-experience",
-  "timestamp": 1686462674964,
+  "timestamp": 1790024094694,
   "data": {
+    "meta": {
+      "pagination": {
+        "page": 1,
+        "pageCount": 1,
+        "pageSize": 25,
+        "total": 1
+      }
+    },
     "data": [
       {
         "id": 3,
         "attributes": {
           "createdAt": "2023-05-09T17:41:58.082Z",
-          "updatedAt": "2023-05-09T18:07:14.338Z",
+          "updatedAt": "2026-09-21T20:54:54.694Z",
           "publishedAt": "2023-05-09T18:07:14.336Z",
           "title": "Web Experience",
           "page_details": {
@@ -15,13 +23,15 @@
               {
                 "id": 3,
                 "attributes": {
+                  "createdAt": "2022-08-16T04:48:21.432Z",
+                  "updatedAt": "2026-09-21T20:54:54.694Z",
+                  "publishedAt": "2023-05-09T18:06:52.054Z",
                   "title": "Web Development",
                   "description": "For over 15 years I have been working as a Web developer and am proficient in several scripting languages, frameworks, software, and coding paradigms. I have worked in both front and back end environments, but due to of my visual background I have always gravitated towards Front End technologies. Over the couse of my career some of my work either no longer exists or is behind a paywall, but some projects are still available to the public Here are some of those publicly available projects that I was a major contributor to.",
-                  "createdAt": "2022-08-16T04:48:21.432Z",
-                  "updatedAt": "2023-05-15T03:43:11.668Z",
-                  "publishedAt": "2023-05-09T18:06:52.054Z",
                   "link": null,
-                  "image": { "data": null }
+                  "image": {
+                    "data": null
+                  }
                 }
               }
             ]
@@ -31,47 +41,24 @@
               {
                 "id": 2,
                 "attributes": {
-                  "link": "https://www.bondlink.com/",
-                  "title": "BondLink",
-                  "body": "_2020 - 2023_\n\nAt BondLink I was a Senior Front Engineer contributing to multiple projects. There I had the opportunity to lead some projects as well. One such project was the external facing corporate site. This site was developed using Typescript, NextJS, Plasmic, FP-TS, IO-TS and several third party APIs.\n\n_design credit: the BondLink design team_",
                   "createdAt": "2022-04-25T01:58:14.656Z",
-                  "updatedAt": "2023-05-16T17:45:03.082Z",
+                  "updatedAt": "2026-09-21T20:54:54.694Z",
                   "publishedAt": "2022-04-25T01:59:44.387Z",
-                  "secondLink": null,
-                  "position": 10,
-                  "logo": {
-                    "data": {
-                      "id": 85,
-                      "attributes": {
-                        "name": "bondlink.svg",
-                        "alternativeText": "bondlink.svg",
-                        "caption": "bondlink.svg",
-                        "width": 392,
-                        "height": 62,
-                        "formats": null,
-                        "hash": "bondlink_e4e4d6193c",
-                        "ext": ".svg",
-                        "mime": "image/svg+xml",
-                        "size": 4.64,
-                        "url": "https://ca2022s3.s3.amazonaws.com/bondlink_e4e4d6193c.svg",
-                        "previewUrl": null,
-                        "provider": "aws-s3",
-                        "provider_metadata": null,
-                        "createdAt": "2023-05-05T17:02:26.244Z",
-                        "updatedAt": "2023-05-05T17:02:26.244Z"
-                      }
-                    }
-                  },
+                  "title": "BondLink",
+                  "body": "_2020 - 2023_\r\n\r\nAt BondLink I was a Senior Front Engineer contributing to multiple projects. There I had the opportunity to lead some projects as well. One such project was the external facing corporate site. This site was developed using Typescript, NextJS, Plasmic, FP-TS, IO-TS and several third party APIs.\r\n\r\n_design credit: the BondLink design team_",
                   "image": {
                     "data": [
                       {
                         "id": 102,
                         "attributes": {
-                          "name": "bondlink-sshot-1.jpg",
+                          "createdAt": "2023-05-11T18:34:51.318Z",
+                          "updatedAt": "2023-05-11T18:34:51.318Z",
                           "alternativeText": "bondlink-sshot-1.jpg",
                           "caption": "bondlink-sshot-1.jpg",
-                          "width": 1391,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/bondlink_sshot_1_df9a87851e.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_bondlink-sshot-1.jpg",
@@ -117,27 +104,20 @@
                               "size": 30.96,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_bondlink_sshot_1_df9a87851e.jpg"
                             }
-                          },
-                          "hash": "bondlink_sshot_1_df9a87851e",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 165.58,
-                          "url": "https://ca2022s3.s3.amazonaws.com/bondlink_sshot_1_df9a87851e.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:51.318Z",
-                          "updatedAt": "2023-05-11T18:34:51.318Z"
+                          }
                         }
                       },
                       {
                         "id": 101,
                         "attributes": {
-                          "name": "bondlink-sshot-3.jpg",
+                          "createdAt": "2023-05-11T18:34:51.198Z",
+                          "updatedAt": "2023-05-11T18:34:51.198Z",
                           "alternativeText": "bondlink-sshot-3.jpg",
                           "caption": "bondlink-sshot-3.jpg",
-                          "width": 1391,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/bondlink_sshot_3_c35b52436b.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_bondlink-sshot-3.jpg",
@@ -183,27 +163,20 @@
                               "size": 20.29,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_bondlink_sshot_3_c35b52436b.jpg"
                             }
-                          },
-                          "hash": "bondlink_sshot_3_c35b52436b",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 110.55,
-                          "url": "https://ca2022s3.s3.amazonaws.com/bondlink_sshot_3_c35b52436b.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:51.198Z",
-                          "updatedAt": "2023-05-11T18:34:51.198Z"
+                          }
                         }
                       },
                       {
                         "id": 100,
                         "attributes": {
-                          "name": "bondlink-sshot-2.jpg",
+                          "createdAt": "2023-05-11T18:34:50.986Z",
+                          "updatedAt": "2023-05-11T18:34:50.986Z",
                           "alternativeText": "bondlink-sshot-2.jpg",
                           "caption": "bondlink-sshot-2.jpg",
-                          "width": 1391,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/bondlink_sshot_2_8c7d4552d7.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_bondlink-sshot-2.jpg",
@@ -249,27 +222,20 @@
                               "size": 21.55,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_bondlink_sshot_2_8c7d4552d7.jpg"
                             }
-                          },
-                          "hash": "bondlink_sshot_2_8c7d4552d7",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 112.17,
-                          "url": "https://ca2022s3.s3.amazonaws.com/bondlink_sshot_2_8c7d4552d7.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:50.986Z",
-                          "updatedAt": "2023-05-11T18:34:50.986Z"
+                          }
                         }
                       },
                       {
                         "id": 96,
                         "attributes": {
-                          "name": "bondlink-mshot-2.jpg",
+                          "createdAt": "2023-05-11T18:34:49.754Z",
+                          "updatedAt": "2023-05-11T18:34:49.754Z",
                           "alternativeText": "bondlink-mshot-2.jpg",
                           "caption": "bondlink-mshot-2.jpg",
-                          "width": 441,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/bondlink_mshot_2_c61056bfee.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_bondlink-mshot-2.jpg",
@@ -293,27 +259,20 @@
                               "size": 25.07,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_bondlink_mshot_2_c61056bfee.jpg"
                             }
-                          },
-                          "hash": "bondlink_mshot_2_c61056bfee",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 37.96,
-                          "url": "https://ca2022s3.s3.amazonaws.com/bondlink_mshot_2_c61056bfee.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:49.754Z",
-                          "updatedAt": "2023-05-11T18:34:49.754Z"
+                          }
                         }
                       },
                       {
                         "id": 95,
                         "attributes": {
-                          "name": "bondlink-mshot-3.jpg",
+                          "createdAt": "2023-05-11T18:34:49.718Z",
+                          "updatedAt": "2023-05-11T18:34:49.718Z",
                           "alternativeText": "bondlink-mshot-3.jpg",
                           "caption": "bondlink-mshot-3.jpg",
-                          "width": 441,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/bondlink_mshot_3_0f78fbb628.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_bondlink-mshot-3.jpg",
@@ -337,27 +296,20 @@
                               "size": 20.34,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_bondlink_mshot_3_0f78fbb628.jpg"
                             }
-                          },
-                          "hash": "bondlink_mshot_3_0f78fbb628",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 31.37,
-                          "url": "https://ca2022s3.s3.amazonaws.com/bondlink_mshot_3_0f78fbb628.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:49.718Z",
-                          "updatedAt": "2023-05-11T18:34:49.718Z"
+                          }
                         }
                       },
                       {
                         "id": 94,
                         "attributes": {
-                          "name": "bondlink-mshot-1.jpg",
+                          "createdAt": "2023-05-11T18:34:49.639Z",
+                          "updatedAt": "2023-05-11T18:34:49.639Z",
                           "alternativeText": "bondlink-mshot-1.jpg",
                           "caption": "bondlink-mshot-1.jpg",
-                          "width": 441,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/bondlink_mshot_1_bc16e32fc8.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_bondlink-mshot-1.jpg",
@@ -381,67 +333,53 @@
                               "size": 32.15,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_bondlink_mshot_1_bc16e32fc8.jpg"
                             }
-                          },
-                          "hash": "bondlink_mshot_1_bc16e32fc8",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 46.48,
-                          "url": "https://ca2022s3.s3.amazonaws.com/bondlink_mshot_1_bc16e32fc8.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:49.639Z",
-                          "updatedAt": "2023-05-11T18:34:49.639Z"
+                          }
                         }
                       }
                     ]
-                  }
+                  },
+                  "logo": {
+                    "data": {
+                      "id": 85,
+                      "attributes": {
+                        "createdAt": "2023-05-05T17:02:26.244Z",
+                        "updatedAt": "2023-05-05T17:02:26.244Z",
+                        "alternativeText": "bondlink.svg",
+                        "caption": "bondlink.svg",
+                        "provider": "aws-s3",
+                        "provider_metadata": null,
+                        "previewUrl": null,
+                        "url": "https://ca2022s3.s3.amazonaws.com/bondlink_e4e4d6193c.svg",
+                        "formats": null
+                      }
+                    }
+                  },
+                  "link": "https://www.bondlink.com",
+                  "secondLink": null,
+                  "position": 10
                 }
               },
               {
                 "id": 3,
                 "attributes": {
-                  "link": "https://teaching.betterlesson.com/browse/master_teachers/projects",
-                  "title": "BetterLesson",
-                  "body": "_2013 - 2020_\n\nAt BetterLesson I was a major contributing Full Stack Engineer on multiple projects. Two of the projects I worked on were the Master Teacher Project, and Instructional Strategies. Initially much of this work was built using CakePHP and jQuery, but later we migrated them to React, using Flask for newer features.\n\n_design credit: the BetterLesson design team_",
                   "createdAt": "2023-05-05T21:02:22.710Z",
-                  "updatedAt": "2023-05-16T17:44:38.195Z",
+                  "updatedAt": "2026-09-21T20:54:54.694Z",
                   "publishedAt": "2023-05-05T21:14:41.681Z",
-                  "secondLink": "https://teaching.betterlesson.com/browse/strategies",
-                  "position": 20,
-                  "logo": {
-                    "data": {
-                      "id": 86,
-                      "attributes": {
-                        "name": "betterlesson.svg",
-                        "alternativeText": "betterlesson.svg",
-                        "caption": "betterlesson.svg",
-                        "width": 180,
-                        "height": 38,
-                        "formats": null,
-                        "hash": "betterlesson_85ee8b4b1b",
-                        "ext": ".svg",
-                        "mime": "image/svg+xml",
-                        "size": 4.84,
-                        "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_85ee8b4b1b.svg",
-                        "previewUrl": null,
-                        "provider": "aws-s3",
-                        "provider_metadata": null,
-                        "createdAt": "2023-05-05T20:53:19.248Z",
-                        "updatedAt": "2023-05-05T20:53:19.248Z"
-                      }
-                    }
-                  },
+                  "title": "BetterLesson",
+                  "body": "_2013 - 2020_\r\n\r\nAt BetterLesson I was a major contributing Full Stack Engineer on multiple projects. Two of the projects I worked on were the Master Teacher Project, and Instructional Strategies. Initially much of this work was built using CakePHP and jQuery, but later we migrated them to React, using Flask for newer features.\r\n\r\n_design credit: the BetterLesson design team_",
                   "image": {
                     "data": [
                       {
                         "id": 93,
                         "attributes": {
-                          "name": "betterlesson-sshot-3.jpg",
+                          "createdAt": "2023-05-11T18:34:48.922Z",
+                          "updatedAt": "2023-05-11T18:34:48.922Z",
                           "alternativeText": "betterlesson-sshot-3.jpg",
                           "caption": "betterlesson-sshot-3.jpg",
-                          "width": 1391,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_sshot_3_46f1a12f9b.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_betterlesson-sshot-3.jpg",
@@ -487,27 +425,20 @@
                               "size": 18.82,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_betterlesson_sshot_3_46f1a12f9b.jpg"
                             }
-                          },
-                          "hash": "betterlesson_sshot_3_46f1a12f9b",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 82.67,
-                          "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_sshot_3_46f1a12f9b.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:48.922Z",
-                          "updatedAt": "2023-05-11T18:34:48.922Z"
+                          }
                         }
                       },
                       {
                         "id": 92,
                         "attributes": {
-                          "name": "betterlesson-sshot-1.jpg",
+                          "createdAt": "2023-05-11T18:34:48.915Z",
+                          "updatedAt": "2023-05-11T18:34:48.915Z",
                           "alternativeText": "betterlesson-sshot-1.jpg",
                           "caption": "betterlesson-sshot-1.jpg",
-                          "width": 1391,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_sshot_1_b435dbdf9a.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_betterlesson-sshot-1.jpg",
@@ -553,27 +484,20 @@
                               "size": 17.94,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_betterlesson_sshot_1_b435dbdf9a.jpg"
                             }
-                          },
-                          "hash": "betterlesson_sshot_1_b435dbdf9a",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 79.17,
-                          "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_sshot_1_b435dbdf9a.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:48.915Z",
-                          "updatedAt": "2023-05-11T18:34:48.915Z"
+                          }
                         }
                       },
                       {
                         "id": 91,
                         "attributes": {
-                          "name": "betterlesson-sshot-2.jpg",
+                          "createdAt": "2023-05-11T18:34:48.798Z",
+                          "updatedAt": "2023-05-15T17:22:45.939Z",
                           "alternativeText": "betterlesson-sshot-2.jpg",
                           "caption": "betterlesson-sshot-2.jpg",
-                          "width": 1418,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_sshot_2_81e4bf5856.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_betterlesson-sshot-2.jpg",
@@ -619,27 +543,20 @@
                               "size": 12.17,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_betterlesson_sshot_2_81e4bf5856.jpg"
                             }
-                          },
-                          "hash": "betterlesson_sshot_2_81e4bf5856",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 51.22,
-                          "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_sshot_2_81e4bf5856.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:48.798Z",
-                          "updatedAt": "2023-05-15T17:22:45.939Z"
+                          }
                         }
                       },
                       {
                         "id": 90,
                         "attributes": {
-                          "name": "betterlesson-mshot-1.jpg",
+                          "createdAt": "2023-05-11T18:34:48.374Z",
+                          "updatedAt": "2023-05-11T18:34:48.374Z",
                           "alternativeText": "betterlesson-mshot-1.jpg",
                           "caption": "betterlesson-mshot-1.jpg",
-                          "width": 441,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_mshot_1_f023c0e884.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_betterlesson-mshot-1.jpg",
@@ -663,27 +580,20 @@
                               "size": 29.89,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_betterlesson_mshot_1_f023c0e884.jpg"
                             }
-                          },
-                          "hash": "betterlesson_mshot_1_f023c0e884",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 46.04,
-                          "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_mshot_1_f023c0e884.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:48.374Z",
-                          "updatedAt": "2023-05-11T18:34:48.374Z"
+                          }
                         }
                       },
                       {
                         "id": 89,
                         "attributes": {
-                          "name": "betterlesson-mshot-3.jpg",
+                          "createdAt": "2023-05-11T18:34:48.277Z",
+                          "updatedAt": "2023-05-11T18:34:48.277Z",
                           "alternativeText": "betterlesson-mshot-3.jpg",
                           "caption": "betterlesson-mshot-3.jpg",
-                          "width": 433,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_mshot_3_ac587fe2e0.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_betterlesson-mshot-3.jpg",
@@ -707,27 +617,20 @@
                               "size": 29.65,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_betterlesson_mshot_3_ac587fe2e0.jpg"
                             }
-                          },
-                          "hash": "betterlesson_mshot_3_ac587fe2e0",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 44.78,
-                          "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_mshot_3_ac587fe2e0.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:48.277Z",
-                          "updatedAt": "2023-05-11T18:34:48.277Z"
+                          }
                         }
                       },
                       {
                         "id": 88,
                         "attributes": {
-                          "name": "betterlesson-mshot-2.jpg",
+                          "createdAt": "2023-05-11T18:34:48.263Z",
+                          "updatedAt": "2023-05-11T18:34:48.263Z",
                           "alternativeText": "betterlesson-mshot-2.jpg",
                           "caption": "betterlesson-mshot-2.jpg",
-                          "width": 441,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_mshot_2_4229a8d966.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_betterlesson-mshot-2.jpg",
@@ -751,67 +654,53 @@
                               "size": 39,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_betterlesson_mshot_2_4229a8d966.jpg"
                             }
-                          },
-                          "hash": "betterlesson_mshot_2_4229a8d966",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 58.45,
-                          "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_mshot_2_4229a8d966.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:48.263Z",
-                          "updatedAt": "2023-05-11T18:34:48.263Z"
+                          }
                         }
                       }
                     ]
-                  }
+                  },
+                  "logo": {
+                    "data": {
+                      "id": 86,
+                      "attributes": {
+                        "createdAt": "2023-05-05T20:53:19.248Z",
+                        "updatedAt": "2023-05-05T20:53:19.248Z",
+                        "alternativeText": "betterlesson.svg",
+                        "caption": "betterlesson.svg",
+                        "provider": "aws-s3",
+                        "provider_metadata": null,
+                        "previewUrl": null,
+                        "url": "https://ca2022s3.s3.amazonaws.com/betterlesson_85ee8b4b1b.svg",
+                        "formats": null
+                      }
+                    }
+                  },
+                  "link": "https://teaching.betterlesson.com/browse/master_teachers/projects",
+                  "secondLink": "https://teaching.betterlesson.com/browse/strategies",
+                  "position": 20
                 }
               },
               {
                 "id": 4,
                 "attributes": {
-                  "link": "https://www.pixmix.net",
+                  "createdAt": "2023-05-09T17:09:54.502Z",
+                  "updatedAt": "2026-09-21T20:54:54.694Z",
+                  "publishedAt": "2023-05-09T18:07:04.160Z",
                   "title": "PixMix",
                   "body": "\n_2017 - 2020_\n\nAt PixMix I worked as a freelance developer, inheriting a codebase that existed prior to my employment. My work  included resolving bugs, implementing a mobile version, adding new gallery features and redesigning elements. This work was done with HTML, CSS, and PHP.\n\n_design credit: unsure, mobile designs by me_\n",
-                  "createdAt": "2023-05-09T17:09:54.502Z",
-                  "updatedAt": "2023-05-16T17:45:38.712Z",
-                  "publishedAt": "2023-05-09T18:07:04.160Z",
-                  "secondLink": null,
-                  "position": 30,
-                  "logo": {
-                    "data": {
-                      "id": 87,
-                      "attributes": {
-                        "name": "pixmix.png",
-                        "alternativeText": "pixmix.png",
-                        "caption": "pixmix.png",
-                        "width": 213,
-                        "height": 60,
-                        "formats": {},
-                        "hash": "pixmix_2ff7295561",
-                        "ext": ".png",
-                        "mime": "image/png",
-                        "size": 5.95,
-                        "url": "https://ca2022s3.s3.amazonaws.com/pixmix_2ff7295561.png",
-                        "previewUrl": null,
-                        "provider": "aws-s3",
-                        "provider_metadata": null,
-                        "createdAt": "2023-05-09T17:10:53.559Z",
-                        "updatedAt": "2023-05-09T23:29:32.128Z"
-                      }
-                    }
-                  },
                   "image": {
                     "data": [
                       {
                         "id": 105,
                         "attributes": {
-                          "name": "pixmix-sshot-2.jpg",
+                          "createdAt": "2023-05-11T18:34:53.007Z",
+                          "updatedAt": "2023-05-11T18:34:53.007Z",
                           "alternativeText": "pixmix-sshot-2.jpg",
                           "caption": "pixmix-sshot-2.jpg",
-                          "width": 1391,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/pixmix_sshot_2_adecc4282a.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_pixmix-sshot-2.jpg",
@@ -857,27 +746,20 @@
                               "size": 18.64,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_pixmix_sshot_2_adecc4282a.jpg"
                             }
-                          },
-                          "hash": "pixmix_sshot_2_adecc4282a",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 93.59,
-                          "url": "https://ca2022s3.s3.amazonaws.com/pixmix_sshot_2_adecc4282a.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:53.007Z",
-                          "updatedAt": "2023-05-11T18:34:53.007Z"
+                          }
                         }
                       },
                       {
                         "id": 104,
                         "attributes": {
-                          "name": "pixmix-sshot-3.jpg",
+                          "createdAt": "2023-05-11T18:34:52.921Z",
+                          "updatedAt": "2023-05-11T18:34:52.921Z",
                           "alternativeText": "pixmix-sshot-3.jpg",
                           "caption": "pixmix-sshot-3.jpg",
-                          "width": 1391,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/pixmix_sshot_3_3f6a22febf.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_pixmix-sshot-3.jpg",
@@ -923,27 +805,20 @@
                               "size": 20.91,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_pixmix_sshot_3_3f6a22febf.jpg"
                             }
-                          },
-                          "hash": "pixmix_sshot_3_3f6a22febf",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 100.72,
-                          "url": "https://ca2022s3.s3.amazonaws.com/pixmix_sshot_3_3f6a22febf.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:52.921Z",
-                          "updatedAt": "2023-05-11T18:34:52.921Z"
+                          }
                         }
                       },
                       {
                         "id": 103,
                         "attributes": {
-                          "name": "pixmix-sshot-1.jpg",
+                          "createdAt": "2023-05-11T18:34:52.548Z",
+                          "updatedAt": "2023-05-11T18:34:52.548Z",
                           "alternativeText": "pixmix-sshot-1.jpg",
                           "caption": "pixmix-sshot-1.jpg",
-                          "width": 1391,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/pixmix_sshot_1_6f20fff404.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_pixmix-sshot-1.jpg",
@@ -989,27 +864,20 @@
                               "size": 15.38,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_pixmix_sshot_1_6f20fff404.jpg"
                             }
-                          },
-                          "hash": "pixmix_sshot_1_6f20fff404",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 87.55,
-                          "url": "https://ca2022s3.s3.amazonaws.com/pixmix_sshot_1_6f20fff404.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:52.548Z",
-                          "updatedAt": "2023-05-11T18:34:52.548Z"
+                          }
                         }
                       },
                       {
                         "id": 99,
                         "attributes": {
-                          "name": "pixmix-mshot-2.jpg",
+                          "createdAt": "2023-05-11T18:34:50.916Z",
+                          "updatedAt": "2023-05-15T17:34:39.786Z",
                           "alternativeText": "pixmix-mshot-2.jpg",
                           "caption": "pixmix-mshot-2.jpg",
-                          "width": 441,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/pixmix_mshot_2_dba683558a.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_pixmix-mshot-2.jpg",
@@ -1033,27 +901,20 @@
                               "size": 42.3,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_pixmix_mshot_2_dba683558a.jpg"
                             }
-                          },
-                          "hash": "pixmix_mshot_2_dba683558a",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 67.15,
-                          "url": "https://ca2022s3.s3.amazonaws.com/pixmix_mshot_2_dba683558a.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:50.916Z",
-                          "updatedAt": "2023-05-15T17:34:39.786Z"
+                          }
                         }
                       },
                       {
                         "id": 98,
                         "attributes": {
-                          "name": "pixmix-mshot-3.jpg",
+                          "createdAt": "2023-05-11T18:34:50.908Z",
+                          "updatedAt": "2023-05-11T18:34:50.908Z",
                           "alternativeText": "pixmix-mshot-3.jpg",
                           "caption": "pixmix-mshot-3.jpg",
-                          "width": 441,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/pixmix_mshot_3_0076ba2cff.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_pixmix-mshot-3.jpg",
@@ -1077,27 +938,20 @@
                               "size": 19.07,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_pixmix_mshot_3_0076ba2cff.jpg"
                             }
-                          },
-                          "hash": "pixmix_mshot_3_0076ba2cff",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 27.32,
-                          "url": "https://ca2022s3.s3.amazonaws.com/pixmix_mshot_3_0076ba2cff.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:50.908Z",
-                          "updatedAt": "2023-05-11T18:34:50.908Z"
+                          }
                         }
                       },
                       {
                         "id": 97,
                         "attributes": {
-                          "name": "pixmix-mshot-1.jpg",
+                          "createdAt": "2023-05-11T18:34:50.881Z",
+                          "updatedAt": "2023-05-15T17:34:57.950Z",
                           "alternativeText": "pixmix-mshot-1.jpg",
                           "caption": "pixmix-mshot-1.jpg",
-                          "width": 441,
-                          "height": 655,
+                          "provider": "aws-s3",
+                          "provider_metadata": null,
+                          "previewUrl": null,
+                          "url": "https://ca2022s3.s3.amazonaws.com/pixmix_mshot_1_59558cbba0.jpg",
                           "formats": {
                             "thumbnail": {
                               "name": "thumbnail_pixmix-mshot-1.jpg",
@@ -1121,30 +975,36 @@
                               "size": 26.09,
                               "url": "https://ca2022s3.s3.amazonaws.com/small_pixmix_mshot_1_59558cbba0.jpg"
                             }
-                          },
-                          "hash": "pixmix_mshot_1_59558cbba0",
-                          "ext": ".jpg",
-                          "mime": "image/jpeg",
-                          "size": 37.17,
-                          "url": "https://ca2022s3.s3.amazonaws.com/pixmix_mshot_1_59558cbba0.jpg",
-                          "previewUrl": null,
-                          "provider": "aws-s3",
-                          "provider_metadata": null,
-                          "createdAt": "2023-05-11T18:34:50.881Z",
-                          "updatedAt": "2023-05-15T17:34:57.950Z"
+                          }
                         }
                       }
                     ]
-                  }
+                  },
+                  "logo": {
+                    "data": {
+                      "id": 87,
+                      "attributes": {
+                        "createdAt": "2023-05-09T17:10:53.559Z",
+                        "updatedAt": "2023-05-09T23:29:32.128Z",
+                        "alternativeText": "pixmix.png",
+                        "caption": "pixmix.png",
+                        "provider": "aws-s3",
+                        "provider_metadata": null,
+                        "previewUrl": null,
+                        "url": "https://ca2022s3.s3.amazonaws.com/pixmix_2ff7295561.png",
+                        "formats": {}
+                      }
+                    }
+                  },
+                  "link": "https://www.pixmix.net",
+                  "secondLink": null,
+                  "position": 30
                 }
               }
             ]
           }
         }
       }
-    ],
-    "meta": {
-      "pagination": { "page": 1, "pageSize": 25, "pageCount": 1, "total": 1 }
-    }
+    ]
   }
 }

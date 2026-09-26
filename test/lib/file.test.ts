@@ -5,7 +5,13 @@ import { writeFsTE, mkKeyWDefault } from '../../src/lib/file';
 // Mock fs module
 vi.mock('fs', () => ({
   promises: {
-    writeFile: vi.fn()
+    writeFile: vi.fn(),
+    readFile: vi.fn(),
+    mkdir: vi.fn(),
+    access: vi.fn()
+  },
+  constants: {
+    F_OK: 0
   }
 }));
 
@@ -16,6 +22,9 @@ import * as fs from 'fs';
 describe('File Utilities', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fs.promises.readFile).mockRejectedValue(new Error('missing file'));
+    vi.mocked(fs.promises.mkdir).mockResolvedValue(undefined);
+    vi.mocked(fs.promises.access).mockRejectedValue(new Error('missing snapshot'));
   });
 
   describe('mkKeyWDefault', () => {
@@ -84,9 +93,9 @@ describe('File Utilities', () => {
         expect(result.right).toEqual(mockData);
       }
 
-      expect(fs.promises.writeFile).toHaveBeenCalledWith(
+      expect(fs.promises.writeFile).toHaveBeenLastCalledWith(
         './src/data/test-file.json',
-        expect.stringContaining('"data":{"test":"data"}')
+        expect.stringContaining('"test": "data"')
       );
     });
 
@@ -144,9 +153,47 @@ describe('File Utilities', () => {
 
       await Effect.runPromise(Effect.either(writeFsTE([mockData, filename])));
 
-      expect(fs.promises.writeFile).toHaveBeenCalledWith(
+      expect(fs.promises.writeFile).toHaveBeenLastCalledWith(
         './src/data/path-test.json',
         expect.any(String)
+      );
+    });
+
+    it('creates a history snapshot for the new version', async () => {
+      const mockData = { test: 'data' };
+      const filename = 'history-test';
+
+      vi.mocked(fs.promises.writeFile).mockResolvedValue(undefined);
+
+      await Effect.runPromise(Effect.either(writeFsTE([mockData, filename])));
+
+      expect(vi.mocked(fs.promises.writeFile).mock.calls[0]?.[0]).toMatch(
+        /^\.\/src\/data\/history\/history-test\/\d+\.json$/
+      );
+      expect(vi.mocked(fs.promises.writeFile).mock.calls[1]?.[0]).toBe(
+        './src/data/history-test.json'
+      );
+    });
+
+    it('creates a baseline snapshot when an existing file has no history yet', async () => {
+      const mockData = { test: 'data' };
+      const filename = 'baseline-test';
+
+      vi.mocked(fs.promises.readFile).mockResolvedValue(
+        JSON.stringify({ name: filename, timestamp: 123, data: { old: true } })
+      );
+      vi.mocked(fs.promises.writeFile).mockResolvedValue(undefined);
+
+      await Effect.runPromise(Effect.either(writeFsTE([mockData, filename])));
+
+      expect(vi.mocked(fs.promises.writeFile).mock.calls[0]?.[0]).toBe(
+        './src/data/history/baseline-test/123.json'
+      );
+      expect(vi.mocked(fs.promises.writeFile).mock.calls[1]?.[0]).toMatch(
+        /^\.\/src\/data\/history\/baseline-test\/\d+\.json$/
+      );
+      expect(vi.mocked(fs.promises.writeFile).mock.calls[2]?.[0]).toBe(
+        './src/data/baseline-test.json'
       );
     });
 

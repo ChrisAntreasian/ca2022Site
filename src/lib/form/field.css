@@ -1,0 +1,22 @@
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--form-field-gap, 0.45rem);
+}
+
+.form-field__label {
+  font-family: var(--font-th);
+  letter-spacing: 0.08rem;
+  font-size: 1.25rem;
+}
+
+.form-field__description {
+  font-size: 0.95rem;
+  line-height: 1.25rem;
+  color: var(--b-dk);
+}
+
+.form-field__error {
+  font-size: 0.875rem;
+  color: var(--error, #c00);
+}

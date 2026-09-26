@@ -29,6 +29,8 @@
     parentRoute: string;
     analyticsKey: string;
     categoryTitle: string;
+    actionHref?: string | null;
+    actionLabel?: string;
     hideMobileTitle?: boolean;
     useUrlTitle?: boolean;
   };
@@ -39,24 +41,26 @@
     parentRoute,
     analyticsKey,
     categoryTitle,
-    hideMobileTitle,
-    useUrlTitle,
+    actionHref = null,
+    actionLabel = "Edit post",
+    hideMobileTitle = false,
+    useUrlTitle = false,
   }: GallaryProps = $props();
 
   const { getFooterHeight }: LayoutElemH = getContext(contextHeightKey);
 
   const clientNavigateS = clientNavigate(false);
 
-  let windowWidth: number = $state();
-  let windowHeight: number = $state();
-  let measureH: number = $state();
+  let windowWidth = $state(0);
+  let windowHeight = $state(0);
+  let measureH = $state(0);
 
-  let subnavHeight: number = $state();
-  let gallarySectionHeight: number = $state();
+  let subnavHeight = $state(0);
+  let gallarySectionHeight = $state(0);
   let scrollRequestUpdate: boolean = $state(false);
   let gallaryHeight = $state();
 
-  let shoudPageinateSlider: (apId: number) => void = $state();
+  let shoudPageinateSlider = $state<(apId: number) => void>(() => {});
 
   const extraHeight = fromRem(2.5);
   const navHeight = fromRem(6);
@@ -87,9 +91,9 @@
   onMount(initGallery);
   afterNavigate(initGallery);
 
-  let preloadImages = artPieces.map(
-    (p) => p.attributes.image.data.attributes.url
-  );
+  let preloadImages = artPieces
+    .map((p) => p.attributes.image.data?.attributes.url)
+    .filter((image): image is string => Boolean(image));
 
   const transitionDetails = {
     easing: cubicOut,
@@ -110,7 +114,7 @@
     artPiece = artPieces.filter((p) => p.id === id)[0];
     clientNavigateS(
       `${parentRoute}${artPiece.id}`,
-      useUrlTitle ? artPiece.attributes.title : null
+      useUrlTitle ? artPiece.attributes.title : undefined
     );
   };
 
@@ -140,17 +144,19 @@
     );
   };
 
-  const paginateItem = (k: string) => (n: number) => {
+  const paginateItem = (k?: string) => (n: number) => {
     const index = artPieces.findIndex((_) => _.id === artPiece.id);
     changeSelected(artPieces[index + n].id);
     shoudPageinateSlider(artPieces[index + n].id);
-    captureBehavior(
-      `${k} click paginate`,
-      captureDetails(
-        { id: index + n, name: artPieces[index + n].attributes.title },
-        { direction: n > 0 ? "next" : "last" }
-      )
-    );
+    if (k) {
+      captureBehavior(
+        `${k} click paginate`,
+        captureDetails(
+          { id: index + n, name: artPieces[index + n].attributes.title },
+          { direction: n > 0 ? "next" : "last" }
+        )
+      );
+    }
   };
 
   const readMoreClick = (s: boolean) => {
@@ -196,6 +202,8 @@
     {scrollRequestUpdate}
     bind:measureH
     {hideMobileTitle}
+    {actionHref}
+    {actionLabel}
   />
   <Nav
     {artPiece}

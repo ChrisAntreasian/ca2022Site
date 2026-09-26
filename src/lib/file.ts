@@ -6,6 +6,51 @@ import { e500, type HttpErrE, type HttpErrTE } from "./error";
 
 const dataPath = "src/data";
 
+const dataFilePath = (name: string) => `./${dataPath}/${name}.json`;
+const historyDirPath = (name: string) => `./${dataPath}/history/${name}`;
+const historyFilePath = (name: string, timestamp: number) =>
+  `${historyDirPath(name)}/${timestamp}.json`;
+
+type VersionedDataFile<A> = {
+  name: string;
+  timestamp: number;
+  data: A;
+};
+
+export const ensureDataBaselineSnapshot = async (name: string) => {
+  try {
+    const currentJson = await fs.promises.readFile(dataFilePath(name), "utf8");
+    const currentData = JSON.parse(currentJson) as Partial<VersionedDataFile<unknown>>;
+
+    if (typeof currentData.timestamp !== "number") {
+      return false;
+    }
+
+    await fs.promises.mkdir(historyDirPath(name), { recursive: true });
+
+    try {
+      await fs.promises.access(historyFilePath(name, currentData.timestamp), fs.constants.F_OK);
+      return false;
+    } catch {
+      await fs.promises.writeFile(
+        historyFilePath(name, currentData.timestamp),
+        `${currentJson.trimEnd()}\n`,
+      );
+      return true;
+    }
+  } catch {
+    return false;
+  }
+};
+
+export const writeVersionedDataFile = async <A>(writeData: VersionedDataFile<A>) => {
+  const json = `${JSON.stringify(writeData, null, 2)}\n`;
+
+  await fs.promises.mkdir(historyDirPath(writeData.name), { recursive: true });
+  await fs.promises.writeFile(historyFilePath(writeData.name, writeData.timestamp), json);
+  await fs.promises.writeFile(dataFilePath(writeData.name), json);
+};
+
 export const writeFsTE = <A>(d: [A, string]): HttpErrTE<A> =>
   pipe(
     Effect.sync(() => ({
@@ -15,11 +60,10 @@ export const writeFsTE = <A>(d: [A, string]): HttpErrTE<A> =>
     })),
     Effect.flatMap((writeData) =>
       Effect.tryPromise({
-        try: () =>
-          fs.promises.writeFile(
-            `./${dataPath}/${writeData.name}.json`,
-            JSON.stringify(writeData),
-          ),
+        try: async () => {
+          await ensureDataBaselineSnapshot(writeData.name);
+          await writeVersionedDataFile(writeData);
+        },
         catch: () => {
           try {
             return e500("Failed to write the data.");

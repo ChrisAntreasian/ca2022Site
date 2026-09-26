@@ -5,8 +5,10 @@ node_modules
 /package
 .env
 .env.*
+/docs
 .vercel
 .output
 /coverage
 /test-results
 .specstory
+src/data/history/

@@ -1,0 +1,276 @@
+<script lang="ts">
+  import { afterNavigate, beforeNavigate, goto } from "$app/navigation";
+  import { onDestroy } from "svelte";
+  import { page } from "$app/state";
+  import type { Snippet } from "svelte";
+
+  import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
+  import Shell from "$lib/Article/Shell.svelte";
+
+  interface Props {
+    activeTitle: string;
+    defaultHeadline: string;
+    wrapBasis?: number;
+    editorTitle: string;
+    editorDescription: string;
+    actionHref?: string | null;
+    actionLabel?: string;
+    formMessage?: string;
+    savedMessage?: string | null;
+    savedTitle: string;
+    isDirty: boolean;
+    formElement?: HTMLFormElement | null;
+    editorPane?: Snippet;
+    navigationPane?: Snippet<[(path: string) => void]>;
+  }
+
+  let {
+    activeTitle,
+    defaultHeadline,
+    wrapBasis = 100,
+    editorTitle,
+    editorDescription,
+    actionHref = null,
+    actionLabel = "View post",
+    formMessage,
+    savedMessage = null,
+    savedTitle,
+    isDirty,
+    formElement = $bindable(null),
+    editorPane,
+    navigationPane,
+  }: Props = $props();
+
+  let pendingPath: string | null = $state(null);
+  let confirmedPath: string | null = $state(null);
+  let showUnsavedWarning = $state(false);
+  let showSavedNotice = $state(false);
+  let suppressBeforeUnload = $state(false);
+  let suppressTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const clearSuppressTimer = () => {
+    if (suppressTimer) {
+      clearTimeout(suppressTimer);
+      suppressTimer = null;
+    }
+  };
+
+  const suppressUnloadPrompt = () => {
+    suppressBeforeUnload = true;
+    clearSuppressTimer();
+    suppressTimer = setTimeout(() => {
+      suppressBeforeUnload = false;
+      suppressTimer = null;
+    }, 2000);
+  };
+
+  $effect(() => {
+    showSavedNotice = Boolean(savedMessage);
+  });
+
+  const requestNavigation = (path: string) => {
+    if (path === page.url.pathname) return;
+    if (!isDirty) {
+      void goto(path);
+      return;
+    }
+
+    pendingPath = path;
+    showUnsavedWarning = true;
+  };
+
+  const closeUnsavedWarning = () => {
+    pendingPath = null;
+    showUnsavedWarning = false;
+  };
+
+  const handleLeave = () => {
+    if (!pendingPath) return;
+    const nextPath = pendingPath;
+    closeUnsavedWarning();
+    confirmedPath = nextPath;
+    void goto(nextPath);
+  };
+
+  const handleSaveAndContinue = () => {
+    if (!pendingPath || !formElement) return;
+
+    const redirectInput = formElement.querySelector(
+      'input[name="redirectTo"]',
+    ) as HTMLInputElement | null;
+
+    if (redirectInput) {
+      redirectInput.value = pendingPath;
+    }
+
+    suppressUnloadPrompt();
+    showUnsavedWarning = false;
+    formElement.requestSubmit();
+  };
+
+  const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    if (suppressBeforeUnload) return;
+    if (!isDirty) return;
+    event.preventDefault();
+    event.returnValue = "";
+  };
+
+  $effect(() => {
+    if (!formElement) {
+      return;
+    }
+
+    const onSubmit = () => {
+      suppressUnloadPrompt();
+    };
+
+    formElement.addEventListener("submit", onSubmit);
+
+    return () => {
+      formElement.removeEventListener("submit", onSubmit);
+    };
+  });
+
+  afterNavigate(() => {
+    suppressBeforeUnload = false;
+    clearSuppressTimer();
+  });
+
+  onDestroy(() => {
+    clearSuppressTimer();
+  });
+
+  beforeNavigate((navigation) => {
+    if (!isDirty) {
+      return;
+    }
+
+    if (navigation.type !== "link" && navigation.type !== "popstate") {
+      return;
+    }
+
+    const nextUrl = navigation.to?.url;
+
+    if (!nextUrl) {
+      return;
+    }
+
+    if (navigation.to.route?.id === null) {
+      return;
+    }
+
+    const nextPath = `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
+    const currentPath = `${page.url.pathname}${page.url.search}${page.url.hash}`;
+
+    if (confirmedPath && nextPath === confirmedPath) {
+      confirmedPath = null;
+      return;
+    }
+
+    if (nextPath === currentPath) {
+      return;
+    }
+
+    pendingPath = nextPath;
+    showUnsavedWarning = true;
+    navigation.cancel();
+  });
+
+  const closeSavedNotice = () => {
+    showSavedNotice = false;
+  };
+</script>
+
+<svelte:window onbeforeunload={handleBeforeUnload} />
+
+<Shell {activeTitle} {defaultHeadline} {wrapBasis}>
+  {#snippet mainContent()}
+    <article class="edit-article">
+      <div class="edit-head">
+        <div>
+          <h2>{editorTitle}</h2>
+        </div>
+        {#if actionHref}
+          <a class="post-action-link" href={actionHref}>{actionLabel}</a>
+        {/if}
+      </div>
+
+      {#if formMessage}
+        <p class="message">{formMessage}</p>
+      {/if}
+
+      {@render editorPane?.()}
+    </article>
+  {/snippet}
+
+  {#snippet navContent()}
+    {@render navigationPane?.(requestNavigation)}
+  {/snippet}
+</Shell>
+
+<UnsavedChangesDialog
+  open={showUnsavedWarning}
+  onStay={closeUnsavedWarning}
+  onLeave={handleLeave}
+  onSaveAndContinue={handleSaveAndContinue}
+/>
+
+<UnsavedChangesDialog
+  open={showSavedNotice}
+  title={savedTitle}
+  message={savedMessage ?? "Your changes were saved."}
+  onContinue={closeSavedNotice}
+  autoDismissMs={1500}
+/>
+
+<style>
+  .edit-article {
+    width: 66.66%;
+    min-height: var(--min-height);
+    padding: 1.3333rem 2rem 2rem;
+    box-sizing: border-box;
+  }
+
+  .edit-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .message {
+    margin: 0 0 1rem;
+    color: var(--o-dk);
+  }
+
+  .post-action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--bg-dk);
+    text-decoration: none;
+    white-space: nowrap;
+    font-family: var(--font-jsf);
+    font-size: 1.15rem;
+    line-height: 1.5rem;
+  }
+
+  .post-action-link:hover {
+    color: var(--bg-lt);
+  }
+
+  @media (max-width: 767.98px) {
+    .edit-article {
+      width: 100%;
+      padding: 1.3333rem 1rem calc(var(--snh) + 2rem);
+    }
+
+    .edit-head {
+      flex-direction: column;
+    }
+  }
+</style>

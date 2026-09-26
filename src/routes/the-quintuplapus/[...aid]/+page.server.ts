@@ -1,5 +1,6 @@
 import type { PageServerLoad } from "./$types";
 import * as D from "$data/the-quintuplapus.json";
+import { isEditorEnabled } from "$lib/editing/auth.server";
 
 export const load: PageServerLoad = async ({ params }) => {
   const aid = parseInt(params.aid) || 2;
@@ -19,5 +20,6 @@ export const load: PageServerLoad = async ({ params }) => {
     categoryTitle,
     artPieces,
     artPiece,
+    editorEnabled: isEditorEnabled(),
   };
 };
