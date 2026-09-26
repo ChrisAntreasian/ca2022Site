@@ -87,7 +87,7 @@ describe("Quintuplapus edit page server delete", () => {
       } as never),
     ).rejects.toMatchObject({
       status: 303,
-      location: "/the-quintuplapus/edit/3/panel-three?saved=1",
+      location: "/the-quintuplapus/edit/3/panel-three?deleted=1",
     });
 
     expect(deleteQuintuplapusEntry).toHaveBeenCalledWith(5, expect.any(Date), mockFile);

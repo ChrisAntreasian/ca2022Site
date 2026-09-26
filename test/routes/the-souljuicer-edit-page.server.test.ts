@@ -176,7 +176,7 @@ describe("SoulJuicer edit page server", () => {
       } as never),
     ).rejects.toMatchObject({
       status: 303,
-      location: "/the-souljuicer/edit/2?saved=1",
+      location: "/the-souljuicer/edit/2?deleted=1",
     });
 
     expect(deleteSouljuicerEntry).toHaveBeenCalledWith(4, expect.any(Date), mockFile);

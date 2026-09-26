@@ -244,7 +244,7 @@ describe("poems edit page server", () => {
       } as never),
     ).rejects.toMatchObject({
       status: 303,
-      location: "/poems/edit/4/the-carpal-tunnel?saved=1",
+      location: "/poems/edit/4/the-carpal-tunnel?deleted=1",
     });
 
     expect(deletePoemEditorValue).toHaveBeenCalledWith(2, expect.any(Date), { name: "poems" });

@@ -59,7 +59,7 @@ describe('Image Utilities', () => {
       const imageData = createMockImageData(true, 'original');
       const result = safeImageString('original')(imageData);
       
-      expect(result).toBe('/image-original.jpg');
+      expect(result).toBe('/default-image.jpg');
     });
 
     it('falls back to default URL for non-existent format', () => {

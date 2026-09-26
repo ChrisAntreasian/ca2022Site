@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+vi.unmock('$lib/analytics');
+
+vi.mock('$app/environment', () => ({
+  browser: true,
+}));
+
 // Mock mixpanel-browser - must use factory function without external variables
 vi.mock('mixpanel-browser', () => ({
   default: {
@@ -15,23 +21,13 @@ vi.mock('node:crypto', () => ({
   }))
 }));
 
-// Override the global analytics mock to use actual implementations for testing
-vi.mock('$lib/analytics', async (importOriginal) => {
-  const actual = await importOriginal() as Record<string, unknown>;
-  return {
-    ...actual,
-    captureBehavior: vi.fn(actual.captureBehavior as (...args: unknown[]) => unknown),
-    initMixpanel: vi.fn(actual.initMixpanel as (...args: unknown[]) => unknown),
-    initDistinctId: vi.fn(actual.initDistinctId as (...args: unknown[]) => unknown)
-  };
-});
-
 import mixpanel from 'mixpanel-browser';
 import {
   captureDetails,
   captureBehavior,
   captureClickThis,
-} from '../../src/lib/analytics';
+  initMixpanel,
+} from '$lib/analytics';
 
 // Get the mocked mixpanel
 const mockMixpanel = mixpanel as unknown as {
@@ -106,6 +102,7 @@ describe('Analytics Module Tests', () => {
 
     it('tracks events in production environment', async () => {
       vi.stubEnv('PROD', true);
+      await initMixpanel();
       
       const eventKey = 'user-click';
       const props = { button: 'submit', page: 'contact' };
@@ -117,6 +114,7 @@ describe('Analytics Module Tests', () => {
 
     it('tracks events without props in production', async () => {
       vi.stubEnv('PROD', true);
+      await initMixpanel();
       
       await captureBehavior('simple-event');
       
@@ -125,6 +123,7 @@ describe('Analytics Module Tests', () => {
 
     it('handles undefined props correctly', async () => {
       vi.stubEnv('PROD', true);
+      await initMixpanel();
       
       await captureBehavior('undefined-props-event', undefined);
       
@@ -133,8 +132,9 @@ describe('Analytics Module Tests', () => {
   });
 
   describe('captureClickThis', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       vi.stubEnv('PROD', true);
+      await initMixpanel();
     });
 
     it('creates a curried function for click tracking', () => {
@@ -184,6 +184,7 @@ describe('Analytics Module Tests', () => {
   describe('Analytics workflow integration', () => {
     it('can combine captureDetails with captureBehavior', async () => {
       vi.stubEnv('PROD', true);
+      await initMixpanel();
 
       const details = captureDetails({ id: 123, name: 'Test Article' }, { category: 'blog' });
       await captureBehavior('view-article', details);

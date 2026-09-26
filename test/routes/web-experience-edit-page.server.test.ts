@@ -88,7 +88,7 @@ describe("web experience edit page server delete action", () => {
       } as never),
     ).rejects.toMatchObject({
       status: 303,
-      location: "/web-experience/edit/8/betterlesson?saved=1",
+      location: "/web-experience/edit/8/betterlesson?deleted=1",
     });
 
     expect(deleteWebExperienceEntry).toHaveBeenCalledTimes(1);
