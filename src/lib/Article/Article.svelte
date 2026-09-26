@@ -236,18 +236,18 @@
   ul {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 1rem;
     margin-top: 0.5rem;
   }
   li {
     display: flex;
-    width: calc(33.333% - 0.5rem);
+    width: calc((100% - 2rem) / 3);
     aspect-ratio: 1 / 0.75;
     border: var(--space-md) solid var(--bg-dk);
     border-radius: 0.333rem;
     box-sizing: border-box;
     overflow: hidden;
-    margin-bottom: 0.75rem;
     transition: border 250ms ease-out;
   }
   li:hover {
