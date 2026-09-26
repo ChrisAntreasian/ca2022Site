@@ -17,16 +17,18 @@
 </svelte:head>
 
 <section class="terms-page">
-  <div class="terms-wrap">
-    {#if editHref}
-      <div class="terms-actions">
-        <a class="post-action-link" href={editHref}>Edit post</a>
-      </div>
-    {/if}
+  <article class="terms-article">
+    <div class="terms-wrap">
+      {#if editHref}
+        <div class="terms-actions">
+          <a class="post-action-link" href={editHref}>Edit post</a>
+        </div>
+      {/if}
 
-    <h1>{data.terms.title}</h1>
-    <SvelteMarkdown md={data.terms.bodyMarkdown} />
-  </div>
+      <h2>{data.terms.title}</h2>
+      <SvelteMarkdown md={data.terms.bodyMarkdown} />
+    </div>
+  </article>
 </section>
 
 <style>
@@ -36,11 +38,10 @@
     justify-content: center;
     box-sizing: border-box;
     padding: 1.3333rem 2rem 2rem;
-    min-height: var(--min-height);
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
   }
 
   .terms-wrap {
-    width: min(52rem, 100%);
     position: relative;
   }
 
@@ -70,9 +71,8 @@
     color: var(--bg-lt);
   }
 
-  h1 {
+  h2 {
     margin: 0 0 1rem;
-    padding-right: 9rem;
     color: var(--b-dk);
   }
 
