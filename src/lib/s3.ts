@@ -1,4 +1,10 @@
-import AWS from "aws-sdk";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  type PutObjectCommandInput,
+  S3Client,
+} from "@aws-sdk/client-s3";
 
 import { env } from "$env/dynamic/private";
 
@@ -28,46 +34,63 @@ export const initS3 = () =>
   (() => {
     const config = getS3Config();
 
-    return new AWS.S3({
+    return new S3Client({
       region: config.region,
-      accessKeyId: config.accessKeyId,
-      secretAccessKey: config.secretAccessKey,
+      credentials: {
+        accessKeyId: config.accessKeyId,
+        secretAccessKey: config.secretAccessKey,
+      },
     });
   })();
 
-export const getS3File = (s3: AWS.S3) => async (k: string) =>
-  s3
-    .getObject({
-      Bucket: getS3Config().bucket,
+export const getS3File = (s3: S3Client) => async (k: string) => {
+  const config = getS3Config();
+
+  return s3.send(
+    new GetObjectCommand({
+      Bucket: config.bucket,
       Key: k,
-    })
-    .promise();
+    }),
+  );
+};
+
+const objectUrl = (bucket: string, region: string, key: string) =>
+  `https://${bucket}.s3.${region}.amazonaws.com/${encodeURI(key).replace(/#/g, "%23")}`;
 
 export const uploadS3File =
-  (s3: AWS.S3) =>
-  async (k: string, f: AWS.S3.Types.PutObjectRequest["Body"]) => {
+  (s3: S3Client) =>
+  async (k: string, f: PutObjectCommandInput["Body"]) => {
+    const config = getS3Config();
+
     try {
-      return await s3
-        .upload({
-          Bucket: getS3Config().bucket,
+      const result = await s3.send(
+        new PutObjectCommand({
+          Bucket: config.bucket,
           Key: k,
           Body: f,
-        })
-        .promise();
+        }),
+      );
+
+      return {
+        ...result,
+        Location: objectUrl(config.bucket, config.region, k),
+      };
     } catch (err) {
       console.error(err);
       return null;
     }
   };
 
-export const deleteS3File = (s3: AWS.S3) => async (k: string) => {
+export const deleteS3File = (s3: S3Client) => async (k: string) => {
+  const config = getS3Config();
+
   try {
-    return await s3
-      .deleteObject({
-        Bucket: getS3Config().bucket,
+    return await s3.send(
+      new DeleteObjectCommand({
+        Bucket: config.bucket,
         Key: k,
-      })
-      .promise();
+      }),
+    );
   } catch (err) {
     console.error(err);
     return null;
