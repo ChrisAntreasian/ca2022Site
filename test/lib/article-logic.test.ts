@@ -120,10 +120,9 @@ describe('Article Logic Tests', () => {
 
   describe('Navigation State Management', () => {
     it('tracks expanded state correctly', () => {
-      let expanded = false;
+      let expanded = true;
       
       // Simulate expanding
-      expanded = true;
       expect(expanded).toBe(true);
       
       // Simulate collapsing
@@ -134,6 +133,9 @@ describe('Article Logic Tests', () => {
     it('resets states on navigation', () => {
       let expanded = true;
       let scrollLogged = true;
+
+      expect(expanded).toBe(true);
+      expect(scrollLogged).toBe(true);
       
       // Simulate navigation reset
       expanded = false;
