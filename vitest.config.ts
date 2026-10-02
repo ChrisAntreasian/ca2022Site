@@ -12,7 +12,8 @@ export default defineConfig({
     exclude: [
       'test/**/Gallery.test.ts', 
       'test/**/Article.test.ts',
-      'test/**/*component*.{test,spec}.{js,ts}'
+      'test/**/*component*.{test,spec}.{js,ts}',
+      'test/**/*.e2e.spec.ts'
     ], // Exclude component tests that require browser environment
     coverage: {
       reporter: ['text', 'json', 'html'],
