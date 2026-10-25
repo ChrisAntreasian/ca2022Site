@@ -20,7 +20,9 @@ type VersionedDataFile<A> = {
 export const ensureDataBaselineSnapshot = async (name: string) => {
   try {
     const currentJson = await fs.promises.readFile(dataFilePath(name), "utf8");
-    const currentData = JSON.parse(currentJson) as Partial<VersionedDataFile<unknown>>;
+    const currentData = JSON.parse(currentJson) as Partial<
+      VersionedDataFile<unknown>
+    >;
 
     if (typeof currentData.timestamp !== "number") {
       return false;
@@ -29,7 +31,10 @@ export const ensureDataBaselineSnapshot = async (name: string) => {
     await fs.promises.mkdir(historyDirPath(name), { recursive: true });
 
     try {
-      await fs.promises.access(historyFilePath(name, currentData.timestamp), fs.constants.F_OK);
+      await fs.promises.access(
+        historyFilePath(name, currentData.timestamp),
+        fs.constants.F_OK,
+      );
       return false;
     } catch {
       await fs.promises.writeFile(
@@ -43,11 +48,16 @@ export const ensureDataBaselineSnapshot = async (name: string) => {
   }
 };
 
-export const writeVersionedDataFile = async <A>(writeData: VersionedDataFile<A>) => {
+export const writeVersionedDataFile = async <A>(
+  writeData: VersionedDataFile<A>,
+) => {
   const json = `${JSON.stringify(writeData, null, 2)}\n`;
 
   await fs.promises.mkdir(historyDirPath(writeData.name), { recursive: true });
-  await fs.promises.writeFile(historyFilePath(writeData.name, writeData.timestamp), json);
+  await fs.promises.writeFile(
+    historyFilePath(writeData.name, writeData.timestamp),
+    json,
+  );
   await fs.promises.writeFile(dataFilePath(writeData.name), json);
 };
 
@@ -78,7 +88,7 @@ export const writeFsTE = <A>(d: [A, string]): HttpErrTE<A> =>
 
 const routeKeys = [
   "landing",
-  "layout", 
+  "layout",
   "poems",
   "terms-of-service",
   "the-quintuplapus",
@@ -87,8 +97,7 @@ const routeKeys = [
 ];
 type RouteKeyU = (typeof routeKeys)[number];
 
-const keyGuard = (k: string): k is RouteKeyU =>
-  Array.contains(routeKeys, k);
+const keyGuard = (k: string): k is RouteKeyU => Array.contains(routeKeys, k);
 
 const mkKeyE = (rid: string): HttpErrE<RouteKeyU> => {
   const segment = rid.split("/")[1];

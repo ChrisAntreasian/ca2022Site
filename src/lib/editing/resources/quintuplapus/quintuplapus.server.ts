@@ -91,9 +91,9 @@ export const replaceQuintuplapusEntryImage = async (
     getOriginalMediaUrl: (current, targetEntryId) => {
       const category = current.data.data[0];
 
-      return (category.attributes.art_pieces?.data ?? [])
-        .find((entry) => entry.id === targetEntryId)
-        ?.attributes.image.data?.attributes.url;
+      return (category.attributes.art_pieces?.data ?? []).find(
+        (entry) => entry.id === targetEntryId,
+      )?.attributes.image.data?.attributes.url;
     },
     applyPatch: (current, targetEntryId, asset, patchNow) =>
       applyQuintuplapusImagePatch(current, targetEntryId, asset, patchNow),

@@ -35,12 +35,15 @@ export type SouljuicerFile = {
   data: SouljuicerData;
 };
 
-export const souljuicerFileC: Schema.Schema<SouljuicerFile, SouljuicerFile, never> =
-  Schema.Struct({
-    name: Schema.String,
-    timestamp: Schema.Number,
-    data: souljuicerDataC,
-  });
+export const souljuicerFileC: Schema.Schema<
+  SouljuicerFile,
+  SouljuicerFile,
+  never
+> = Schema.Struct({
+  name: Schema.String,
+  timestamp: Schema.Number,
+  data: souljuicerDataC,
+});
 
 export const souljuicerEditorEntryC = Schema.Struct({
   id: Schema.Number,
@@ -144,7 +147,9 @@ export const upsertSouljuicerEditorValue = (
   now = new Date(),
 ): SouljuicerFile => {
   const timestamp = now.toISOString();
-  const existingById = new Map(file.data.data.map((entry) => [entry.id, entry]));
+  const existingById = new Map(
+    file.data.data.map((entry) => [entry.id, entry]),
+  );
 
   const nextData = [...value.entries]
     .sort((left, right) => left.sortOrder - right.sortOrder)
@@ -237,7 +242,10 @@ const toImageBase = (prefix: string, asset: UploadedImageAsset) => {
   };
 };
 
-const toStrapiImageAttributes = (asset: UploadedImageAsset, timestamp: string) => {
+const toStrapiImageAttributes = (
+  asset: UploadedImageAsset,
+  timestamp: string,
+) => {
   const fallbackName = asset.name || "upload";
 
   return {

@@ -2,7 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockPoems = [
   { id: 2, title: "Cheese", bodyMarkdown: "Cheese body", sortOrder: 10 },
-  { id: 4, title: "The Carpal Tunnel", bodyMarkdown: "Tunnel body", sortOrder: 20 },
+  {
+    id: 4,
+    title: "The Carpal Tunnel",
+    bodyMarkdown: "Tunnel body",
+    sortOrder: 20,
+  },
 ];
 
 const mockSavedFile = {
@@ -36,7 +41,12 @@ describe("poems edit page server", () => {
         key: "poems",
         label: "Poems",
         fields: [],
-        createDefault: () => ({ id: 0, title: "", bodyMarkdown: "", sortOrder: 10 }),
+        createDefault: () => ({
+          id: 0,
+          title: "",
+          bodyMarkdown: "",
+          sortOrder: 10,
+        }),
         schema: {},
       },
       toPoemEditorValues: vi.fn(() => mockPoems),
@@ -48,7 +58,8 @@ describe("poems edit page server", () => {
       savePoemEditorValue: vi.fn(),
     }));
 
-    const { load } = await import("../../src/routes/poems/edit/[...pid]/+page.server");
+    const { load } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
 
     const result = await load({
       params: { pid: "4/the-carpal-tunnel" },
@@ -63,7 +74,8 @@ describe("poems edit page server", () => {
 
   it("redirects saved poems to slugged edit routes with saved=1", async () => {
     vi.doMock("@sveltejs/kit", async () => {
-      const actual = await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
+      const actual =
+        await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
       return {
         ...actual,
         redirect: (status: number, location: string) => {
@@ -82,7 +94,12 @@ describe("poems edit page server", () => {
         key: "poems",
         label: "Poems",
         fields: [],
-        createDefault: () => ({ id: 0, title: "", bodyMarkdown: "", sortOrder: 10 }),
+        createDefault: () => ({
+          id: 0,
+          title: "",
+          bodyMarkdown: "",
+          sortOrder: 10,
+        }),
         schema: {},
       },
       toPoemEditorValues: vi.fn(() => mockPoems),
@@ -94,12 +111,15 @@ describe("poems edit page server", () => {
         ...actual,
         Schema: {
           ...actual.Schema,
-          decodeUnknownEither: () => () => ({ _tag: "Right", right: {
-            id: 4,
-            title: "The Carpal Tunnel",
-            bodyMarkdown: "Tunnel body",
-            sortOrder: 20,
-          } }),
+          decodeUnknownEither: () => () => ({
+            _tag: "Right",
+            right: {
+              id: 4,
+              title: "The Carpal Tunnel",
+              bodyMarkdown: "Tunnel body",
+              sortOrder: 20,
+            },
+          }),
         },
       };
     });
@@ -110,7 +130,8 @@ describe("poems edit page server", () => {
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
     }));
 
-    const { actions } = await import("../../src/routes/poems/edit/[...pid]/+page.server");
+    const { actions } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
     const formData = new FormData();
     formData.set("id", "4");
     formData.set("title", "The Carpal Tunnel");
@@ -129,7 +150,8 @@ describe("poems edit page server", () => {
 
   it("respects redirectTo during save-and-continue", async () => {
     vi.doMock("@sveltejs/kit", async () => {
-      const actual = await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
+      const actual =
+        await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
       return {
         ...actual,
         redirect: (status: number, location: string) => {
@@ -148,7 +170,12 @@ describe("poems edit page server", () => {
         key: "poems",
         label: "Poems",
         fields: [],
-        createDefault: () => ({ id: 0, title: "", bodyMarkdown: "", sortOrder: 10 }),
+        createDefault: () => ({
+          id: 0,
+          title: "",
+          bodyMarkdown: "",
+          sortOrder: 10,
+        }),
         schema: {},
       },
       toPoemEditorValues: vi.fn(() => mockPoems),
@@ -160,12 +187,15 @@ describe("poems edit page server", () => {
         ...actual,
         Schema: {
           ...actual.Schema,
-          decodeUnknownEither: () => () => ({ _tag: "Right", right: {
-            id: 4,
-            title: "The Carpal Tunnel",
-            bodyMarkdown: "Tunnel body",
-            sortOrder: 20,
-          } }),
+          decodeUnknownEither: () => () => ({
+            _tag: "Right",
+            right: {
+              id: 4,
+              title: "The Carpal Tunnel",
+              bodyMarkdown: "Tunnel body",
+              sortOrder: 20,
+            },
+          }),
         },
       };
     });
@@ -176,7 +206,8 @@ describe("poems edit page server", () => {
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
     }));
 
-    const { actions } = await import("../../src/routes/poems/edit/[...pid]/+page.server");
+    const { actions } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
     const formData = new FormData();
     formData.set("id", "4");
     formData.set("title", "The Carpal Tunnel");
@@ -196,7 +227,8 @@ describe("poems edit page server", () => {
 
   it("deletes a poem and redirects to the next remaining poem", async () => {
     vi.doMock("@sveltejs/kit", async () => {
-      const actual = await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
+      const actual =
+        await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
       return {
         ...actual,
         redirect: (status: number, location: string) => {
@@ -221,7 +253,12 @@ describe("poems edit page server", () => {
         key: "poems",
         label: "Poems",
         fields: [],
-        createDefault: () => ({ id: 0, title: "", bodyMarkdown: "", sortOrder: 10 }),
+        createDefault: () => ({
+          id: 0,
+          title: "",
+          bodyMarkdown: "",
+          sortOrder: 10,
+        }),
         schema: {},
       },
       toPoemEditorValues,
@@ -234,7 +271,8 @@ describe("poems edit page server", () => {
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
     }));
 
-    const { actions } = await import("../../src/routes/poems/edit/[...pid]/+page.server");
+    const { actions } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
     const formData = new FormData();
     formData.set("id", "2");
 
@@ -247,7 +285,9 @@ describe("poems edit page server", () => {
       location: "/poems/edit/4/the-carpal-tunnel?deleted=1",
     });
 
-    expect(deletePoemEditorValue).toHaveBeenCalledWith(2, expect.any(Date), { name: "poems" });
+    expect(deletePoemEditorValue).toHaveBeenCalledWith(2, expect.any(Date), {
+      name: "poems",
+    });
   });
 
   it("rejects poem delete for invalid id", async () => {
@@ -261,7 +301,12 @@ describe("poems edit page server", () => {
         key: "poems",
         label: "Poems",
         fields: [],
-        createDefault: () => ({ id: 0, title: "", bodyMarkdown: "", sortOrder: 10 }),
+        createDefault: () => ({
+          id: 0,
+          title: "",
+          bodyMarkdown: "",
+          sortOrder: 10,
+        }),
         schema: {},
       },
       toPoemEditorValues: vi.fn(() => mockPoems),
@@ -274,7 +319,8 @@ describe("poems edit page server", () => {
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
     }));
 
-    const { actions } = await import("../../src/routes/poems/edit/[...pid]/+page.server");
+    const { actions } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
     const formData = new FormData();
     formData.set("id", "0");
 

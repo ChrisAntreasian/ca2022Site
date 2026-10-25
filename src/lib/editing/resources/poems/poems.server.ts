@@ -15,7 +15,8 @@ const poemsStore = createJsonEditorStore<PoemsFile>({
   invalidDataMessage: "Invalid poems data file.",
 });
 
-export const readPoemsFile = async (): Promise<PoemsFile> => poemsStore.readFile();
+export const readPoemsFile = async (): Promise<PoemsFile> =>
+  poemsStore.readFile();
 
 export const ensurePoemsBaselineSnapshot = async (file?: PoemsFile) => {
   return poemsStore.ensureBaselineSnapshot(file);

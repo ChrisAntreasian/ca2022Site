@@ -15,7 +15,10 @@ const pageDetailsC = Schema.extend(
     title: Schema.String,
     description: Schema.String,
     art_categories: Schema.optional(strapiDataArrC(artCategoryC)),
-    poems: Schema.Union(strapiDataArrC(poemC), Schema.UndefinedOr(Schema.Struct({}))),
+    poems: Schema.Union(
+      strapiDataArrC(poemC),
+      Schema.UndefinedOr(Schema.Struct({})),
+    ),
     link: Schema.NullOr(Schema.String),
     art_piece: Schema.optional(strapiDataC(artC)),
     image: Schema.optional(strapiImageDataC),
@@ -23,7 +26,9 @@ const pageDetailsC = Schema.extend(
 );
 
 const strapiPageDetailsC = strapiDataArrC(pageDetailsC);
-export type StrapiPageDetails = Schema.Schema.Type<typeof strapiPageDetailsC>["data"];
+export type StrapiPageDetails = Schema.Schema.Type<
+  typeof strapiPageDetailsC
+>["data"];
 
 const richLinkC = Schema.extend(
   strapiBaseC,
@@ -53,8 +58,5 @@ export const pageResC = Schema.extend(
 );
 export type PageRes = Schema.Schema.Type<typeof pageResC>;
 
-export const detailsResC = Schema.extend(
-  strapiMetaDataC,
-  strapiPageDetailsC,
-);
+export const detailsResC = Schema.extend(strapiMetaDataC, strapiPageDetailsC);
 export type DetailsRes = Schema.Schema.Type<typeof detailsResC>;

@@ -58,8 +58,7 @@ const objectUrl = (bucket: string, region: string, key: string) =>
   `https://${bucket}.s3.${region}.amazonaws.com/${encodeURI(key).replace(/#/g, "%23")}`;
 
 export const uploadS3File =
-  (s3: S3Client) =>
-  async (k: string, f: PutObjectCommandInput["Body"]) => {
+  (s3: S3Client) => async (k: string, f: PutObjectCommandInput["Body"]) => {
     const config = getS3Config();
 
     try {

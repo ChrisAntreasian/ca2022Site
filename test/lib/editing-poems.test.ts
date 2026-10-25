@@ -88,13 +88,19 @@ describe("poem editor adapter", () => {
       new Date("2024-01-01T00:00:00.000Z"),
     );
 
-    expect(updated.timestamp).toBe(new Date("2024-01-01T00:00:00.000Z").getTime());
+    expect(updated.timestamp).toBe(
+      new Date("2024-01-01T00:00:00.000Z").getTime(),
+    );
     expect(updated.data.data?.[0].id).toBe(2);
     expect(updated.data.data?.[0].attributes.title).toBe("Updated First");
     expect(updated.data.data?.[0].attributes.position).toBe(15);
     expect(updated.data.data?.[0].attributes.featured).toBe(true);
-    expect(updated.data.data?.[0].attributes.createdAt).toBe("2023-01-02T00:00:00.000Z");
-    expect(updated.data.data?.[0].attributes.updatedAt).toBe("2024-01-01T00:00:00.000Z");
+    expect(updated.data.data?.[0].attributes.createdAt).toBe(
+      "2023-01-02T00:00:00.000Z",
+    );
+    expect(updated.data.data?.[0].attributes.updatedAt).toBe(
+      "2024-01-01T00:00:00.000Z",
+    );
   });
 
   it("creates a new poem with the next id", () => {

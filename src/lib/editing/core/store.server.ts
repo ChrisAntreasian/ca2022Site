@@ -3,10 +3,7 @@ import * as fs from "fs";
 import { Either, Schema } from "effect";
 
 import { e500 } from "$lib/error";
-import {
-  ensureDataBaselineSnapshot,
-  writeVersionedDataFile,
-} from "$lib/file";
+import { ensureDataBaselineSnapshot, writeVersionedDataFile } from "$lib/file";
 
 type JsonEditorStoreOptions<
   FileValue extends { name: string; timestamp: number; data: unknown },

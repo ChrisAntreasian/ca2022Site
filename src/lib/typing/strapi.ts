@@ -24,7 +24,10 @@ export const strapiDataC = <A, I, R>(d: Schema.Schema<A, I, R>) =>
 
 export const strapiDataArrC = <A, I, R>(d: Schema.Schema<A, I, R>) =>
   Schema.Struct({
-    data: Schema.Union(Schema.Array(withIdC(d)), Schema.NullOr(Schema.Array(withIdC(d)))),
+    data: Schema.Union(
+      Schema.Array(withIdC(d)),
+      Schema.NullOr(Schema.Array(withIdC(d))),
+    ),
   });
 
 export const strapiUpdatedC = Schema.Struct({

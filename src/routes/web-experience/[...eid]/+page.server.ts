@@ -17,7 +17,9 @@ export const load: PageServerLoad = async ({ params }) => {
     omitFromNav: true,
   };
 
-  const workExpItems: ReadonlyArray<Item> = (pageData.attributes.rich_links.data ?? [])
+  const workExpItems: ReadonlyArray<Item> = (
+    pageData.attributes.rich_links.data ?? []
+  )
     .filter((item): item is NonNullable<typeof item> => Boolean(item))
     .sort((a, b) => a.attributes.position - b.attributes.position)
     .map((item) => ({
@@ -30,9 +32,9 @@ export const load: PageServerLoad = async ({ params }) => {
       images: (item.attributes.image.data ?? [])
         .filter((img): img is NonNullable<typeof img> => Boolean(img))
         .map((img) => ({
-        id: img.id,
-        small: img.attributes.formats.small.url,
-        large: img.attributes.url,
+          id: img.id,
+          small: img.attributes.formats.small.url,
+          large: img.attributes.url,
         })),
     }));
 

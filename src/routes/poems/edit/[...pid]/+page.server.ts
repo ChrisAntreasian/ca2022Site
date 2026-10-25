@@ -39,7 +39,11 @@ export const load: PageServerLoad = async ({ params, url }) => {
     throw error(404, "Poem editor route not found.");
   }
 
-  const selectedPoem = selectPoem(poems, poemId, poemEditorDefinition.createDefault);
+  const selectedPoem = selectPoem(
+    poems,
+    poemId,
+    poemEditorDefinition.createDefault,
+  );
 
   if (!selectedPoem) {
     throw error(404, "Poem not found.");
@@ -74,7 +78,9 @@ export const actions: Actions = {
     const formData = await request.formData();
     const candidate = parsePoemForm(formData);
     const redirectTo = getFormDataString(formData, "redirectTo").trim();
-    const decoded = Schema.decodeUnknownEither(poemEditorDefinition.schema)(candidate);
+    const decoded = Schema.decodeUnknownEither(poemEditorDefinition.schema)(
+      candidate,
+    );
 
     if (Either.isLeft(decoded)) {
       return fail(400, {
@@ -91,12 +97,14 @@ export const actions: Actions = {
         ? decoded.right.id
         : Math.max(...savedItems.map((item) => item.id));
     const savedItem = savedItems.find((item) => item.id === savedId);
-    const destination = redirectTo || poemEditorPath(savedId, savedItem?.attributes.title ?? decoded.right.title);
+    const destination =
+      redirectTo ||
+      poemEditorPath(
+        savedId,
+        savedItem?.attributes.title ?? decoded.right.title,
+      );
 
-    throw redirect(
-      303,
-      `${destination}?saved=1`,
-    );
+    throw redirect(303, `${destination}?saved=1`);
   },
   delete: async ({ request }) => {
     requireEditorEnabled();

@@ -11,17 +11,29 @@ const {
 
   return {
     sendMock: send,
-    s3ClientCtorMock: vi.fn(function (this: { send: typeof send; config: unknown }, config: unknown) {
+    s3ClientCtorMock: vi.fn(function (
+      this: { send: typeof send; config: unknown },
+      config: unknown,
+    ) {
       this.config = config;
       this.send = send;
     }),
-    getObjectCommandMock: vi.fn(function (this: { input: unknown }, input: unknown) {
+    getObjectCommandMock: vi.fn(function (
+      this: { input: unknown },
+      input: unknown,
+    ) {
       this.input = input;
     }),
-    putObjectCommandMock: vi.fn(function (this: { input: unknown }, input: unknown) {
+    putObjectCommandMock: vi.fn(function (
+      this: { input: unknown },
+      input: unknown,
+    ) {
       this.input = input;
     }),
-    deleteObjectCommandMock: vi.fn(function (this: { input: unknown }, input: unknown) {
+    deleteObjectCommandMock: vi.fn(function (
+      this: { input: unknown },
+      input: unknown,
+    ) {
       this.input = input;
     }),
   };
@@ -110,7 +122,9 @@ describe("S3 Utilities", () => {
     });
 
     it("handles upload failures by logging and returning null", async () => {
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       const uploadError = new Error("Upload failed");
       sendMock.mockRejectedValue(uploadError);
 
@@ -141,7 +155,9 @@ describe("S3 Utilities", () => {
     });
 
     it("handles delete failures by logging and returning null", async () => {
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       const deleteError = new Error("Delete failed");
       sendMock.mockRejectedValue(deleteError);
 

@@ -6,13 +6,13 @@ import tseslint from "typescript-eslint";
 export default [
   {
     ignores: [
-      'node_modules/**',
-      '.svelte-kit/**',
-      'build/**',
-      'coverage/**',
-      '.vercel/**',
-      '.eslintrc.cjs'
-    ]
+      "node_modules/**",
+      ".svelte-kit/**",
+      "build/**",
+      "coverage/**",
+      ".vercel/**",
+      ".eslintrc.cjs",
+    ],
   },
   { files: ["**/*.{js,mjs,cjs,ts}"] },
   { files: ["**/*.js"], languageOptions: { sourceType: "script" } },

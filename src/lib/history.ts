@@ -8,22 +8,23 @@ export const cleanUrlSlug = (slug: string) => {
     .replace(/^-+|-+$/g, "");
 };
 
-export const clientNavigate = (scroll: boolean) => (url: string, slug?: string) => {
-  let finalUrl = url;
-  
-  if (slug !== undefined) {
-    const cleanedSlug = cleanUrlSlug(slug);
-    if (cleanedSlug || slug === '') {
-      if (url === '/') {
-        finalUrl = `/${cleanedSlug}`;
-      } else {
-        finalUrl = `${url}/${cleanedSlug}`;
+export const clientNavigate =
+  (scroll: boolean) => (url: string, slug?: string) => {
+    let finalUrl = url;
+
+    if (slug !== undefined) {
+      const cleanedSlug = cleanUrlSlug(slug);
+      if (cleanedSlug || slug === "") {
+        if (url === "/") {
+          finalUrl = `/${cleanedSlug}`;
+        } else {
+          finalUrl = `${url}/${cleanedSlug}`;
+        }
       }
     }
-  }
-  
-  pushState(finalUrl, {});
-  if (scroll) {
-    window.scrollTo({ top: 0 });
-  } 
-};
+
+    pushState(finalUrl, {});
+    if (scroll) {
+      window.scrollTo({ top: 0 });
+    }
+  };

@@ -10,9 +10,7 @@ import type {
 const newWebExperienceParam = "new";
 
 export type WebExperienceSelection =
-  | { kind: "intro" }
-  | { kind: "new" }
-  | { kind: "entry"; id: number };
+  { kind: "intro" } | { kind: "new" } | { kind: "entry"; id: number };
 
 export const webExperienceEditorPath = (
   selection: WebExperienceSelection,
@@ -22,9 +20,9 @@ export const webExperienceEditorPath = (
     ? "/web-experience/edit/intro"
     : selection.kind === "new"
       ? `/web-experience/edit/${newWebExperienceParam}`
-    : title
-      ? `/web-experience/edit/${selection.id}/${cleanUrlSlug(title)}`
-      : `/web-experience/edit/${selection.id}`;
+      : title
+        ? `/web-experience/edit/${selection.id}/${cleanUrlSlug(title)}`
+        : `/web-experience/edit/${selection.id}`;
 
 export const parseWebExperienceEditorParam = (param: string) => {
   const [segment] = param.split("/");
@@ -59,7 +57,10 @@ export const selectWebExperienceTarget = (
 
   if (selection.kind === "new") {
     const nextSortOrder =
-      value.entries.reduce((maxOrder, entry) => Math.max(maxOrder, entry.sortOrder), 0) + 10;
+      value.entries.reduce(
+        (maxOrder, entry) => Math.max(maxOrder, entry.sortOrder),
+        0,
+      ) + 10;
 
     return {
       kind: "entry" as const,

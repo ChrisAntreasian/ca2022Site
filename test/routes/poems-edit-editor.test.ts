@@ -56,7 +56,9 @@ describe("poems edit route helpers", () => {
       { id: 4, title: "The Carpal Tunnel", bodyMarkdown: "B", sortOrder: 20 },
     ];
 
-    expect(selectPoem(poems, 4, createDefault)?.title).toBe("The Carpal Tunnel");
+    expect(selectPoem(poems, 4, createDefault)?.title).toBe(
+      "The Carpal Tunnel",
+    );
     expect(selectPoem(poems, 0, createDefault)).toEqual(createDefault());
     expect(selectPoem(poems, 999, createDefault)).toBeNull();
   });
