@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.unmock('$lib/analytics');
 
-vi.mock('$app/environment', () => ({
+vi.mock('$app/env', () => ({
   browser: true,
 }));
 

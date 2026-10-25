@@ -1,5 +1,5 @@
 import type { PageServerLoad } from "./$types";
-import * as D from "$data/the-souljuicer.json";
+import * as D from "#data/the-souljuicer.json";
 import { isEditorEnabled } from "$lib/editing/core/auth.server";
 
 const defaultTitle = "the SoulJuicer";

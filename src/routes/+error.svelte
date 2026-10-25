@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { contextHeightKey, rem } from "$lib/spacing";
   import type { LayoutElemH } from "$lib/spacing";
   import { getContext } from "svelte";
@@ -7,8 +7,8 @@
   let windowHeight: number = $state();
   const { getHeaderHeight, getFooterHeight }: LayoutElemH =
     getContext(contextHeightKey);
-  const image = [500, 404, 403].includes($page.status)
-    ? `/${$page.status}.jpg`
+  const image = [500, 404, 403].includes(page.status)
+    ? `/${page.status}.jpg`
     : "/500.jpg";
 </script>
 
@@ -18,10 +18,10 @@
   style={`--min-height: ${(windowHeight - getHeaderHeight() - getFooterHeight()) / rem}rem`}
 >
   <div>
-    <h3>{$page.status}</h3>
-    <h4>: {$page.error.message}</h4>
+    <h3>{page.status}</h3>
+    <h4>: {page.error.message}</h4>
   </div>
-  <img src={image} alt={`${$page.status} image`} />
+  <img src={image} alt={`${page.status} image`} />
 </section>
 
 <style>

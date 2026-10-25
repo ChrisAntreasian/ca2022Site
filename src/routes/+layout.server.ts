@@ -1,5 +1,5 @@
 import type { LayoutServerLoad } from "./$types";
-import * as D from "$data/layout.json";
+import * as D from "#data/layout.json";
 import { initDistinctId } from "$lib/analytics";
 // import { initS3 } from '$lib/s3';
 

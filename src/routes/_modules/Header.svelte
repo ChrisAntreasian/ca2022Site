@@ -1,7 +1,7 @@
 <script lang="ts">
   import "hamburgers/dist/hamburgers.css";
 
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { fade } from "svelte/transition";
   import { safeImageString } from "$lib/image";
   import { captureBehavior } from "$lib/analytics";
@@ -31,9 +31,9 @@
   };
 
   let headlineBit = $derived(
-    !($page.url.pathname in headlinesDict)
+    !(page.url.pathname in headlinesDict)
       ? ""
-      : `${headlinesDict[$page.url.pathname]}`
+      : `${headlinesDict[page.url.pathname]}`
   );
 
   const resetMenu = () => {
@@ -95,21 +95,21 @@
         ></div>
       {/if}
       <ul class="header-links">
-        <li class:active={$page.url.pathname === "/"}>
+        <li class:active={page.url.pathname === "/"}>
           <a onclick={() => clickNav("Home")} href="/">Home</a>
         </li>
-        <li class:active={$page.url.pathname === "/web-experience"}>
+        <li class:active={page.url.pathname === "/web-experience"}>
           <a onclick={() => clickNav("Web Experience")} href="/web-experience"
             >Web Experience</a
           >
         </li>
-        <li class:active={$page.url.pathname === "/the-quintuplapus"}>
+        <li class:active={page.url.pathname === "/the-quintuplapus"}>
           <a
             onclick={() => clickNav("The Quintuplapus")}
             href="/the-quintuplapus">The Quintuplapus</a
           >
         </li>
-        <li class:active={$page.url.pathname === "/poems"}>
+        <li class:active={page.url.pathname === "/poems"}>
           <a onclick={() => clickNav("Poems")} href="/poems">Poems</a>
         </li>
       </ul>

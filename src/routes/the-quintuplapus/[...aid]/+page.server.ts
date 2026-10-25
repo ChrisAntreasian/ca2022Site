@@ -1,5 +1,5 @@
 import type { PageServerLoad } from "./$types";
-import * as D from "$data/the-quintuplapus.json";
+import * as D from "#data/the-quintuplapus.json";
 import { isEditorEnabled } from "$lib/editing/core/auth.server";
 
 export const load: PageServerLoad = async ({ params }) => {

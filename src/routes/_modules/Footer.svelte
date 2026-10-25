@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { captureClickThis } from "$lib/analytics";
   import githubIcon from "./github-mark.svg";
 
@@ -16,35 +16,35 @@
   <div class="footer-wrap">
     <nav>
       <ul>
-        <li class:active={$page.url.pathname === "/"}>
+        <li class:active={page.url.pathname === "/"}>
           <a
             href="/"
             onclick={() => navClick("Home")}
             onkeypress={() => navClick("Home")}>Home</a
           >
         </li>
-        <li class:active={$page.url.pathname === "/the-quintuplapus"}>
+        <li class:active={page.url.pathname === "/the-quintuplapus"}>
           <a
             href="/the-quintuplapus"
             onclick={() => navClick("The Quintuplapus")}
             onkeypress={() => navClick("The Quintuplapus")}>The Quintuplapus</a
           >
         </li>
-        <li class:active={$page.url.pathname === "/poems"}>
+        <li class:active={page.url.pathname === "/poems"}>
           <a
             href="/poems"
             onclick={() => navClick("Poems")}
             onkeypress={() => navClick("Poems")}>Poems</a
           >
         </li>
-        <li class:active={$page.url.pathname === "/web-experience"}>
+        <li class:active={page.url.pathname === "/web-experience"}>
           <a
             href="/web-experience"
             onclick={() => navClick("Web Experience")}
             onkeypress={() => navClick("Web Experience")}>Web Experience</a
           >
         </li>
-        <li class:active={$page.url.pathname === "/terms-of-service"}>
+        <li class:active={page.url.pathname === "/terms-of-service"}>
           <a
             href="/terms-of-service"
             onclick={() => navClick("Terms of Service")}
