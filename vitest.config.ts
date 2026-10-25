@@ -29,9 +29,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '$lib': path.resolve(__dirname, './src/lib'),
-      '$data': path.resolve(__dirname, './src/data'),
-      '$app': path.resolve(__dirname, './.svelte-kit/runtime/app')
+      '$lib': path.resolve(import.meta.dirname, './src/lib'),
+      '$data': path.resolve(import.meta.dirname, './src/data'),
+      '$app': path.resolve(import.meta.dirname, './.svelte-kit/runtime/app')
     }
   }
 });

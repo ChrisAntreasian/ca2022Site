@@ -2,7 +2,7 @@ import type { Item } from "$lib/Article/types";
 import { isEditorEnabled } from "$lib/editing/core/auth.server";
 
 import type { PageServerLoad } from "./$types";
-import * as D from "$data/poems.json";
+import * as D from "#data/poems.json";
 
 export const load: PageServerLoad = async ({ params }) => {
   const d = D.data;

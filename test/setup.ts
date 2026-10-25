@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
 // Mock SvelteKit runtime
-vi.mock('$app/environment', () => ({
+vi.mock('$app/env', () => ({
   browser: false,
   dev: true,
   building: false,

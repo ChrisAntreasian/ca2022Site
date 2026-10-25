@@ -1,5 +1,5 @@
 import type { Cookies } from "@sveltejs/kit";
-import { browser } from "$app/environment";
+import { browser } from "$app/env";
 import { daysFromNow } from "$lib/date";
 // import { getS3File, uploadS3File } from '$lib/s3';
 // import type { S3 } from "aws-sdk";
