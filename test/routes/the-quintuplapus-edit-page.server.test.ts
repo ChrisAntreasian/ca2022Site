@@ -44,7 +44,8 @@ describe("Quintuplapus edit page server delete", () => {
 
   it("deletes an entry and redirects to the next remaining entry", async () => {
     vi.doMock("@sveltejs/kit", async () => {
-      const actual = await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
+      const actual =
+        await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
       return {
         ...actual,
         redirect: (status: number, location: string) => {
@@ -68,16 +69,21 @@ describe("Quintuplapus edit page server delete", () => {
       toQuintuplapusEditorValue,
     }));
 
-    vi.doMock("$lib/editing/resources/quintuplapus/quintuplapus.server", () => ({
-      deleteQuintuplapusEntry,
-      ensureQuintuplapusBaselineSnapshot: vi.fn(),
-      persistQuintuplapusUpload: vi.fn(),
-      readQuintuplapusFile: vi.fn(async () => mockFile),
-      replaceQuintuplapusEntryImage: vi.fn(),
-      saveQuintuplapusEditorValue: vi.fn(async () => mockFile),
-    }));
+    vi.doMock(
+      "$lib/editing/resources/quintuplapus/quintuplapus.server",
+      () => ({
+        deleteQuintuplapusEntry,
+        ensureQuintuplapusBaselineSnapshot: vi.fn(),
+        persistQuintuplapusUpload: vi.fn(),
+        readQuintuplapusFile: vi.fn(async () => mockFile),
+        replaceQuintuplapusEntryImage: vi.fn(),
+        saveQuintuplapusEditorValue: vi.fn(async () => mockFile),
+      }),
+    );
 
-    const { actions } = await import("../../src/routes/the-quintuplapus/edit/[...aid]/+page.server");
+    const { actions } = await import(
+      "../../src/routes/the-quintuplapus/edit/[...aid]/+page.server"
+    );
     const formData = new FormData();
     formData.set("id", "5");
 
@@ -90,7 +96,11 @@ describe("Quintuplapus edit page server delete", () => {
       location: "/the-quintuplapus/edit/3/panel-three?deleted=1",
     });
 
-    expect(deleteQuintuplapusEntry).toHaveBeenCalledWith(5, expect.any(Date), mockFile);
+    expect(deleteQuintuplapusEntry).toHaveBeenCalledWith(
+      5,
+      expect.any(Date),
+      mockFile,
+    );
   });
 
   it("blocks deleting the final remaining entry", async () => {
@@ -100,19 +110,27 @@ describe("Quintuplapus edit page server delete", () => {
     }));
 
     vi.doMock("$lib/editing/resources/quintuplapus/quintuplapus", () => ({
-      toQuintuplapusEditorValue: vi.fn(() => ({ categoryTitle: "Cat", entries: [mockEntries[0]] })),
+      toQuintuplapusEditorValue: vi.fn(() => ({
+        categoryTitle: "Cat",
+        entries: [mockEntries[0]],
+      })),
     }));
 
-    vi.doMock("$lib/editing/resources/quintuplapus/quintuplapus.server", () => ({
-      deleteQuintuplapusEntry: vi.fn(),
-      ensureQuintuplapusBaselineSnapshot: vi.fn(),
-      persistQuintuplapusUpload: vi.fn(),
-      readQuintuplapusFile: vi.fn(async () => mockFile),
-      replaceQuintuplapusEntryImage: vi.fn(),
-      saveQuintuplapusEditorValue: vi.fn(async () => mockFile),
-    }));
+    vi.doMock(
+      "$lib/editing/resources/quintuplapus/quintuplapus.server",
+      () => ({
+        deleteQuintuplapusEntry: vi.fn(),
+        ensureQuintuplapusBaselineSnapshot: vi.fn(),
+        persistQuintuplapusUpload: vi.fn(),
+        readQuintuplapusFile: vi.fn(async () => mockFile),
+        replaceQuintuplapusEntryImage: vi.fn(),
+        saveQuintuplapusEditorValue: vi.fn(async () => mockFile),
+      }),
+    );
 
-    const { actions } = await import("../../src/routes/the-quintuplapus/edit/[...aid]/+page.server");
+    const { actions } = await import(
+      "../../src/routes/the-quintuplapus/edit/[...aid]/+page.server"
+    );
     const formData = new FormData();
     formData.set("id", "3");
 

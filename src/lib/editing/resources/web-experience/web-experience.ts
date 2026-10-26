@@ -62,7 +62,7 @@ export type WebExperienceTarget =
       bodyMarkdown: string;
       pageTitle: string;
     }
-  | ({
+  | {
       kind: "entry";
       id: number;
       title: string;
@@ -72,7 +72,7 @@ export type WebExperienceTarget =
       sortOrder: number;
       logoUrl?: string | null;
       imagePreviews?: ReadonlyArray<WebExperienceImagePreview>;
-    });
+    };
 
 export const webExperienceFileC: Schema.Schema<
   WebExperienceFile,
@@ -289,7 +289,10 @@ const toImageBase = (prefix: string, asset: UploadedImageAsset) => {
   };
 };
 
-const toStrapiImageAttributes = (asset: UploadedImageAsset, timestamp: string) => {
+const toStrapiImageAttributes = (
+  asset: UploadedImageAsset,
+  timestamp: string,
+) => {
   const fallbackName = asset.name || "upload";
 
   return {
@@ -438,7 +441,10 @@ export const buildWebExperienceTarget = (
 
   if (selection.kind === "new") {
     const nextSortOrder =
-      value.entries.reduce((maxOrder, entry) => Math.max(maxOrder, entry.sortOrder), 0) + 10;
+      value.entries.reduce(
+        (maxOrder, entry) => Math.max(maxOrder, entry.sortOrder),
+        0,
+      ) + 10;
 
     return {
       kind: "entry",
@@ -455,7 +461,9 @@ export const buildWebExperienceTarget = (
 
   const page = file.data.data?.[0];
   const entry = value.entries.find((item) => item.id === selection.id);
-  const sourceEntry = page?.attributes.rich_links?.data?.find((item) => item?.id === selection.id);
+  const sourceEntry = page?.attributes.rich_links?.data?.find(
+    (item) => item?.id === selection.id,
+  );
 
   if (!entry) {
     return null;
@@ -476,7 +484,8 @@ export const buildWebExperienceTarget = (
             };
           };
         };
-        const smallUrl = previewAttributes.formats?.small?.url ?? previewAttributes.url;
+        const smallUrl =
+          previewAttributes.formats?.small?.url ?? previewAttributes.url;
 
         return {
           id: image.id,

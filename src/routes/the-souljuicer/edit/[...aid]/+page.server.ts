@@ -41,9 +41,15 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
   const status =
     url.searchParams.get("deleted") === "1"
-      ? ({ title: "Souljuicer entry deleted", message: "Souljuicer entry deleted." } as const)
+      ? ({
+          title: "Souljuicer entry deleted",
+          message: "Souljuicer entry deleted.",
+        } as const)
       : url.searchParams.get("saved") === "1"
-        ? ({ title: "Souljuicer entry saved", message: "Souljuicer entry saved." } as const)
+        ? ({
+            title: "Souljuicer entry saved",
+            message: "Souljuicer entry saved.",
+          } as const)
         : null;
 
   return {
@@ -76,7 +82,8 @@ export const actions: Actions = {
           !entry.title.trim() ||
           !entry.createdDate.trim() ||
           !entry.medium.trim() ||
-          !entry.description.trim() || Number.isNaN(entry.sortOrder),
+          !entry.description.trim() ||
+          Number.isNaN(entry.sortOrder),
       )
     ) {
       return fail(400, {
@@ -98,8 +105,7 @@ export const actions: Actions = {
       await replaceSouljuicerEntryImage(saved, formValue.id, uploaded);
     }
 
-    const destination =
-      redirectTo || souljuicerEditorPath(formValue.id);
+    const destination = redirectTo || souljuicerEditorPath(formValue.id);
 
     throw redirect(303, `${destination}?saved=1`);
   },

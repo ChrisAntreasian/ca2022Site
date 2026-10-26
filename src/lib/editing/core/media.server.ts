@@ -10,7 +10,10 @@ export type UploadedImageAsset = {
   url: string;
 };
 
-type UploadFileFn = (key: string, bytes: Buffer) => Promise<{ Location?: string } | undefined>;
+type UploadFileFn = (
+  key: string,
+  bytes: Buffer,
+) => Promise<{ Location?: string } | undefined>;
 type DeleteFileFn = (key: string) => Promise<unknown>;
 
 export type PersistUploadedMediaOptions = {
@@ -88,7 +91,12 @@ export const replaceEntryImageMedia = async <TFile>({
   entryId: number;
   image: UploadedImageAsset;
   getOriginalMediaUrl: (file: TFile, entryId: number) => string | undefined;
-  applyPatch: (file: TFile, entryId: number, image: UploadedImageAsset, now: Date) => TFile;
+  applyPatch: (
+    file: TFile,
+    entryId: number,
+    image: UploadedImageAsset,
+    now: Date,
+  ) => TFile;
   saveFile: (file: TFile) => Promise<unknown> | unknown;
   deleteFile?: DeleteFileFn;
   now?: Date;

@@ -7,7 +7,8 @@ describe("web experience edit page server delete action", () => {
 
   it("deletes a saved entry and redirects to another entry", async () => {
     vi.doMock("@sveltejs/kit", async () => {
-      const actual = await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
+      const actual =
+        await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
       return {
         ...actual,
         redirect: (status: number, location: string) => {
@@ -28,8 +29,22 @@ describe("web experience edit page server delete action", () => {
       introTitle: "Intro",
       introBodyMarkdown: "Body",
       entries: [
-        { id: 7, title: "BondLink", bodyMarkdown: "A", primaryLink: "https://a", secondaryLink: null, sortOrder: 10 },
-        { id: 8, title: "BetterLesson", bodyMarkdown: "B", primaryLink: "https://b", secondaryLink: null, sortOrder: 20 },
+        {
+          id: 7,
+          title: "BondLink",
+          bodyMarkdown: "A",
+          primaryLink: "https://a",
+          secondaryLink: null,
+          sortOrder: 10,
+        },
+        {
+          id: 8,
+          title: "BetterLesson",
+          bodyMarkdown: "B",
+          primaryLink: "https://b",
+          secondaryLink: null,
+          sortOrder: 20,
+        },
       ],
     };
 
@@ -39,11 +54,20 @@ describe("web experience edit page server delete action", () => {
       .mockReturnValueOnce({
         ...baseValue,
         entries: [
-          { id: 8, title: "BetterLesson", bodyMarkdown: "B", primaryLink: "https://b", secondaryLink: null, sortOrder: 20 },
+          {
+            id: 8,
+            title: "BetterLesson",
+            bodyMarkdown: "B",
+            primaryLink: "https://b",
+            secondaryLink: null,
+            sortOrder: 20,
+          },
         ],
       });
 
-    const deleteWebExperienceEntry = vi.fn(async () => ({ name: "web-experience" }));
+    const deleteWebExperienceEntry = vi.fn(async () => ({
+      name: "web-experience",
+    }));
 
     vi.doMock("$lib/editing/resources/web-experience/web-experience", () => ({
       applyWebExperienceMediaPatch: vi.fn(),
@@ -55,29 +79,38 @@ describe("web experience edit page server delete action", () => {
       },
     }));
 
-    vi.doMock("$lib/editing/resources/web-experience/web-experience.server", () => ({
-      deleteWebExperienceEntry,
-      deleteWebExperienceMedia: vi.fn(),
-      ensureWebExperienceBaselineSnapshot: vi.fn(),
-      persistWebExperienceUpload: vi.fn(),
-      readWebExperienceFile: vi.fn(async () => ({ name: "web-experience" })),
-      saveWebExperienceEditorValue: vi.fn(),
-      writeWebExperienceFile: vi.fn(),
-    }));
+    vi.doMock(
+      "$lib/editing/resources/web-experience/web-experience.server",
+      () => ({
+        deleteWebExperienceEntry,
+        deleteWebExperienceMedia: vi.fn(),
+        ensureWebExperienceBaselineSnapshot: vi.fn(),
+        persistWebExperienceUpload: vi.fn(),
+        readWebExperienceFile: vi.fn(async () => ({ name: "web-experience" })),
+        saveWebExperienceEditorValue: vi.fn(),
+        writeWebExperienceFile: vi.fn(),
+      }),
+    );
 
-    vi.doMock("$lib/editing/resources/web-experience/web-experience-editor", () => ({
-      mergeWebExperienceValue: vi.fn(),
-      parseWebExperienceEditorParam: vi.fn(),
-      parseWebExperienceForm: vi.fn(() => ({ kind: "entry", id: 7 })),
-      selectWebExperienceTarget: vi.fn(),
-      webExperienceEditorPath: vi.fn((selection: { kind: string; id?: number }, title?: string) =>
-        selection.kind === "entry" && selection.id
-          ? `/web-experience/edit/${selection.id}/${String(title).toLowerCase()}`
-          : "/web-experience/edit/intro",
-      ),
-    }));
+    vi.doMock(
+      "$lib/editing/resources/web-experience/web-experience-editor",
+      () => ({
+        mergeWebExperienceValue: vi.fn(),
+        parseWebExperienceEditorParam: vi.fn(),
+        parseWebExperienceForm: vi.fn(() => ({ kind: "entry", id: 7 })),
+        selectWebExperienceTarget: vi.fn(),
+        webExperienceEditorPath: vi.fn(
+          (selection: { kind: string; id?: number }, title?: string) =>
+            selection.kind === "entry" && selection.id
+              ? `/web-experience/edit/${selection.id}/${String(title).toLowerCase()}`
+              : "/web-experience/edit/intro",
+        ),
+      }),
+    );
 
-    const { actions } = await import("../../src/routes/web-experience/edit/[...wid]/+page.server");
+    const { actions } = await import(
+      "../../src/routes/web-experience/edit/[...wid]/+page.server"
+    );
     const formData = new FormData();
     formData.set("kind", "entry");
     formData.set("id", "7");
@@ -92,7 +125,9 @@ describe("web experience edit page server delete action", () => {
     });
 
     expect(deleteWebExperienceEntry).toHaveBeenCalledTimes(1);
-    expect(deleteWebExperienceEntry).toHaveBeenCalledWith(7, expect.any(Date), { name: "web-experience" });
+    expect(deleteWebExperienceEntry).toHaveBeenCalledWith(7, expect.any(Date), {
+      name: "web-experience",
+    });
   });
 
   it("rejects delete for intro target", async () => {
@@ -118,25 +153,33 @@ describe("web experience edit page server delete action", () => {
       },
     }));
 
-    vi.doMock("$lib/editing/resources/web-experience/web-experience.server", () => ({
-      deleteWebExperienceEntry: vi.fn(),
-      deleteWebExperienceMedia: vi.fn(),
-      ensureWebExperienceBaselineSnapshot: vi.fn(),
-      persistWebExperienceUpload: vi.fn(),
-      readWebExperienceFile: vi.fn(async () => ({ name: "web-experience" })),
-      saveWebExperienceEditorValue: vi.fn(),
-      writeWebExperienceFile: vi.fn(),
-    }));
+    vi.doMock(
+      "$lib/editing/resources/web-experience/web-experience.server",
+      () => ({
+        deleteWebExperienceEntry: vi.fn(),
+        deleteWebExperienceMedia: vi.fn(),
+        ensureWebExperienceBaselineSnapshot: vi.fn(),
+        persistWebExperienceUpload: vi.fn(),
+        readWebExperienceFile: vi.fn(async () => ({ name: "web-experience" })),
+        saveWebExperienceEditorValue: vi.fn(),
+        writeWebExperienceFile: vi.fn(),
+      }),
+    );
 
-    vi.doMock("$lib/editing/resources/web-experience/web-experience-editor", () => ({
-      mergeWebExperienceValue: vi.fn(),
-      parseWebExperienceEditorParam: vi.fn(),
-      parseWebExperienceForm: vi.fn(() => ({ kind: "intro" })),
-      selectWebExperienceTarget: vi.fn(),
-      webExperienceEditorPath: vi.fn(),
-    }));
+    vi.doMock(
+      "$lib/editing/resources/web-experience/web-experience-editor",
+      () => ({
+        mergeWebExperienceValue: vi.fn(),
+        parseWebExperienceEditorParam: vi.fn(),
+        parseWebExperienceForm: vi.fn(() => ({ kind: "intro" })),
+        selectWebExperienceTarget: vi.fn(),
+        webExperienceEditorPath: vi.fn(),
+      }),
+    );
 
-    const { actions } = await import("../../src/routes/web-experience/edit/[...wid]/+page.server");
+    const { actions } = await import(
+      "../../src/routes/web-experience/edit/[...wid]/+page.server"
+    );
 
     const formData = new FormData();
     formData.set("kind", "intro");

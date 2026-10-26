@@ -41,9 +41,15 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
   const status =
     url.searchParams.get("deleted") === "1"
-      ? ({ title: "Quintuplapus entry deleted", message: "Quintuplapus entry deleted." } as const)
+      ? ({
+          title: "Quintuplapus entry deleted",
+          message: "Quintuplapus entry deleted.",
+        } as const)
       : url.searchParams.get("saved") === "1"
-        ? ({ title: "Quintuplapus entry saved", message: "Quintuplapus entry saved." } as const)
+        ? ({
+            title: "Quintuplapus entry saved",
+            message: "Quintuplapus entry saved.",
+          } as const)
         : null;
 
   return {
@@ -93,7 +99,11 @@ export const actions: Actions = {
       });
     }
 
-    const saved = await saveQuintuplapusEditorValue(candidate, new Date(), file);
+    const saved = await saveQuintuplapusEditorValue(
+      candidate,
+      new Date(),
+      file,
+    );
 
     const imageRaw = formData.get("imageFile");
     const imageFile =
@@ -142,6 +152,9 @@ export const actions: Actions = {
       throw error(500, "No Quintuplapus entries remain after delete.");
     }
 
-    throw redirect(303, `${quintuplapusEditorPath(nextEntry.id, nextEntry.title)}?deleted=1`);
+    throw redirect(
+      303,
+      `${quintuplapusEditorPath(nextEntry.id, nextEntry.title)}?deleted=1`,
+    );
   },
 };

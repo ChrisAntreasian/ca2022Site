@@ -11,20 +11,25 @@ describe("terms-of-service edit page server", () => {
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/resources/terms-of-service/terms-of-service.server", () => ({
-      ensureTermsOfServiceBaselineSnapshot: vi.fn(),
-      readTermsOfServiceFile: vi.fn(async () => ({
-        name: "terms-of-service",
-        timestamp: 1,
-        data: {
-          title: "Terms",
-          bodyMarkdown: "Body",
-        },
-      })),
-      saveTermsOfServiceEditorValue: vi.fn(),
-    }));
+    vi.doMock(
+      "$lib/editing/resources/terms-of-service/terms-of-service.server",
+      () => ({
+        ensureTermsOfServiceBaselineSnapshot: vi.fn(),
+        readTermsOfServiceFile: vi.fn(async () => ({
+          name: "terms-of-service",
+          timestamp: 1,
+          data: {
+            title: "Terms",
+            bodyMarkdown: "Body",
+          },
+        })),
+        saveTermsOfServiceEditorValue: vi.fn(),
+      }),
+    );
 
-    const { load } = await import("../../src/routes/terms-of-service/edit/+page.server");
+    const { load } = await import(
+      "../../src/routes/terms-of-service/edit/+page.server"
+    );
     const result = await load({
       url: new URL("http://localhost/terms-of-service/edit?saved=1"),
     } as never);
@@ -37,7 +42,8 @@ describe("terms-of-service edit page server", () => {
 
   it("saves terms and redirects with saved=1", async () => {
     vi.doMock("@sveltejs/kit", async () => {
-      const actual = await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
+      const actual =
+        await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
       return {
         ...actual,
         redirect: (status: number, location: string) => {
@@ -60,20 +66,25 @@ describe("terms-of-service edit page server", () => {
       },
     }));
 
-    vi.doMock("$lib/editing/resources/terms-of-service/terms-of-service.server", () => ({
-      ensureTermsOfServiceBaselineSnapshot: vi.fn(),
-      readTermsOfServiceFile: vi.fn(async () => ({
-        name: "terms-of-service",
-        timestamp: 1,
-        data: {
-          title: "Terms",
-          bodyMarkdown: "Body",
-        },
-      })),
-      saveTermsOfServiceEditorValue,
-    }));
+    vi.doMock(
+      "$lib/editing/resources/terms-of-service/terms-of-service.server",
+      () => ({
+        ensureTermsOfServiceBaselineSnapshot: vi.fn(),
+        readTermsOfServiceFile: vi.fn(async () => ({
+          name: "terms-of-service",
+          timestamp: 1,
+          data: {
+            title: "Terms",
+            bodyMarkdown: "Body",
+          },
+        })),
+        saveTermsOfServiceEditorValue,
+      }),
+    );
 
-    const { actions } = await import("../../src/routes/terms-of-service/edit/+page.server");
+    const { actions } = await import(
+      "../../src/routes/terms-of-service/edit/+page.server"
+    );
     const formData = new FormData();
     formData.set("title", "AI Terms");
     formData.set("bodyMarkdown", "No model training.");
@@ -88,12 +99,10 @@ describe("terms-of-service edit page server", () => {
     });
 
     expect(saveTermsOfServiceEditorValue).toHaveBeenCalledTimes(1);
-    expect(saveTermsOfServiceEditorValue).toHaveBeenCalledWith(
-      {
-        title: "AI Terms",
-        bodyMarkdown: "No model training.",
-      },
-    );
+    expect(saveTermsOfServiceEditorValue).toHaveBeenCalledWith({
+      title: "AI Terms",
+      bodyMarkdown: "No model training.",
+    });
   });
 
   it("returns validation message when required fields are missing", async () => {
@@ -102,20 +111,25 @@ describe("terms-of-service edit page server", () => {
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/resources/terms-of-service/terms-of-service.server", () => ({
-      ensureTermsOfServiceBaselineSnapshot: vi.fn(),
-      readTermsOfServiceFile: vi.fn(async () => ({
-        name: "terms-of-service",
-        timestamp: 1,
-        data: {
-          title: "Terms",
-          bodyMarkdown: "Body",
-        },
-      })),
-      saveTermsOfServiceEditorValue: vi.fn(),
-    }));
+    vi.doMock(
+      "$lib/editing/resources/terms-of-service/terms-of-service.server",
+      () => ({
+        ensureTermsOfServiceBaselineSnapshot: vi.fn(),
+        readTermsOfServiceFile: vi.fn(async () => ({
+          name: "terms-of-service",
+          timestamp: 1,
+          data: {
+            title: "Terms",
+            bodyMarkdown: "Body",
+          },
+        })),
+        saveTermsOfServiceEditorValue: vi.fn(),
+      }),
+    );
 
-    const { actions } = await import("../../src/routes/terms-of-service/edit/+page.server");
+    const { actions } = await import(
+      "../../src/routes/terms-of-service/edit/+page.server"
+    );
     const formData = new FormData();
     formData.set("title", " ");
     formData.set("bodyMarkdown", " ");

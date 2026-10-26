@@ -10,18 +10,23 @@ describe("terms-of-service page server load", () => {
       isEditorEnabled: vi.fn(() => true),
     }));
 
-    vi.doMock("$lib/editing/resources/terms-of-service/terms-of-service.server", () => ({
-      readTermsOfServiceFile: vi.fn(async () => ({
-        name: "terms-of-service",
-        timestamp: 1,
-        data: {
-          title: "Terms",
-          bodyMarkdown: "Body",
-        },
-      })),
-    }));
+    vi.doMock(
+      "$lib/editing/resources/terms-of-service/terms-of-service.server",
+      () => ({
+        readTermsOfServiceFile: vi.fn(async () => ({
+          name: "terms-of-service",
+          timestamp: 1,
+          data: {
+            title: "Terms",
+            bodyMarkdown: "Body",
+          },
+        })),
+      }),
+    );
 
-    const { load } = await import("../../src/routes/terms-of-service/+page.server");
+    const { load } = await import(
+      "../../src/routes/terms-of-service/+page.server"
+    );
     const result = await load({} as never);
 
     expect(result.editorEnabled).toBe(true);

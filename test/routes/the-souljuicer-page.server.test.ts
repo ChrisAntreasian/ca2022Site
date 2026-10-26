@@ -32,14 +32,18 @@ describe("SoulJuicer page server load", () => {
       },
     }));
 
-    const { load } = await import("../../src/routes/the-souljuicer/[...aid]/+page.server");
+    const { load } = await import(
+      "../../src/routes/the-souljuicer/[...aid]/+page.server"
+    );
     const result = await load({ params: {} } as never);
 
     expect(result.categoryTitle).toBe("the SoulJuicer");
     expect(result.artPieces).toHaveLength(1);
     expect(result.artPiece.id).toBe(8);
     expect(result.artPiece.attributes.title).toBe("the SoulJuicer");
-    expect(result.artPiece.attributes.createdDate).toBe("2024-03-01T00:00:00.000Z");
+    expect(result.artPiece.attributes.createdDate).toBe(
+      "2024-03-01T00:00:00.000Z",
+    );
     expect(result.artPiece.attributes.medium).toBe("pencil");
   });
 });

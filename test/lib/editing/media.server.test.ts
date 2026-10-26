@@ -1,10 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { deleteMediaByUrl, persistUploadedMedia } from "../../../src/lib/editing/core/media.server";
+import {
+  deleteMediaByUrl,
+  persistUploadedMedia,
+} from "../../../src/lib/editing/core/media.server";
 
 describe("media server helpers", () => {
   it("uploads files with the configured prefix and returns a normalized asset", async () => {
-    const uploadFile = vi.fn(async () => ({ Location: "https://cdn.example.com/uploads/test.png" }));
+    const uploadFile = vi.fn(async () => ({
+      Location: "https://cdn.example.com/uploads/test.png",
+    }));
     const file = new File(["hello"], "photo.png", { type: "image/png" });
 
     const asset = await persistUploadedMedia({

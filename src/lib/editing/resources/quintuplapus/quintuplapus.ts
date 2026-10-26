@@ -63,10 +63,25 @@ export const quintuplapusEditorDefinition = {
     never
   >,
   fields: [
-    { name: "categoryTitle", label: "Category Title", kind: "text", required: true },
+    {
+      name: "categoryTitle",
+      label: "Category Title",
+      kind: "text",
+      required: true,
+    },
     { name: "title", label: "Title", kind: "text", required: true },
-    { name: "description", label: "Description", kind: "markdown", required: true },
-    { name: "createdDate", label: "Created Date", kind: "text", required: true },
+    {
+      name: "description",
+      label: "Description",
+      kind: "markdown",
+      required: true,
+    },
+    {
+      name: "createdDate",
+      label: "Created Date",
+      kind: "text",
+      required: true,
+    },
     { name: "medium", label: "Medium", kind: "text", required: true },
     { name: "sortOrder", label: "Sort Order", kind: "number", required: true },
   ],
@@ -89,7 +104,9 @@ export const toQuintuplapusEditorValue = (
 ): QuintuplapusEditorValue => {
   const category = file.data.data?.[0];
   const entries = category?.attributes.art_pieces?.data ?? [];
-  const omitIds = (category?.attributes.omit?.data ?? []).map((item) => item.id);
+  const omitIds = (category?.attributes.omit?.data ?? []).map(
+    (item) => item.id,
+  );
 
   if (!category) {
     return quintuplapusEditorDefinition.createDefault();
@@ -121,7 +138,10 @@ export const upsertQuintuplapusEditorValue = (
   const timestamp = now.toISOString();
   const category = file.data.data?.[0];
   const existingById = new Map(
-    (category?.attributes.art_pieces?.data ?? []).map((entry) => [entry.id, entry]),
+    (category?.attributes.art_pieces?.data ?? []).map((entry) => [
+      entry.id,
+      entry,
+    ]),
   );
 
   if (!category) {
@@ -224,7 +244,10 @@ const toImageBase = (prefix: string, asset: UploadedImageAsset) => {
   };
 };
 
-const toStrapiImageAttributes = (asset: UploadedImageAsset, timestamp: string) => {
+const toStrapiImageAttributes = (
+  asset: UploadedImageAsset,
+  timestamp: string,
+) => {
   const fallbackName = asset.name || "upload";
 
   return {
@@ -290,7 +313,10 @@ export const applyQuintuplapusImagePatch = (
                         image: {
                           data: {
                             id: mediaId,
-                            attributes: toStrapiImageAttributes(image, timestamp),
+                            attributes: toStrapiImageAttributes(
+                              image,
+                              timestamp,
+                            ),
                           },
                         },
                       },

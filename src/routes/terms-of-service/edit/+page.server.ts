@@ -9,7 +9,10 @@ import {
   termsOfServiceEditorDefinition,
   toTermsOfServiceEditorValue,
 } from "$lib/editing/resources/terms-of-service/terms-of-service";
-import { termsOfServiceEditorPath, parseTermsOfServiceForm } from "$lib/editing/resources/terms-of-service/terms-of-service-editor";
+import {
+  termsOfServiceEditorPath,
+  parseTermsOfServiceForm,
+} from "$lib/editing/resources/terms-of-service/terms-of-service-editor";
 import {
   ensureTermsOfServiceBaselineSnapshot,
   readTermsOfServiceFile,
