@@ -59,7 +59,9 @@ describe("SoulJuicer edit page server", () => {
       saveSouljuicerEditorValue: vi.fn(),
     }));
 
-    const { load } = await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
+    const { load } = await import(
+      "../../src/routes/the-souljuicer/edit/[...aid]/+page.server"
+    );
     const result = await load({
       params: { aid: "4" },
       url: new URL("http://localhost/the-souljuicer/edit/4?saved=1"),
@@ -74,7 +76,8 @@ describe("SoulJuicer edit page server", () => {
 
   it("persists the expanded metadata fields when saving", async () => {
     vi.doMock("@sveltejs/kit", async () => {
-      const actual = await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
+      const actual =
+        await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
       return {
         ...actual,
         redirect: (status: number, location: string) => {
@@ -102,7 +105,9 @@ describe("SoulJuicer edit page server", () => {
       saveSouljuicerEditorValue,
     }));
 
-    const { actions } = await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
+    const { actions } = await import(
+      "../../src/routes/the-souljuicer/edit/[...aid]/+page.server"
+    );
     const formData = new FormData();
     formData.set("id", "4");
     formData.set("title", "Updated Entry Four");
@@ -121,19 +126,22 @@ describe("SoulJuicer edit page server", () => {
     });
 
     expect(saveSouljuicerEditorValue).toHaveBeenCalledTimes(1);
-    expect(saveSouljuicerEditorValue.mock.calls[0][0].entries[1]).toMatchObject({
-      id: 4,
-      title: "Updated Entry Four",
-      createdDate: "2024-05-01",
-      medium: "watercolor",
-      description: "Updated fourth entry",
-      sortOrder: 15,
-    });
+    expect(saveSouljuicerEditorValue.mock.calls[0][0].entries[1]).toMatchObject(
+      {
+        id: 4,
+        title: "Updated Entry Four",
+        createdDate: "2024-05-01",
+        medium: "watercolor",
+        description: "Updated fourth entry",
+        sortOrder: 15,
+      },
+    );
   });
 
   it("deletes an entry and redirects to the next remaining entry", async () => {
     vi.doMock("@sveltejs/kit", async () => {
-      const actual = await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
+      const actual =
+        await vi.importActual<typeof import("@sveltejs/kit")>("@sveltejs/kit");
       return {
         ...actual,
         redirect: (status: number, location: string) => {
@@ -166,7 +174,9 @@ describe("SoulJuicer edit page server", () => {
       saveSouljuicerEditorValue: vi.fn(async () => mockFile),
     }));
 
-    const { actions } = await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
+    const { actions } = await import(
+      "../../src/routes/the-souljuicer/edit/[...aid]/+page.server"
+    );
     const formData = new FormData();
     formData.set("id", "4");
 
@@ -179,7 +189,11 @@ describe("SoulJuicer edit page server", () => {
       location: "/the-souljuicer/edit/2?deleted=1",
     });
 
-    expect(deleteSouljuicerEntry).toHaveBeenCalledWith(4, expect.any(Date), mockFile);
+    expect(deleteSouljuicerEntry).toHaveBeenCalledWith(
+      4,
+      expect.any(Date),
+      mockFile,
+    );
   });
 
   it("blocks deleting the final remaining entry", async () => {
@@ -201,7 +215,9 @@ describe("SoulJuicer edit page server", () => {
       saveSouljuicerEditorValue: vi.fn(async () => mockFile),
     }));
 
-    const { actions } = await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
+    const { actions } = await import(
+      "../../src/routes/the-souljuicer/edit/[...aid]/+page.server"
+    );
     const formData = new FormData();
     formData.set("id", "2");
 

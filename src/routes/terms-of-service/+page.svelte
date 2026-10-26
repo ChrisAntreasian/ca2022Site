@@ -100,9 +100,5 @@
       position: static;
       margin: 0 0 1rem;
     }
-
-    h1 {
-      padding-right: 0;
-    }
   }
 </style>

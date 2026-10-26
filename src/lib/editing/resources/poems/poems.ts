@@ -19,11 +19,12 @@ export type PoemsFile = {
   data: StrapiPoem;
 };
 
-export const poemsFileC: Schema.Schema<PoemsFile, PoemsFile, never> = Schema.Struct({
-  name: Schema.String,
-  timestamp: Schema.Number,
-  data: strapiPoemC,
-});
+export const poemsFileC: Schema.Schema<PoemsFile, PoemsFile, never> =
+  Schema.Struct({
+    name: Schema.String,
+    timestamp: Schema.Number,
+    data: strapiPoemC,
+  });
 
 export const poemEditorDefinition = {
   key: "poems",
@@ -61,7 +62,9 @@ export const poemEditorDefinition = {
 
 const readItems = (file: PoemsFile) => file.data.data ?? [];
 
-export const toPoemEditorValues = (file: PoemsFile): ReadonlyArray<PoemEditorValue> =>
+export const toPoemEditorValues = (
+  file: PoemsFile,
+): ReadonlyArray<PoemEditorValue> =>
   [...readItems(file)]
     .sort((left, right) => left.attributes.position - right.attributes.position)
     .map((item) => ({
@@ -106,7 +109,10 @@ const buildStrapiPoemData = (
       pagination: {
         page: 1,
         pageCount: data.length > 0 ? 1 : 0,
-        pageSize: Math.max(file.data.meta.pagination.pageSize, data.length || 1),
+        pageSize: Math.max(
+          file.data.meta.pagination.pageSize,
+          data.length || 1,
+        ),
         total: data.length,
       },
     },

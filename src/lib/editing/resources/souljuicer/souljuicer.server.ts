@@ -88,9 +88,8 @@ export const replaceSouljuicerEntryImage = async (
     entryId,
     image,
     getOriginalMediaUrl: (current, targetEntryId) =>
-      current.data.data
-        .find((entry) => entry.id === targetEntryId)
-        ?.attributes.image.data?.attributes.url,
+      current.data.data.find((entry) => entry.id === targetEntryId)?.attributes
+        .image.data?.attributes.url,
     applyPatch: (current, targetEntryId, asset, patchNow) =>
       applySouljuicerImagePatch(current, targetEntryId, asset, patchNow),
     saveFile: writeSouljuicerFile,

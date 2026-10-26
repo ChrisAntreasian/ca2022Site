@@ -14,7 +14,7 @@ export const poemC = Schema.extend(
 export const strapiPoemC = Schema.Struct({
   data: Schema.Union(
     Schema.Array(withIdC(poemC)),
-    Schema.NullOr(Schema.Array(withIdC(poemC)))
+    Schema.NullOr(Schema.Array(withIdC(poemC))),
   ),
   meta: Schema.Struct({
     pagination: Schema.Struct({

@@ -178,10 +178,12 @@ describe("web experience editor adapter", () => {
     );
 
     const entry = updated.data.data?.[0].attributes.rich_links?.data?.[0];
-    expect(updated.data.data?.[0].attributes.title).toBe("Web Experience Updated");
-    expect(updated.data.data?.[0].attributes.page_details.data[0].attributes.title).toBe(
-      "Web Development Updated",
+    expect(updated.data.data?.[0].attributes.title).toBe(
+      "Web Experience Updated",
     );
+    expect(
+      updated.data.data?.[0].attributes.page_details.data[0].attributes.title,
+    ).toBe("Web Development Updated");
     expect(entry?.attributes.title).toBe("BondLink Updated");
     expect(entry?.attributes.position).toBe(15);
     expect(entry?.attributes.logo.data?.attributes.url).toBe("/logo.svg");
@@ -227,37 +229,45 @@ describe("web experience editor adapter", () => {
     expect(entry?.attributes.image.data[1].attributes.formats.small.url).toBe(
       "/uploads/web-experience/shot-1.jpg",
     );
-    expect(entry?.attributes.image.data[2].attributes.formats.thumbnail.url).toBe(
-      "/uploads/web-experience/shot-2.jpg",
-    );
+    expect(
+      entry?.attributes.image.data[2].attributes.formats.thumbnail.url,
+    ).toBe("/uploads/web-experience/shot-2.jpg");
   });
 
   it("defines a reusable editor contract for the web experience page", () => {
     expect(webExperienceEditorDefinition.key).toBe("web-experience");
-    expect(webExperienceEditorDefinition.fields.map((field) => field.name)).toEqual([
-      "pageTitle",
-      "introTitle",
-      "introBodyMarkdown",
-    ]);
+    expect(
+      webExperienceEditorDefinition.fields.map((field) => field.name),
+    ).toEqual(["pageTitle", "introTitle", "introBodyMarkdown"]);
     expect(webExperienceEditorDefinition.createDefault().entries).toEqual([]);
   });
 
   it("builds and parses editor routes for intro and entry targets", () => {
-    expect(webExperienceEditorPath({ kind: "intro" })).toBe("/web-experience/edit/intro");
-    expect(webExperienceEditorPath({ kind: "new" })).toBe("/web-experience/edit/new");
-    expect(webExperienceEditorPath({ kind: "entry", id: 7 }, "BondLink Work")).toBe(
-      "/web-experience/edit/7/bondlink-work",
+    expect(webExperienceEditorPath({ kind: "intro" })).toBe(
+      "/web-experience/edit/intro",
     );
+    expect(webExperienceEditorPath({ kind: "new" })).toBe(
+      "/web-experience/edit/new",
+    );
+    expect(
+      webExperienceEditorPath({ kind: "entry", id: 7 }, "BondLink Work"),
+    ).toBe("/web-experience/edit/7/bondlink-work");
     expect(parseWebExperienceEditorParam("intro")).toEqual({ kind: "intro" });
     expect(parseWebExperienceEditorParam("new")).toEqual({ kind: "new" });
-    expect(parseWebExperienceEditorParam("7")).toEqual({ kind: "entry", id: 7 });
+    expect(parseWebExperienceEditorParam("7")).toEqual({
+      kind: "entry",
+      id: 7,
+    });
     expect(parseWebExperienceEditorParam("not-a-number")).toBeNull();
   });
 
   it("selects and merges editor values for intro and entry forms", () => {
     const value = toWebExperienceEditorValue(baseFile);
     const introTarget = selectWebExperienceTarget(value, { kind: "intro" });
-    const entryTarget = selectWebExperienceTarget(value, { kind: "entry", id: 2 });
+    const entryTarget = selectWebExperienceTarget(value, {
+      kind: "entry",
+      id: 2,
+    });
 
     expect(introTarget).toEqual({
       kind: "intro",
@@ -284,7 +294,10 @@ describe("web experience editor adapter", () => {
     formData.set("secondaryLink", "https://backup.example");
     formData.set("sortOrder", "5");
 
-    const merged = mergeWebExperienceValue(value, parseWebExperienceForm(formData));
+    const merged = mergeWebExperienceValue(
+      value,
+      parseWebExperienceForm(formData),
+    );
 
     expect(merged.entries[0]).toMatchObject({
       id: 2,
@@ -318,7 +331,10 @@ describe("web experience editor adapter", () => {
     formData.set("secondaryLink", "");
     formData.set("sortOrder", "25");
 
-    const merged = mergeWebExperienceValue(value, parseWebExperienceForm(formData));
+    const merged = mergeWebExperienceValue(
+      value,
+      parseWebExperienceForm(formData),
+    );
     const saved = upsertWebExperienceEditorValue(
       baseFile,
       merged,

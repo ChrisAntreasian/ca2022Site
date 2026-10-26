@@ -19,10 +19,11 @@ export const initMixpanel = async () => {
 
 const mkDistinctId = (arr: string[]): string => {
   // Generate a simple random ID for browser environments
-  const dId = browser 
-    ? Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+  const dId = browser
+    ? Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15)
     : `server-${Date.now()}-${Math.random()}`;
-  
+
   if (!arr.includes(dId)) return dId;
   return mkDistinctId(arr);
 };
@@ -52,10 +53,13 @@ export const captureDetails = (
   resourceName: name,
 });
 
-export const captureBehavior = async (eKey: string, props?: Record<string, unknown>) => {
+export const captureBehavior = async (
+  eKey: string,
+  props?: Record<string, unknown>,
+) => {
   if (!import.meta.env.PROD) return;
   if (!browser || !mixpanel) return;
-  
+
   const details: Record<string, unknown> = { ...props };
   mixpanel.track(eKey, details);
 };

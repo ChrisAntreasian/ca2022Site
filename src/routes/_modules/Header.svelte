@@ -28,19 +28,21 @@
     "/the-quintuplapus": ": The Quintuplapus",
     "/poems": ": Poetry",
     "/web-experience": ": Web",
-  };
+  } as const;
+
+  type HeadlinesKeys = keyof typeof headlinesDict;
 
   let headlineBit = $derived(
     !($page.url.pathname in headlinesDict)
       ? ""
-      : `${headlinesDict[$page.url.pathname]}`
+      : `${headlinesDict[$page.url.pathname as keyof typeof headlinesDict]}`
   );
 
   const resetMenu = () => {
     toggleMenuActive = false;
   };
 
-  let windowWidth: number = $state();
+  let windowWidth: number | undefined = $state(undefined);
 
   const headlineClick = () => {
     resetMenu();

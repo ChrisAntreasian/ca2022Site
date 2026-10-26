@@ -1,8 +1,4 @@
-import {
-  deleteS3File,
-  initS3,
-  uploadS3File,
-} from "$lib/s3";
+import { deleteS3File, initS3, uploadS3File } from "$lib/s3";
 
 import {
   removeWebExperienceEntry,
@@ -12,7 +8,10 @@ import {
   type WebExperienceEditorValue,
   type WebExperienceFile,
 } from "./web-experience";
-import { deleteMediaByUrl, persistUploadedMedia } from "../../core/media.server";
+import {
+  deleteMediaByUrl,
+  persistUploadedMedia,
+} from "../../core/media.server";
 import { createJsonEditorStore } from "../../core/store.server";
 
 const webExperienceFilePath = "./src/data/web-experience.json";

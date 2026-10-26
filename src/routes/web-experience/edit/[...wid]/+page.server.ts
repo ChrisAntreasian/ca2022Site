@@ -36,8 +36,8 @@ const resolveSavedEntry = (
   requestedEntryId: number,
 ) =>
   requestedEntryId > 0
-    ? entries.find((entry) => entry.id === requestedEntryId) ?? null
-    : [...entries].sort((left, right) => right.id - left.id)[0] ?? null;
+    ? (entries.find((entry) => entry.id === requestedEntryId) ?? null)
+    : ([...entries].sort((left, right) => right.id - left.id)[0] ?? null);
 
 export const load: PageServerLoad = async ({ params, url }) => {
   requireEditorEnabled();
@@ -53,15 +53,12 @@ export const load: PageServerLoad = async ({ params, url }) => {
   const source = await readWebExperienceFile();
   await ensureWebExperienceBaselineSnapshot(source);
   const editorValue = toWebExperienceEditorValue(source);
-  const selection = requestedSelection ??
+  const selection =
+    requestedSelection ??
     (editorValue.entries[0]
       ? ({ kind: "entry", id: editorValue.entries[0].id } as const)
       : ({ kind: "intro" } as const));
-  const target = buildWebExperienceTarget(
-    source,
-    editorValue,
-    selection,
-  );
+  const target = buildWebExperienceTarget(source, editorValue, selection);
 
   if (!target) {
     throw error(404, "Web experience target not found.");
@@ -69,9 +66,15 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
   const status =
     url.searchParams.get("deleted") === "1"
-      ? ({ title: "Web experience entry deleted", message: "Web experience entry deleted." } as const)
+      ? ({
+          title: "Web experience entry deleted",
+          message: "Web experience entry deleted.",
+        } as const)
       : url.searchParams.get("saved") === "1"
-        ? ({ title: "Web experience entry saved", message: "Web experience entry saved." } as const)
+        ? ({
+            title: "Web experience entry saved",
+            message: "Web experience entry saved.",
+          } as const)
         : null;
 
   return {
@@ -131,13 +134,15 @@ export const actions: Actions = {
       });
     }
 
-    const removeLogo = parsedForm.kind === "entry" && formData.has("removeLogo");
-    const removeImageIds = parsedForm.kind === "entry"
-      ? formData
-          .getAll("removeImageIds")
-          .map((value) => Number(String(value)))
-          .filter((value) => Number.isInteger(value) && value > 0)
-      : [];
+    const removeLogo =
+      parsedForm.kind === "entry" && formData.has("removeLogo");
+    const removeImageIds =
+      parsedForm.kind === "entry"
+        ? formData
+            .getAll("removeImageIds")
+            .map((value) => Number(String(value)))
+            .filter((value) => Number.isInteger(value) && value > 0)
+        : [];
 
     const logoRaw = formData.get("logoFile");
     const logoFile =
@@ -148,8 +153,9 @@ export const actions: Actions = {
       parsedForm.kind === "entry"
         ? formData
             .getAll("imageFiles")
-            .filter((candidate): candidate is File =>
-              candidate instanceof File && candidate.size > 0,
+            .filter(
+              (candidate): candidate is File =>
+                candidate instanceof File && candidate.size > 0,
             )
         : [];
 
@@ -179,9 +185,10 @@ export const actions: Actions = {
         uploadedScreenshots !== undefined;
 
       if (shouldUpdateMedia) {
-        const originalEntry = source.data.data?.[0]?.attributes.rich_links?.data?.find(
-          (entry) => entry.id === selectedEntry.id,
-        );
+        const originalEntry =
+          source.data.data?.[0]?.attributes.rich_links?.data?.find(
+            (entry) => entry.id === selectedEntry.id,
+          );
 
         saved = applyWebExperienceMediaPatch(saved, {
           entryId: selectedEntry.id,
@@ -204,7 +211,9 @@ export const actions: Actions = {
             : []),
         ].filter((url): url is string => Boolean(url));
 
-        await Promise.all(deleteTargets.map((url) => deleteWebExperienceMedia(url)));
+        await Promise.all(
+          deleteTargets.map((url) => deleteWebExperienceMedia(url)),
+        );
 
         savedValue = toWebExperienceEditorValue(saved);
       }
@@ -221,7 +230,10 @@ export const actions: Actions = {
               throw error(404, "Saved web experience entry not found.");
             }
 
-            return webExperienceEditorPath({ kind: "entry", id: selected.id }, selected.title);
+            return webExperienceEditorPath(
+              { kind: "entry", id: selected.id },
+              selected.title,
+            );
           })();
 
     throw redirect(303, `${targetPath}?saved=1`);
@@ -252,10 +264,17 @@ export const actions: Actions = {
       throw error(404, "Web experience entry not found.");
     }
 
-    const updated = await deleteWebExperienceEntry(parsedForm.id, new Date(), source);
+    const updated = await deleteWebExperienceEntry(
+      parsedForm.id,
+      new Date(),
+      source,
+    );
     const remaining = toWebExperienceEditorValue(updated).entries[0];
     const destination = remaining
-      ? webExperienceEditorPath({ kind: "entry", id: remaining.id }, remaining.title)
+      ? webExperienceEditorPath(
+          { kind: "entry", id: remaining.id },
+          remaining.title,
+        )
       : webExperienceEditorPath({ kind: "intro" });
 
     throw redirect(303, `${destination}?deleted=1`);

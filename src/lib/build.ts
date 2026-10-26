@@ -11,8 +11,10 @@ const buildGate = (key: string): Effect.Effect<string, HttpError> =>
     ? Effect.succeed(key)
     : Effect.fail(e403("Permission denied.") as HttpError);
 
-export const writeFile = <A>(buildKey: string) => (data: A): HttpErrTE<A> =>
-  writeFsTE([data, buildKey]);
+export const writeFile =
+  <A>(buildKey: string) =>
+  (data: A): HttpErrTE<A> =>
+    writeFsTE([data, buildKey]);
 
 export const combineResp = (
   effects: HttpErrTE<ReadonlyArray<Record<string, unknown>>>,
@@ -20,14 +22,15 @@ export const combineResp = (
   pipe(
     effects,
     Effect.map(
-      Array.reduce({} as Record<string, unknown>, (acc, curr) => ({ ...acc, ...curr })),
+      Array.reduce({} as Record<string, unknown>, (acc, curr) => ({
+        ...acc,
+        ...curr,
+      })),
     ),
   );
 
-export const buildRes = <B>(
-  title: string,
-  bFn: (key: string) => HttpErrTE<B>,
-) =>
+export const buildRes =
+  <B>(title: string, bFn: (key: string) => HttpErrTE<B>) =>
   (key: string) =>
     pipe(
       buildGate(key),
