@@ -426,9 +426,7 @@ export const buildWebExperienceTarget = (
   file: WebExperienceFile,
   value: WebExperienceEditorValue,
   selection:
-    | { kind: "intro" }
-    | { kind: "new" }
-    | { kind: "entry"; id: number },
+    { kind: "intro" } | { kind: "new" } | { kind: "entry"; id: number },
 ): WebExperienceTarget | null => {
   if (selection.kind === "intro") {
     return {

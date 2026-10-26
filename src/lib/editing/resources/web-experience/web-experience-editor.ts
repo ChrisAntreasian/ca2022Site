@@ -10,9 +10,7 @@ import type {
 const newWebExperienceParam = "new";
 
 export type WebExperienceSelection =
-  | { kind: "intro" }
-  | { kind: "new" }
-  | { kind: "entry"; id: number };
+  { kind: "intro" } | { kind: "new" } | { kind: "entry"; id: number };
 
 export const webExperienceEditorPath = (
   selection: WebExperienceSelection,
