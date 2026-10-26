@@ -59,9 +59,8 @@ describe("SoulJuicer edit page server", () => {
       saveSouljuicerEditorValue: vi.fn(),
     }));
 
-    const { load } = await import(
-      "../../src/routes/the-souljuicer/edit/[...aid]/+page.server"
-    );
+    const { load } =
+      await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
     const result = await load({
       params: { aid: "4" },
       url: new URL("http://localhost/the-souljuicer/edit/4?saved=1"),
@@ -105,9 +104,8 @@ describe("SoulJuicer edit page server", () => {
       saveSouljuicerEditorValue,
     }));
 
-    const { actions } = await import(
-      "../../src/routes/the-souljuicer/edit/[...aid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
     const formData = new FormData();
     formData.set("id", "4");
     formData.set("title", "Updated Entry Four");
@@ -174,9 +172,8 @@ describe("SoulJuicer edit page server", () => {
       saveSouljuicerEditorValue: vi.fn(async () => mockFile),
     }));
 
-    const { actions } = await import(
-      "../../src/routes/the-souljuicer/edit/[...aid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
     const formData = new FormData();
     formData.set("id", "4");
 
@@ -215,9 +212,8 @@ describe("SoulJuicer edit page server", () => {
       saveSouljuicerEditorValue: vi.fn(async () => mockFile),
     }));
 
-    const { actions } = await import(
-      "../../src/routes/the-souljuicer/edit/[...aid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
     const formData = new FormData();
     formData.set("id", "2");
 

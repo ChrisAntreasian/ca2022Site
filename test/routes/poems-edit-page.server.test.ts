@@ -58,9 +58,8 @@ describe("poems edit page server", () => {
       savePoemEditorValue: vi.fn(),
     }));
 
-    const { load } = await import(
-      "../../src/routes/poems/edit/[...pid]/+page.server"
-    );
+    const { load } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
 
     const result = await load({
       params: { pid: "4/the-carpal-tunnel" },
@@ -131,9 +130,8 @@ describe("poems edit page server", () => {
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
     }));
 
-    const { actions } = await import(
-      "../../src/routes/poems/edit/[...pid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
     const formData = new FormData();
     formData.set("id", "4");
     formData.set("title", "The Carpal Tunnel");
@@ -208,9 +206,8 @@ describe("poems edit page server", () => {
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
     }));
 
-    const { actions } = await import(
-      "../../src/routes/poems/edit/[...pid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
     const formData = new FormData();
     formData.set("id", "4");
     formData.set("title", "The Carpal Tunnel");
@@ -274,9 +271,8 @@ describe("poems edit page server", () => {
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
     }));
 
-    const { actions } = await import(
-      "../../src/routes/poems/edit/[...pid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
     const formData = new FormData();
     formData.set("id", "2");
 
@@ -323,9 +319,8 @@ describe("poems edit page server", () => {
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
     }));
 
-    const { actions } = await import(
-      "../../src/routes/poems/edit/[...pid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
     const formData = new FormData();
     formData.set("id", "0");
 

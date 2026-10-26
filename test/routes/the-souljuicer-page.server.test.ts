@@ -32,9 +32,8 @@ describe("SoulJuicer page server load", () => {
       },
     }));
 
-    const { load } = await import(
-      "../../src/routes/the-souljuicer/[...aid]/+page.server"
-    );
+    const { load } =
+      await import("../../src/routes/the-souljuicer/[...aid]/+page.server");
     const result = await load({ params: {} } as never);
 
     expect(result.categoryTitle).toBe("the SoulJuicer");

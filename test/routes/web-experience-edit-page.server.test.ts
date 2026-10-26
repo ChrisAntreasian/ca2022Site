@@ -108,9 +108,8 @@ describe("web experience edit page server delete action", () => {
       }),
     );
 
-    const { actions } = await import(
-      "../../src/routes/web-experience/edit/[...wid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/web-experience/edit/[...wid]/+page.server");
     const formData = new FormData();
     formData.set("kind", "entry");
     formData.set("id", "7");
@@ -177,9 +176,8 @@ describe("web experience edit page server delete action", () => {
       }),
     );
 
-    const { actions } = await import(
-      "../../src/routes/web-experience/edit/[...wid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/web-experience/edit/[...wid]/+page.server");
 
     const formData = new FormData();
     formData.set("kind", "intro");

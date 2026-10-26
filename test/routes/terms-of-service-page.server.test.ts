@@ -24,9 +24,8 @@ describe("terms-of-service page server load", () => {
       }),
     );
 
-    const { load } = await import(
-      "../../src/routes/terms-of-service/+page.server"
-    );
+    const { load } =
+      await import("../../src/routes/terms-of-service/+page.server");
     const result = await load({} as never);
 
     expect(result.editorEnabled).toBe(true);

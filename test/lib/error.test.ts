@@ -36,8 +36,7 @@ describe("Error Handling Utilities", () => {
 
     it("HttpErrTE type works with error cases", async () => {
       let mockError:
-        | (Error & { status: number; body: { message: string } })
-        | undefined;
+        (Error & { status: number; body: { message: string } }) | undefined;
       try {
         error(404, "Not found");
       } catch (err) {
@@ -66,8 +65,7 @@ describe("Error Handling Utilities", () => {
 
     it("HttpErrE type works with error cases", () => {
       let mockError:
-        | (Error & { status: number; body: { message: string } })
-        | undefined;
+        (Error & { status: number; body: { message: string } }) | undefined;
       try {
         error(500, "Server error");
       } catch (err) {
@@ -88,8 +86,7 @@ describe("Error Handling Utilities", () => {
   describe("throwErrIO function", () => {
     it("creates IO that can throw errors", () => {
       let mockError:
-        | (Error & { status: number; body: { message: string } })
-        | undefined;
+        (Error & { status: number; body: { message: string } }) | undefined;
       try {
         error(404, "Resource not found");
       } catch (err) {
@@ -105,8 +102,7 @@ describe("Error Handling Utilities", () => {
 
     it("preserves error information when throwing", () => {
       let mockError:
-        | (Error & { status: number; body: { message: string } })
-        | undefined;
+        (Error & { status: number; body: { message: string } }) | undefined;
       try {
         error(403, "Forbidden access");
       } catch (err) {
@@ -156,8 +152,7 @@ describe("Error Handling Utilities", () => {
 
     it("can be used in fp-ts patterns", () => {
       let mockError:
-        | (Error & { status: number; body: { message: string } })
-        | undefined;
+        (Error & { status: number; body: { message: string } }) | undefined;
       try {
         error(500, "Database connection failed");
       } catch (err) {

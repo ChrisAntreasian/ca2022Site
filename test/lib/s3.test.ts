@@ -254,11 +254,9 @@ describe("S3 Utilities", () => {
   describe("S3 integration workflow", () => {
     it("can be used together for upload and retrieve workflow", async () => {
       // Setup upload mock
-      const uploadPromise = vi
-        .fn()
-        .mockResolvedValue({
-          Location: "https://bucket.s3.amazonaws.com/test-key",
-        });
+      const uploadPromise = vi.fn().mockResolvedValue({
+        Location: "https://bucket.s3.amazonaws.com/test-key",
+      });
       mockS3Instance.upload.mockReturnValue({ promise: uploadPromise });
 
       // Setup get mock

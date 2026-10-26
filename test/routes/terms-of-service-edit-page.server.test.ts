@@ -27,9 +27,8 @@ describe("terms-of-service edit page server", () => {
       }),
     );
 
-    const { load } = await import(
-      "../../src/routes/terms-of-service/edit/+page.server"
-    );
+    const { load } =
+      await import("../../src/routes/terms-of-service/edit/+page.server");
     const result = await load({
       url: new URL("http://localhost/terms-of-service/edit?saved=1"),
     } as never);
@@ -82,9 +81,8 @@ describe("terms-of-service edit page server", () => {
       }),
     );
 
-    const { actions } = await import(
-      "../../src/routes/terms-of-service/edit/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/terms-of-service/edit/+page.server");
     const formData = new FormData();
     formData.set("title", "AI Terms");
     formData.set("bodyMarkdown", "No model training.");
@@ -127,9 +125,8 @@ describe("terms-of-service edit page server", () => {
       }),
     );
 
-    const { actions } = await import(
-      "../../src/routes/terms-of-service/edit/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/terms-of-service/edit/+page.server");
     const formData = new FormData();
     formData.set("title", " ");
     formData.set("bodyMarkdown", " ");

@@ -81,9 +81,8 @@ describe("Quintuplapus edit page server delete", () => {
       }),
     );
 
-    const { actions } = await import(
-      "../../src/routes/the-quintuplapus/edit/[...aid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/the-quintuplapus/edit/[...aid]/+page.server");
     const formData = new FormData();
     formData.set("id", "5");
 
@@ -128,9 +127,8 @@ describe("Quintuplapus edit page server delete", () => {
       }),
     );
 
-    const { actions } = await import(
-      "../../src/routes/the-quintuplapus/edit/[...aid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/the-quintuplapus/edit/[...aid]/+page.server");
     const formData = new FormData();
     formData.set("id", "3");
 

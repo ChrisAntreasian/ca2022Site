@@ -44,9 +44,8 @@ describe("Web Experience page server load", () => {
       },
     }));
 
-    const { load } = await import(
-      "../../src/routes/web-experience/[...eid]/+page.server"
-    );
+    const { load } =
+      await import("../../src/routes/web-experience/[...eid]/+page.server");
     const result = await load({ params: {} } as never);
 
     expect(result.items).toHaveLength(2);
