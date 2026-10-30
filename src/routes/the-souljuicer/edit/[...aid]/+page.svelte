@@ -20,7 +20,7 @@
       ? form.values
       : data.selectedEntry,
   );
-  let currentEntry = $state(data.selectedEntry);
+  let currentEntry = $state((() => data.selectedEntry)());
 
   $effect(() => {
     currentEntry = incomingEntry;

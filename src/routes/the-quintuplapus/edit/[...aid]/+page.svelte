@@ -31,8 +31,8 @@
         }
       : data.selectedEntry,
   );
-  let currentCategoryTitle = $state(data.categoryTitle);
-  let currentEntry = $state(data.selectedEntry);
+  let currentCategoryTitle = $state((() => data.categoryTitle)());
+  let currentEntry = $state((() => data.selectedEntry)());
 
   $effect(() => {
     currentCategoryTitle = incomingCategoryTitle;

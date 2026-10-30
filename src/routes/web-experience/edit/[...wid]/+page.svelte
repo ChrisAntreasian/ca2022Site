@@ -20,7 +20,7 @@
       ? (form.values as WebExperienceTarget)
       : data.target,
   );
-  let currentTarget: WebExperienceTarget = $state(data.target);
+  let currentTarget: WebExperienceTarget = $state((() => data.target)());
 
   $effect(() => {
     currentTarget = incomingTarget;

@@ -19,7 +19,7 @@
       ? form.values
       : data.selectedPoem,
   );
-  let currentPoem = $state(data.selectedPoem);
+  let currentPoem = $state((() => data.selectedPoem)());
 
   $effect(() => {
     currentPoem = incomingPoem;

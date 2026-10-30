@@ -1,5 +1,6 @@
 import { sveltekit } from "@sveltejs/kit/vite";
 import path from "path";
+import { sveltePreprocess } from "svelte-preprocess";
 
 /** @type {import('vite').UserConfig} */
 const config = {

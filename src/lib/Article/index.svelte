@@ -1,8 +1,6 @@
 <script lang="ts">
-  import { mqBreakPoint } from "$lib/spacing";
   import { captureBehavior, captureDetails } from "$lib/analytics";
-  import { onMount, type Snippet } from "svelte";
-  import { afterNavigate } from "$app/navigation";
+  import { type Snippet } from "svelte";
   import { clientNavigate } from "$lib/history";
   import Shell from "./Shell.svelte";
   import Article from "./Article.svelte";

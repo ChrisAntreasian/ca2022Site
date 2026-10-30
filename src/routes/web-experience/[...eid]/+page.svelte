@@ -8,11 +8,15 @@
 
   let { data }: Props = $props();
 
-  const editHref = data.editorEnabled
-    ? data.item.id === -1
-      ? webExperienceEditorPath({ kind: "intro" })
-      : webExperienceEditorPath({ kind: "entry", id: data.item.id }, data.item.title)
-    : null;
+  const editHref = (() =>
+    data.editorEnabled
+      ? data.item.id === -1
+        ? webExperienceEditorPath({ kind: "intro" })
+        : webExperienceEditorPath(
+            { kind: "entry", id: data.item.id },
+            data.item.title,
+          )
+      : null)();
 </script>
 
 <svelte:head>

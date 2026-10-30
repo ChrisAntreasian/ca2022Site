@@ -1,13 +1,11 @@
-import type { Cookies } from "@sveltejs/kit";
-import { browser } from "$app/environment";
+﻿import type { Cookies } from "@sveltejs/kit";
 import { daysFromNow } from "$lib/date";
-// import { getS3File, uploadS3File } from '$lib/s3';
-// import type { S3 } from "aws-sdk";
 
 let mixpanel: typeof import("mixpanel-browser").default | null = null;
+const isBrowser = !import.meta.env.SSR;
 
 export const initMixpanel = async () => {
-  if (!browser) return;
+  if (!isBrowser)  return;
   if (!mixpanel) {
     const mixpanelModule = await import("mixpanel-browser");
     mixpanel = mixpanelModule.default;
@@ -19,10 +17,11 @@ export const initMixpanel = async () => {
 
 const mkDistinctId = (arr: string[]): string => {
   // Generate a simple random ID for browser environments
-  const dId = browser
-    ? Math.random().toString(36).substring(2, 15) +
-      Math.random().toString(36).substring(2, 15)
-    : `server-${Date.now()}-${Math.random()}`;
+  
+  const dId = isBrowser
+  ? Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  : `server-${Date.now()}-${Math.random()}`;
 
   if (!arr.includes(dId)) return dId;
   return mkDistinctId(arr);
@@ -58,8 +57,7 @@ export const captureBehavior = async (
   props?: Record<string, unknown>,
 ) => {
   if (!import.meta.env.PROD) return;
-  if (!browser || !mixpanel) return;
-
+  if (!isBrowser || !mixpanel) return;
   const details: Record<string, unknown> = { ...props };
   mixpanel.track(eKey, details);
 };

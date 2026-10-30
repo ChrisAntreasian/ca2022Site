@@ -15,12 +15,12 @@
     altText: string;
     analyticsKey: string;
     btnOffset?: number;
-    targetImage?: string;
+    targetImage?: string | null;
     paginateItem?: (s?: string) => (n: number) => void;
     paginationDetails?: {
       length: number;
       position: number;
-    };
+    } | null;
     onClose?: any;
     onOpen?: any;
   }
@@ -33,7 +33,7 @@
     analyticsKey,
     btnOffset = 50,
     targetImage = null,
-    paginateItem = null,
+    paginateItem = (s?: string) => (n: number) => null,
     paginationDetails = null,
     onClose = () => null,
     onOpen = (id: number) => null,
@@ -45,14 +45,14 @@
   let windowWidth = $state(0);
 
   const transitionConfig = { duration: 400 };
-  const mkCaptureDetails = captureDetails({ id: id, name: title });
+  const mkCaptureDetails = captureDetails((() => ({ id: id, name: title }))());
 
   let hmw = $state({ h: "auto", mw: "auto" });
 
   const wrapperWidth = fromRem(75);
 
   let maxOverlayWidth = $derived(
-    (windowWidth <= wrapperWidth ? windowWidth : wrapperWidth) - fromRem(4)
+    (windowWidth <= wrapperWidth ? windowWidth : wrapperWidth) - fromRem(4),
   );
 
   onMount(async () => {
@@ -83,23 +83,26 @@
     captureBehavior(`${analyticsKey} click close fullscreen`, mkCaptureDetails);
   };
 
-  let needsNext = $state(false);
-  let needsLast = $state(false);
+  let needsNext: boolean | null = $state(false);
+  let needsLast: boolean | null = $state(false);
 
-  const paginateFullscreen = paginateItem
-    ? paginateItem(`${analyticsKey} paginate fullscreen`)
-    : null;
+  const paginateFullscreen = (() =>
+    paginateItem
+      ? paginateItem(`${analyticsKey} paginate fullscreen`)
+      : null)();
 
-  const setNeedsLast = () =>
-    paginateFullscreen &&
-    paginationDetails &&
-    paginationDetails.position + 1 < paginationDetails.length;
+  const setNeedsLast = () => {
+    if (!paginateFullscreen || !paginationDetails) return false;
+    return paginationDetails.position + 1 < paginationDetails.length;
+  };
 
-  const setNeedsFirst = () =>
-    paginateFullscreen && paginationDetails && paginationDetails.position !== 0;
+  const setNeedsFirst = () => {
+    if (!paginateFullscreen || !paginationDetails) return false;
+    return paginationDetails.position !== 0;
+  };
 
   $effect(() => {
-    if (paginateFullscreen || paginationDetails) {
+    if (paginateFullscreen && paginationDetails) {
       needsLast = setNeedsLast();
       needsNext = setNeedsFirst();
     }
@@ -163,16 +166,16 @@
         <button
           class:disabled={!needsNext}
           class="pagination-link last btn-bg"
-          onclick={() => paginateFullscreen(-1)}
-          onkeypress={() => paginateFullscreen(-1)}
+          onclick={() => paginateFullscreen && paginateFullscreen(-1)}
+          onkeypress={() => paginateFullscreen && paginateFullscreen(-1)}
         >
           <Arrow color="white" size="medium" direction="left" />
         </button>
         <button
           class:disabled={!needsLast}
           class="pagination-link next btn-bg"
-          onclick={() => paginateFullscreen(1)}
-          onkeypress={() => paginateFullscreen(1)}
+          onclick={() => paginateFullscreen && paginateFullscreen(1)}
+          onkeypress={() => paginateFullscreen && paginateFullscreen(1)}
         >
           <Arrow color="white" size="medium" direction="right" />
         </button>

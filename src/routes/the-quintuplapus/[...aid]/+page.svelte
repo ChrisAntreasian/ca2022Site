@@ -8,10 +8,17 @@
   }
 
   let { data }: Props = $props();
+
+  // Store references to nested data that will be used multiple times
+  const editorEnabled = (() => data.editorEnabled ?? false)();
+  const artPiece = (() => data.artPiece)();
+
   let parentRoute = "/the-quintuplapus/";
   let analyticsKey = "the Quintuplapus";
-  const editHref = data.editorEnabled
-    ? quintuplapusEditorPath(data.artPiece.id, data.artPiece.attributes.title)
+
+  // Now we can safely reference these stored values
+  const editHref = editorEnabled
+    ? quintuplapusEditorPath(artPiece.id, artPiece.attributes.title)
     : null;
 </script>
 

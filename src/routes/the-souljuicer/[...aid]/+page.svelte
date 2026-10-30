@@ -11,7 +11,8 @@
 
   let parentRoute = "/the-souljuicer/";
   let analyticsKey = "the SoulJuicer";
-  const editHref = data.editorEnabled ? souljuicerEditorPath(data.artPiece.id) : null;
+  const editHref = (() =>
+    data.editorEnabled ? souljuicerEditorPath(data.artPiece.id) : null)();
 </script>
 
 <svelte:head>

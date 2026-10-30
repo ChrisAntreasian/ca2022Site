@@ -9,9 +9,10 @@
 
   let { data }: Props = $props();
 
-  const editHref = data.editorEnabled
-    ? poemEditorPath(data.item.id, data.item.title)
-    : null;
+  const editHref = (() =>
+    data.editorEnabled
+      ? poemEditorPath(data.item.id, data.item.title)
+      : null)();
 </script>
 
 <svelte:head>
