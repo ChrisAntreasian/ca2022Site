@@ -1,6 +1,8 @@
 # SvelteKit 2 -> 3 migration checklist
 
-Branch: `sveltekit-migration-3x` · Stable commit: `410fcb8` (working tree clean; parent `a6fe9a9`)
+Branch: `sveltekit-migration-3x` · BASELINE = the newest `KIT3(...)` commit reported by
+`git --no-pager log --oneline -8` (protocol step 1). Verified green points so far: `410fcb8` (env +
+adapters + scripts), `69c6ad3` (docs), `5dcb9a3` (facts), `fc50b42` (item 4).
 Installed: `@sveltejs/kit@3.1.x`, `vite@8.3.5` (beta/rolldown), `svelte@5.57`, `vitest@5`,
 `@sveltejs/adapter-vercel@7.0.2`, `@sveltejs/adapter-auto@8.0.0` (devDependencies),
 `@sveltejs/vite-plugin-svelte@7.3.1`, `typescript@5.9.2` (kit's `typescript ^6` peer is OPTIONAL - do not
@@ -129,11 +131,15 @@ bump TS as a side effect; it is its own gated step)
 - [ ] 5. **tsc's 83 non-CFM errors**: mostly `test/lib/api.test.ts` TS2345 `unknown` ->
   `Schema<unknown, unknown, never>` (zod 4 + `src/lib/api.ts`) and missing `vi`/`vitest` globals in
   `test/**`. Buckets need a proper categorize pass.
-- [ ] 6. **vitest config**: `vitest.config.ts` calls `sveltekit()` with NO Kit options and aliases
-  `$app` -> `.svelte-kit/runtime/app` (a Kit 2 path Kit 3 no longer emits). It also aliases `$lib`/`$data`
-  through `resolve.alias`, which Kit 3 ignores for its GENERATED tsconfig paths but which still works for
-  vitest's runtime resolution. `test/setup.ts` mocks `$app/environment`, `$app/navigation` and `$app/stores`
-  (the last one is a removed Kit 3 module).
+- [x] 6. **vitest config (DONE)**: removed the dead `$app` -> `.svelte-kit/runtime/app` alias. Proof it
+  was dead: Kit 3 never emits that path, `node_modules/$app` contains ONLY `tsconfig/`, `types/` and
+  `tsconfig.json` (types, not runtime), and Kit declares `$app/*` as ambient modules itself
+  (`@sveltejs/kit/src/exports/vite/write_app_types.js:281` writes `declare module "$app/types" { ... }`);
+  Kit's vite plugin injects no literal `"$app..."` aliases either (grep found none). `$lib`/`$data` stay in
+  `resolve.alias` because vitest still needs them at runtime. GATE: `svelte-check` 94 errors / 0 warnings
+  (unchanged) and `npm run test:unit` = 42 files / 409 tests passed in 9.22 s, zero `Failed to resolve` /
+  `Cannot find module`. Remaining note: `vitest.config.ts` calls `sveltekit()` with NO Kit options
+  (no adapter/preprocess/alias) which is harmless for tests - tests never produce a deployment.
 - [x] 7. **Runtime smoke test (DONE)**: `vite dev` -> `VITE v8.3.5 ready in 1806 ms`, `/` 200 (71 KB),
   `/poems` 200 (90 KB), bogus route 404 ✓. Production `vite preview` over `.svelte-kit/output` ->
   `/` 200 (24.7 KB, `<h1>` SSR'd), `/poems` 200 (37.4 KB), bogus 404 ✓ - preview does NOT need the
@@ -145,12 +151,16 @@ bump TS as a side effect; it is its own gated step)
   `--strictPort`; `Start-Process -RedirectStandardOutput` only flushes when the process exits, so read
   the port from `--port` instead of parsing the log. Process env beats `.env`, so shell
   `ENABLE_CONTENT_EDITOR` is authoritative for these tests.
-- [ ] 8. **Cleanup leftovers**: `#lib`/`#data` subpath imports via package.json `imports` to retire
-  deprecated `config.alias` (that leaves ZERO Kit warnings); verify then remove root junk `index.ts` +
-  `test-mkkey.js`. ALREADY DONE here: `svelte-kit package` script deleted, `start` -> `vite preview`,
-  adapter-auto moved to devDependencies, all scratch capture files deleted.
-  STILL OPEN: `@vitest/ui@3.2.4` and `@vitest/coverage-v8@3.2.4` require vitest exactly `3.2.4` while
-  vitest 5.0.5 is installed, so `test:unit:coverage` / `test:unit:watch` are peer-broken (own step).
+- [ ] 8. **Cleanup leftovers (part 1 DONE)**: root junk `index.ts` (0 bytes, zero references) and
+  `test-mkkey.js` (an ad-hoc `mkKeyWDefault` demo importing `../src/lib/file.js`, zero references) are
+  now DELETED (verified with `git grep`: nothing referenced either). Earlier in this item: the dead
+  `svelte-kit package` script was deleted, `start` -> `vite preview`, adapter-auto moved to
+  devDependencies, and every scratch capture file was deleted.
+  STILL OPEN: (a) the `#lib`/`#data` subpath-import codemod via package.json `imports` that retires the
+  deprecated `config.alias` (that is what removes the LAST Kit warning) - a large mechanical change across
+  every `import ... from "$lib/..."` site, so it needs its own session; (b) `@vitest/ui@3.2.4` and
+  `@vitest/coverage-v8@3.2.4` are pinned to vitest exactly `3.2.4` while vitest 5.0.5 is installed, so
+  `test:unit:coverage` / `test:unit:watch` are peer-broken (separate step, `--legacy-peer-deps` required).
 
 ## Hard-won facts (do not re-derive these)
 
