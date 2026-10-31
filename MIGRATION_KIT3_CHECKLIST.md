@@ -33,7 +33,7 @@ bump TS as a side effect; it is its own gated step)
 | `vite dev` | ✅ `ready in 1806 ms`; `/` 200 (71 KB), `/poems` 200 (90 KB), bogus route 404 |
 | `vite preview` on `.svelte-kit/output` | ✅ `/` 200 (24.7 KB, `<h1>` SSR'd), `/poems` 200 (37.4 KB), bogus 404 |
 | Editor env gate (`$app/env/private`) | 403 when `ENABLE_CONTENT_EDITOR=false` → 404 when `=true` |
-| `npm run build` | adapter 7 executes, then **Windows symlink EPERM** (item 2) - needs Developer Mode/admin |
+| `npm run build` | Vite compiles BOTH bundles cleanly (`349` server + `897` client modules, `built in ~650-870 ms`); adapter-vercel then hits **Windows symlink EPERM** (item 2) -> exit 1. Needs Developer Mode/admin |
 | Working tree | clean (0 untracked, 0 modified); no scratch files left |
 
 ## Historical baseline (measured at a6fe9a9 - superseded by the table above)
@@ -53,6 +53,31 @@ bump TS as a side effect; it is its own gated step)
   (`node_modules/@sveltejs/kit/src/exports/vite/index.js:278`). All Kit options belong inside
   `sveltekit({ ... })` in `vite.config.js`; Vite's own `resolve.alias` is NOT used by Kit for
   bundling or for generating tsconfig `paths`.
+- **esbuild/keepNames is SETTLED (probe-verified 2026-10-31, experiment reverted, tree clean)**. This
+  repo's `vite.config.js` NEVER contained an `esbuild`, `keepNames` or `build.rollupOptions` key -
+  `git log --all -S keepNames`, `-S esbuild -- vite.config.js` and `-S build.rollupOptions` each return
+  ZERO commits across every branch/stash. Facts (all measured, do not re-derive):
+  - `esbuild?: ESBuildOptions | false` is still valid in Vite 8 (`node_modules/vite/dist/node/index.d.ts:3544`),
+    and Vite forwards it for you: `if (merged.esbuildOptions.keepNames !== void 0 &&
+    rolldownOptions.output.keepNames === void 0) rolldownOptions.output.keepNames = merged.esbuildOptions.keepNames`
+    (`node_modules/vite/dist/node/chunks/node.js:37610`). No manual rewiring is needed.
+  - Rolldown's `keepNames` lives under **`output`**, NOT `transform`: `RolldownOptions` has no `transform`
+    key, so `rolldownOptions.transform.keepNames` was invalid nesting (this is what misfired). Also
+    `build.rollupOptions` is a *deprecated alias* of `build.rolldownOptions` (index.d.ts:3626-3633).
+  - Rolldown VALIDATES output keys. A bogus key emits `Warning: Invalid output options (1 issue found) -
+    For the "zzzNotARealRolldownOption". Invalid key: Expected never but received "zzzNotARealRolldownOption"`
+    and the build still completes. `keepNames` triggers NO such warning, and the string exists in the native
+    binding (`rolldown-binding.win32-x64-msvc.node`, 2 matches) -> `output.keepNames` IS recognized.
+  - Measured effect on THIS app: `keepNames: false`, `keepNames: true` and no option at all produce
+    BYTE-IDENTICAL bundles (every client chunk hash+size unchanged, e.g. `DCC4OjZ_.js 424820`,
+    `BJPyF4Sh.js 119811`, `D9xoH6gv.js 54856`), and no `__name(` / `__keepNames` helper is emitted.
+    Nothing in `src` reads `fn.name` (only `File.name` in `media.server.ts`). -> the knob is a NO-OP here,
+    so DO NOT add it; keep `vite.config.js` exactly as committed.
+  - `@dcma77/logger` and `wrapLoggerName` DO NOT EXIST in this repo: absent from `package.json`, absent from
+    `src` imports, and zero matches across `node_modules`. The "logger breaks when fn.name is stripped"
+    symptom belongs to a different project/tree - it cannot occur here.
+- `npm run check` / `svelte-check` do not type-check `vite.config.js` (root `tsconfig.json` sets
+  `allowJs: false`, `checkJs: false`), so an untyped rolldown option in it produces no diagnostic.
 ## Checklist (one item per session, gate before starting the next)
 
 - [x] 0. Kit options moved into `sveltekit()` (adapter + preprocess + alias) in `vite.config.js`.
@@ -89,13 +114,20 @@ bump TS as a side effect; it is its own gated step)
   PITFALL: after ANY edit to `src/env.ts` you must run `npx svelte-kit sync`, otherwise
   `node_modules/$app/types/env.d.ts` is stale and you get `TS2724 has no exported member ...`.
 - [ ] 4. **Delete the fake page store**: `src/app/server/entry.ts` is a hand-rolled `readable()` page
-  store; `src/app.d.ts:3` imports its `Page` type. Replace with Kit's own types and update
-  `test/setup.ts:22` (`vi.mock("$app/stores")` -> `$app/state`).
+  store. VERIFIED ADDENDUM: entry.ts exports ONLY a `page` const - it contains no `Page` type at all, so
+  `src/app.d.ts:3` (`import type { Page } from './app/server/entry.js'`) is invalid by construction, and
+  `app.d.ts:8` (`export declare const page: Readable<Page | null>`) is not a Kit construct either. Correct
+  end state: `app.d.ts` = `/// <reference types="@sveltejs/kit" />` + `declare namespace App { ... }` only,
+  components keep using `$app/state`, and `test/setup.ts:22` must switch `vi.mock("$app/stores")` to
+  `$app/state` (Kit 3 state object - NO `subscribe` fields).
 - [ ] 5. **tsc's 83 non-CFM errors**: mostly `test/lib/api.test.ts` TS2345 `unknown` ->
   `Schema<unknown, unknown, never>` (zod 4 + `src/lib/api.ts`) and missing `vi`/`vitest` globals in
   `test/**`. Buckets need a proper categorize pass.
 - [ ] 6. **vitest config**: `vitest.config.ts` calls `sveltekit()` with NO Kit options and aliases
-  `$app` -> `.svelte-kit/runtime/app` (a Kit 2 path Kit 3 no longer emits).
+  `$app` -> `.svelte-kit/runtime/app` (a Kit 2 path Kit 3 no longer emits). It also aliases `$lib`/`$data`
+  through `resolve.alias`, which Kit 3 ignores for its GENERATED tsconfig paths but which still works for
+  vitest's runtime resolution. `test/setup.ts` mocks `$app/environment`, `$app/navigation` and `$app/stores`
+  (the last one is a removed Kit 3 module).
 - [x] 7. **Runtime smoke test (DONE)**: `vite dev` -> `VITE v8.3.5 ready in 1806 ms`, `/` 200 (71 KB),
   `/poems` 200 (90 KB), bogus route 404 ✓. Production `vite preview` over `.svelte-kit/output` ->
   `/` 200 (24.7 KB, `<h1>` SSR'd), `/poems` 200 (37.4 KB), bogus 404 ✓ - preview does NOT need the
