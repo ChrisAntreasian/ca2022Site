@@ -4,7 +4,6 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "package": "svelte-kit package",
     "preview": "vite preview",
     "check:encoding": "node scripts/check-mojibake.mjs",
     "check:encoding:all": "node scripts/check-mojibake.mjs --include-history",
@@ -16,15 +15,16 @@
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "prettier --check --plugin-search-dir=. . && eslint .",
     "format": "prettier --write --plugin-search-dir=. .",
-    "start": "node build/index.js",
+    "start": "vite preview",
     "postinstall": "svelte-kit sync"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
     "@playwright/test": "^1.55.0",
-    "@sveltejs/adapter-vercel": "5.10.3",
+    "@sveltejs/adapter-auto": "^8.0.0",
+    "@sveltejs/adapter-vercel": "^7.0.2",
     "@sveltejs/kit": "^3.1.0",
-    "@sveltejs/vite-plugin-svelte": "6.2.4",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/svelte": "5.4.2",
     "@testing-library/user-event": "14.6.8",
@@ -58,7 +58,6 @@
   "type": "module",
   "dependencies": {
     "@fontsource/fira-mono": "^5.3.0",
-    "@sveltejs/adapter-auto": "6.1.1",
     "@types/mixpanel-browser": "^2.60.0",
     "aws-sdk": "2.1693.0",
     "effect": "^3.17.14",

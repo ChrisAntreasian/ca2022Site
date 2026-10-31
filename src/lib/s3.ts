@@ -1,14 +1,23 @@
 import AWS from "aws-sdk";
 
-import { env } from "$env/dynamic/private";
+import {
+  AWS_ACCESS_KEY_ID,
+  AWS_ACCESS_SECRET,
+  AWS_BUCKET,
+  AWS_REGION,
+  VITE_AWS_ACCESS_KEY_ID,
+  VITE_AWS_ACCESS_SECRET,
+  VITE_AWS_BUCKET,
+  VITE_AWS_REGION,
+} from "$app/env/private";
 
 import { e500 } from "$lib/error";
 
 const getS3Config = () => {
-  const accessKeyId = env.AWS_ACCESS_KEY_ID ?? env.VITE_AWS_ACCESS_KEY_ID;
-  const secretAccessKey = env.AWS_ACCESS_SECRET ?? env.VITE_AWS_ACCESS_SECRET;
-  const bucket = env.AWS_BUCKET ?? env.VITE_AWS_BUCKET;
-  const region = env.AWS_REGION ?? env.VITE_AWS_REGION ?? "us-east-1";
+  const accessKeyId = AWS_ACCESS_KEY_ID ?? VITE_AWS_ACCESS_KEY_ID;
+  const secretAccessKey = AWS_ACCESS_SECRET ?? VITE_AWS_ACCESS_SECRET;
+  const bucket = AWS_BUCKET ?? VITE_AWS_BUCKET;
+  const region = AWS_REGION ?? VITE_AWS_REGION ?? "us-east-1";
 
   if (!accessKeyId?.trim() || !secretAccessKey?.trim() || !bucket?.trim()) {
     throw e500(

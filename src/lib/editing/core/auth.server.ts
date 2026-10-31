@@ -1,9 +1,9 @@
-import { env } from "$env/dynamic/private";
+import { ENABLE_CONTENT_EDITOR } from "$app/env/private";
 
 import { e403 } from "$lib/error";
 
 export const isEditorEnabled = () =>
-  env.ENABLE_CONTENT_EDITOR?.trim() === "true";
+  ENABLE_CONTENT_EDITOR?.trim() === "true";
 
 export const requireEditorEnabled = () => {
   if (!isEditorEnabled()) {

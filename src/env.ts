@@ -22,4 +22,24 @@ export const variables = defineEnvVars({
     description: "AWS region for the S3 client; defaults to us-east-1.",
     schema: (value) => value?.trim() || "us-east-1",
   },
+  VITE_AWS_ACCESS_KEY_ID: {
+    description:
+      "Legacy `VITE_`-prefixed alias of AWS_ACCESS_KEY_ID, from the pre-Kit-3 `import.meta.env.VITE_*` era.",
+    schema: (value) => value?.trim() || undefined,
+  },
+  VITE_AWS_ACCESS_SECRET: {
+    description:
+      "Legacy `VITE_`-prefixed alias of AWS_ACCESS_SECRET, from the pre-Kit-3 `import.meta.env.VITE_*` era.",
+    schema: (value) => value?.trim() || undefined,
+  },
+  VITE_AWS_BUCKET: {
+    description:
+      "Legacy `VITE_`-prefixed alias of AWS_BUCKET, from the pre-Kit-3 `import.meta.env.VITE_*` era.",
+    schema: (value) => value?.trim() || undefined,
+  },
+  VITE_AWS_REGION: {
+    description:
+      "Legacy `VITE_`-prefixed alias of AWS_REGION, from the pre-Kit-3 `import.meta.env.VITE_*` era.",
+    schema: (value) => value?.trim() || undefined,
+  },
 });
