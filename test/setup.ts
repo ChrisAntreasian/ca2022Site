@@ -19,11 +19,33 @@ vi.mock("$app/navigation", () => ({
   preloadCode: vi.fn(),
 }));
 
-vi.mock("$app/stores", () => ({
-  getStores: vi.fn(),
-  navigating: { subscribe: vi.fn() },
-  page: { subscribe: vi.fn() },
-  updated: { subscribe: vi.fn() },
+// Kit 3 deleted `$app/stores` in favour of `$app/state` (a plain reactive state object, so there
+// are no `subscribe` fields to mock). The shapes mirror the getters of
+// node_modules/@sveltejs/kit/src/runtime/app/state/client.svelte.js:65-150.
+vi.mock("$app/state", () => ({
+  page: {
+    data: {},
+    error: null,
+    form: undefined,
+    params: {},
+    route: { id: null },
+    shallow: false,
+    state: {},
+    status: 200,
+    url: new URL("http://localhost/"),
+  },
+  navigating: {
+    from: null,
+    to: null,
+    type: null,
+    willUnload: null,
+    delta: null,
+    complete: null,
+  },
+  updated: {
+    current: false,
+    check: vi.fn(async () => false),
+  },
 }));
 
 // Mock analytics

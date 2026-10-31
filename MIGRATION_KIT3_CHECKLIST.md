@@ -34,7 +34,8 @@ bump TS as a side effect; it is its own gated step)
 | `vite preview` on `.svelte-kit/output` | ✅ `/` 200 (24.7 KB, `<h1>` SSR'd), `/poems` 200 (37.4 KB), bogus 404 |
 | Editor env gate (`$app/env/private`) | 403 when `ENABLE_CONTENT_EDITOR=false` → 404 when `=true` |
 | `npm run build` | Vite compiles BOTH bundles cleanly (`349` server + `897` client modules, `built in ~650-870 ms`); adapter-vercel then hits **Windows symlink EPERM** (item 2) -> exit 1. Needs Developer Mode/admin |
-| Working tree | clean (0 untracked, 0 modified); no scratch files left |
+| `npm run test:unit` (vitest) | ✅ **42 test files / 409 tests passed**, 9.37 s |
+| Working tree | clean after each item commit (protocol 4); no scratch files left |
 
 ## Historical baseline (measured at a6fe9a9 - superseded by the table above)
 
@@ -113,13 +114,18 @@ bump TS as a side effect; it is its own gated step)
   Gate result: `tsc` 85 -> 83, TS2307 = 0, svelte-check 98 -> 94, CFM = 0.
   PITFALL: after ANY edit to `src/env.ts` you must run `npx svelte-kit sync`, otherwise
   `node_modules/$app/types/env.d.ts` is stale and you get `TS2724 has no exported member ...`.
-- [ ] 4. **Delete the fake page store**: `src/app/server/entry.ts` is a hand-rolled `readable()` page
-  store. VERIFIED ADDENDUM: entry.ts exports ONLY a `page` const - it contains no `Page` type at all, so
-  `src/app.d.ts:3` (`import type { Page } from './app/server/entry.js'`) is invalid by construction, and
-  `app.d.ts:8` (`export declare const page: Readable<Page | null>`) is not a Kit construct either. Correct
-  end state: `app.d.ts` = `/// <reference types="@sveltejs/kit" />` + `declare namespace App { ... }` only,
-  components keep using `$app/state`, and `test/setup.ts:22` must switch `vi.mock("$app/stores")` to
-  `$app/state` (Kit 3 state object - NO `subscribe` fields).
+- [x] 4. **Delete the fake page store (DONE)**: deleted `src/app/server/entry.ts` (the whole now-empty
+  `src/app/` dir) and rewrote `src/app.d.ts` to `/// <reference types="@sveltejs/kit" />` + `export {}`.
+  VERIFIED FACTS found while doing it: entry.ts exported ONLY a `readable()` const - it never exported a
+  `Page` type, so `app.d.ts:3` (`import type { Page } from './app/server/entry.js'`) and `app.d.ts:8`
+  (`export declare const page: Readable<Page | null>`) were both invalid constructs; nothing outside
+  `app.d.ts` ever imported them (verified with `git grep`), and the four components that need page state
+  already use `import { page } from "$app/state"` (`Header.svelte`, `Footer.svelte`, `+error.svelte`,
+  `EditorShell.svelte`). `test/setup.ts` now mocks `$app/state` with the getter shapes from
+  `@sveltejs/kit/src/runtime/app/state/client.svelte.js:65-150` (no `subscribe` fields - Kit 3 state is
+  not a store). GATE: `svelte-check` 94 errors/0 warnings (UNCHANGED, and zero diagnostics mention
+  `app.d.ts` or `entry.ts`), `tsc --noEmit` 83 (UNCHANGED, 0 in the two files), `npm run test:unit` =
+  **42 files / 409 tests passed in 9.37s**, dev-server smoke still 200/200/404.
 - [ ] 5. **tsc's 83 non-CFM errors**: mostly `test/lib/api.test.ts` TS2345 `unknown` ->
   `Schema<unknown, unknown, never>` (zod 4 + `src/lib/api.ts`) and missing `vi`/`vitest` globals in
   `test/**`. Buckets need a proper categorize pass.
