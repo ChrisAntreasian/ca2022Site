@@ -38,9 +38,19 @@ Common commands:
 - npm run build
 - npm run preview
 
+Install note: `npm install` needs `--legacy-peer-deps`, because SvelteKit 3 declares an optional
+`typescript ^6.0.0` peer while the eslint toolchain pins `>=4.8.4 <6.1.0` against typescript 5.9.2.
+
+Windows build note: `npm run build` runs `@sveltejs/adapter-vercel`, which symlinks every route into
+`.vercel/output/functions`. Without Windows Developer Mode (or an elevated shell) it stops with
+`EPERM: symlink ... index.func`; `npm run preview` still works because `vite preview` serves
+`.svelte-kit/output` directly. Vercel's CI builds on Linux, so deploys are unaffected.
+
 ## Local content editor
 
-Editor access is controlled by ENABLE_CONTENT_EDITOR.
+Editor access is controlled by ENABLE_CONTENT_EDITOR, which is declared in `src/env.ts` and read in
+server code as `import { ENABLE_CONTENT_EDITOR } from "$app/env/private"`. If you change `src/env.ts`,
+run `npx svelte-kit sync` (or `npm run check`, which runs it first) so the generated env types update.
 
 - ENABLE_CONTENT_EDITOR=true: editor routes are enabled.
 - Any other value (or missing): editor routes return 403.

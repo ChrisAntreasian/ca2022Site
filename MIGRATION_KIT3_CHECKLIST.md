@@ -1,7 +1,10 @@
 # SvelteKit 2 -> 3 migration checklist
 
-Branch: `sveltekit-migration-3x` · Stable commit: `a6fe9a9` (working tree clean)
-Installed: `@sveltejs/kit@3.1.x`, `vite@8.3.5` (beta/rolldown), `svelte@5.57`, `vitest@5`
+Branch: `sveltekit-migration-3x` · Stable commit: `410fcb8` (working tree clean; parent `a6fe9a9`)
+Installed: `@sveltejs/kit@3.1.x`, `vite@8.3.5` (beta/rolldown), `svelte@5.57`, `vitest@5`,
+`@sveltejs/adapter-vercel@7.0.2`, `@sveltejs/adapter-auto@8.0.0` (devDependencies),
+`@sveltejs/vite-plugin-svelte@7.3.1`, `typescript@5.9.2` (kit's `typescript ^6` peer is OPTIONAL - do not
+bump TS as a side effect; it is its own gated step)
 
 ## Protocol (read this first on every new session)
 
@@ -11,12 +14,29 @@ Installed: `@sveltejs/kit@3.1.x`, `vite@8.3.5` (beta/rolldown), `svelte@5.57`, `
 3. Verification gates (these exact commands are already validated - do not rediscover them):
    - `npx svelte-kit sync` -> Kit writes generated config; watch for warnings
    - `npx svelte-check --tsconfig ./tsconfig.json --output human` -> error count + buckets
-   - `npm run build` -> THE REAL GATE (exit 0 + `build/` produced + no `adapter_missing`)
+   - `npm run build` -> exit 0 + `.vercel/output/**` produced (adapter-vercel NEVER writes `build/`).
+     On THIS box it currently dies at `EPERM: symlink ... '.vercel\output\functions\index.func'` AFTER
+     `.vercel/output/static` + `functions/![-]/catchall.func/**` exist - see item 2 (Windows privileges).
+   - `npx vite preview --port 4173` over `.svelte-kit/output` -> the runtime gate that DOES work here
+     (GET `/` and `/poems` must be 200 with SSR'd markup, bogus route 404). Probe `localhost`, not 127.0.0.1.
    - `npm run test:unit` -> vitest suite
 4. After each item: commit with prefix `KIT3(item-n):`. One item = one commit = revertible.
 5. Update this file (Status table / checkboxes) as the LAST action of the item, before committing.
 
-## Verified baseline (measured 2026-10-31 at a6fe9a9)
+## Current measurements (2026-10-31, at 410fcb8)
+
+| Measurement | Result |
+|---|---|
+| `npx svelte-kit sync` | only 2 warnings: `config_option_deprecated_alias`, `tsconfig_invalid` (Windows false positive) |
+| `npx tsc --noEmit -p tsconfig.json` | **83** errors; `TS2307` / `Cannot find module` = **0** |
+| `svelte-check` | **94** errors, 0 warnings, in 15 files; CFM = **0** (was 302 -> 98 -> 94) |
+| `vite dev` | ✅ `ready in 1806 ms`; `/` 200 (71 KB), `/poems` 200 (90 KB), bogus route 404 |
+| `vite preview` on `.svelte-kit/output` | ✅ `/` 200 (24.7 KB, `<h1>` SSR'd), `/poems` 200 (37.4 KB), bogus 404 |
+| Editor env gate (`$app/env/private`) | 403 when `ENABLE_CONTENT_EDITOR=false` → 404 when `=true` |
+| `npm run build` | adapter 7 executes, then **Windows symlink EPERM** (item 2) - needs Developer Mode/admin |
+| Working tree | clean (0 untracked, 0 modified); no scratch files left |
+
+## Historical baseline (measured at a6fe9a9 - superseded by the table above)
 
 | Measurement | Result |
 |---|---|
@@ -112,14 +132,18 @@ Installed: `@sveltejs/kit@3.1.x`, `vite@8.3.5` (beta/rolldown), `svelte@5.57`, `
   paths, server, service-worker, state`. `$app/stores` is GONE - use `$app/state`, which the app
   already uses (`Header.svelte`, `Footer.svelte`, `+error.svelte`, `EditorShell.svelte`).
   `MIGRATION_SUMMARY.md` ("BLOCKED - layout refactor required") is outdated and should be distrusted.
-- `npm run build` exits 0 today but produces no `build/` -> `npm start` / Vercel deploy are broken.
-- Commit `a6fe9a9` added ONLY `ENV_EDITOR_FINDINGS.md`; its own message states the Kit options had
-  not been migrated yet.
-- Scratch capture files to ignore: `c5.txt`, `c6.txt`, `build.out`, `scripts/_tsprobe.cjs`, `sync.out`.
+- Build gate semantics: adapter-vercel emits `.vercel/output/**`, never `build/`; `start` is now
+  `vite preview` and the dead `package: svelte-kit package` script is deleted (item 2). Preview works on
+  `.svelte-kit/output` even when the adapter cannot finish on Windows.
+- Doc provenance: `CONTENT_EDITING_PLAN.md` added at `923df83`, `MIGRATION_SUMMARY.md` at `1d7faf3`,
+  `ENV_EDITOR_FINDINGS.md` at `a6fe9a9`, `MIGRATION_KIT3_CHECKLIST.md` at `410fcb8`.
+- No scratch files remain (every `.out`/`.err`, `c5.txt`, `c6.txt`, `build.out`, `sync.out` and
+  `scripts/_tsprobe.cjs` are deleted; `scripts/` now holds only real tooling like `.eslintrc.cjs`).
+  If a session recreates them, delete them before committing.
 - Kit 3.1.0 peers: `typescript ^6.0.0` and `@opentelemetry/api` are `optional: true` in
   peerDependenciesMeta, so remaining on typescript 5.9.2 is fine (svelte-check 4.3.1 peer `>=5.0.0`).
   Required peers: `vite ^8.0.12` (8.3.5 ✓), `svelte ^5.57.1` (5.57.2 ✓),
-  `@sveltejs/vite-plugin-svelte ^7.0.0` (6.2.4 installed - still to upgrade). vitest 5.0.5 peer
+  `@sveltejs/vite-plugin-svelte ^7.0.0` (7.3.1 ✓ installed at `410fcb8`). vitest 5.0.5 peer
   `vite ^6.4.0 || ^7.0.0 || ^8.0.0` ✓. Kit also depends on `@rolldown/pluginutils ^1.0.1`
   (vite 8.3.5 is rolldown-based; vite-plugin-svelte prints an "experimental vite 8" warning).
 - `src/env.ts` validators MAY be plain functions - `EnvVarConfig.schema` is
@@ -129,7 +153,6 @@ Installed: `@sveltejs/kit@3.1.x`, `vite@8.3.5` (beta/rolldown), `svelte@5.57`, `
 - `$lib` strategy = HYBRID: keep `alias: { $lib: './src/lib', $data: './src/data' }` in `sveltekit()`
   (Kit's own sanctioned escape hatch) to reach green, then do the `#lib` codemod as item 8.
   `alias` is deprecated in Kit 3.1 (`src/core/config/options.js:56`), so it is temporary.
-- Treat the `tsconfig_invalid` "paths was overwritten" warning as likely NOISE until proven otherwise:
-  `node_modules/$app/tsconfig.json` does contain correct `$lib`/`$data` paths and `$lib` typechecks, so
-  Kit 3.1 is comparing backslash-absolute expected paths vs TS forward-slash resolved paths
-  (`write_tsconfig/validate.js:75-96`). Confirm before "fixing" it.
+- `tsconfig_invalid` is PROVEN noise (see the Windows-false-positive fact above + `tsc --traceResolution`),
+  so never "fix" `paths`. The old "treat as likely noise until proven otherwise" note is superseded, and
+  the probe script it referred to (`scripts/_tsprobe.cjs`) has been deleted.

@@ -1,7 +1,25 @@
 # Findings: "Edit post" link gone after package updates (ENABLE_CONTENT_EDITOR)
 
-Branch: `sveltekit-migration-3x` (HEAD `eb60c75` "MIGRATION: SvelteKit 3.x major migration started").
-Status: investigation complete, fix not yet applied. Last updated 2026-10-29.
+Branch: `sveltekit-migration-3x`.
+Status: **FIX APPLIED at `410fcb8` (2026-10-31)** - this file is the historical investigation, and the
+live state is tracked in `MIGRATION_KIT3_CHECKLIST.md`. Sections A/B and the gate chain below describe the
+PRE-FIX tree; do not treat them as current.
+
+## Resolution actually shipped (commit `410fcb8`)
+
+- The gate is now `import { ENABLE_CONTENT_EDITOR } from "$app/env/private";` in
+  `src/lib/editing/core/auth.server.ts`, with `ENABLE_CONTENT_EDITOR` declared in `src/env.ts` using a
+  plain-function validator (Kit 3 has no `env` object - each declared var is its own named export).
+- `src/lib/s3.ts` was migrated the same way and kept its `AWS_X ?? VITE_X` fallbacks by re-declaring the
+  4 legacy `VITE_AWS_*` names in `src/env.ts`.
+- Always run `npx svelte-kit sync` after editing `src/env.ts`, or `node_modules/$app/types/env.d.ts`
+  goes stale and you get `TS2724: has no exported member`.
+- Verified end-to-end on `vite preview`: `/poems/edit/nonexistent-zzz` -> **403** with
+  `ENABLE_CONTENT_EDITOR=false` and **404** with `=true` (the guard passes, unknown pid 404s).
+- Section A (deleted `svelte.config.js`) is resolved: adapter-vercel, `sveltePreprocess` and the
+  `$lib`/`$data` aliases live inside `sveltekit()` in `vite.config.js`. Section B is resolved by the
+  `src/env.ts` schema. `src/app/server/entry.ts` still exists and is now the fake store to delete
+  (checklist item 4).
 
 ## Symptom
 
@@ -10,8 +28,8 @@ The `Edit post` / editor links do not render locally, and editor routes 403, eve
 
 ## The gate chain (verified, with line refs)
 
-1. `src/lib/editing/core/auth.server.ts:1,6` — `import { env } from "$env/dynamic/private";`
-   then `env.ENABLE_CONTENT_EDITOR?.trim() === "true"`.
+1. `src/lib/editing/core/auth.server.ts` (pre-fix) — `import { env } from "$env/dynamic/private";`
+   then `env.ENABLE_CONTENT_EDITOR?.trim() === "true"`. (Now: a named export from `$app/env/private`.)
 2. `src/routes/**/+page.server.ts` — passes `editorEnabled: isEditorEnabled()` into load data.
 3. `src/routes/**/+page.svelte` — `data.editorEnabled ? ...editHref : null` (e.g.
    `src/routes/poems/[...pid]/+page.svelte:12-15`).
