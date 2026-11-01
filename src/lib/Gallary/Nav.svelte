@@ -84,7 +84,7 @@
     if (windowWidth < mqBreakPoint) return;
 
     itemsPerPage = Math.floor(
-      (subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem)
+      (subnavWidth ? subnavWidth : wrapperWidth) / (thubmnailWidth + rem),
     );
   };
 
@@ -121,7 +121,7 @@
       {
         activeIndex: activeItemIndex,
         itemsPerPage: itemsPerPage,
-      }
+      },
     );
   };
 
