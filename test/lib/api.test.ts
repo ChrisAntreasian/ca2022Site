@@ -115,7 +115,7 @@ describe("API Client Tests", () => {
       // Mock fetch to reject
       global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
 
-      const apiCall = getNoOpts(testDataCodec as unknown)("test-endpoint");
+      const apiCall = getNoOpts(testDataCodec)("test-endpoint");
       const result = await Effect.runPromise(Effect.either(apiCall));
 
       expect(Either.isLeft(result)).toBe(true);
@@ -128,9 +128,7 @@ describe("API Client Tests", () => {
         json: vi.fn().mockResolvedValue({ error: "Not found" }),
       });
 
-      const apiCall = getNoOpts(testDataCodec as unknown)(
-        "nonexistent-endpoint",
-      );
+      const apiCall = getNoOpts(testDataCodec)("nonexistent-endpoint");
       const result = await Effect.runPromise(Effect.either(apiCall));
 
       expect(Either.isLeft(result)).toBe(true);
@@ -143,7 +141,7 @@ describe("API Client Tests", () => {
         json: vi.fn().mockResolvedValue({ error: "Server error" }),
       });
 
-      const apiCall = getNoOpts(testDataCodec as unknown)("failing-endpoint");
+      const apiCall = getNoOpts(testDataCodec)("failing-endpoint");
       const result = await Effect.runPromise(Effect.either(apiCall));
 
       expect(Either.isLeft(result)).toBe(true);
@@ -156,7 +154,7 @@ describe("API Client Tests", () => {
         json: vi.fn().mockRejectedValue(new Error("Invalid JSON")),
       });
 
-      const apiCall = getNoOpts(testDataCodec as unknown)("bad-json-endpoint");
+      const apiCall = getNoOpts(testDataCodec)("bad-json-endpoint");
       const result = await Effect.runPromise(Effect.either(apiCall));
 
       expect(Either.isLeft(result)).toBe(true);
@@ -174,9 +172,7 @@ describe("API Client Tests", () => {
         }),
       });
 
-      const apiCall = getNoOpts(testDataCodec as unknown)(
-        "invalid-data-endpoint",
-      );
+      const apiCall = getNoOpts(testDataCodec)("invalid-data-endpoint");
       const result = await Effect.runPromise(Effect.either(apiCall));
 
       expect(Either.isLeft(result)).toBe(true);
@@ -197,7 +193,7 @@ describe("API Client Tests", () => {
         json: vi.fn().mockResolvedValue(mockData),
       });
 
-      const apiCall = getNoOpts(testDataCodec as unknown)("valid-endpoint");
+      const apiCall = getNoOpts(testDataCodec)("valid-endpoint");
       const result = await Effect.runPromise(Effect.either(apiCall));
 
       expect(Either.isRight(result)).toBe(true);
@@ -215,7 +211,7 @@ describe("API Client Tests", () => {
         json: vi.fn().mockResolvedValue(mockData),
       });
 
-      const apiCall = getNoOpts(testDataCodec as unknown)("test-endpoint");
+      const apiCall = getNoOpts(testDataCodec)("test-endpoint");
       await Effect.runPromise(Effect.either(apiCall));
 
       expect(global.fetch).toHaveBeenCalledWith(
@@ -238,7 +234,7 @@ describe("API Client Tests", () => {
         json: vi.fn().mockResolvedValue(mockData),
       });
 
-      const apiCall = getNoOpts(testDataCodec as unknown)("test-resource");
+      const apiCall = getNoOpts(testDataCodec)("test-resource");
       await Effect.runPromise(Effect.either(apiCall));
 
       // The API should make a request to the resource endpoint
@@ -262,7 +258,7 @@ describe("API Client Tests", () => {
       });
 
       const nullableCodec = Schema.Union(testDataCodec, Schema.Null);
-      const apiCall = getNoOpts(nullableCodec as unknown)("empty-endpoint");
+      const apiCall = getNoOpts(nullableCodec)("empty-endpoint");
 
       const result = await Effect.runPromise(Effect.either(apiCall));
       expect(Either.isRight(result)).toBe(true);
@@ -274,7 +270,7 @@ describe("API Client Tests", () => {
     it("handles undefined environment variables gracefully", async () => {
       vi.stubEnv("VITE_BASE_API", undefined);
 
-      const apiCall = getNoOpts(testDataCodec as unknown)("test-endpoint");
+      const apiCall = getNoOpts(testDataCodec)("test-endpoint");
       const result = await Effect.runPromise(Effect.either(apiCall));
 
       // Should handle undefined base API - this would likely fail at fetch level
@@ -294,9 +290,7 @@ describe("API Client Tests", () => {
         json: vi.fn().mockResolvedValue(largeData),
       });
 
-      const apiCall = getNoOpts(testDataCodec as unknown)(
-        "large-data-endpoint",
-      );
+      const apiCall = getNoOpts(testDataCodec)("large-data-endpoint");
       const result = await Effect.runPromise(Effect.either(apiCall));
 
       expect(Either.isRight(result)).toBe(true);
@@ -326,7 +320,7 @@ describe("API Client Tests", () => {
           ),
       );
 
-      const apiCall = getNoOpts(testDataCodec as unknown)("slow-endpoint");
+      const apiCall = getNoOpts(testDataCodec)("slow-endpoint");
       const result = await Effect.runPromise(Effect.either(apiCall));
 
       expect(Either.isRight(result)).toBe(true);

@@ -1,4 +1,6 @@
-import "@testing-library/jest-dom";
+// jest-dom v6 ships Vitest matcher typings on its `/vitest` subpath; importing the root entry
+// only augments Jest's expect and leaves `expect(...).toBeInTheDocument()` untyped.
+import "@testing-library/jest-dom/vitest";
 import { vi } from "vitest";
 
 // Mock SvelteKit runtime

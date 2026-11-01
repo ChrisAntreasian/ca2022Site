@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { loadResult } from "./loadResult";
 
 // Simple mock event object
 const mockLoadEvent = {};
@@ -31,7 +32,7 @@ describe("Main Page Server Logic", () => {
       // Import the load function after mocking
       const { load } = await import("../../src/routes/+page.server.ts");
 
-      const result = await load(mockLoadEvent as never);
+      const result = loadResult(await load(mockLoadEvent as never));
 
       expect(result).toHaveProperty("intro");
       expect(result).toHaveProperty("links");
@@ -59,7 +60,7 @@ describe("Main Page Server Logic", () => {
       }));
 
       const { load } = await import("../../src/routes/+page.server.ts");
-      const result = await load(mockLoadEvent as never);
+      const result = loadResult(await load(mockLoadEvent as never));
 
       // Intro should contain items with id 5
       expect(result.intro.some((item: { id: number }) => item.id === 5)).toBe(
@@ -87,7 +88,7 @@ describe("Main Page Server Logic", () => {
       }));
 
       const { load } = await import("../../src/routes/+page.server.ts");
-      const result = await load(mockLoadEvent as never);
+      const result = loadResult(await load(mockLoadEvent as never));
 
       expect(result.intro).toHaveLength(0);
       expect(result.links).toHaveLength(0);
@@ -111,7 +112,7 @@ describe("Main Page Server Logic", () => {
       }));
 
       const { load } = await import("../../src/routes/+page.server.ts");
-      const result = await load(mockLoadEvent as never);
+      const result = loadResult(await load(mockLoadEvent as never));
 
       expect(typeof result).toBe("object");
       expect(result).toHaveProperty("intro");
@@ -138,7 +139,7 @@ describe("Main Page Server Logic", () => {
       }));
 
       const { load } = await import("../../src/routes/+page.server.ts");
-      const result = await load(mockLoadEvent as never);
+      const result = loadResult(await load(mockLoadEvent as never));
 
       expect(result.intro).toHaveLength(2);
       expect(result.links).toHaveLength(1);

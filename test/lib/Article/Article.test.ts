@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/svelte";
+import { createRawSnippet } from "svelte";
 import Article from "../../../src/lib/Article/index.svelte";
 
 // Type definitions for testing
@@ -119,12 +120,15 @@ describe("Article Component", () => {
     expect(() => render(Article, { props: emptyProps })).not.toThrow();
   });
 
-  it("renders with children slot content", () => {
+  it("renders with children snippet content", () => {
+    // Svelte 5 replaced named `slots` with snippets and RTL-Svelte dropped the `slots` render
+    // option, so the raw test markup is injected as the component's `children` snippet prop.
+    const children = createRawSnippet(() => ({
+      render: () => `<div data-testid="custom-content">Custom content</div>`,
+    }));
+
     const { container } = render(Article, {
-      props: defaultProps,
-      slots: {
-        default: '<div data-testid="custom-content">Custom content</div>',
-      },
+      props: { ...defaultProps, children },
     });
 
     const customContent = container.querySelector(

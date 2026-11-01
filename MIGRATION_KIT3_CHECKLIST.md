@@ -2,8 +2,9 @@
 
 Branch: `sveltekit-migration-3x` · BASELINE = the newest `KIT3(...)` commit reported by
 `git --no-pager log --oneline -8` (protocol step 1). Verified green points so far: `410fcb8` (env +
-adapters + scripts), `69c6ad3` (docs), `5dcb9a3` (facts), `fc50b42` (item 4). Item 8 (parts 1, 2a and 2b)
-is DONE in the working tree and still needs its `KIT3(item-8)` commit.
+adapters + scripts), `69c6ad3` (docs), `5dcb9a3` (facts), `fc50b42` (item 4), `6baa13c` (item 6 + item 8
+part 1), `509a8d1` (item 8 parts 2a + 2b) and `156803d` (item 5 - the whole test suite is now
+type-checked: `tsc` 83 -> 0 and `svelte-check` 94 -> 0, 409/409 tests green).
 Installed: `@sveltejs/kit@3.1.x`, `vite@8.3.5` (beta/rolldown), `svelte@5.57`, `vitest@5`,
 `@sveltejs/adapter-vercel@7.0.2`, `@sveltejs/adapter-auto@8.0.0` (devDependencies),
 `@sveltejs/vite-plugin-svelte@7.3.1`, `typescript@5.9.2` (kit's `typescript ^6` peer is OPTIONAL - do not
@@ -31,13 +32,14 @@ bump TS as a side effect; it is its own gated step)
 | Measurement | Result |
 |---|---|
 | `npx svelte-kit sync` | **ZERO warnings** - `config_option_deprecated_alias` AND `tsconfig_invalid` are both gone now that `alias` no longer exists in `sveltekit()` |
-| `npx tsc --noEmit -p tsconfig.json` | **83** errors; `TS2307` / `Cannot find module` = **0** |
-| `svelte-check` | **94** errors, 0 warnings, in 15 files; CFM = **0** (was 302 -> 98 -> 94; it briefly spiked to **243 total / 149 CFM** the instant the aliases were removed without tsconfig `paths` - see item 8) |
+| `npx tsc --noEmit -p tsconfig.json` | **0** errors (was **83**; closed by item 5); `TS2307` / `Cannot find module` = **0** |
+| `npm run check` (`svelte-kit sync` + svelte-check) | **0 errors, 0 warnings** (svelte-check was **94 errors / 15 files** until item 5; CFM stayed **0** throughout. It briefly spiked to **243 total / 149 CFM** the instant the aliases were removed without tsconfig `paths` - see item 8). Plain `tsc` cannot see `.svelte` prop errors, so `npm run check` is the only gate that measures the truth |
 | `vite dev` | ✅ `ready in 1806 ms`; `/` 200 (71 KB), `/poems` 200 (90 KB), bogus route 404 |
 | `vite preview` on `.svelte-kit/output` | ✅ `/` 200 (24.7 KB, `<h1>` SSR'd), `/poems` 200 (37.4 KB), bogus 404 |
 | Editor env gate (`$app/env/private`) | 403 when `ENABLE_CONTENT_EDITOR=false` → 404 when `=true` |
 | `npm run build` | Vite compiles BOTH bundles cleanly (`349` server + `897` client modules, `built in ~650-870 ms`); adapter-vercel then hits **Windows symlink EPERM** (item 2) -> exit 1. Needs Developer Mode/admin |
-| `npm run test:unit` (vitest) | ✅ **42 test files / 409 tests passed**, 9.37 s |
+| `npm run test:unit` (vitest) | ✅ **42 test files / 409 tests passed**, 11.7 s (was 9.37 s) |
+| `npx eslint test` + `npx prettier --check test/**/*.ts` | both clean after item 5. `npm run lint` as a whole is STILL red, on 7 files, and all 7 were already red at `HEAD~1` (proved for `MIGRATION_KIT3_CHECKLIST.md` by running prettier over its `git show HEAD~1:` content; the other 6 are files `git diff HEAD~1 HEAD --name-only` shows item 5 never touched: `README.md`, `CONTENT_EDITING_PLAN.md`, `ENV_EDITOR_FINDINGS.md`, `MIGRATION_SUMMARY.md`, `scripts/check-mojibake.mjs`, `src/env.ts`). Prettier 3 also rejects the script's `--plugin-search-dir` option. Formatting-only, needs its own gated step |
 | Working tree | clean after each item commit (protocol 4); no scratch files left |
 
 ## Historical baseline (measured at a6fe9a9 - superseded by the table above)
@@ -129,9 +131,41 @@ bump TS as a side effect; it is its own gated step)
   not a store). GATE: `svelte-check` 94 errors/0 warnings (UNCHANGED, and zero diagnostics mention
   `app.d.ts` or `entry.ts`), `tsc --noEmit` 83 (UNCHANGED, 0 in the two files), `npm run test:unit` =
   **42 files / 409 tests passed in 9.37s**, dev-server smoke still 200/200/404.
-- [ ] 5. **tsc's 83 non-CFM errors**: mostly `test/lib/api.test.ts` TS2345 `unknown` ->
-  `Schema<unknown, unknown, never>` (zod 4 + `src/lib/api.ts`) and missing `vi`/`vitest` globals in
-  `test/**`. Buckets need a proper categorize pass.
+- [x] 5. **Type-check the whole test suite (DONE)**: `tsc` 83 -> **0** and `svelte-check` 94 -> **0**
+  (0 warnings in both). ALL 94 were in `test/**` - `src/**` never produced a single one of them - so this
+  item is test-only and no app behaviour changed. Eight buckets, counted by the codemods' own tallies
+  (20 + 12 + 6 + 35 + 11 + 3 + 2 + 5 = 94, and `tsc`'s 83 = 94 minus the 11 component-prop diagnostics it
+  cannot see), each closed over the exact match set - never a blind global replace (a naive `as never);`
+  swap would also have rewritten the `actions.save(... as never)` calls and broken their parens):
+  - **20**: `toBeInTheDocument` "does not exist". `test/setup.ts` imported the plain
+    `@testing-library/jest-dom` entry, which carries no Vitest matcher augmentation at all;
+    `@testing-library/jest-dom/vitest` is the subpath that extends Vitest's own `Assertion`.
+  - **12**: `unknown` -> `Schema<unknown, unknown, never>` in `test/lib/api.test.ts` - raw literals handed
+    straight into effect codecs, fixed with `Schema.decodeUnknownSync` + `as unknown as`.
+  - **6**: `Error & { status, body }` rejection mocks. Kit 3 rejects with a real `HttpError` carrying
+    `status` + `message` + `body`, so the `error()` / `fail()` mocks had to conform (4 "not assignable",
+    1 `Effect<never, Error & {...}>`, 1 `Either<never, Error & {...}>`).
+  - **35**: Kit 3's `void | PageData` load returns across 7 route tests. The new `test/routes/loadResult.ts`
+    helper wraps the 11 `await load(... as never)` calls so the result narrows once instead of casting at
+    35 separate property accesses.
+  - **11**: drifted component-test fixtures + the removed `slots` render option (10 in `Gallery.test.ts`,
+    1 in `Article.test.ts`, both invisible to plain `tsc`). `Gallery.test.ts` had a hand-written
+    `ArtWithId` mirror that had drifted (no `publishedAt`, wrong `image` arm) - now typed with the
+    production export. `Article.test.ts` used RTL-Svelte's `slots` render option that Svelte 5 deleted -
+    now a `createRawSnippet` `children` prop.
+  - **3**: `provider` / `formats` read off the `imageC` union in `test/lib/editing-web-experience.test.ts`
+    (1 `provider`, 2 `formats`) - narrowed with `Extract` aliases instead of casting per access.
+  - **2**: the souljuicer-edit save mock had a zero-arg signature, so `mock.calls[0][0]` was a `[]` tuple
+    (TS2493) and `calls[0]` was possibly undefined (TS2532). Fixed with a
+    `Mock<(value: SavedSouljuicerValue) => Promise<...>>` annotation - annotating the parameter types
+    instead of declaring them also keeps `no-unused-vars` quiet on a mock that ignores its argument.
+  - **5**: S3 / build / media mock odds and ends - `getObject` and `upload` "does not exist on type
+    'unknown'", an "{} is not callable" in `build.test.ts`, and the `initS3` tests that CONSTRUCT the
+    mock, which exposed the arrow-implementation bug written up in the pitfalls below.
+  GATE: `npx svelte-kit sync` silent, `npm run check` = **0 errors / 0 warnings**, `npx tsc --noEmit` =
+  **0 diagnostics**, `npm run test:unit` = **42 files / 409 tests in 11.7 s**, `npx eslint test` +
+  `npx prettier --check test/**/*.ts` clean, and the counted-codemod scratch (`.cache/*.cjs`) was deleted
+  before committing (protocol: no scratch files left).
 - [x] 6. **vitest config (DONE)**: removed the dead `$app` -> `.svelte-kit/runtime/app` alias. Proof it
   was dead: Kit 3 never emits that path, `node_modules/$app` contains ONLY `tsconfig/`, `types/` and
   `tsconfig.json` (types, not runtime), and Kit declares `$app/*` as ambient modules itself
@@ -234,3 +268,22 @@ Lines 75.46% (569/754)**. Item 8 is therefore COMPLETE - nothing left open in it
   `paths` (see item 8 and the `tsconfig_invalid` fact above).
 - `tsconfig_invalid` is no longer even a warning to reason about - it is GONE, because the `alias` it was
   complaining about no longer exists. The probe script it referred to (`scripts/_tsprobe.cjs`) is deleted.
+- Plain `tsc` is NOT a substitute for `npm run check` on component tests. `.svelte` imports resolve through
+  Kit's ambient module declaration, so prop mismatches in `test/lib/Gallary/Gallery.test.ts` and
+  `test/lib/Article/Article.test.ts` were invisible to `tsc` (0 errors there) while `svelte-check` reported
+  11 of them. Item 5 only closed once BOTH were run.
+- Constructable mocks need a FUNCTION implementation: `initS3` builds the client with `new AWS.S3(...)`,
+  and vitest builds a mock by constructing whatever implementation `vi.fn` was handed, so an arrow impl
+  dies with `TypeError: () => mockS3Instance is not a constructor`. The old test hid this behind a double
+  cast that called the mock as a plain function; retyping it as `new AWS.S3({...})` made 4 tests red until
+  the spy was `vi.fn(function () { ... })`.
+- `vi.mock` factories run at hoisted-import time, so a factory must not reference a top-level `const`
+  directly: `S3: mockS3Constructor` threw `Cannot access 'mockS3Constructor' before initialization`. It has
+  to be created INSIDE the factory, or deferred behind a closure that only reads it when called.
+- `imageC = Union(imageBaseC, imageAttrsC)` in `src/lib/typing/art.ts` means `provider` / `formats` exist on
+  only one arm, and the record arm's own `formats` may be `null` or `{}` as well. Narrow test assertions
+  with `Extract` aliases (`Extract<ImageAttributes, { formats: unknown }>`) rather than reaching through the
+  union or casting per access.
+- `svelte-check --output machine` capture: pipe with `| Out-File -Encoding utf8` (a `>` redirect writes a
+  2-line stub here). `--no-pager` is NOT a svelte-check option - it aborts the run with "Unknown option"
+  and silently produces an empty capture, which reads as "0 diagnostics".

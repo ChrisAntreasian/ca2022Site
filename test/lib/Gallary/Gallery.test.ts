@@ -1,38 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/svelte";
 import Gallery from "../../../src/lib/Gallary/index.svelte";
+import type { ArtWithId } from "#lib/typing/art";
 
-// Type definitions for testing
-interface ArtWithId {
-  id: number;
-  attributes: {
-    title: string;
-    description: string;
-    order: number;
-    createdDate: string;
-    medium: string;
-    image: {
-      data: {
-        id: number;
-        attributes: {
-          url: string;
-          alternativeText: string;
-          caption: string;
-          provider: string;
-          provider_metadata: unknown;
-          previewUrl: string | null;
-          formats: unknown;
-          createdAt: string;
-          updatedAt: string;
-        };
-      } | null;
-    };
-    createdAt: string;
-    updatedAt: string;
-  };
-}
-
-// Mock data for testing
+// The gallery renders the production payload, so the fixtures use the real (effect-derived,
+// readonly) `ArtWithId` from #lib/typing/art. The hand-rolled mirror it replaced had drifted:
+// it omitted `publishedAt`, which strapiBaseC requires, reddening every render(Gallery, ...).
 const mockArtPieces: ArtWithId[] = [
   {
     id: 1,
@@ -60,6 +33,7 @@ const mockArtPieces: ArtWithId[] = [
       },
       createdAt: "2023-01-01",
       updatedAt: "2023-01-01",
+      publishedAt: "2023-01-01",
     },
   },
   {
@@ -88,6 +62,7 @@ const mockArtPieces: ArtWithId[] = [
       },
       createdAt: "2023-01-02",
       updatedAt: "2023-01-02",
+      publishedAt: "2023-01-02",
     },
   },
 ];

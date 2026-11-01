@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { loadResult } from "./loadResult";
 
 describe("terms-of-service edit page server", () => {
   beforeEach(() => {
@@ -29,9 +30,11 @@ describe("terms-of-service edit page server", () => {
 
     const { load } =
       await import("../../src/routes/terms-of-service/edit/+page.server");
-    const result = await load({
-      url: new URL("http://localhost/terms-of-service/edit?saved=1"),
-    } as never);
+    const result = loadResult(
+      await load({
+        url: new URL("http://localhost/terms-of-service/edit?saved=1"),
+      } as never),
+    );
 
     expect(result.editorEnabled).toBe(true);
     expect(result.savedMessage).toBe("Terms of service saved.");

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { loadResult } from "./loadResult";
 
 const mockPoems = [
   { id: 2, title: "Cheese", bodyMarkdown: "Cheese body", sortOrder: 10 },
@@ -61,10 +62,12 @@ describe("poems edit page server", () => {
     const { load } =
       await import("../../src/routes/poems/edit/[...pid]/+page.server");
 
-    const result = await load({
-      params: { pid: "4/the-carpal-tunnel" },
-      url: new URL("http://localhost/poems/edit/4/the-carpal-tunnel?saved=1"),
-    } as never);
+    const result = loadResult(
+      await load({
+        params: { pid: "4/the-carpal-tunnel" },
+        url: new URL("http://localhost/poems/edit/4/the-carpal-tunnel?saved=1"),
+      } as never),
+    );
 
     expect(result.editorEnabled).toBe(true);
     expect(result.savedMessage).toBe("Poem saved.");

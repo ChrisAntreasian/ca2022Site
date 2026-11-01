@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { loadResult } from "./loadResult";
 
 describe("terms-of-service page server load", () => {
   beforeEach(() => {
@@ -26,7 +27,7 @@ describe("terms-of-service page server load", () => {
 
     const { load } =
       await import("../../src/routes/terms-of-service/+page.server");
-    const result = await load({} as never);
+    const result = loadResult(await load({} as never));
 
     expect(result.editorEnabled).toBe(true);
     expect(result.terms.title).toBe("Terms");

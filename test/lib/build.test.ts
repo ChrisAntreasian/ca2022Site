@@ -23,6 +23,7 @@ Object.defineProperty(globalThis, "import", {
 });
 
 import { Effect, Either } from "effect";
+import type { HttpError } from "@sveltejs/kit";
 
 import { buildRes, combineResp, writeFile } from "../../src/lib/build";
 
@@ -82,7 +83,7 @@ describe("Build Utilities", () => {
 
     it("propagates errors from TaskEither input", async () => {
       const error = { status: 500, body: { message: "Test error" } } as const;
-      const input = Effect.fail(error);
+      const input = Effect.fail(error as unknown as HttpError);
 
       const result = await Effect.runPromise(Effect.either(combineResp(input)));
 
