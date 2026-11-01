@@ -57,7 +57,10 @@ import { sveltePreprocess } from "svelte-preprocess";
 const config = {
   extensions: [".svelte", ".md"],
   preprocess: sveltePreprocess(),
-  kit: { adapter: adapter(), alias: { $lib: "./src/lib", $data: "./src/data" } },
+  kit: {
+    adapter: adapter(),
+    alias: { $lib: "./src/lib", $data: "./src/data" },
+  },
 };
 export default config;
 ```
@@ -71,6 +74,7 @@ checklist item 4.)
 ### B. Kit 3 env modules are now SCHEMA-DRIVEN, and the repo has no `src/env.ts`
 
 Kit 3 (installed `@sveltejs/kit`) rewrote `$env` handling:
+
 - `node_modules/@sveltejs/kit/src/exports/vite/plugins/env-vars.js:38-58` — generates
   `.svelte-kit/generated/{dev,build}/env/*` modules **derived from `src/env.ts`**
   (`resolve_env_entry` + `sync.env` + `create_env_modules`).
@@ -81,9 +85,10 @@ Kit 3 (installed `@sveltejs/kit`) rewrote `$env` handling:
 `app.css`, `app.d.ts`, `app.html`). Therefore the generated config is empty:
 
 `.svelte-kit/generated/dev/env/config.js`:
+
 ```js
 const variables = {};
-export const dynamic_private_env = {};   // <- nothing exposed, so ENABLE_CONTENT_EDITOR is undefined
+export const dynamic_private_env = {}; // <- nothing exposed, so ENABLE_CONTENT_EDITOR is undefined
 set_env({});
 ```
 
@@ -141,7 +146,7 @@ schema, `$app/env/private` imports are in place, and the re-verify gates pass (`
   (checklist item 6, commit `6baa13c`): the alias was DELETED, not updated. Kit 3 emits no
   `.svelte-kit/runtime/app` at all, `node_modules/$app` holds only `tsconfig/` + `types/`, and Kit
   declares every `$app/*` specifier as an ambient module (`@sveltejs/kit/src/exports/vite/
-  write_app_types.js:281`), so no hand-written alias is needed. `npm run test:unit` stays green.
+write_app_types.js:281`), so no hand-written alias is needed. `npm run test:unit` stays green.
 - `.env` is gitignored; CI/prod must set these vars in Vercel env instead. Never enable
   `ENABLE_CONTENT_EDITOR` in production (README "Local content editor" section, ~README:58).
 - `src/lib/s3.ts:8-11` reads AWS vars from the same dynamic private env — same schema need.
