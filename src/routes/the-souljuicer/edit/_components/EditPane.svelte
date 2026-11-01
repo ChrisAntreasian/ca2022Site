@@ -1,11 +1,11 @@
 <script lang="ts">
-  import Button from "$lib/form/Button.svelte";
-  import ImageUploadSection from "$lib/form/ImageUploadSection.svelte";
-  import MarkdownEditor from "$lib/form/MarkdownEditor.svelte";
-  import NumberInput from "$lib/form/NumberInput.svelte";
-  import TextInput from "$lib/form/TextInput.svelte";
+  import Button from "#lib/form/Button.svelte";
+  import ImageUploadSection from "#lib/form/ImageUploadSection.svelte";
+  import MarkdownEditor from "#lib/form/MarkdownEditor.svelte";
+  import NumberInput from "#lib/form/NumberInput.svelte";
+  import TextInput from "#lib/form/TextInput.svelte";
 
-  import type { SouljuicerEditorEntry } from "$lib/editing/resources/souljuicer/souljuicer";
+  import type { SouljuicerEditorEntry } from "#lib/editing/resources/souljuicer/souljuicer";
 
   interface Props {
     entry: SouljuicerEditorEntry;

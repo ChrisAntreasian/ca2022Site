@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { captureClickThis } from "$lib/analytics";
-  import { cleanUrlSlug } from "$lib/history";
-  import { safeImageString } from "$lib/image";
-  import type { StrapiPageDetails } from "$lib/typing/page";
+  import { captureClickThis } from "#lib/analytics";
+  import { cleanUrlSlug } from "#lib/history";
+  import { safeImageString } from "#lib/image";
+  import type { StrapiPageDetails } from "#lib/typing/page";
 
   interface Props {
     links: StrapiPageDetails;

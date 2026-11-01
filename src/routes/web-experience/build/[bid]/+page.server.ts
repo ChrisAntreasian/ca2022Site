@@ -3,10 +3,10 @@ import type { PageServerLoad } from "./$types";
 import * as qs from "qs";
 
 import { Effect } from "effect";
-import { getNoOpts } from "$lib/api";
-import { buildRes, writeFile } from '$lib/build';
-import { mkKeyWDefault } from '$lib/file';
-import { pageResC, type PageRes } from '$lib/typing/page';
+import { getNoOpts } from "#lib/api";
+import { buildRes, writeFile } from '#lib/build';
+import { mkKeyWDefault } from '#lib/file';
+import { pageResC, type PageRes } from '#lib/typing/page';
 
 const pq =  qs.stringify({ 
   filters: { id: { $in: 3 } },

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import BuildConfirm from "$lib/BuildConfirm.svelte";
+	import BuildConfirm from "#lib/BuildConfirm.svelte";
   import type { PageServerData } from "./$types";
   
   interface Props {

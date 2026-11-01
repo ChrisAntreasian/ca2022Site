@@ -6,6 +6,10 @@
     "allowJs": false,
     "checkJs": false,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "#lib/*": ["./src/lib/*"],
+      "#data/*": ["./src/data/*"]
+    }
   }
 }

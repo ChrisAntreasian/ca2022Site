@@ -3,13 +3,13 @@ import type { PageServerLoad } from "./$types";
 import { Schema, Effect } from "effect";
 import * as qs from "qs";
 
-import { getNoOpts } from "$lib/api";
+import { getNoOpts } from "#lib/api";
 
-import { buildRes, writeFile } from '$lib/build';
-import { mkKeyWDefault } from '$lib/file';
+import { buildRes, writeFile } from '#lib/build';
+import { mkKeyWDefault } from '#lib/file';
 
-import { strapiDataArrC, strapiMetaDataC } from "$lib/typing/strapi";
-import { artCategoryC } from "$lib/typing/art";
+import { strapiDataArrC, strapiMetaDataC } from "#lib/typing/strapi";
+import { artCategoryC } from "#lib/typing/art";
 
 const respC = Schema.extend(
   strapiMetaDataC, 

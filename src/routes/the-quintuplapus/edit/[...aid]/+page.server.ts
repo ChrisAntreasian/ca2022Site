@@ -3,16 +3,16 @@ import { error, fail, redirect } from "@sveltejs/kit";
 import {
   isEditorEnabled,
   requireEditorEnabled,
-} from "$lib/editing/core/auth.server";
-import { getFormDataString } from "$lib/form-data";
+} from "#lib/editing/core/auth.server";
+import { getFormDataString } from "#lib/form-data";
 import {
   mergeQuintuplapusEntry,
   parseQuintuplapusEditorParam,
   parseQuintuplapusForm,
   quintuplapusEditorPath,
   selectQuintuplapusEntry,
-} from "$lib/editing/resources/quintuplapus/quintuplapus-editor";
-import { toQuintuplapusEditorValue } from "$lib/editing/resources/quintuplapus/quintuplapus";
+} from "#lib/editing/resources/quintuplapus/quintuplapus-editor";
+import { toQuintuplapusEditorValue } from "#lib/editing/resources/quintuplapus/quintuplapus";
 import {
   deleteQuintuplapusEntry,
   ensureQuintuplapusBaselineSnapshot,
@@ -20,7 +20,7 @@ import {
   readQuintuplapusFile,
   replaceQuintuplapusEntryImage,
   saveQuintuplapusEditorValue,
-} from "$lib/editing/resources/quintuplapus/quintuplapus.server";
+} from "#lib/editing/resources/quintuplapus/quintuplapus.server";
 
 import type { Actions, PageServerLoad } from "./$types";
 

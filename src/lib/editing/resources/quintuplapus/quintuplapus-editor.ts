@@ -1,5 +1,5 @@
-import { cleanUrlSlug } from "$lib/history";
-import { getFormDataString } from "$lib/form-data";
+import { cleanUrlSlug } from "#lib/history";
+import { getFormDataString } from "#lib/form-data";
 
 import type {
   QuintuplapusEditorEntry,

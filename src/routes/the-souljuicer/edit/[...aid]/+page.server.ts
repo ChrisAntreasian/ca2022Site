@@ -3,16 +3,16 @@ import { error, fail, redirect } from "@sveltejs/kit";
 import {
   isEditorEnabled,
   requireEditorEnabled,
-} from "$lib/editing/core/auth.server";
-import { getFormDataString } from "$lib/form-data";
+} from "#lib/editing/core/auth.server";
+import { getFormDataString } from "#lib/form-data";
 import {
   mergeSouljuicerEntry,
   parseSouljuicerEditorParam,
   parseSouljuicerForm,
   selectSouljuicerEntry,
   souljuicerEditorPath,
-} from "$lib/editing/resources/souljuicer/souljuicer-editor";
-import { toSouljuicerEditorValue } from "$lib/editing/resources/souljuicer/souljuicer";
+} from "#lib/editing/resources/souljuicer/souljuicer-editor";
+import { toSouljuicerEditorValue } from "#lib/editing/resources/souljuicer/souljuicer";
 import {
   deleteSouljuicerEntry,
   ensureSouljuicerBaselineSnapshot,
@@ -20,7 +20,7 @@ import {
   readSouljuicerFile,
   replaceSouljuicerEntryImage,
   saveSouljuicerEditorValue,
-} from "$lib/editing/resources/souljuicer/souljuicer.server";
+} from "#lib/editing/resources/souljuicer/souljuicer.server";
 
 import type { Actions, PageServerLoad } from "./$types";
 

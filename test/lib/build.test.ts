@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock environment variables and dependencies
-vi.mock("$lib/file", () => ({
+vi.mock("#lib/file", () => ({
   writeFsTE: vi.fn(),
 }));
 

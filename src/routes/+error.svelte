@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import { contextHeightKey, rem } from "$lib/spacing";
-  import type { LayoutElemH } from "$lib/spacing";
+  import { contextHeightKey, rem } from "#lib/spacing";
+  import type { LayoutElemH } from "#lib/spacing";
   import { getContext } from "svelte";
 
   let windowHeight: number = $state(0);

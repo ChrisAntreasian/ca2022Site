@@ -1,8 +1,8 @@
 <script lang="ts">
-  import EditorShell from "$lib/editing/core/EditorShell.svelte";
-  import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
-  import { cleanUrlSlug } from "$lib/history";
-  import { souljuicerEditorPath } from "$lib/editing/resources/souljuicer/souljuicer-editor";
+  import EditorShell from "#lib/editing/core/EditorShell.svelte";
+  import UnsavedChangesDialog from "#lib/form/UnsavedChangesDialog.svelte";
+  import { cleanUrlSlug } from "#lib/history";
+  import { souljuicerEditorPath } from "#lib/editing/resources/souljuicer/souljuicer-editor";
 
   import EditPane from "../_components/EditPane.svelte";
 

@@ -11,7 +11,7 @@ describe("Main Page Server Logic", () => {
   describe("Landing Page Load Function", () => {
     it("should process landing data correctly", async () => {
       // Mock the landing data import
-      vi.doMock("$data/landing.json", () => ({
+      vi.doMock("#data/landing.json", () => ({
         data: {
           data: [
             {
@@ -41,7 +41,7 @@ describe("Main Page Server Logic", () => {
 
     it("should categorize intro and links correctly", async () => {
       // Mock with known data structure
-      vi.doMock("$data/landing.json", () => ({
+      vi.doMock("#data/landing.json", () => ({
         data: {
           data: [
             {
@@ -72,7 +72,7 @@ describe("Main Page Server Logic", () => {
     });
 
     it("should handle empty data gracefully", async () => {
-      vi.doMock("$data/landing.json", () => ({
+      vi.doMock("#data/landing.json", () => ({
         data: {
           data: [
             {
@@ -96,7 +96,7 @@ describe("Main Page Server Logic", () => {
 
   describe("Data Structure Validation", () => {
     it("should return the expected structure", async () => {
-      vi.doMock("$data/landing.json", () => ({
+      vi.doMock("#data/landing.json", () => ({
         data: {
           data: [
             {
@@ -119,7 +119,7 @@ describe("Main Page Server Logic", () => {
     });
 
     it("should handle multiple intro items", async () => {
-      vi.doMock("$data/landing.json", () => ({
+      vi.doMock("#data/landing.json", () => ({
         data: {
           data: [
             {

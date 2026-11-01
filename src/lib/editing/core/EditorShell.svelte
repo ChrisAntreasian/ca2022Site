@@ -4,8 +4,8 @@
   import { page } from "$app/state";
   import type { Snippet } from "svelte";
 
-  import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
-  import Shell from "$lib/Article/Shell.svelte";
+  import UnsavedChangesDialog from "#lib/form/UnsavedChangesDialog.svelte";
+  import Shell from "#lib/Article/Shell.svelte";
 
   interface Props {
     activeTitle: string;

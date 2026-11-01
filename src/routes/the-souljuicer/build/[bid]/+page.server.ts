@@ -1,13 +1,13 @@
 import type { PageServerLoad } from "./$types";
-import { mkKeyWDefault } from "$lib/file";
+import { mkKeyWDefault } from "#lib/file";
 import { Schema, Effect } from "effect";
 
 import * as qs from "qs";
 
-import { getNoOpts } from "$lib/api";
-import { buildRes, writeFile } from '$lib/build';
-import { strapiDataArrC, strapiMetaDataC } from "$lib/typing/strapi";
-import { artBaseC } from "$lib/typing/art";
+import { getNoOpts } from "#lib/api";
+import { buildRes, writeFile } from '#lib/build';
+import { strapiDataArrC, strapiMetaDataC } from "#lib/typing/strapi";
+import { artBaseC } from "#lib/typing/art";
 
 const respC = Schema.extend(
   strapiMetaDataC,

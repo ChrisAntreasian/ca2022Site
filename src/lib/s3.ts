@@ -11,7 +11,7 @@ import {
   VITE_AWS_REGION,
 } from "$app/env/private";
 
-import { e500 } from "$lib/error";
+import { e500 } from "#lib/error";
 
 const getS3Config = () => {
   const accessKeyId = AWS_ACCESS_KEY_ID ?? VITE_AWS_ACCESS_KEY_ID;

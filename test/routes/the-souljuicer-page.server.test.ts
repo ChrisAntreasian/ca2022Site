@@ -6,7 +6,7 @@ describe("SoulJuicer page server load", () => {
   });
 
   it("fills in missing display fields from stored entries", async () => {
-    vi.doMock("$data/the-souljuicer.json", () => ({
+    vi.doMock("#data/the-souljuicer.json", () => ({
       data: {
         data: [
           {

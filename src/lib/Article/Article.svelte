@@ -2,12 +2,12 @@
   import { fade } from "svelte/transition";
   import SvelteMarkdown from "svelte-exmarkdown";
 
-  import { contextHeightKey, rem, type LayoutElemH } from "$lib/spacing";
-  import { getDisplayLinkText } from "$lib/url";
+  import { contextHeightKey, rem, type LayoutElemH } from "#lib/spacing";
+  import { getDisplayLinkText } from "#lib/url";
   import { getContext } from "svelte";
   import type { Item } from "./types";
-  import Fullscreen from "$lib/Fullscreen/index.svelte";
-  import { captureBehavior, captureDetails } from "$lib/analytics";
+  import Fullscreen from "#lib/Fullscreen/index.svelte";
+  import { captureBehavior, captureDetails } from "#lib/analytics";
 
   interface Props {
     /*

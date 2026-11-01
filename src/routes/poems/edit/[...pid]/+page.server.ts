@@ -4,24 +4,24 @@ import { Either, Schema } from "effect";
 import {
   isEditorEnabled,
   requireEditorEnabled,
-} from "$lib/editing/core/auth.server";
+} from "#lib/editing/core/auth.server";
 import {
   poemEditorDefinition,
   toPoemEditorValues,
-} from "$lib/editing/resources/poems/poems";
+} from "#lib/editing/resources/poems/poems";
 import {
   deletePoemEditorValue,
   ensurePoemsBaselineSnapshot,
   readPoemsFile,
   savePoemEditorValue,
-} from "$lib/editing/resources/poems/poems.server";
+} from "#lib/editing/resources/poems/poems.server";
 import {
   parsePoemEditorParam,
   parsePoemForm,
   poemEditorPath,
   selectPoem,
-} from "$lib/editing/resources/poems/poems-editor";
-import { getFormDataString } from "$lib/form-data";
+} from "#lib/editing/resources/poems/poems-editor";
+import { getFormDataString } from "#lib/form-data";
 
 import type { Actions, PageServerLoad } from "./$types";
 

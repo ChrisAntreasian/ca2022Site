@@ -18,8 +18,8 @@ PRE-FIX tree; do not treat them as current.
   `ENABLE_CONTENT_EDITOR=false` and **404** with `=true` (the guard passes, unknown pid 404s).
 - Section A (deleted `svelte.config.js`) is resolved: adapter-vercel, `sveltePreprocess` and the
   `$lib`/`$data` aliases live inside `sveltekit()` in `vite.config.js`. Section B is resolved by the
-  `src/env.ts` schema. `src/app/server/entry.ts` still exists and is now the fake store to delete
-  (checklist item 4).
+  `src/env.ts` schema. ~~`src/app/server/entry.ts` still exists~~ is now DELETED (checklist item 4,
+  commit `fc50b42`), as is the invalid `Page` import it forced `src/app.d.ts` to carry.
 
 ## Symptom
 
@@ -62,10 +62,11 @@ const config = {
 export default config;
 ```
 
-Consequences of it being gone: no `adapter-vercel`, no `.md` extension support, no
-`sveltePreprocess`. `vite.config.js` only re-added the `$lib`/`$data` aliases.
+Consequences of it being gone (at the time of writing - SINCE RESOLVED): no `adapter-vercel`, no `.md`
+extension support, no `sveltePreprocess`. `vite.config.js` only re-added the `$lib`/`$data` aliases.
 (Also untracked-new: `src/app/server/entry.ts` — likely the previous agent's
-workaround for a missing config/hooks setup.)
+workaround for a missing config/hooks setup. It was later a fake page store and is now deleted,
+checklist item 4.)
 
 ### B. Kit 3 env modules are now SCHEMA-DRIVEN, and the repo has no `src/env.ts`
 
@@ -116,7 +117,13 @@ it. The deleted config's jobs must instead be passed as options to `sveltekit({.
 `vite.config.js` (adapter, extensions, preprocess, kit.alias). `extract_svelte_config()`
 exists in `src/core/config/index.js` for that purpose.
 
-## Fix plan (to implement)
+## Fix plan (IMPLEMENTED - historical record; do not re-do)
+
+All four steps below landed (Kit 3 env rewrite, commit `410fcb8`): adapter-vercel 7.0.2,
+`sveltePreprocess` and the `$lib`/`$data` aliases are inside `sveltekit({...})` in `vite.config.js`,
+adapter-auto 8.0.0 is present for auto-selection on Vercel, `src/env.ts` declares the full private
+schema, `$app/env/private` imports are in place, and the re-verify gates pass (`npm run check`,
+`npm run test:unit` = 42 files / 409 tests). Numbered items are kept verbatim as history.
 
 1. ~~Restore `svelte.config.js` from HEAD~~ -> instead move adapter-vercel, `.md`
    extension, `sveltePreprocess`, and `$lib`/`$data` aliases into `sveltekit({...})`
@@ -129,8 +136,12 @@ exists in `src/core/config/index.js` for that purpose.
 
 ## Gotchas
 
-- `vitest.config.ts` aliases `$app` -> `./.svelte-kit/runtime/app` (a Kit 2 path). Kit 3
-  generates under `.svelte-kit/generated/...`; that alias may need updating for tests.
+- ~~`vitest.config.ts` aliases `$app` -> `./.svelte-kit/runtime/app` (a Kit 2 path). Kit 3
+  generates under `.svelte-kit/generated/...`; that alias may need updating for tests.~~ RESOLVED
+  (checklist item 6, commit `6baa13c`): the alias was DELETED, not updated. Kit 3 emits no
+  `.svelte-kit/runtime/app` at all, `node_modules/$app` holds only `tsconfig/` + `types/`, and Kit
+  declares every `$app/*` specifier as an ambient module (`@sveltejs/kit/src/exports/vite/
+  write_app_types.js:281`), so no hand-written alias is needed. `npm run test:unit` stays green.
 - `.env` is gitignored; CI/prod must set these vars in Vercel env instead. Never enable
-  `ENABLE_CONTENT_EDITOR` in production (README:48).
+  `ENABLE_CONTENT_EDITOR` in production (README "Local content editor" section, ~README:58).
 - `src/lib/s3.ts:8-11` reads AWS vars from the same dynamic private env — same schema need.

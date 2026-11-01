@@ -6,7 +6,7 @@
 
   import { afterNavigate } from "$app/navigation";
 
-  import { clientNavigate } from "$lib/history";
+  import { clientNavigate } from "#lib/history";
   import {
     contextHeightKey,
     rem,
@@ -14,14 +14,14 @@
     type LayoutElemH,
     fromRem,
     toRem,
-  } from "$lib/spacing";
+  } from "#lib/spacing";
 
-  import Article from "$lib/Gallary/Article.svelte";
-  import Nav from "$lib/Gallary/Nav.svelte";
+  import Article from "#lib/Gallary/Article.svelte";
+  import Nav from "#lib/Gallary/Nav.svelte";
 
-  import { captureDetails, captureBehavior } from "$lib/analytics";
+  import { captureDetails, captureBehavior } from "#lib/analytics";
 
-  import type { ArtWithId } from "$lib/typing/art";
+  import type { ArtWithId } from "#lib/typing/art";
   import { onMount } from "svelte";
   type GallaryProps = {
     artPieces: Array<ArtWithId>;

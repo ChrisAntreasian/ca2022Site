@@ -1,8 +1,8 @@
 <script lang="ts">
   import { afterNavigate } from "$app/navigation";
 
-  import { cleanUrlSlug } from "$lib/history";
-  import { captureBehavior } from "$lib/analytics";
+  import { cleanUrlSlug } from "#lib/history";
+  import { captureBehavior } from "#lib/analytics";
 
   import {
     wrapperWidth,
@@ -10,12 +10,12 @@
     toRem,
     fromRem,
     mqBreakPoint,
-  } from "$lib/spacing";
+  } from "#lib/spacing";
 
-  import Arrow from "$lib/arrow/Arrow.svelte";
-  import type { ArtWithId } from "$lib/typing/art";
+  import Arrow from "#lib/arrow/Arrow.svelte";
+  import type { ArtWithId } from "#lib/typing/art";
 
-  import { noScroll } from "$lib/body";
+  import { noScroll } from "#lib/body";
   import { fade } from "svelte/transition";
   import { onMount } from "svelte";
 

@@ -11,7 +11,7 @@ const mockS3Instance = {
 };
 
 // Mock the entire s3 module to avoid import.meta.env issues
-vi.mock("$lib/s3", () => ({
+vi.mock("#lib/s3", () => ({
   initS3: vi.fn(() => {
     // Call the mocked AWS.S3 constructor to satisfy tests
     const mockConstructor = AWS.S3 as unknown;

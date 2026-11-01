@@ -3,9 +3,9 @@
   import { page } from "$app/state";
 
   import { fade } from "svelte/transition";
-  import { safeImageString } from "$lib/image";
-  import { captureBehavior } from "$lib/analytics";
-  import { noScroll } from "$lib/body";
+  import { safeImageString } from "#lib/image";
+  import { captureBehavior } from "#lib/analytics";
+  import { noScroll } from "#lib/body";
 
   interface Props {
     logo: any;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mqBreakPoint } from "$lib/spacing";
+  import { mqBreakPoint } from "#lib/spacing";
   import { onMount, type Snippet } from "svelte";
   import { afterNavigate } from "$app/navigation";
   import { fade } from "svelte/transition";

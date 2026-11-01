@@ -1,11 +1,11 @@
 ﻿import type { Cookies } from "@sveltejs/kit";
-import { daysFromNow } from "$lib/date";
+import { daysFromNow } from "#lib/date";
 
 let mixpanel: typeof import("mixpanel-browser").default | null = null;
 const isBrowser = !import.meta.env.SSR;
 
 export const initMixpanel = async () => {
-  if (!isBrowser)  return;
+  if (!isBrowser) return;
   if (!mixpanel) {
     const mixpanelModule = await import("mixpanel-browser");
     mixpanel = mixpanelModule.default;
@@ -17,11 +17,11 @@ export const initMixpanel = async () => {
 
 const mkDistinctId = (arr: string[]): string => {
   // Generate a simple random ID for browser environments
-  
+
   const dId = isBrowser
-  ? Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15)
-  : `server-${Date.now()}-${Math.random()}`;
+    ? Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15)
+    : `server-${Date.now()}-${Math.random()}`;
 
   if (!arr.includes(dId)) return dId;
   return mkDistinctId(arr);

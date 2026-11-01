@@ -54,7 +54,7 @@ describe("Quintuplapus edit page server delete", () => {
       };
     });
 
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
@@ -65,12 +65,12 @@ describe("Quintuplapus edit page server delete", () => {
       .mockReturnValueOnce({ categoryTitle: "Cat", entries: mockEntries })
       .mockReturnValueOnce({ categoryTitle: "Cat", entries: [mockEntries[0]] });
 
-    vi.doMock("$lib/editing/resources/quintuplapus/quintuplapus", () => ({
+    vi.doMock("#lib/editing/resources/quintuplapus/quintuplapus", () => ({
       toQuintuplapusEditorValue,
     }));
 
     vi.doMock(
-      "$lib/editing/resources/quintuplapus/quintuplapus.server",
+      "#lib/editing/resources/quintuplapus/quintuplapus.server",
       () => ({
         deleteQuintuplapusEntry,
         ensureQuintuplapusBaselineSnapshot: vi.fn(),
@@ -103,12 +103,12 @@ describe("Quintuplapus edit page server delete", () => {
   });
 
   it("blocks deleting the final remaining entry", async () => {
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/resources/quintuplapus/quintuplapus", () => ({
+    vi.doMock("#lib/editing/resources/quintuplapus/quintuplapus", () => ({
       toQuintuplapusEditorValue: vi.fn(() => ({
         categoryTitle: "Cat",
         entries: [mockEntries[0]],
@@ -116,7 +116,7 @@ describe("Quintuplapus edit page server delete", () => {
     }));
 
     vi.doMock(
-      "$lib/editing/resources/quintuplapus/quintuplapus.server",
+      "#lib/editing/resources/quintuplapus/quintuplapus.server",
       () => ({
         deleteQuintuplapusEntry: vi.fn(),
         ensureQuintuplapusBaselineSnapshot: vi.fn(),

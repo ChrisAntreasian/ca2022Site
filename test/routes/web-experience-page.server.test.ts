@@ -6,7 +6,7 @@ describe("Web Experience page server load", () => {
   });
 
   it("does not crash when an entry is missing logo or image data", async () => {
-    vi.doMock("$data/web-experience.json", () => ({
+    vi.doMock("#data/web-experience.json", () => ({
       data: {
         data: [
           {

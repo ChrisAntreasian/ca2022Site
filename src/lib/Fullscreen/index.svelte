@@ -1,11 +1,11 @@
 <script lang="ts">
   import { scale, fade } from "svelte/transition";
 
-  import { noScroll } from "$lib/body";
+  import { noScroll } from "#lib/body";
   import fullscreenIcon from "./fullscreen.svg";
-  import { fromRem, rem, toRem } from "$lib/spacing";
-  import { captureDetails, captureBehavior } from "$lib/analytics";
-  import Arrow from "$lib/arrow/Arrow.svelte";
+  import { fromRem, rem, toRem } from "#lib/spacing";
+  import { captureDetails, captureBehavior } from "#lib/analytics";
+  import Arrow from "#lib/arrow/Arrow.svelte";
   import { onMount } from "svelte";
 
   interface FullscreenProps {

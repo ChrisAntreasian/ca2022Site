@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { cleanUrlSlug } from "$lib/history";
+  import { cleanUrlSlug } from "#lib/history";
   import type { Item } from "./types";
 
   interface Props {

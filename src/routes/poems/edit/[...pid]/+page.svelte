@@ -1,9 +1,9 @@
 <script lang="ts">
-  import EditorShell from "$lib/editing/core/EditorShell.svelte";
-  import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
-  import { cleanUrlSlug } from "$lib/history";
+  import EditorShell from "#lib/editing/core/EditorShell.svelte";
+  import UnsavedChangesDialog from "#lib/form/UnsavedChangesDialog.svelte";
+  import { cleanUrlSlug } from "#lib/history";
   import EditPane from "../_components/EditPane.svelte";
-  import { poemEditorPath } from "$lib/editing/resources/poems/poems-editor";
+  import { poemEditorPath } from "#lib/editing/resources/poems/poems-editor";
 
   import type { ActionData, PageData } from "./$types";
 

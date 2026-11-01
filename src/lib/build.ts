@@ -1,7 +1,7 @@
 import { Effect, Array, pipe } from "effect";
 import type { HttpError } from "@sveltejs/kit";
 
-import { writeFsTE } from "$lib/file";
+import { writeFsTE } from "#lib/file";
 import { throwErrIO, type HttpErrTE, e403 } from "./error";
 
 const { VITE_BUILD_KEY, VITE_ENV } = import.meta.env;

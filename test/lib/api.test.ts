@@ -20,7 +20,7 @@ vi.mock("@sveltejs/kit", () => ({
 }));
 
 // Mock environment variables
-vi.mock("$lib/api", async () => {
+vi.mock("#lib/api", async () => {
   const actual = await vi.importActual("../../src/lib/api");
   return {
     ...actual,

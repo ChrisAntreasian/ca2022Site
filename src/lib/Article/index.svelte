@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { captureBehavior, captureDetails } from "$lib/analytics";
+  import { captureBehavior, captureDetails } from "#lib/analytics";
   import { type Snippet } from "svelte";
-  import { clientNavigate } from "$lib/history";
+  import { clientNavigate } from "#lib/history";
   import Shell from "./Shell.svelte";
   import Article from "./Article.svelte";
   import Item from "./Item.svelte";

@@ -6,12 +6,12 @@ describe("terms-of-service page server load", () => {
   });
 
   it("loads terms content and editor flag", async () => {
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
     }));
 
     vi.doMock(
-      "$lib/editing/resources/terms-of-service/terms-of-service.server",
+      "#lib/editing/resources/terms-of-service/terms-of-service.server",
       () => ({
         readTermsOfServiceFile: vi.fn(async () => ({
           name: "terms-of-service",

@@ -1,4 +1,4 @@
-import { getFormDataString } from "$lib/form-data";
+import { getFormDataString } from "#lib/form-data";
 
 import type { TermsOfServiceEditorValue } from "./terms-of-service";
 

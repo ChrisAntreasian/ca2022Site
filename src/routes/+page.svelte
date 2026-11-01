@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { safeImageString } from "$lib/image";
+  import { safeImageString } from "#lib/image";
   import { getContext } from "svelte";
-  import { contextHeightKey, rem, type LayoutElemH } from "$lib/spacing";
+  import { contextHeightKey, rem, type LayoutElemH } from "#lib/spacing";
   import Nav from "./_modules/Nav.svelte";
   import type { PageServerData } from "./$types";
 

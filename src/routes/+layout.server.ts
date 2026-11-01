@@ -1,7 +1,7 @@
 import type { LayoutServerLoad } from "./$types";
-import * as D from "$data/layout.json";
-import { initDistinctId } from "$lib/analytics";
-// import { initS3 } from '$lib/s3';
+import * as D from "#data/layout.json";
+import { initDistinctId } from "#lib/analytics";
+// import { initS3 } from '#lib/s3';
 
 const shortenString = (_: string) => {
   const a = _.split(" ");

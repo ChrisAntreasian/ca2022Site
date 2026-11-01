@@ -6,13 +6,13 @@ describe("terms-of-service edit page server", () => {
   });
 
   it("loads terms editor data with saved message", async () => {
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
     vi.doMock(
-      "$lib/editing/resources/terms-of-service/terms-of-service.server",
+      "#lib/editing/resources/terms-of-service/terms-of-service.server",
       () => ({
         ensureTermsOfServiceBaselineSnapshot: vi.fn(),
         readTermsOfServiceFile: vi.fn(async () => ({
@@ -51,7 +51,7 @@ describe("terms-of-service edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
@@ -66,7 +66,7 @@ describe("terms-of-service edit page server", () => {
     }));
 
     vi.doMock(
-      "$lib/editing/resources/terms-of-service/terms-of-service.server",
+      "#lib/editing/resources/terms-of-service/terms-of-service.server",
       () => ({
         ensureTermsOfServiceBaselineSnapshot: vi.fn(),
         readTermsOfServiceFile: vi.fn(async () => ({
@@ -104,13 +104,13 @@ describe("terms-of-service edit page server", () => {
   });
 
   it("returns validation message when required fields are missing", async () => {
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
     vi.doMock(
-      "$lib/editing/resources/terms-of-service/terms-of-service.server",
+      "#lib/editing/resources/terms-of-service/terms-of-service.server",
       () => ({
         ensureTermsOfServiceBaselineSnapshot: vi.fn(),
         readTermsOfServiceFile: vi.fn(async () => ({

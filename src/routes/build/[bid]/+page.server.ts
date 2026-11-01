@@ -2,12 +2,12 @@
 import * as qs from "qs";
 
 import { pipe, Effect } from "effect";
-import { getNoOpts } from "$lib/api";
+import { getNoOpts } from "#lib/api";
 
-import { buildRes, combineResp, writeFile } from '$lib/build';
+import { buildRes, combineResp, writeFile } from '#lib/build';
 
 import type { PageServerLoad } from "./$types";
-import { detailsResC, pageResC, type DetailsRes, type PageRes } from "$lib/typing/page";
+import { detailsResC, pageResC, type DetailsRes, type PageRes } from "#lib/typing/page";
 
 const lq =  qs.stringify({ 
   filters: { id: { $in: 6 } },

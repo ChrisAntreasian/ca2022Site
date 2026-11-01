@@ -2,7 +2,8 @@
 
 Branch: `sveltekit-migration-3x` · BASELINE = the newest `KIT3(...)` commit reported by
 `git --no-pager log --oneline -8` (protocol step 1). Verified green points so far: `410fcb8` (env +
-adapters + scripts), `69c6ad3` (docs), `5dcb9a3` (facts), `fc50b42` (item 4).
+adapters + scripts), `69c6ad3` (docs), `5dcb9a3` (facts), `fc50b42` (item 4). Item 8 (parts 1, 2a and 2b)
+is DONE in the working tree and still needs its `KIT3(item-8)` commit.
 Installed: `@sveltejs/kit@3.1.x`, `vite@8.3.5` (beta/rolldown), `svelte@5.57`, `vitest@5`,
 `@sveltejs/adapter-vercel@7.0.2`, `@sveltejs/adapter-auto@8.0.0` (devDependencies),
 `@sveltejs/vite-plugin-svelte@7.3.1`, `typescript@5.9.2` (kit's `typescript ^6` peer is OPTIONAL - do not
@@ -25,13 +26,13 @@ bump TS as a side effect; it is its own gated step)
 4. After each item: commit with prefix `KIT3(item-n):`. One item = one commit = revertible.
 5. Update this file (Status table / checkboxes) as the LAST action of the item, before committing.
 
-## Current measurements (2026-10-31, at 410fcb8)
+## Current measurements (2026-10-31, re-measured after item 8 part 2a)
 
 | Measurement | Result |
 |---|---|
-| `npx svelte-kit sync` | only 2 warnings: `config_option_deprecated_alias`, `tsconfig_invalid` (Windows false positive) |
+| `npx svelte-kit sync` | **ZERO warnings** - `config_option_deprecated_alias` AND `tsconfig_invalid` are both gone now that `alias` no longer exists in `sveltekit()` |
 | `npx tsc --noEmit -p tsconfig.json` | **83** errors; `TS2307` / `Cannot find module` = **0** |
-| `svelte-check` | **94** errors, 0 warnings, in 15 files; CFM = **0** (was 302 -> 98 -> 94) |
+| `svelte-check` | **94** errors, 0 warnings, in 15 files; CFM = **0** (was 302 -> 98 -> 94; it briefly spiked to **243 total / 149 CFM** the instant the aliases were removed without tsconfig `paths` - see item 8) |
 | `vite dev` | ✅ `ready in 1806 ms`; `/` 200 (71 KB), `/poems` 200 (90 KB), bogus route 404 |
 | `vite preview` on `.svelte-kit/output` | ✅ `/` 200 (24.7 KB, `<h1>` SSR'd), `/poems` 200 (37.4 KB), bogus 404 |
 | Editor env gate (`$app/env/private`) | 403 when `ENABLE_CONTENT_EDITOR=false` → 404 when `=true` |
@@ -151,28 +152,55 @@ bump TS as a side effect; it is its own gated step)
   `--strictPort`; `Start-Process -RedirectStandardOutput` only flushes when the process exits, so read
   the port from `--port` instead of parsing the log. Process env beats `.env`, so shell
   `ENABLE_CONTENT_EDITOR` is authoritative for these tests.
-- [ ] 8. **Cleanup leftovers (part 1 DONE)**: root junk `index.ts` (0 bytes, zero references) and
+- [x] 8. **Cleanup leftovers (part 1 + parts 2a + 2b DONE - ITEM CLOSED)**: root junk `index.ts` (0 bytes, zero references) and
   `test-mkkey.js` (an ad-hoc `mkKeyWDefault` demo importing `../src/lib/file.js`, zero references) are
   now DELETED (verified with `git grep`: nothing referenced either). Earlier in this item: the dead
   `svelte-kit package` script was deleted, `start` -> `vite preview`, adapter-auto moved to
   devDependencies, and every scratch capture file was deleted.
-  STILL OPEN: (a) the `#lib`/`#data` subpath-import codemod via package.json `imports` that retires the
-  deprecated `config.alias` (that is what removes the LAST Kit warning) - a large mechanical change across
-  every `import ... from "$lib/..."` site, so it needs its own session; (b) `@vitest/ui@3.2.4` and
-  `@vitest/coverage-v8@3.2.4` are pinned to vitest exactly `3.2.4` while vitest 5.0.5 is installed, so
-  `test:unit:coverage` / `test:unit:watch` are peer-broken (separate step, `--legacy-peer-deps` required).
+  DONE (part 2a - the `#lib`/`#data` subpath-import codemod): package.json now declares Node subpath
+  imports `"imports": { "#lib/*": "./src/lib/*", "#data/*": "./src/data/*" }`; every `$lib/...` and
+  `$data/...` import in `src/**` and `test/**` was rewritten to `#lib/...` / `#data/...` (92 files,
+  **291 insertions / 291 deletions** - pure 1:1 import swaps, zero other content change); the deprecated
+  `alias` option was DELETED from `sveltekit()` in `vite.config.js` and from `resolve.alias` in
+  `vitest.config.ts`; and `tsconfig.json` gained
+  `"paths": { "#lib/*": ["./src/lib/*"], "#data/*": ["./src/data/*"] }`.
+  THE FACT THAT MATTERS: Vite, Vitest and Node read package.json `imports` natively - TypeScript 5.9.2 in
+  this repo does NOT, because it inherits `paths: {}` from `node_modules/$app/tsconfig.json`. Removing the
+  aliases without adding `paths` made `tsc` and `svelte-check` report **149 `TS2307 Cannot find module
+  '#lib/...'`** (svelte-check total 243 errors / 86 files) - i.e. the aliases had been propping up
+  TypeScript the entire migration. `npx tsc --showConfig` proves the extends chain was intact
+  (`moduleResolution: bundler`, `resolvePackageJsonImports: true`, `paths: {}`) yet `#lib/*` was still
+  unresolvable, so the `paths` entries are MANDATORY, and they work WITHOUT `baseUrl` (adding `baseUrl`
+  would break the inherited Kit config).
+  GATE (all measured after the codemod): `npx svelte-kit sync` -> **zero warnings** (`config_option_deprecated_alias`
+  and `tsconfig_invalid` - the two warnings framing this whole migration - are GONE); `svelte-check` 94 errors /
+  0 warnings / 15 files and `tsc` 83 errors = both EXACTLY the pre-codemod baseline, CFM = 0;
+  `npm run test:unit` = **42 files / 409 tests passed** in 10.3 s, zero `Failed to resolve`; `npm run build`
+  compiles both bundles (`✓ built in 699 ms`) then dies only at the Windows adapter symlink EPERM (item 2);
+  `git grep` finds no `$lib` / `$data` import left anywhere in `src` or `test`.
+  DONE (part 2b - vitest peer unpin): `@vitest/ui` and `@vitest/coverage-v8` moved from `3.2.4` to
+  `^5.0.5`, aligned with vitest 5.0.5. `npm ls vitest @vitest/ui @vitest/coverage-v8` ->
+  `vitest@5.0.5`, `@vitest/coverage-v8@5.0.5`, `@vitest/ui@5.0.5` (all deduped, no peer errors), with
+  `package-lock.json` rewritten by the install (740 line churn, 642 deletions of stale 3.x-era entries).
+  GATE: `npm run test:unit:coverage` now runs the full 42-file suite and prints the per-file table +
+  summary: **Statements 75.63% (596/788), Branches 49.03% (255/520), Functions 74.87% (155/207),
+Lines 75.46% (569/754)**. Item 8 is therefore COMPLETE - nothing left open in it.
 
 ## Hard-won facts (do not re-derive these)
 
 - Kit 3 writes the generated tsconfig + `paths` to `node_modules/$app/tsconfig.json`.
   `.svelte-kit/tsconfig.json` is an EMPTY stub (`{"compilerOptions":{},"include":[],"exclude":[]}`) -
   never extend it, that was the whole `$lib` breakage.
-- Kit's `tsconfig_invalid` / `"paths" was overwritten` warning is a **Windows false positive**:
-  `write_tsconfig/validate.js` + `get_paths` compare backslash-absolute expected paths against
-  forward-slash TS-resolved paths. Proof: `npx tsc --traceResolution` says
-  `Module name '$lib/date' was successfully resolved to .../src/lib/date.ts`.
-  DO NOT rewrite `paths` in `tsconfig.json`: probe-verified that `{"$lib/*": ["./src/lib/*"]}`
-  without `baseUrl` resolves to NONE, and adding `baseUrl: "."` breaks the inherited Kit paths.
+- Kit's `tsconfig_invalid` / `"paths" was overwritten` warning WAS a **Windows false positive** in the
+  `alias` era: `write_tsconfig/validate.js` + `get_paths` compared backslash-absolute expected paths
+  against forward-slash TS-resolved paths (proof then: `npx tsc --traceResolution` said
+  `Module name '$lib/date' was successfully resolved to .../src/lib/date.ts`). Since item 8 part 2a
+  deleted `alias` outright, the warning now has nothing to complain about and `sync` is silent.
+  STILL-TRUE PROBE FACTS: `node_modules/$app/tsconfig.json` ships `paths: {}`; `{"$lib/*": ["./src/lib/*"]}`
+  without `baseUrl` resolves to NONE; adding `baseUrl: "."` breaks the inherited Kit config. Therefore the
+  ONLY working alias replacement is package.json `imports` PLUS root-`tsconfig.json`
+  `paths: {"#lib/*": ["./src/lib/*"], "#data/*": ["./src/data/*"]}` (no `baseUrl`) - which item 8 part 2a
+  now has. Do not conclude "TypeScript reads `#imports` for free" without checking `paths`.
 - `read_files` served **stale content** in this repo (`vite.config.js`, `tsconfig.json`, a Kit source
   file showed content that did not match disk). Cross-check important files with `Get-Content` before
   editing, and trust `git show HEAD:<file>`.
@@ -198,9 +226,11 @@ bump TS as a side effect; it is its own gated step)
   `StandardSchemaV1<string|undefined,T> | ((value: string|undefined) => T|undefined)` and Kit wraps
   plain functions via `normalize_env_schema` (`src/exports/env/index.js`). No zod needed.
 
-- `$lib` strategy = HYBRID: keep `alias: { $lib: './src/lib', $data: './src/data' }` in `sveltekit()`
-  (Kit's own sanctioned escape hatch) to reach green, then do the `#lib` codemod as item 8.
-  `alias` is deprecated in Kit 3.1 (`src/core/config/options.js:56`), so it is temporary.
-- `tsconfig_invalid` is PROVEN noise (see the Windows-false-positive fact above + `tsc --traceResolution`),
-  so never "fix" `paths`. The old "treat as likely noise until proven otherwise" note is superseded, and
-  the probe script it referred to (`scripts/_tsprobe.cjs`) has been deleted.
+- ~~`$lib` strategy = HYBRID: keep `alias: { $lib: './src/lib', $data: './src/data' }` in `sveltekit()`~~
+  (Kit's own sanctioned escape hatch) to reach green, then do the `#lib` codemod as item 8. `alias` is
+  deprecated in Kit 3.1 (`src/core/config/options.js:56`), so it is temporary.~~ SUPERSEDED by item 8
+  part 2a: `alias` is now DELETED from both `sveltekit()` in `vite.config.js` and `resolve.alias` in
+  `vitest.config.ts`. The Kit 3 replacement that actually works is package.json `imports` + tsconfig
+  `paths` (see item 8 and the `tsconfig_invalid` fact above).
+- `tsconfig_invalid` is no longer even a warning to reason about - it is GONE, because the `alias` it was
+  complaining about no longer exists. The probe script it referred to (`scripts/_tsprobe.cjs`) is deleted.

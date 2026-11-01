@@ -1,4 +1,4 @@
-import type { StrapiImageData } from "$lib/typing/art";
+import type { StrapiImageData } from "#lib/typing/art";
 import { pipe, Option, Record } from "effect";
 
 export const safeImageString =

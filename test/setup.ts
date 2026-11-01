@@ -49,7 +49,7 @@ vi.mock("$app/state", () => ({
 }));
 
 // Mock analytics
-vi.mock("$lib/analytics", () => ({
+vi.mock("#lib/analytics", () => ({
   captureBehavior: vi.fn(),
   captureDetails: vi.fn(),
   captureClickThis: vi.fn(),

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
 
-  import { captureClickThis } from "$lib/analytics";
+  import { captureClickThis } from "#lib/analytics";
   import githubIcon from "./github-mark.svg";
 
   interface Props {

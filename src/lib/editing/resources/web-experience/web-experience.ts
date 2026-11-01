@@ -1,6 +1,6 @@
 import { Schema } from "effect";
 
-import { pageResC, type PageRes } from "$lib/typing/page";
+import { pageResC, type PageRes } from "#lib/typing/page";
 
 import type { EditorDefinition } from "../../core/definitions";
 

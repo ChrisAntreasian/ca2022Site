@@ -5,8 +5,8 @@ vi.mock("$app/navigation", () => ({
   pushState: vi.fn(),
 }));
 
-// Un-mock $lib/history to test the real implementation
-vi.doUnmock("$lib/history");
+// Un-mock #lib/history to test the real implementation
+vi.doUnmock("#lib/history");
 
 import { cleanUrlSlug, clientNavigate } from "../../src/lib/history";
 import { pushState } from "$app/navigation";

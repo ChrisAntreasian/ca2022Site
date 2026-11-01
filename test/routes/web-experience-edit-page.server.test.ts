@@ -17,7 +17,7 @@ describe("web experience edit page server delete action", () => {
       };
     });
 
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
@@ -69,7 +69,7 @@ describe("web experience edit page server delete action", () => {
       name: "web-experience",
     }));
 
-    vi.doMock("$lib/editing/resources/web-experience/web-experience", () => ({
+    vi.doMock("#lib/editing/resources/web-experience/web-experience", () => ({
       applyWebExperienceMediaPatch: vi.fn(),
       buildWebExperienceTarget: vi.fn(),
       toWebExperienceEditorValue,
@@ -80,7 +80,7 @@ describe("web experience edit page server delete action", () => {
     }));
 
     vi.doMock(
-      "$lib/editing/resources/web-experience/web-experience.server",
+      "#lib/editing/resources/web-experience/web-experience.server",
       () => ({
         deleteWebExperienceEntry,
         deleteWebExperienceMedia: vi.fn(),
@@ -93,7 +93,7 @@ describe("web experience edit page server delete action", () => {
     );
 
     vi.doMock(
-      "$lib/editing/resources/web-experience/web-experience-editor",
+      "#lib/editing/resources/web-experience/web-experience-editor",
       () => ({
         mergeWebExperienceValue: vi.fn(),
         parseWebExperienceEditorParam: vi.fn(),
@@ -130,12 +130,12 @@ describe("web experience edit page server delete action", () => {
   });
 
   it("rejects delete for intro target", async () => {
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/resources/web-experience/web-experience", () => ({
+    vi.doMock("#lib/editing/resources/web-experience/web-experience", () => ({
       applyWebExperienceMediaPatch: vi.fn(),
       buildWebExperienceTarget: vi.fn(),
       toWebExperienceEditorValue: vi.fn(() => ({
@@ -153,7 +153,7 @@ describe("web experience edit page server delete action", () => {
     }));
 
     vi.doMock(
-      "$lib/editing/resources/web-experience/web-experience.server",
+      "#lib/editing/resources/web-experience/web-experience.server",
       () => ({
         deleteWebExperienceEntry: vi.fn(),
         deleteWebExperienceMedia: vi.fn(),
@@ -166,7 +166,7 @@ describe("web experience edit page server delete action", () => {
     );
 
     vi.doMock(
-      "$lib/editing/resources/web-experience/web-experience-editor",
+      "#lib/editing/resources/web-experience/web-experience-editor",
       () => ({
         mergeWebExperienceValue: vi.fn(),
         parseWebExperienceEditorParam: vi.fn(),
