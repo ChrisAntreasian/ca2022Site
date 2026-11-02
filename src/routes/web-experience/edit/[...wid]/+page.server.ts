@@ -170,7 +170,7 @@ export const actions: Actions = {
         : undefined;
 
     let saved = await saveWebExperienceEditorValue(merged, new Date(), source);
-    let savedValue = toWebExperienceEditorValue(saved);
+    const savedValue = toWebExperienceEditorValue(saved);
     const requestedEntryId = parsedForm.kind === "entry" ? parsedForm.id : 0;
     const selectedEntry =
       parsedForm.kind === "entry"
@@ -215,7 +215,8 @@ export const actions: Actions = {
           deleteTargets.map((url) => deleteWebExperienceMedia(url)),
         );
 
-        savedValue = toWebExperienceEditorValue(saved);
+        // `saved` was already written above and nothing downstream re-reads
+        // `savedValue`, so there is no re-derivation to assign here.
       }
     }
 
