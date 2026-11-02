@@ -1,10 +1,11 @@
 import adapter from "@sveltejs/adapter-vercel";
 import { sveltekit } from "@sveltejs/kit/vite";
-import { sveltePreprocess } from "svelte-preprocess";
 
 /**
- * Kit 3 has no svelte.config.js - every Kit option (adapter, preprocess, ...) is passed to the
- * sveltekit() plugin call in this file.
+ * Kit 3 has no svelte.config.js - every Kit option (adapter, ...) is passed to the sveltekit()
+ * plugin call in this file. There is no `preprocess` entry any more: the repo called
+ * `sveltePreprocess()` with no options, no `.svelte` file declares `lang="postcss|scss|sass"`, and
+ * `vite-plugin-svelte` transpiles `<script lang="ts">` itself, so the preprocess chain was vestigial.
  *
  * There is deliberately no `alias` option any more. Kit 3.1 deprecates `config.alias`
  * (config_option_deprecated_alias) and no longer feeds it into the TypeScript config it generates at
@@ -21,7 +22,6 @@ const config = {
   plugins: [
     sveltekit({
       adapter: adapter(),
-      preprocess: sveltePreprocess(),
     }),
   ],
 };
