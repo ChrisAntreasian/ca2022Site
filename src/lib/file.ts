@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { Effect, Either, pipe, flow, Array } from "effect";
+import { Effect, Result, pipe, Array } from "effect";
 import type { HttpError } from "@sveltejs/kit";
 
 import { e500, type HttpErrE, type HttpErrTE } from "./error";
@@ -102,19 +102,17 @@ const keyGuard = (k: string): k is RouteKeyU => Array.contains(routeKeys, k);
 const mkKeyE = (rid: string): HttpErrE<RouteKeyU> => {
   const segment = rid.split("/")[1];
   if (keyGuard(segment)) {
-    return Either.right(segment);
+    return Result.succeed(segment);
   } else {
     try {
       e500(`Data key does not exist.`);
       // This should never execute since e500 throws
-      return Either.left({} as HttpError);
+      return Result.fail({} as HttpError);
     } catch (err) {
-      return Either.left(err as HttpError);
+      return Result.fail(err as HttpError);
     }
   }
 };
 
-export const mkKeyWDefault = flow(
-  mkKeyE,
-  Either.getOrElse(() => "resource" as const),
-);
+export const mkKeyWDefault = (rid: string) =>
+  Result.getOrElse(mkKeyE(rid), () => "resource" as const);

@@ -7,25 +7,21 @@ import type { EditorDefinition } from "../../core/definitions";
 
 export const souljuicerEntryC = Schema.Struct({
   id: Schema.Number,
-  attributes: Schema.extend(
-    strapiBaseC,
-    Schema.Struct({
-      title: Schema.optional(Schema.String),
-      createdDate: Schema.optional(Schema.String),
-      medium: Schema.optional(Schema.String),
-      order: Schema.Number,
-      description: Schema.String,
-      image: strapiImageDataC,
-    }),
-  ),
+  attributes: Schema.Struct({
+    ...strapiBaseC.fields,
+    title: Schema.optional(Schema.String),
+    createdDate: Schema.optional(Schema.String),
+    medium: Schema.optional(Schema.String),
+    order: Schema.Number,
+    description: Schema.String,
+    image: strapiImageDataC,
+  }),
 });
 
-export const souljuicerDataC = Schema.extend(
-  strapiMetaDataC,
-  Schema.Struct({
-    data: Schema.Array(souljuicerEntryC),
-  }),
-);
+export const souljuicerDataC = Schema.Struct({
+  ...strapiMetaDataC.fields,
+  data: Schema.Array(souljuicerEntryC),
+});
 
 export type SouljuicerData = Schema.Schema.Type<typeof souljuicerDataC>;
 
@@ -35,15 +31,12 @@ export type SouljuicerFile = {
   data: SouljuicerData;
 };
 
-export const souljuicerFileC: Schema.Schema<
-  SouljuicerFile,
-  SouljuicerFile,
-  never
-> = Schema.Struct({
-  name: Schema.String,
-  timestamp: Schema.Number,
-  data: souljuicerDataC,
-});
+export const souljuicerFileC: Schema.Codec<SouljuicerFile, unknown> =
+  Schema.Struct({
+    name: Schema.String,
+    timestamp: Schema.Number,
+    data: souljuicerDataC,
+  });
 
 export const souljuicerEditorEntryC = Schema.Struct({
   id: Schema.Number,
@@ -70,11 +63,7 @@ export type SouljuicerEditorValue = Schema.Schema.Type<
 export const souljuicerEditorDefinition = {
   key: "the-souljuicer",
   label: "The SoulJuicer",
-  schema: souljuicerEditorValueC as Schema.Schema<
-    SouljuicerEditorValue,
-    unknown,
-    never
-  >,
+  schema: souljuicerEditorValueC,
   fields: [
     {
       name: "title",

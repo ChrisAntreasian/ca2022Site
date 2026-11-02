@@ -9,7 +9,10 @@ import { buildRes, writeFile } from "#lib/build";
 import { strapiDataArrC, strapiMetaDataC } from "#lib/typing/strapi";
 import { artBaseC } from "#lib/typing/art";
 
-const respC = Schema.extend(strapiMetaDataC, strapiDataArrC(artBaseC));
+const respC = Schema.Struct({
+  ...strapiMetaDataC.fields,
+  ...strapiDataArrC(artBaseC).fields,
+});
 type Resp = Schema.Schema.Type<typeof respC>;
 
 const q = qs.stringify({

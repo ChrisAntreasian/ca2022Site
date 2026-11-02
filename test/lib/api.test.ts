@@ -6,8 +6,7 @@ import {
   beforeEach,
   type MockedFunction,
 } from "vitest";
-import { Schema, Effect } from "effect";
-import { Either } from "effect";
+import { Effect, Result, Schema } from "effect";
 import { getNoOpts, queryStr } from "../../src/lib/api";
 
 // Mock SvelteKit error function
@@ -116,9 +115,9 @@ describe("API Client Tests", () => {
       global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
 
       const apiCall = getNoOpts(testDataCodec)("test-endpoint");
-      const result = await Effect.runPromise(Effect.either(apiCall));
+      const result = await Effect.runPromise(Effect.result(apiCall));
 
-      expect(Either.isLeft(result)).toBe(true);
+      expect(Result.isFailure(result)).toBe(true);
     });
 
     it("handles 404 responses correctly", async () => {
@@ -129,9 +128,9 @@ describe("API Client Tests", () => {
       });
 
       const apiCall = getNoOpts(testDataCodec)("nonexistent-endpoint");
-      const result = await Effect.runPromise(Effect.either(apiCall));
+      const result = await Effect.runPromise(Effect.result(apiCall));
 
-      expect(Either.isLeft(result)).toBe(true);
+      expect(Result.isFailure(result)).toBe(true);
     });
 
     it("handles 500 server errors correctly", async () => {
@@ -142,9 +141,9 @@ describe("API Client Tests", () => {
       });
 
       const apiCall = getNoOpts(testDataCodec)("failing-endpoint");
-      const result = await Effect.runPromise(Effect.either(apiCall));
+      const result = await Effect.runPromise(Effect.result(apiCall));
 
-      expect(Either.isLeft(result)).toBe(true);
+      expect(Result.isFailure(result)).toBe(true);
     });
 
     it("handles JSON parsing failures", async () => {
@@ -155,9 +154,9 @@ describe("API Client Tests", () => {
       });
 
       const apiCall = getNoOpts(testDataCodec)("bad-json-endpoint");
-      const result = await Effect.runPromise(Effect.either(apiCall));
+      const result = await Effect.runPromise(Effect.result(apiCall));
 
-      expect(Either.isLeft(result)).toBe(true);
+      expect(Result.isFailure(result)).toBe(true);
     });
 
     it("handles codec validation failures", async () => {
@@ -173,9 +172,9 @@ describe("API Client Tests", () => {
       });
 
       const apiCall = getNoOpts(testDataCodec)("invalid-data-endpoint");
-      const result = await Effect.runPromise(Effect.either(apiCall));
+      const result = await Effect.runPromise(Effect.result(apiCall));
 
-      expect(Either.isLeft(result)).toBe(true);
+      expect(Result.isFailure(result)).toBe(true);
     });
   });
 
@@ -194,11 +193,11 @@ describe("API Client Tests", () => {
       });
 
       const apiCall = getNoOpts(testDataCodec)("valid-endpoint");
-      const result = await Effect.runPromise(Effect.either(apiCall));
+      const result = await Effect.runPromise(Effect.result(apiCall));
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right).toEqual(mockData);
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success).toEqual(mockData);
       }
     });
 
@@ -212,7 +211,7 @@ describe("API Client Tests", () => {
       });
 
       const apiCall = getNoOpts(testDataCodec)("test-endpoint");
-      await Effect.runPromise(Effect.either(apiCall));
+      await Effect.runPromise(Effect.result(apiCall));
 
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/test-endpoint"),
@@ -235,7 +234,7 @@ describe("API Client Tests", () => {
       });
 
       const apiCall = getNoOpts(testDataCodec)("test-resource");
-      await Effect.runPromise(Effect.either(apiCall));
+      await Effect.runPromise(Effect.result(apiCall));
 
       // The API should make a request to the resource endpoint
       expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -257,13 +256,13 @@ describe("API Client Tests", () => {
         json: vi.fn().mockResolvedValue(null),
       });
 
-      const nullableCodec = Schema.Union(testDataCodec, Schema.Null);
+      const nullableCodec = Schema.Union([testDataCodec, Schema.Null]);
       const apiCall = getNoOpts(nullableCodec)("empty-endpoint");
 
-      const result = await Effect.runPromise(Effect.either(apiCall));
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right).toBeNull();
+      const result = await Effect.runPromise(Effect.result(apiCall));
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success).toBeNull();
       }
     });
 
@@ -271,10 +270,10 @@ describe("API Client Tests", () => {
       vi.stubEnv("VITE_BASE_API", undefined);
 
       const apiCall = getNoOpts(testDataCodec)("test-endpoint");
-      const result = await Effect.runPromise(Effect.either(apiCall));
+      const result = await Effect.runPromise(Effect.result(apiCall));
 
       // Should handle undefined base API - this would likely fail at fetch level
-      expect(Either.isLeft(result)).toBe(true);
+      expect(Result.isFailure(result)).toBe(true);
     });
 
     it("handles very large response data", async () => {
@@ -291,12 +290,12 @@ describe("API Client Tests", () => {
       });
 
       const apiCall = getNoOpts(testDataCodec)("large-data-endpoint");
-      const result = await Effect.runPromise(Effect.either(apiCall));
+      const result = await Effect.runPromise(Effect.result(apiCall));
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect((result.right as { name: string }).name).toHaveLength(10000);
-        expect((result.right as { id: number }).id).toBe(1);
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect((result.success as { name: string }).name).toHaveLength(10000);
+        expect((result.success as { id: number }).id).toBe(1);
       }
     });
   });
@@ -321,11 +320,11 @@ describe("API Client Tests", () => {
       );
 
       const apiCall = getNoOpts(testDataCodec)("slow-endpoint");
-      const result = await Effect.runPromise(Effect.either(apiCall));
+      const result = await Effect.runPromise(Effect.result(apiCall));
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right).toEqual({ id: 1, name: "slow", active: true });
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success).toEqual({ id: 1, name: "slow", active: true });
       }
     });
   });

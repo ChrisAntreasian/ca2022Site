@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { error, type HttpError } from "@sveltejs/kit";
-import { Effect, Either } from "effect";
+import { Effect, Result } from "effect";
 import {
   throwErrIO,
   e500,
@@ -24,13 +24,13 @@ vi.mock("@sveltejs/kit", () => ({
 
 describe("Error Handling Utilities", () => {
   describe("Type aliases", () => {
-    it("HttpErrTE type works with TaskEither operations", async () => {
+    it("HttpErrTE type works with Effect operations", async () => {
       const successTask: HttpErrTE<string> = Effect.succeed("success");
-      const result = await Effect.runPromise(Effect.either(successTask));
+      const result = await Effect.runPromise(Effect.result(successTask));
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right).toBe("success");
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success).toBe("success");
       }
     });
 
@@ -42,20 +42,20 @@ describe("Error Handling Utilities", () => {
         mockError = err as HttpError;
       }
       const errorTask: HttpErrTE<string> = Effect.fail(mockError!);
-      const result = await Effect.runPromise(Effect.either(errorTask));
+      const result = await Effect.runPromise(Effect.result(errorTask));
 
-      expect(Either.isLeft(result)).toBe(true);
-      if (Either.isLeft(result)) {
-        expect((result.left as HttpError).status).toBe(404);
+      expect(Result.isFailure(result)).toBe(true);
+      if (Result.isFailure(result)) {
+        expect((result.failure as HttpError).status).toBe(404);
       }
     });
 
-    it("HttpErrE type works with Either operations", () => {
-      const successEither: HttpErrE<number> = Either.right(42);
+    it("HttpErrE type works with Result operations", () => {
+      const successResult: HttpErrE<number> = Result.succeed(42);
 
-      expect(Either.isRight(successEither)).toBe(true);
-      if (Either.isRight(successEither)) {
-        expect(successEither.right).toBe(42);
+      expect(Result.isSuccess(successResult)).toBe(true);
+      if (Result.isSuccess(successResult)) {
+        expect(successResult.success).toBe(42);
       }
     });
 
@@ -66,11 +66,11 @@ describe("Error Handling Utilities", () => {
       } catch (err) {
         mockError = err as HttpError;
       }
-      const errorEither: HttpErrE<number> = Either.left(mockError!);
+      const failureResult: HttpErrE<number> = Result.fail(mockError!);
 
-      expect(Either.isLeft(errorEither)).toBe(true);
-      if (Either.isLeft(errorEither)) {
-        expect(errorEither.left.status).toBe(500);
+      expect(Result.isFailure(failureResult)).toBe(true);
+      if (Result.isFailure(failureResult)) {
+        expect(failureResult.failure.status).toBe(500);
       }
     });
   });
@@ -262,9 +262,10 @@ describe("Error Handling Utilities", () => {
       vi.clearAllMocks();
     });
 
-    it("documents that error helpers throw and cannot be used in fp-ts directly", () => {
+    it("documents that error helpers throw and cannot be used in Effect/Result workflows directly", () => {
       // Since e500/e403 throw (via SvelteKit error function), they cannot be used
-      // directly in TaskEither/Either contexts. This test documents the limitation.
+      // directly inside Effect or Result pipelines without catching first. This
+      // test documents the limitation.
 
       expect(() => e500("Task failed")).toThrow();
       expect(() => e403("Access denied")).toThrow();

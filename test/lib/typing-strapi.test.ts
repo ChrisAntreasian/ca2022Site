@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Schema, Either } from "effect";
+import { Result, Schema } from "effect";
 import {
   strapiMetaDataC,
   withIdC,
@@ -23,11 +23,11 @@ describe("Strapi Type Validation", () => {
         },
       };
 
-      const result = Schema.decodeUnknownEither(strapiMetaDataC)(validData);
+      const result = Schema.decodeUnknownResult(strapiMetaDataC)(validData);
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right).toEqual(validData);
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success).toEqual(validData);
       }
     });
 
@@ -43,8 +43,8 @@ describe("Strapi Type Validation", () => {
         },
       };
 
-      const result = Schema.decodeUnknownEither(strapiMetaDataC)(invalidData);
-      expect(Either.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(strapiMetaDataC)(invalidData);
+      expect(Result.isFailure(result)).toBe(true);
     });
 
     it("rejects missing pagination fields", () => {
@@ -58,8 +58,8 @@ describe("Strapi Type Validation", () => {
         },
       };
 
-      const result = Schema.decodeUnknownEither(strapiMetaDataC)(invalidData);
-      expect(Either.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(strapiMetaDataC)(invalidData);
+      expect(Result.isFailure(result)).toBe(true);
     });
 
     it("rejects null values in required fields", () => {
@@ -74,8 +74,8 @@ describe("Strapi Type Validation", () => {
         },
       };
 
-      const result = Schema.decodeUnknownEither(strapiMetaDataC)(invalidData);
-      expect(Either.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(strapiMetaDataC)(invalidData);
+      expect(Result.isFailure(result)).toBe(true);
     });
   });
 
@@ -96,12 +96,12 @@ describe("Strapi Type Validation", () => {
         },
       };
 
-      const result = Schema.decodeUnknownEither(wrappedCodec)(validData);
+      const result = Schema.decodeUnknownResult(wrappedCodec)(validData);
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right.id).toBe(123);
-        expect(result.right.attributes.name).toBe("Test Item");
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success.id).toBe(123);
+        expect(result.success.attributes.name).toBe("Test Item");
       }
     });
 
@@ -119,8 +119,8 @@ describe("Strapi Type Validation", () => {
         },
       };
 
-      const result = Schema.decodeUnknownEither(wrappedCodec)(invalidData);
-      expect(Either.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(wrappedCodec)(invalidData);
+      expect(Result.isFailure(result)).toBe(true);
     });
 
     it("rejects invalid attributes structure", () => {
@@ -139,8 +139,8 @@ describe("Strapi Type Validation", () => {
         },
       };
 
-      const result = Schema.decodeUnknownEither(wrappedCodec)(invalidData);
-      expect(Either.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(wrappedCodec)(invalidData);
+      expect(Result.isFailure(result)).toBe(true);
     });
   });
 
@@ -161,14 +161,14 @@ describe("Strapi Type Validation", () => {
         },
       };
 
-      const result = Schema.decodeUnknownEither(dataCodec)(validData);
+      const result = Schema.decodeUnknownResult(dataCodec)(validData);
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right.data).not.toBeNull();
-        if (result.right.data) {
-          expect(result.right.data.id).toBe(1);
-          expect(result.right.data.attributes.title).toBe("Test Title");
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success.data).not.toBeNull();
+        if (result.success.data) {
+          expect(result.success.data.id).toBe(1);
+          expect(result.success.data.attributes.title).toBe("Test Title");
         }
       }
     });
@@ -184,11 +184,11 @@ describe("Strapi Type Validation", () => {
         data: null,
       };
 
-      const result = Schema.decodeUnknownEither(dataCodec)(validData);
+      const result = Schema.decodeUnknownResult(dataCodec)(validData);
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right.data).toBeNull();
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success.data).toBeNull();
       }
     });
 
@@ -208,8 +208,8 @@ describe("Strapi Type Validation", () => {
         },
       };
 
-      const result = Schema.decodeUnknownEither(dataCodec)(invalidData);
-      expect(Either.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(dataCodec)(invalidData);
+      expect(Result.isFailure(result)).toBe(true);
     });
   });
 
@@ -238,15 +238,15 @@ describe("Strapi Type Validation", () => {
         ],
       };
 
-      const result = Schema.decodeUnknownEither(arrayCodec)(validData);
+      const result = Schema.decodeUnknownResult(arrayCodec)(validData);
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right.data).not.toBeNull();
-        if (result.right.data && Array.isArray(result.right.data)) {
-          expect(result.right.data).toHaveLength(2);
-          expect(result.right.data[0].attributes.name).toBe("Item 1");
-          expect(result.right.data[1].attributes.name).toBe("Item 2");
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success.data).not.toBeNull();
+        if (result.success.data && Array.isArray(result.success.data)) {
+          expect(result.success.data).toHaveLength(2);
+          expect(result.success.data[0].attributes.name).toBe("Item 1");
+          expect(result.success.data[1].attributes.name).toBe("Item 2");
         }
       }
     });
@@ -262,13 +262,13 @@ describe("Strapi Type Validation", () => {
         data: [],
       };
 
-      const result = Schema.decodeUnknownEither(arrayCodec)(validData);
+      const result = Schema.decodeUnknownResult(arrayCodec)(validData);
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right.data).not.toBeNull();
-        if (result.right.data && Array.isArray(result.right.data)) {
-          expect(result.right.data).toHaveLength(0);
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success.data).not.toBeNull();
+        if (result.success.data && Array.isArray(result.success.data)) {
+          expect(result.success.data).toHaveLength(0);
         }
       }
     });
@@ -284,11 +284,11 @@ describe("Strapi Type Validation", () => {
         data: null,
       };
 
-      const result = Schema.decodeUnknownEither(arrayCodec)(validData);
+      const result = Schema.decodeUnknownResult(arrayCodec)(validData);
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right.data).toBeNull();
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success.data).toBeNull();
       }
     });
 
@@ -316,8 +316,8 @@ describe("Strapi Type Validation", () => {
         ],
       };
 
-      const result = Schema.decodeUnknownEither(arrayCodec)(invalidData);
-      expect(Either.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(arrayCodec)(invalidData);
+      expect(Result.isFailure(result)).toBe(true);
     });
   });
 
@@ -328,11 +328,11 @@ describe("Strapi Type Validation", () => {
         updatedAt: "2023-12-01T15:30:00.000Z",
       };
 
-      const result = Schema.decodeUnknownEither(strapiUpdatedC)(validData);
+      const result = Schema.decodeUnknownResult(strapiUpdatedC)(validData);
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right).toEqual(validData);
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success).toEqual(validData);
       }
     });
 
@@ -342,8 +342,8 @@ describe("Strapi Type Validation", () => {
         updatedAt: "2023-12-01T15:30:00.000Z",
       };
 
-      const result = Schema.decodeUnknownEither(strapiUpdatedC)(invalidData);
-      expect(Either.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(strapiUpdatedC)(invalidData);
+      expect(Result.isFailure(result)).toBe(true);
     });
 
     it("rejects missing timestamps", () => {
@@ -352,8 +352,8 @@ describe("Strapi Type Validation", () => {
         // missing updatedAt
       };
 
-      const result = Schema.decodeUnknownEither(strapiUpdatedC)(invalidData);
-      expect(Either.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(strapiUpdatedC)(invalidData);
+      expect(Result.isFailure(result)).toBe(true);
     });
   });
 
@@ -365,11 +365,11 @@ describe("Strapi Type Validation", () => {
         publishedAt: "2023-12-01T16:00:00.000Z",
       };
 
-      const result = Schema.decodeUnknownEither(strapiBaseC)(validData);
+      const result = Schema.decodeUnknownResult(strapiBaseC)(validData);
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right).toEqual(validData);
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success).toEqual(validData);
       }
     });
 
@@ -380,8 +380,8 @@ describe("Strapi Type Validation", () => {
         // missing publishedAt
       };
 
-      const result = Schema.decodeUnknownEither(strapiBaseC)(invalidData);
-      expect(Either.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(strapiBaseC)(invalidData);
+      expect(Result.isFailure(result)).toBe(true);
     });
 
     it("rejects non-string publishedAt field", () => {
@@ -391,8 +391,8 @@ describe("Strapi Type Validation", () => {
         publishedAt: null,
       };
 
-      const result = Schema.decodeUnknownEither(strapiBaseC)(invalidData);
-      expect(Either.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(strapiBaseC)(invalidData);
+      expect(Result.isFailure(result)).toBe(true);
     });
   });
 
@@ -407,21 +407,19 @@ describe("Strapi Type Validation", () => {
             total: Schema.Number,
           }),
         }),
-        data: Schema.Union(
+        data: Schema.Union([
           Schema.Null,
           Schema.Array(
             Schema.Struct({
               id: Schema.Number,
-              attributes: Schema.extend(
-                strapiBaseC,
-                Schema.Struct({
-                  title: Schema.String,
-                  active: Schema.Boolean,
-                }),
-              ),
+              attributes: Schema.Struct({
+                ...strapiBaseC.fields,
+                title: Schema.String,
+                active: Schema.Boolean,
+              }),
             }),
           ),
-        ),
+        ]),
       });
 
       const validData = {
@@ -447,8 +445,8 @@ describe("Strapi Type Validation", () => {
         ],
       };
 
-      const result = Schema.decodeUnknownEither(complexCodec)(validData);
-      expect(Either.isRight(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(complexCodec)(validData);
+      expect(Result.isSuccess(result)).toBe(true);
     });
 
     it("handles partial failures in complex structures", () => {
@@ -461,21 +459,19 @@ describe("Strapi Type Validation", () => {
             total: Schema.Number,
           }),
         }),
-        data: Schema.Union(
+        data: Schema.Union([
           Schema.Null,
           Schema.Array(
             Schema.Struct({
               id: Schema.Number,
-              attributes: Schema.extend(
-                strapiBaseC,
-                Schema.Struct({
-                  title: Schema.String,
-                  count: Schema.Number,
-                }),
-              ),
+              attributes: Schema.Struct({
+                ...strapiBaseC.fields,
+                title: Schema.String,
+                count: Schema.Number,
+              }),
             }),
           ),
-        ),
+        ]),
       });
 
       const invalidData = {
@@ -511,8 +507,8 @@ describe("Strapi Type Validation", () => {
         ],
       };
 
-      const result = Schema.decodeUnknownEither(complexCodec)(invalidData);
-      expect(Either.isLeft(result)).toBe(true);
+      const result = Schema.decodeUnknownResult(complexCodec)(invalidData);
+      expect(Result.isFailure(result)).toBe(true);
     });
   });
 });

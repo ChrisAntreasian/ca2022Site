@@ -11,7 +11,10 @@ import { mkKeyWDefault } from "#lib/file";
 import { strapiDataArrC, strapiMetaDataC } from "#lib/typing/strapi";
 import { artCategoryC } from "#lib/typing/art";
 
-const respC = Schema.extend(strapiMetaDataC, strapiDataArrC(artCategoryC));
+const respC = Schema.Struct({
+  ...strapiMetaDataC.fields,
+  ...strapiDataArrC(artCategoryC).fields,
+});
 type Resp = Schema.Schema.Type<typeof respC>;
 
 const q = qs.stringify({
