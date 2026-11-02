@@ -4,13 +4,20 @@ Branch: `sveltekit-migration-3x` · BASELINE = the newest `KIT3(...)` commit rep
 `git --no-pager log --oneline -8` (protocol step 1). Verified green points so far: `410fcb8` (env +
 adapters + scripts), `69c6ad3` (docs), `5dcb9a3` (facts), `fc50b42` (item 4), `6baa13c` (item 6 + item 8
 part 1), `509a8d1` (item 8 parts 2a + 2b), `4b973ce` (item 5 - the whole test suite is now type-checked:
-`tsc` 83 -> 0 and `svelte-check` 94 -> 0, 409/409 tests green) and the newest `KIT3(item-9)` commit (lint
-toolchain repaired - `git --no-pager log --oneline -1` names it). Items 0-9 are CLOSED; item 10 is the
-defined next step.
-Installed: `@sveltejs/kit@3.1.x`, `vite@8.3.5` (beta/rolldown), `svelte@5.57`, `vitest@5`,
-`@sveltejs/adapter-vercel@7.0.2`, `@sveltejs/adapter-auto@8.0.0` (devDependencies),
-`@sveltejs/vite-plugin-svelte@7.3.1`, `typescript@5.9.2` (kit's `typescript ^6` peer is OPTIONAL - do not
-bump TS as a side effect; it is its own gated step)
+`tsc` 83 -> 0 and `svelte-check` 94 -> 0, 409/409 tests green), the `KIT3(item-9)` commit (lint toolchain
+repaired), then `50581c5` (item 11 - hygiene), `b6fcbaa` (item 12 - kit core chain), `7fa13c6` (item 13 -
+ESLint 10), `b7a6131` (item 14 - prettier-plugin-svelte 4) and `b4cba38` (item 15 - test/DOM/runtime chain).
+**Items 0-9 and 11-15 are CLOSED; item 10 is CLOSED as a phantom** (its "43 of 48 `.svelte` files must be
+reformatted" premise does not reproduce - see item 14). Remaining open work on this branch: the `effect`
+v3 -> v4 source migration (the ONLY leftover dependency step, and it is what unblocks the TypeScript major),
+the Playwright `testMatch`/`webServer` config item, and item 2's Windows symlink EPERM on `npm run build`.
+Installed (re-measured 2026-11-01): `@sveltejs/kit@3.1.1`, `vite@8.3.5` (beta/rolldown), `svelte@5.57.3`,
+`vitest@5.0.5`, `@sveltejs/adapter-vercel@7.0.2` + `@sveltejs/adapter-auto@8.0.0` (devDependencies),
+`@sveltejs/vite-plugin-svelte@7.3.1`, `eslint@10.14.0` + `@eslint/js@10.0.1` + `typescript-eslint@8.72.1` +
+`globals@17.14.0`, `prettier@3.9.10` + `prettier-plugin-svelte@4.1.1`, `effect@3.22.4` and
+`typescript@5.9.3` **pinned deliberately** - kit's `typescript ^6` peer is left unmet on purpose because TS
+6+ breaks effect-3 `Schema` inference, so the TS major belongs to the effect-4 item and must never be
+bumped as a side effect
 
 ## Protocol (read this first on every new session)
 
@@ -29,7 +36,7 @@ bump TS as a side effect; it is its own gated step)
 4. After each item: commit with prefix `KIT3(item-n):`. One item = one commit = revertible.
 5. Update this file (Status table / checkboxes) as the LAST action of the item, before committing.
 
-## Current measurements (2026-10-31, re-measured after item 9)
+## Measurements after item 9 (2026-10-31 - superseded by the 2026-11-01 table at the foot of this file)
 
 | Measurement                                         | Result                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -265,7 +272,7 @@ For the "zzzNotARealRolldownOption". Invalid key: Expected never but received "z
       `src/env.ts` and `scripts/check-mojibake.mjs` were prettier-written but git recorded them
       byte-identical (eol churn only). `src` holds 48 `.svelte` files and `test` holds none, so the
       43-unformatted figure above is the whole component surface.
-- [ ] 10. **Prettier-format the `.svelte` components (NOT STARTED - needs a user decision)**. Prettier 3 no
+- [x] 10. **Prettier-format the `.svelte` components (CLOSED WITHOUT A REFORMAT - superseded; see item 14)**. Prettier 3 no
       longer auto-loads plugins and this repo never declares any, so prettier parses ZERO `.svelte` files
       (forcing one prints `[error] No parser could be inferred for file ...`). Declaring the plugin that is
       already installed (`prettier-plugin-svelte@3.5.2`) via `.prettierrc { "plugins": [...] }` immediately
@@ -275,6 +282,47 @@ For the "zzzNotARealRolldownOption". Invalid key: Expected never but received "z
       Its gate when taken on: `npm run test:unit` (real components are rendered by `test/lib/Gallary/Gallery.test.ts`
       and `test/lib/Article/Article.test.ts`), `npm run check`, `npx tsc --noEmit`, and item 7's
       dev + preview 200/200/404 smoke.
+- [x] 11. **Hygiene (DONE)**: `svelte-preprocess` removed from `devDependencies` - `git grep` found zero
+      references, no config declares `preprocess` options, and `src/**/*.svelte` contains no `lang="..."`
+      script/style blocks to need it. The scratch `effect-4.1.1.tgz` an earlier session had downloaded into
+      the repo root was deleted. Gates unchanged green; nothing else touched.
+- [x] 12. **Kit core chain (DONE)**: `@sveltejs/kit 3.1.1`, `svelte 5.57.3`, `svelte-check 4.7.8`,
+      `typescript-eslint 8.72.1`, `effect 3.22.4`. **`typescript` stays at 5.9.3 on purpose**: Kit 3 declares
+      `typescript ^6.0.0` and TS 6.0.3 compiles this app fine, but it breaks `effect@3` Schema inference -
+      `npx tsc --noEmit` grew 14 real errors in `src/lib/editing/**`, byte-identical on `effect` 3.17.14 and
+      3.22.4, so 5.9.3 is the load-bearing pin and `npm ls` marks the Kit peer `invalid` (accepted: installs
+      are `--legacy-peer-deps`). Gate: tsc 0, check 0/0, eslint 0, prettier clean, 42/409.
+- [x] 13. **ESLint 10 (DONE)**: `eslint 10.14.0`, `@eslint/js 10.0.1`, `globals 17.14.0`. The
+      `typescript-eslint` 8.72.1 line already declares `eslint ^10.0.0`, and its parser peer
+      `typescript >=4.8.4 <6.1.0` keeps 5.9.3 valid. The only fallout was core `no-useless-assignment` newly
+      in `recommended`, which flagged 4 TRUE dead stores that got fixed rather than overridden: the
+      `savedValue = toWebExperienceEditorValue(saved)` re-derivation in
+      `src/routes/web-experience/edit/[...wid]/+page.server.ts` (the action closes with
+      `throw redirect(303, ...)` and nothing reads `savedValue` after line 177 - the binding is now `const`),
+      plus 3 dead initializers in `test/lib/article-logic.test.ts` now asserted as the pre-state instead of
+      silently overwritten.
+- [x] 14. **prettier-plugin-svelte 4 (DONE - and it closes item 10 as a phantom)**: 3.5.2 -> 4.1.1. Item
+      10's premise ("declaring the plugin makes 43 of 48 `.svelte` files red") does **not** reproduce. Two
+      measurements: (a) at item 13 the repo ran prettier 3.9.10 with plugin 3.5.2 in `node_modules` and the
+      `plugins` entry item 9 added to `.prettierrc`, and `npx prettier --check .` was **green across all 48
+      `src/**/*.svelte` files**; (b) an isolated copy of `src/**/*.svelte` + `.prettierrc` into
+      `%TEMP%` with a fresh `prettier@3.9.10 + prettier-plugin-svelte@3.5.2` install also flagged **exactly
+      1** file. The whole "43 files need a markup review" fear is stale. What the bump actually changed is
+      one formatting disagreement: plugin 4 joins `></textarea>` onto the last attribute line where 3.5.2
+      keeps the tag on its own line, so `src/lib/form/MarkdownEditor.svelte` needed 2 hunks (no poem/art
+      markup reflowed) and the tree now matches 4.1.1. Plugin 3.5.2 declares peer `svelte ^4.2.7` - unmet
+      under svelte 5 - while 4.1.1 declares `svelte ^5.0.0`, so this bump is **required** by the Kit3/Svelte-5
+      line, not cosmetic. `src` holds 48 `.svelte` files (22 in `src/lib`), `test` holds none.
+- [x] 15. **Test / DOM / runtime chain (DONE)**: `@testing-library/jest-dom 7.0.1`,
+      `@playwright/test 1.64.1`, `happy-dom 21.0.4`, `jsdom 30.1.3`, `@types/node 26.6.6`, `qs 6.17.1`,
+      `tslib 2.9.1`. `jsdom` is dead weight the way tests are configured (`vitest.config.ts`
+      `environment: "happy-dom"`, and zero `@vitest-environment` docblocks in `test/**`) - it is bumped for
+      tidiness, not because anything consumes it. Gate: 42 files / 409 tests, `tsc` 0, `check` 0/0.
+      **Windows trap hit during this item**: an `npm install` pruned and rewrote
+      `node_modules/$app/tsconfig.json` in a stale form, and `npx tsc --noEmit` exploded to 32 errors
+      (`TS1343 import.meta` x many, `TS2307 aws-sdk`, `TS1192`) even though the shim file _existed_;
+      `npx svelte-kit sync` fixed all 32 in one go, and `npm run check` was green throughout because it runs
+      `svelte-kit sync` first. Always re-run `svelte-kit sync` before judging `tsc` after an install.
 
 ## Hard-won facts (do not re-derive these)
 
@@ -384,3 +432,52 @@ w/crlf attr/` for dozens of files, zero `i/crlf`). Caveat: `git diff --stat` swa
 - ESLint 9 dropped the `compact` formatter from core ("The compact formatter is no longer part of core
   ESLint"), and `git diff HEAD@{1}` must be single-quoted in PowerShell because `@{...}` is splat syntax -
   unquoted it becomes the revision `HEAD@`.
+
+## Current measurements (2026-11-01, after items 11-15 - THE LIVE TABLE)
+
+| Measurement                                         | Result                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npx svelte-kit sync`                               | Zero warnings. **Must be re-run after every `npm install`** - see the item-15 fact below.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `npx tsc --noEmit -p tsconfig.json`                 | **0 errors** (it reads `node_modules/$app/tsconfig.json`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `npm run check`                                     | **0 errors, 0 warnings**.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `npm run lint` (= `prettier --check . && eslint .`) | Green end to end. prettier now really parses all 48 `src/**/*.svelte` components (plugin 4.1.1) and they are canonical; `eslint .` = 0 problems on ESLint 10.                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `npm run test:unit`                                 | **42 files / 409 tests** passed, 10.36 s.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `vite dev` smoke (re-measured 2026-11-01)           | `VITE v8.3.5 ready in 2393 ms`; `/` 200 (71 350 B), `/poems` 200 (102 224 B), `/no-such-route` 404.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `npm run check:encoding`                            | Green (`no known corruption patterns found in live src/data JSON files`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `npm outdated` (2026-11-01)                         | **Two entries left, both declared majors this migration refuses**: `effect 3.22.4 -> 4.1.1` (v4 is an API rewrite of the `Schema` surface the whole editing layer is built on) and `typescript 5.9.3 -> 7.0.2` (v6 breaks effect-3 inference, see item 12). Everything else wants = latest, including the exact-pinned `aws-sdk 2.1693.0`, `mixpanel-browser 2.84.0`, `@testing-library/svelte 5.4.2`, `@testing-library/user-event 14.6.8`, `@types/qs 6.15.1`, `save 2.9.0`, `@fontsource/fira-mono 5.3.0`, `hamburgers 1.2.1`.                                                             |
+| `npm test` (Playwright e2e)                         | **Not a working gate in this repo, and it never was** - pre-existing, not caused by the 1.55 -> 1.64 bump. `playwright.config.ts` declares no `testMatch`/`testIgnore`, so Playwright globs `test/**` and loads Vitest files (`Vitest mocker was not initialized in this environment. vi.queueMock() is forbidden` at `test/lib/analytics-simple.test.ts:4`), while `test/` contains **0 `.spec.ts`** files (only `lib/` + `routes/`). Its `webServer.command` is `npm run build && npm run preview`, and `npm run build` is still the adapter-vercel Windows symlink EPERM blocker (item 2). |
+| Working tree                                        | Clean after each item commit; no scratch files (the `%TEMP%` prettier probe was deleted too).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+
+## Hard-won facts added by items 11-15 (2026-11-01)
+
+- **`npx svelte-kit sync` after every install, before judging `tsc`.** During item 15 an `npm install` left
+  `node_modules/$app/tsconfig.json` present-but-stale, and `npx tsc --noEmit` threw a **32-error wall**
+  (`TS1343` "import.meta is only allowed when --module is es2020+", `TS2307` cannot find `aws-sdk`, `TS1192`)
+  that looked like package damage and was pure tsconfig staleness. `npm run check` stayed green the whole
+  time because its script is `svelte-kit sync && svelte-check`. `"postinstall": "svelte-kit sync"` IS wired
+  into `package.json` and it still did not prevent this. One command clears it: `npx svelte-kit sync`.
+  Never debug tsconfig/imports/sdk typings out of that symptom.
+- Kit 3 wants `typescript ^6.0.0`; `npm ls` prints `typescript@5.9.3 deduped invalid: "^6.0.0" from
+node_modules/@sveltejs/kit` - permanent, accepted noise. TS 6.0.3 gives 14 genuine `tsc` errors in
+  `src/lib/editing/**` `Schema` inference, identical on effect 3.17.14 and 3.22.4, and TS 7.0.2 is now the
+  registry latest, so **5.9.3 stays pinned until `effect` v3 -> v4 is migrated as its own item**. That
+  migration is the only remaining dependency work on this branch.
+- `prettier-plugin-svelte@3.5.2` declares peer `svelte ^4.2.7`; `4.1.1` declares `prettier ^3.0.0`,
+  `svelte ^5.0.0`, node `>=20`. Under svelte 5, only 4.1.1 is the honest pairing. The two versions disagree
+  about markup closing tags: **3.5.2 wants the `>` of `></textarea>` on its own line, 4.1.1 joins it to the
+  end of the last attribute line**. The repo now follows 4.1.1, so do not "restore" the 3.x shape - it would
+  redden `npx prettier --check .` again.
+- Isolated prettier probe recipe: new `%TEMP%` dir, `robocopy src <temp>\src *.svelte /S` (**PowerShell
+  `Copy-Item -Recurse -Filter` flattens the directory tree and cannot create it**), copy `.prettierrc`,
+  `npm i --no-save prettier@3.9.10 prettier-plugin-svelte@3.5.2 svelte@5.57.3`, then
+  `node_modules\.bin\prettier.CMD "src/**/*.svelte" --check`. Gotcha: materialising a git blob with
+  `git show ... | Out-File -Encoding utf8` (Windows PowerShell 5.1) writes a **BOM** and rewrites LF to CRLF,
+  which can produce false prettier warnings - use `Start-Process -RedirectStandardOutput` to write raw bytes.
+- Playwright in this repo has never had a green baseline: `playwright.config.ts` sets no `testMatch` /
+  `testIgnore`, so it globs `test/**` and tries to run **Vitest** files through its own runner, and `test/`
+  has no `.spec.ts` files at all. Fixing the e2e gate is a config item (give Playwright its own
+  `testMatch` for `*.spec.ts` under a new `e2e/` folder, and a `webServer` that does not need the
+  symlink-blocked `npm run build`), not a version-bump item.
+- ESLint 10 core `no-useless-assignment` lands inside `recommended`, so upgrading ESLint silently adds
+  findings on code that linted clean before. Treat them as real dead code and fix the code (that is what
+  item 13 did), do not switch the rule off.
