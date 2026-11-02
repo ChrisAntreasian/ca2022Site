@@ -53,8 +53,7 @@
         {rows}
         aria-describedby={error ? `${id}-error` : undefined}
         class="form-control form-control--textarea"
-        class:form-control--error={!!error}
-      ></textarea>
+        class:form-control--error={!!error}></textarea>
     {:else}
       <textarea
         bind:value
@@ -65,8 +64,7 @@
         {rows}
         class="sr-only-submit"
         tabindex="-1"
-        aria-hidden="true"
-      ></textarea>
+        aria-hidden="true"></textarea>
       <div class="preview">
         <div class="preview-head">Preview</div>
         <div class="preview-body">
