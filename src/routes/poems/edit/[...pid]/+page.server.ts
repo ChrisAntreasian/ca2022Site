@@ -1,5 +1,5 @@
 import { error, fail, redirect } from "@sveltejs/kit";
-import { Either, Schema } from "effect";
+import { Result, Schema } from "effect";
 
 import {
   isEditorEnabled,
@@ -78,11 +78,11 @@ export const actions: Actions = {
     const formData = await request.formData();
     const candidate = parsePoemForm(formData);
     const redirectTo = getFormDataString(formData, "redirectTo").trim();
-    const decoded = Schema.decodeUnknownEither(poemEditorDefinition.schema)(
+    const decoded = Schema.decodeUnknownResult(poemEditorDefinition.schema)(
       candidate,
     );
 
-    if (Either.isLeft(decoded)) {
+    if (Result.isFailure(decoded)) {
       return fail(400, {
         action: "save",
         message: "Please provide a title, body, and numeric sort order.",
@@ -90,19 +90,15 @@ export const actions: Actions = {
       });
     }
 
-    const file = await savePoemEditorValue(decoded.right);
+    const poem = decoded.success;
+    const file = await savePoemEditorValue(poem);
     const savedItems = file.data.data ?? [];
     const savedId =
-      decoded.right.id > 0
-        ? decoded.right.id
-        : Math.max(...savedItems.map((item) => item.id));
+      poem.id > 0 ? poem.id : Math.max(...savedItems.map((item) => item.id));
     const savedItem = savedItems.find((item) => item.id === savedId);
     const destination =
       redirectTo ||
-      poemEditorPath(
-        savedId,
-        savedItem?.attributes.title ?? decoded.right.title,
-      );
+      poemEditorPath(savedId, savedItem?.attributes.title ?? poem.title);
 
     throw redirect(303, `${destination}?saved=1`);
   },

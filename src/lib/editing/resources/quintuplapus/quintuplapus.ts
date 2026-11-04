@@ -5,12 +5,10 @@ import { strapiMetaDataC, withIdC } from "#lib/typing/strapi";
 
 import type { EditorDefinition } from "../../core/definitions";
 
-export const quintuplapusDataC = Schema.extend(
-  strapiMetaDataC,
-  Schema.Struct({
-    data: Schema.Array(withIdC(artCategoryC)),
-  }),
-);
+export const quintuplapusDataC = Schema.Struct({
+  ...strapiMetaDataC.fields,
+  data: Schema.Array(withIdC(artCategoryC)),
+});
 
 export type QuintuplapusData = Schema.Schema.Type<typeof quintuplapusDataC>;
 
@@ -20,15 +18,12 @@ export type QuintuplapusFile = {
   data: QuintuplapusData;
 };
 
-export const quintuplapusFileC: Schema.Schema<
-  QuintuplapusFile,
-  QuintuplapusFile,
-  never
-> = Schema.Struct({
-  name: Schema.String,
-  timestamp: Schema.Number,
-  data: quintuplapusDataC,
-});
+export const quintuplapusFileC: Schema.Codec<QuintuplapusFile, unknown> =
+  Schema.Struct({
+    name: Schema.String,
+    timestamp: Schema.Number,
+    data: quintuplapusDataC,
+  });
 
 export const quintuplapusEditorEntryC = Schema.Struct({
   id: Schema.Number,
@@ -57,11 +52,7 @@ export type QuintuplapusEditorValue = Schema.Schema.Type<
 export const quintuplapusEditorDefinition = {
   key: "the-quintuplapus",
   label: "The Quintuplapus",
-  schema: quintuplapusEditorValueC as Schema.Schema<
-    QuintuplapusEditorValue,
-    unknown,
-    never
-  >,
+  schema: quintuplapusEditorValueC,
   fields: [
     {
       name: "categoryTitle",

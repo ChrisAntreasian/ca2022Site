@@ -17,24 +17,17 @@ export type TermsOfServiceFile = {
   data: TermsOfServiceEditorValue;
 };
 
-export const termsOfServiceFileC: Schema.Schema<
-  TermsOfServiceFile,
-  TermsOfServiceFile,
-  never
-> = Schema.Struct({
-  name: Schema.String,
-  timestamp: Schema.Number,
-  data: termsOfServiceEditorValueC,
-});
+export const termsOfServiceFileC: Schema.Codec<TermsOfServiceFile, unknown> =
+  Schema.Struct({
+    name: Schema.String,
+    timestamp: Schema.Number,
+    data: termsOfServiceEditorValueC,
+  });
 
 export const termsOfServiceEditorDefinition = {
   key: "terms-of-service",
   label: "Terms of Service",
-  schema: termsOfServiceEditorValueC as Schema.Schema<
-    TermsOfServiceEditorValue,
-    unknown,
-    never
-  >,
+  schema: termsOfServiceEditorValueC,
   fields: [
     {
       name: "title",

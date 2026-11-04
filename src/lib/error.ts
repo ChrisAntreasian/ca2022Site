@@ -1,8 +1,8 @@
 import { error, type HttpError } from "@sveltejs/kit";
-import { Effect, Either } from "effect";
+import { Effect, Result } from "effect";
 
 export type HttpErrTE<A> = Effect.Effect<A, HttpError>;
-export type HttpErrE<A> = Either.Either<A, HttpError>;
+export type HttpErrE<A> = Result.Result<A, HttpError>;
 
 export const throwErrIO = (e: HttpError) => {
   throw e;

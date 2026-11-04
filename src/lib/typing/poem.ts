@@ -1,21 +1,19 @@
 import { Schema } from "effect";
 import { strapiBaseC, withIdC } from "./strapi";
 
-export const poemC = Schema.extend(
-  strapiBaseC,
-  Schema.Struct({
-    title: Schema.String,
-    body: Schema.String,
-    featured: Schema.Boolean,
-    position: Schema.Number,
-  }),
-);
+export const poemC = Schema.Struct({
+  ...strapiBaseC.fields,
+  title: Schema.String,
+  body: Schema.String,
+  featured: Schema.Boolean,
+  position: Schema.Number,
+});
 
 export const strapiPoemC = Schema.Struct({
-  data: Schema.Union(
+  data: Schema.Union([
     Schema.Array(withIdC(poemC)),
     Schema.NullOr(Schema.Array(withIdC(poemC))),
-  ),
+  ]),
   meta: Schema.Struct({
     pagination: Schema.Struct({
       page: Schema.Number,

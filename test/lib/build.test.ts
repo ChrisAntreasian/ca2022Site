@@ -22,7 +22,7 @@ Object.defineProperty(globalThis, "import", {
   },
 });
 
-import { Effect, Either } from "effect";
+import { Effect, Result } from "effect";
 import type { HttpError } from "@sveltejs/kit";
 
 import { buildRes, combineResp, writeFile } from "../../src/lib/build";
@@ -40,11 +40,11 @@ describe("Build Utilities", () => {
         { key3: "value3" },
       ]);
 
-      const result = await Effect.runPromise(Effect.either(combineResp(input)));
+      const result = await Effect.runPromise(Effect.result(combineResp(input)));
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right).toEqual({
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success).toEqual({
           key1: "value1",
           key2: "value2",
           key3: "value3",
@@ -55,11 +55,11 @@ describe("Build Utilities", () => {
     it("handles empty array", async () => {
       const input = Effect.succeed([]);
 
-      const result = await Effect.runPromise(Effect.either(combineResp(input)));
+      const result = await Effect.runPromise(Effect.result(combineResp(input)));
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right).toEqual({});
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success).toEqual({});
       }
     });
 
@@ -69,11 +69,11 @@ describe("Build Utilities", () => {
         { key2: "second", shared: "overwritten" },
       ]);
 
-      const result = await Effect.runPromise(Effect.either(combineResp(input)));
+      const result = await Effect.runPromise(Effect.result(combineResp(input)));
 
-      expect(Either.isRight(result)).toBe(true);
-      if (Either.isRight(result)) {
-        expect(result.right).toEqual({
+      expect(Result.isSuccess(result)).toBe(true);
+      if (Result.isSuccess(result)) {
+        expect(result.success).toEqual({
           key1: "first",
           key2: "second",
           shared: "overwritten",
@@ -81,15 +81,15 @@ describe("Build Utilities", () => {
       }
     });
 
-    it("propagates errors from TaskEither input", async () => {
+    it("propagates errors from a failing Effect input", async () => {
       const error = { status: 500, body: { message: "Test error" } } as const;
       const input = Effect.fail(error as unknown as HttpError);
 
-      const result = await Effect.runPromise(Effect.either(combineResp(input)));
+      const result = await Effect.runPromise(Effect.result(combineResp(input)));
 
-      expect(Either.isLeft(result)).toBe(true);
-      if (Either.isLeft(result)) {
-        expect(result.left).toBe(error);
+      expect(Result.isFailure(result)).toBe(true);
+      if (Result.isFailure(result)) {
+        expect(result.failure).toBe(error);
       }
     });
   });
@@ -100,7 +100,7 @@ describe("Build Utilities", () => {
 
       const writeFileFn = writeFile(buildKey);
 
-      // The function should be a TaskEither chain operation
+      // The function should be a chainable Effect operation
       expect(typeof writeFileFn).toBe("function");
     });
   });

@@ -19,17 +19,16 @@ export type PoemsFile = {
   data: StrapiPoem;
 };
 
-export const poemsFileC: Schema.Schema<PoemsFile, PoemsFile, never> =
-  Schema.Struct({
-    name: Schema.String,
-    timestamp: Schema.Number,
-    data: strapiPoemC,
-  });
+export const poemsFileC: Schema.Codec<PoemsFile, unknown> = Schema.Struct({
+  name: Schema.String,
+  timestamp: Schema.Number,
+  data: strapiPoemC,
+});
 
 export const poemEditorDefinition = {
   key: "poems",
   label: "Poems",
-  schema: poemEditorValueC as Schema.Schema<PoemEditorValue, unknown, never>,
+  schema: poemEditorValueC,
   fields: [
     {
       name: "title",

@@ -13,17 +13,18 @@ const baseApi = import.meta.env.VITE_BASE_API;
 const toJSON = async (res: Response) => await res.json();
 
 const decode = <A>(
-  schema: Schema.Schema<A, A>,
+  schema: Schema.Codec<A, unknown>,
 ): ((res: unknown) => Effect.Effect<A, HttpError>) =>
   flow(
-    Schema.decodeUnknown(schema),
+    Schema.decodeUnknownResult(schema),
+    Effect.fromResult,
     Effect.mapError(
       () => error(500, "Data Did Not Match The Schema") as HttpError,
     ),
   );
 
 const parseResponse =
-  <A>(schema: Schema.Schema<A, A>) =>
+  <A>(schema: Schema.Codec<A, unknown>) =>
   (resource: string) =>
     pipe(
       Effect.tryPromise({
@@ -46,7 +47,7 @@ const parseResponse =
       Effect.flatMap(decode(schema)),
     );
 
-export const getNoOpts = <A>(schema: Schema.Schema<A, A>) =>
+export const getNoOpts = <A>(schema: Schema.Codec<A, unknown>) =>
   parseResponse(schema);
 
 export const queryStr = (p: QueryProps) =>

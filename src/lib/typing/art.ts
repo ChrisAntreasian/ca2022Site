@@ -13,28 +13,26 @@ const imageBaseC = Schema.Struct({
   path: Schema.NullOr(Schema.String),
 });
 
-const imageAttrsC = Schema.extend(
-  strapiUpdatedC,
-  Schema.Struct({
-    alternativeText: Schema.String,
-    caption: Schema.String,
-    provider: Schema.String,
-    provider_metadata: Schema.Any,
-    previewUrl: Schema.NullOr(Schema.String),
-    url: Schema.String,
-    formats: Schema.Union(
-      Schema.Null,
-      Schema.Struct({}),
-      Schema.Struct({
-        small: imageBaseC,
-        medium: Schema.optional(imageBaseC),
-        thumbnail: imageBaseC,
-      }),
-    ),
-  }),
-);
+const imageAttrsC = Schema.Struct({
+  ...strapiUpdatedC.fields,
+  alternativeText: Schema.String,
+  caption: Schema.String,
+  provider: Schema.String,
+  provider_metadata: Schema.Any,
+  previewUrl: Schema.NullOr(Schema.String),
+  url: Schema.String,
+  formats: Schema.Union([
+    Schema.Null,
+    Schema.Struct({}),
+    Schema.Struct({
+      small: imageBaseC,
+      medium: Schema.optional(imageBaseC),
+      thumbnail: imageBaseC,
+    }),
+  ]),
+});
 
-export const imageC = Schema.Union(imageBaseC, imageAttrsC);
+export const imageC = Schema.Union([imageBaseC, imageAttrsC]);
 
 export const strapiImageDataC = Schema.Struct({
   data: Schema.NullOr(withIdC(imageAttrsC)),
@@ -42,32 +40,26 @@ export const strapiImageDataC = Schema.Struct({
 
 export type StrapiImageData = Schema.Schema.Type<typeof strapiImageDataC>;
 
-export const artBaseC = Schema.extend(
-  strapiBaseC,
-  Schema.Struct({
-    description: Schema.String,
-    order: Schema.Number,
-    image: strapiImageDataC,
-  }),
-);
+export const artBaseC = Schema.Struct({
+  ...strapiBaseC.fields,
+  description: Schema.String,
+  order: Schema.Number,
+  image: strapiImageDataC,
+});
 
-export const artC = Schema.extend(
-  artBaseC,
-  Schema.Struct({
-    title: Schema.String,
-    createdDate: Schema.String,
-    medium: Schema.String,
-  }),
-);
+export const artC = Schema.Struct({
+  ...artBaseC.fields,
+  title: Schema.String,
+  createdDate: Schema.String,
+  medium: Schema.String,
+});
 
 export const artWithIdC = withIdC(artC);
 export type ArtWithId = Schema.Schema.Type<typeof artWithIdC>;
 
-export const artCategoryC = Schema.extend(
-  strapiBaseC,
-  Schema.Struct({
-    title: Schema.String,
-    art_pieces: Schema.optional(strapiDataArrC(artC)),
-    omit: Schema.optional(strapiDataArrC(Schema.Null)),
-  }),
-);
+export const artCategoryC = Schema.Struct({
+  ...strapiBaseC.fields,
+  title: Schema.String,
+  art_pieces: Schema.optional(strapiDataArrC(artC)),
+  omit: Schema.optional(strapiDataArrC(Schema.Null)),
+});

@@ -114,15 +114,13 @@ describe("poems edit page server", () => {
         ...actual,
         Schema: {
           ...actual.Schema,
-          decodeUnknownEither: () => () => ({
-            _tag: "Right",
-            right: {
+          decodeUnknownResult: () => () =>
+            actual.Result.succeed({
               id: 4,
               title: "The Carpal Tunnel",
               bodyMarkdown: "Tunnel body",
               sortOrder: 20,
-            },
-          }),
+            }),
         },
       };
     });
@@ -190,15 +188,13 @@ describe("poems edit page server", () => {
         ...actual,
         Schema: {
           ...actual.Schema,
-          decodeUnknownEither: () => () => ({
-            _tag: "Right",
-            right: {
+          decodeUnknownResult: () => () =>
+            actual.Result.succeed({
               id: 4,
               title: "The Carpal Tunnel",
               bodyMarkdown: "Tunnel body",
               sortOrder: 20,
-            },
-          }),
+            }),
         },
       };
     });

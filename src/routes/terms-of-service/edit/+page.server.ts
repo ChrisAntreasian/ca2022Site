@@ -1,5 +1,5 @@
 import { fail, redirect } from "@sveltejs/kit";
-import { Either, Schema } from "effect";
+import { Result, Schema } from "effect";
 
 import {
   isEditorEnabled,
@@ -55,12 +55,12 @@ export const actions: Actions = {
 
     const formData = await request.formData();
     const candidate = parseTermsOfServiceForm(formData);
-    const decoded = Schema.decodeUnknownEither(
+    const decoded = Schema.decodeUnknownResult(
       termsOfServiceEditorDefinition.schema,
     )(candidate);
 
     if (
-      Either.isLeft(decoded) ||
+      Result.isFailure(decoded) ||
       !candidate.title.trim() ||
       !candidate.bodyMarkdown.trim()
     ) {
@@ -71,7 +71,7 @@ export const actions: Actions = {
       });
     }
 
-    await saveTermsOfServiceEditorValue(decoded.right);
+    await saveTermsOfServiceEditorValue(decoded.success);
 
     throw redirect(303, `${termsOfServiceEditorPath()}?saved=1`);
   },

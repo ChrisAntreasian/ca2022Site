@@ -74,24 +74,17 @@ export type WebExperienceTarget =
       imagePreviews?: ReadonlyArray<WebExperienceImagePreview>;
     };
 
-export const webExperienceFileC: Schema.Schema<
-  WebExperienceFile,
-  WebExperienceFile,
-  never
-> = Schema.Struct({
-  name: Schema.String,
-  timestamp: Schema.Number,
-  data: pageResC,
-});
+export const webExperienceFileC: Schema.Codec<WebExperienceFile, unknown> =
+  Schema.Struct({
+    name: Schema.String,
+    timestamp: Schema.Number,
+    data: pageResC,
+  });
 
 export const webExperienceEditorDefinition = {
   key: "web-experience",
   label: "Web Experience",
-  schema: webExperienceEditorValueC as Schema.Schema<
-    WebExperienceEditorValue,
-    unknown,
-    never
-  >,
+  schema: webExperienceEditorValueC,
   fields: [
     { name: "pageTitle", label: "Page Title", kind: "text", required: true },
     { name: "introTitle", label: "Intro Title", kind: "text", required: true },

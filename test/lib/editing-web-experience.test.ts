@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Either, Schema } from "effect";
+import { Result, Schema } from "effect";
 
 import { imageC } from "#lib/typing/art";
 
@@ -149,9 +149,9 @@ describe("web experience editor adapter", () => {
   };
 
   it("validates the web experience file wrapper", () => {
-    const result = Schema.decodeEither(webExperienceFileC)(baseFile);
+    const result = Schema.decodeResult(webExperienceFileC)(baseFile);
 
-    expect(Either.isRight(result)).toBe(true);
+    expect(Result.isSuccess(result)).toBe(true);
   });
 
   it("maps the file into canonical editor values", () => {

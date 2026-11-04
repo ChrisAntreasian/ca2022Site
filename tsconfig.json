@@ -3,6 +3,7 @@
   "include": ["src", "test", "*"],
   "exclude": ["src/service-worker"],
   "compilerOptions": {
+    "strict": false,
     "allowJs": false,
     "checkJs": false,
     "resolveJsonModule": true,

@@ -1,23 +1,29 @@
 # SvelteKit 2 -> 3 migration checklist
 
-Branch: `sveltekit-migration-3x` · BASELINE = the newest `KIT3(...)` commit reported by
+Branch: `kit3-effect4` (the live branch; it continues `sveltekit-migration-3x` at `6145476`) · BASELINE = the newest `KIT3(...)` commit reported by
 `git --no-pager log --oneline -8` (protocol step 1). Verified green points so far: `410fcb8` (env +
 adapters + scripts), `69c6ad3` (docs), `5dcb9a3` (facts), `fc50b42` (item 4), `6baa13c` (item 6 + item 8
 part 1), `509a8d1` (item 8 parts 2a + 2b), `4b973ce` (item 5 - the whole test suite is now type-checked:
 `tsc` 83 -> 0 and `svelte-check` 94 -> 0, 409/409 tests green), the `KIT3(item-9)` commit (lint toolchain
 repaired), then `50581c5` (item 11 - hygiene), `b6fcbaa` (item 12 - kit core chain), `7fa13c6` (item 13 -
-ESLint 10), `b7a6131` (item 14 - prettier-plugin-svelte 4) and `b4cba38` (item 15 - test/DOM/runtime chain).
-**Items 0-9 and 11-15 are CLOSED; item 10 is CLOSED as a phantom** (its "43 of 48 `.svelte` files must be
-reformatted" premise does not reproduce - see item 14). Remaining open work on this branch: the `effect`
-v3 -> v4 source migration (the ONLY leftover dependency step, and it is what unblocks the TypeScript major),
-the Playwright `testMatch`/`webServer` config item, and item 2's Windows symlink EPERM on `npm run build`.
-Installed (re-measured 2026-11-01): `@sveltejs/kit@3.1.1`, `vite@8.3.5` (beta/rolldown), `svelte@5.57.3`,
-`vitest@5.0.5`, `@sveltejs/adapter-vercel@7.0.2` + `@sveltejs/adapter-auto@8.0.0` (devDependencies),
-`@sveltejs/vite-plugin-svelte@7.3.1`, `eslint@10.14.0` + `@eslint/js@10.0.1` + `typescript-eslint@8.72.1` +
-`globals@17.14.0`, `prettier@3.9.10` + `prettier-plugin-svelte@4.1.1`, `effect@3.22.4` and
-`typescript@5.9.3` **pinned deliberately** - kit's `typescript ^6` peer is left unmet on purpose because TS
-6+ breaks effect-3 `Schema` inference, so the TS major belongs to the effect-4 item and must never be
-bumped as a side effect
+ESLint 10), `b7a6131` (item 14 - prettier-plugin-svelte 4), `b4cba38` (item 15 - test/DOM/runtime chain),
+`610d5ec` (item 16 - the `effect` v3 -> v4 source migration, `effect 4.1.1`), `0a3fba1` (item 16's docs
+close-out) and the `KIT3(item-17)` commit that closes the TypeScript major (`typescript 6.0.3`, pinned
+`~6.0.3`, with the literal line `"strict": false` now written in root `tsconfig.json`).
+**Items 0-9 and 11-17 are CLOSED; item 10 is CLOSED as a phantom** (its "43 of 48 `.svelte` files must be
+reformatted" premise does not reproduce - see item 14). Remaining open work on this branch: item 18 (the
+Playwright `testMatch`/`webServer` config), item 19 (TypeScript **strict adoption** - the debt item 17 pins
+rather than pays: 37 measured diagnostics), and item 2's Windows symlink EPERM on `npm run build` (which also
+blocks Playwright's `webServer`, so no local e2e gate can be validated end to end).
+Installed (re-measured in the item-17 working tree): `@sveltejs/kit@3.1.1`, `vite@8.3.5` (beta/rolldown),
+`svelte@5.57.3`, `vitest@5.0.5`, `@sveltejs/adapter-vercel@7.0.2` + `@sveltejs/adapter-auto@8.0.0`
+(devDependencies), `@sveltejs/vite-plugin-svelte@7.3.1`, `eslint@10.14.0` + `@eslint/js@10.0.1` +
+`typescript-eslint@8.72.1` + `globals@17.14.0`, `prettier@3.9.10` + `prettier-plugin-svelte@4.1.1`,
+`@playwright/test@1.64.1`, `@testing-library/jest-dom@7.0.1` (next to the exact-pinned `svelte@5.4.2` and
+`user-event@14.6.8`), `effect@4.1.1` and **`typescript@6.0.3`** - kit's `typescript ^6.0.0` peer is now
+SATISFIED (the old "deduped invalid" noise label is closed - its fact bullet was rewritten), and the pin is
+`~6.0.3` because the only legal band is `>=6.0.0 <6.1.0`. The swap landed as its own item, never as a side
+effect of another install.
 
 ## Protocol (read this first on every new session)
 
@@ -324,6 +330,157 @@ For the "zzzNotARealRolldownOption". Invalid key: Expected never but received "z
       `npx svelte-kit sync` fixed all 32 in one go, and `npm run check` was green throughout because it runs
       `svelte-kit sync` first. Always re-run `svelte-kit sync` before judging `tsc` after an install.
 
+- [x] 16. **`effect` v3 -> v4 source migration (DONE at `610d5ec`, branch `kit3-effect4`)**:
+      `effect 3.22.4` -> `4.1.1` (`package.json` now reads `^4.1.1`) with the v4 API rewrite spread over
+      **31 files, +597/-689** (`git show --stat 610d5ec`): `src/lib/{api,error,file}.ts`,
+      `src/lib/typing/{art,page,poem,strapi}.ts`, `src/lib/editing/core/{definitions,store.server}.ts`,
+      the 5 resource schemas (`poems`, `quintuplapus`, `souljuicer`, `terms-of-service`, `web-experience`),
+      4 route handlers (`poems/edit/[...pid]`, `terms-of-service/edit`, `the-quintuplapus/build/[bid]`,
+      `the-souljuicer/build/[bid]`) and 11 test files. THE MAP BELOW WAS READ OFF THE `610d5ec` DIFF AND
+      THE LIVE TREE - every count is a `git grep` total measured at HEAD, so each line is re-verifiable
+      with one command:
+      `Either` -> `Result`: `Either.isRight`/`isLeft` -> `Result.isSuccess`/`Result.isFailure`, and the
+      success payload is the `.success` PROPERTY (`decoded.success` survives at
+      `src/routes/poems/edit/[...pid]/+page.server.ts:93` and
+      `src/routes/terms-of-service/edit/+page.server.ts:74`). `src/lib/editing/core/store.server.ts:34`
+      replaced `decoded.right` with `Result.getOrThrow(decoded)`; `Result.succeed` is the constructor
+      (`src/lib/file.ts:105`). `Schema.decodeUnknownEither(s)(x)` -> `Schema.decodeUnknownResult(s)(x)`
+      (77 call + mock sites in `src`+`test`) - v4 returns the `Result` itself, so nothing is left to
+      unwrap. `Effect.either(f)` -> `Effect.result(f)` (`src/lib/file.ts`, `test/{api,build,file}.test.ts`).
+      160 `Result.isSuccess|isFailure|succeed|getOrThrow` occurrences now live in `src`+`test`.
+      `Schema.Union(a, b)` -> `Schema.Union([a, b])`: the 2-argument overload is GONE; 6 array sites in
+      `src` (`typing/art.ts:24,35`, `typing/page.ts:17`, `typing/poem.ts:13`, `typing/strapi.ts:22,27`).
+      `Schema.extend(A, B)` is GONE (0 matches repo-wide) -> `Schema.Struct({ ...A.fields, ...B.fields })`,
+      and the `.fields` accessor is live at 21 sites in `src` (e.g. `typing/page.ts:50-51` merges
+      `...strapiMetaDataC.fields` with `...strapiDataArrC(strapiPageC).fields`; also `typing/strapi.ts:39`).
+      Every 3-generic `Schema.Schema<A, I, R>` left the tree (`git grep 'Schema\.Schema<' -- src test` =
+      0 hits today) -> `Schema.Codec<A, unknown>` (13 occurrences in 9 files), and the generic helpers
+      shed their effect-context parameters: `withIdC = <A, I, R>(d: Schema.Schema<A, I, R>)` became
+      `withIdC = <A>(d: Schema.Codec<A, unknown>)`, likewise `strapiDataC` and `strapiDataArrC`.
+      `Schema.optional(X)` is **still the v4 spelling** (10 live sites: `souljuicer.ts` x3,
+      `typing/art.ts` x3, `typing/page.ts` x4) - it needed no rewrite at all.
+      **FOUR CLAIMS FROM THE MIGRATION BRIEF DID NOT REPRODUCE HERE - NEVER REPEAT THEM AS FACTS ABOUT
+      THIS REPO**: a second generic parameter on `EditorDefinition` (the claimed form reads
+      `EditorDefinition<A, F extends Record<string, unknown> & Record<keyof A, unknown>>`), a `validate` function returning `string | null`, a
+      `values ?? createDefault()` -> `values as T` swap, and `Schema.optionalFrom`. Proof, all reproducible:
+      `git log --all -S "F extends"`, `-S "Schema.optionalFrom"` and `-S "values ?? createDefault"` each
+      return ZERO commits; `git grep -i validat -- src/lib/editing` = 0 hits and the same pickaxe over
+      `src/lib/editing` history = 0 commits (the only `validate` text in the repo is poem _prose_ in
+      `src/data/poems.json` and test _describe_ labels); `optionalFrom` has 0 matches in `src`+`test`;
+      `createDefault` is still both an `EditorDefinition` field and the live fallback in every resource
+      file (`poems.ts:54`, `quintuplapus.ts:79`, `souljuicer.ts:99`, `terms-of-service.ts:47`,
+      `web-experience.ts:98`); and at `610d5ec^` `EditorDefinition` ALREADY read `EditorDefinition<A>`
+      with `schema: Schema.Schema<A, unknown, never>`, so item 16's ENTIRE `definitions.ts` diff is the
+      single line replacing that one `schema:` entry with `Schema.Codec<A, unknown>` - no generic change.
+      A future session that "finds" those constructs is looking at a different tree; the rule (same as the
+      esbuild/keepNames landmine) is to write a fact down only after reading it off THIS repo's own diff.
+      GATE (all re-measured at `610d5ec`, 2026-11-01): `npx svelte-kit sync` silent; `npx tsc --noEmit`
+      **0 errors**; `npm run check` **0 errors / 0 warnings**; `npx eslint .` 0 problems;
+      `npx prettier --check .` clean; `npm run test:unit` **42 files / 409 tests** in **12.74 s**;
+      `vite preview` over the fresh `.svelte-kit/output` served `/` 200 (24 740 B, `<h1>` rendered),
+      `/poems` 200 (42 449 B, `<h1>`), `/no-such-route` 404; `npm run build` compiled BOTH bundles
+      (client `1.60s`, server `605ms`) and then threw the item-2 Windows symlink EPERM. Residual v3 grep:
+      `Either`, `Schema.extend`, `decodeUnknownEither`, `Effect.either`, `decodeUnknownSync` = 0 lines
+      across `src`+`test`; the only `.right` left in `src` is a CSS class in `src/lib/arrow/Arrow.svelte:33`.
+      `typescript` stayed 5.9.3 in this commit on purpose - item 12 always assigned the TS major to the
+      effect-4 migration, and item 17 is where it actually happens.
+
+- [x] 17. **`typescript` 5.9.3 -> `6.0.3` - CLOSED by this commit** (the last dependency item; note that this
+      entry did not exist before 2026-11-01 - the header had been naming "item 17" with no matching checkbox).
+      Install was `npm i -D typescript@6.0.3` (no `--legacy-peer-deps`), and `package.json` was then edited to
+      pin the band: `"devDependencies": { "typescript": "^6.0.3" }` -> **`~6.0.3`**. A caret is NOT usable
+      here: `^6.0.3` admits 6.1.0, which `@typescript-eslint/*@8.72.1` peer `typescript >=4.8.4 <6.1.0`
+      forbids, so caret-installing 6.0.3 would re-create the peer violation this item is closing. The legal
+      band is the intersection of kit 3.1.1's `^6.0.0` and that peer = **`>=6.0.0 <6.1.0`**, which `~6.0.3`
+      means in practice (measured `npm view typescript@6 version` -> the 6.x line ends at `6.0.2`, `6.0.3`;
+      `npm view typescript version` -> registry latest **7.0.2**, unreachable). `typescript@latest` remains a
+      forbidden command. `package-lock.json` carries `+5/-25` under `git diff --numstat`, and `git diff -U0`
+      explains the shape instead of guessing it: line 49's range mirror `"typescript": "^5.9.3"` ->
+      `"~6.0.3"` (the lock MUST mirror `package.json` or `npm ci` aborts with `EUSAGE ... lock ... not
+match`), the `node_modules/typescript` entry's `version`/`resolved`/`integrity` lines replaced by the
+      6.0.3 tarball values, and 20 lone `"dev": true` lines deleted plus 1 `dev` -> `devOptional` flip -
+      npm's own rewrite as the dev-and-optional `typescript` peer became satisfied across its dependent
+      tree, not my edit. `npm ci` accepted the result, and `npm ls typescript` now prints kit's
+      peer **satisfied with zero `invalid` markers** - `typescript@6.0.3 deduped` under `@sveltejs/kit@3.1.1`,
+      `@typescript-eslint/*@8.72.1`, `svelte-check@4.7.8`, `typescript-eslint@8.72.1` and the root. That
+      closes the noise label the item-15 fact bullet used to call permanent.
+      **ROOT CAUSE, proven by stashing the swap and re-running instead of assuming:** `npx tsc --noEmit -p
+tsconfig.json` on 6.0.3 printed **13 errors**, and they are strict-null sites, not TS-6 inference
+      damage and not effect/`Schema` leftovers (item 16 already moved every schema to
+      `Schema.Codec<A, unknown>`; zero effect-related diagnostics survive). Cross-version probes: TS 5.9.3 +
+      `strictNullChecks: true` -> the **identical 13**; TS 6.0.3 + `strictNullChecks` off -> **0**; and the
+      chain was read in full - root `tsconfig.json`, `.svelte-kit/tsconfig.json` and
+      `node_modules/$app/tsconfig.json` - **none of the three declares any strict key**, so strict mode has
+      been active here since TS 5.9.3 and the 13 were always latent. The decisive probe: `npx tsc
+--showConfig -p tsconfig.json` with the flag unset prints **no strict keys at all**, while with
+      `strict: false` inserted the same command materializes NINE keys: `strict`, `noImplicitAny`, `noImplicitThis`, `strictNullChecks`, `strictFunctionTypes`, `strictBindCallApply`, `strictPropertyInitialization`, `strictBuiltinIteratorReturn`, `useUnknownInCatchVariables` - each one printed `false`, and
+      the four-name draft this bullet first carried (`strict`, `noImplicitAny`, `strictNullChecks`, `useUnknownInCatchVariables`) UNDERCOUNTED the probe: the measured output also carries `noImplicitThis`, `strictFunctionTypes`, `strictBindCallApply`, `strictPropertyInitialization` and `strictBuiltinIteratorReturn`, and nine keys is the true count of what never existed in the
+      old chain, which is why TS 6 ships strictness as a compiler built-in rather than as a config value.
+      **Decision made this item (the user's choice): the pin-loose path** - keep TS 6.0.3 and write the
+      literal line `"strict": false` into root `tsconfig.json` as the FIRST key of `compilerOptions`, written immediately before `allowJs` and `checkJs` (order proven with `Get-Content -LiteralPath tsconfig.json -TotalCount 8`), so the
+      strictness flags are explicit and the next major cannot silently re-tighten them; the strict debt is
+      carried by a new item instead (see item 19). A probe `tsconfig.nonull.json` was created in the repo
+      root, used once, and deleted inside the same command string (protocol 1: no scratch files;
+      `git status --short` stayed at 3 modified files, and no probe file under `.svelte-kit/**` was ever
+      touched). `git diff --numstat` for this item: `tsconfig.json` 1 insertion / 0 deletions,
+      `package.json` 1/1, `package-lock.json` 5/25.
+      **GATE battery, re-measured in this tree (HEAD `0a3fba1` + `package.json` + `package-lock.json` +
+      `tsconfig.json`):** `npx svelte-kit sync` silent; `npx tsc --noEmit -p tsconfig.json` **0 errors**;
+      `npm run check` **0 errors / 0 warnings**; `npm run test:unit` **42 files / 409 tests**; `npx eslint .`
+      0 problems; `npx prettier --check` clean on the 3 modified files; `npm run check:encoding` green
+      ("no known corruption patterns found in live src/data JSON files"); `npx vite build` compiled BOTH
+      bundles and then threw the **byte-identical item-2 Windows symlink EPERM** (`EPERM: operation not
+… symlink '![-]\catchall.func' -> ..\functions\index.func`, `node_modules/@sveltejs/adapter-vercel/
+index.js:316`) - the bundle gate is green and the artifact gate is untouched, item 2 stays open;
+      `vite preview` on the fresh `.svelte-kit/output` served `/` **200**, `/poems` **200**, `/poems/`
+      **308 -> 200**, `/the-quintuplapus` and `/the-quintuplapus` + edit **200**, `/no-such-route` **404**.
+      Rollback = `npm i -D typescript@5.9.3` + one revert, and the `strict: false` line must revert in the
+      same commit. The commit carrying this item is the single `KIT3(item-17)` line in
+      `git --no-pager log --oneline -3` (committed 2026-11-02; its id, author date and author/committer
+      emails are read with `git --no-pager log -1 --format='%h %ai %an %ae %cn %cE'` - this entry cannot
+      self-cite its own id because its text is part of that commit).
+
+- [ ] 18. **Playwright e2e gate (OPEN, config-only; this entry also did not exist before 2026-11-01)**:
+      `playwright.config.ts` is 10 lines today - NO `testDir` (the default is the config file's own directory, so
+      it scans from the repo root, and Playwright only auto-ignores `node_modules` and `.git`), NO `testMatch`, NO
+      `testIgnore`, and `webServer.command: "npm run build && npm run preview"`, which is the item-2
+      symlink-EPERM build. The result, measured: Playwright collects the Vitest tree (`test/**/*.test.ts`) as if
+      it were its own suite and dies with `Vitest mocker was not initialized in this environment. vi.queueMock()
+is forbidden` at `test/lib/analytics-simple.test.ts:4`, while `git ls-files` shows the repo has ZERO
+      `.spec.ts` files - Playwright has never had a green baseline here. Fix shape: `testDir: "./e2e"` plus a
+      `testMatch` over `*.spec.ts`, a `webServer` whose command is the gate that actually works on this box
+      (`npx vite build` then `npx vite preview --port 4173`), ONE baseline `e2e/smoke.spec.ts` asserting `/` and
+      `/poems` respond 200 with SSR'd `<h1>` markup and a bogus route 404, and root `tsconfig.json`
+      `include: ["src", "test", "e2e", "*"]` so `tsc` type-checks the new folder. Vitest is already safe without
+      being touched: `vitest.config.ts:10` pins `include: ["test/**/*.{test,spec}.{js,ts}"]`, so a new top-level
+      `e2e/` folder is outside its collection by construction - verify that instead of "fixing" it. Honest limit:
+      on this box the e2e run inherits item 2's blocked artifact gate, so a green e2e proves the `vite build` +
+      `vite preview` route, not the adapter-vercel artifact.
+
+- [ ] 19. **TypeScript strict adoption (OPEN - opened by the item-17 commit as the debt that `strict: false`
+      pins rather than pays)**: with that line in place, `npx tsc --noEmit` and `npm run check` are both **0**.
+      Deleting the line (TS 6 then applies its built-in strict defaults) or flipping `strictNullChecks` alone
+      reproduces **37 diagnostics in 14 files** - the 13 `tsc`-visible ones plus 24 that plain `tsc` cannot
+      see. **The 13 (`tsc` visible)**: `src/routes/+page.server.ts` 5 (indices on `readonly` page-detail
+      arrays), `src/routes/the-quintuplapus/[...aid]/+page.server.ts` 1 (`Property 'id' does not exist on type
+'never'`), `src/lib/image.ts` 1 (`'pd.data' is possibly 'null'`), `src/lib/editing/resources/quintuplapus/quintuplapus.server.ts`
+      `souljuicer.server.ts` `web-experience.server.ts` 1 each (the same `UploadFileFn` signature mismatch),
+      and `test/lib/editing-web-experience.test.ts` 2 + `test/lib/s3.test.ts` 1 (`No overload matches this
+call`). **The 24 (visible only to `svelte-check`)** in 6 components: `src/lib/Gallary/Nav.svelte` 9,
+      `src/lib/SubNavWrap.svelte` 5, `src/lib/Gallary/Item.svelte` 4, `src/lib/Article/Nav.svelte` 4,
+      `src/routes/+page.svelte` 1, `src/lib/editing/core/EditorShell.svelte` 1. Classes: `possibly 'null'` 12,
+      `Type 'number | undefined' is not assignable to type 'number'` 12, `Property '0' … on type 'readonly …'`
+      5, `UploadFileFn` 3, `boolean | undefined` -> `boolean` 2, `null` -> `string` 1, `'id' on 'never'` 1,
+      `No overload matches this call` 1. **Two traps to keep in mind when this item is attempted.** (a) The
+      half-strict probe (all strictness ON, `strictNullChecks` OFF) produced **106** errors, 104 of them
+      implicit-any findings inside `test/lib/typing-*.test.ts` - a worse state than either extreme, so
+      "turn strict on" must be planned together with the implicit-any debt, not as a one-line flip.
+      (b) `erasableSyntaxOnly` adds **0** errors here (dead flag - never re-explain a strict error as "TS 6
+      inference damage"; the 13 are all null/index-signature sites). Fix shape must not be guessed: read the
+      `UploadFileFn` declaration in `src/lib/editing/**`, decide whether the page-detail arrays get an index
+      signature or the callers get a narrow, and treat `attributes.image.data` as a typed-narrowing problem in
+      `image.ts`/`Gallary/*`, not as 12 separate `!` insertions. Rollback = restore the `strict: false` line.
+
 ## Hard-won facts (do not re-derive these)
 
 - Kit 3 writes the generated tsconfig + `paths` to `node_modules/$app/tsconfig.json`.
@@ -349,6 +506,43 @@ paths, server, service-worker, state`. `$app/stores` is GONE - use `$app/state`,
 - Build gate semantics: adapter-vercel emits `.vercel/output/**`, never `build/`; `start` is now
   `vite preview` and the dead `package: svelte-kit package` script is deleted (item 2). Preview works on
   `.svelte-kit/output` even when the adapter cannot finish on Windows.
+- **npm audit verdict (measured with `npm audit --json`, `npm audit --omit=dev`, `npm audit fix --dry-run`)**:
+  the 21 advisories are 5 leaves plus 16 chain-only nodes. `eslint`, `@eslint/js`,
+  `@eslint-community/eslint-utils`, `@typescript-eslint/*`, `typescript-eslint`, `eslint-config-prettier`,
+  `@sveltejs/kit`, `@sveltejs/vite-plugin-svelte`, `@sveltejs/adapter-auto`, `@sveltejs/adapter-vercel` and
+  `@vercel/nft` are reported ONLY as dependents of a vulnerable package, so no version of any of them fixes
+  anything. Production contains exactly 2 (both moderate): `aws-sdk` GHSA-j965-2qgj-vjmq, plus the `uuid`
+  8.0.0 that `aws-sdk` pins exactly (GHSA-w5hq-g745-h8pq). `npm audit --omit=dev` therefore reports
+  2 moderate vulnerabilities and nothing else.
+- **Why the three dev-only leaves have no forward-eligible release**: `deepmerge` GHSA-gcqx-w48m-w2h4 is
+  already at 4.3.1 (the newest published) and the advisory range `>=4.2.0` has no fixed version; `glob`
+  GHSA-3g3m-2fjr-6pw4 is patched only above 14.0.1 (latest 14.0.3) while `@vercel/nft`, newest 1.11.0, pins
+  `glob: ^13.0.0` and the 13.x line ends at 13.0.6; `minimatch` GHSA-g3hv-75wg-m249 is patched at 11.0.1
+  through 11.0.4 (engines `node 20 || >=22`, so local Node qualifies) but `@eslint/config-array` pins
+  `minimatch ^10.2.4` and `@typescript-eslint/typescript-estree` 8.72.1 pins `^10.2.2`. `npm audit fix`
+  without `--force` resolves ZERO of the 21: the measured dry-run delta is 25 platform-optional binaries
+  added (`lightningcss-*`, `@rolldown/binding-*`, `fsevents`) plus a phantom `remove $app undefined`, and the
+  21 survive unchanged. Every `--force` candidate is a downgrade - `aws-sdk@1.18.0`, `@sveltejs/kit@0.0.30`,
+  `@sveltejs/adapter-vercel@5.6.2`, `typescript-eslint@8.14.0`.
+- **The single forward-facing remediation, and the real cause of the adapter-vercel EPERM**: `aws-sdk` `latest`
+  is 2.1693.0 - already what we have - so v2 has no upgrade path, and GHSA-j965-2qgj-vjmq says verbatim "add
+  validation to the region parameter value in or migrate to v3". `@aws-sdk/client-s3` 3.1161.0 and
+  `@aws-sdk/lib-storage` 3.1161.0 (needed because `src/lib/s3.ts` calls `s3.upload`, which v3 core drops)
+  contain no `uuid` dependency at all, so that migration removes BOTH production advisories. Blast radius
+  measured: `src/lib/s3.ts` is the repo's only `aws-sdk` import, used by 4 server modules
+  (`quintuplapus.server.ts`, `souljuicer.server.ts`, `web-experience.server.ts`, `+layout.server.ts`) and by
+  `test/lib/s3.test.ts`, which mocks `#lib/s3` and needs no change; only `getObject`, `upload` and
+  `deleteObject` are used, and the region advisory cannot fire in this app because `getS3Config()` reads the
+  region from `AWS_REGION` / `VITE_AWS_REGION` / `us-east-1`, never from request input. The other forward
+  action is a Node minor upgrade: `node --version` is 22.17.0 while `jsdom` 30.1.3 requires
+  `^22.22.2 || ^24.15.0 || >=26.0.0` and `undici` 8.12.3 requires `>=22.19.0`, which 22.22.x satisfies
+  inside `package.json`'s own `22.x` range. The item-2 EPERM is a Windows privilege requirement, not a Kit or
+  adapter defect: `whoami /groups` sits at Medium Mandatory Level and a `%TEMP%` probe of
+  `New-Item -ItemType SymbolicLink` failed with `NewItemSymbolicLinkElevationRequired`, so adapter-vercel's
+  unconditional `fs.symlinkSync` at `index.js:316` needs an elevated shell or Developer Mode - and there is
+  nothing newer to test, since adapter-vercel `latest` 7.0.2 and `@vercel/nft` `latest` 1.11.0 are already
+  installed.
+
 - Doc provenance: `CONTENT_EDITING_PLAN.md` added at `923df83`, `MIGRATION_SUMMARY.md` at `1d7faf3`,
   `ENV_EDITOR_FINDINGS.md` at `a6fe9a9`, `MIGRATION_KIT3_CHECKLIST.md` at `410fcb8`.
 - No scratch files remain (every `.out`/`.err`, `c5.txt`, `c6.txt`, `build.out`, `sync.out` and
@@ -433,20 +627,22 @@ w/crlf attr/` for dozens of files, zero `i/crlf`). Caveat: `git diff --stat` swa
   ESLint"), and `git diff HEAD@{1}` must be single-quoted in PowerShell because `@{...}` is splat syntax -
   unquoted it becomes the revision `HEAD@`.
 
-## Current measurements (2026-11-01, after items 11-15 - THE LIVE TABLE)
+## Current measurements (2026-11-02, re-measured in the item-17 tree: HEAD `0a3fba1` plus the 4 files item 17 touches - THE LIVE TABLE)
 
-| Measurement                                         | Result                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npx svelte-kit sync`                               | Zero warnings. **Must be re-run after every `npm install`** - see the item-15 fact below.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `npx tsc --noEmit -p tsconfig.json`                 | **0 errors** (it reads `node_modules/$app/tsconfig.json`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `npm run check`                                     | **0 errors, 0 warnings**.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `npm run lint` (= `prettier --check . && eslint .`) | Green end to end. prettier now really parses all 48 `src/**/*.svelte` components (plugin 4.1.1) and they are canonical; `eslint .` = 0 problems on ESLint 10.                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `npm run test:unit`                                 | **42 files / 409 tests** passed, 10.36 s.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `vite dev` smoke (re-measured 2026-11-01)           | `VITE v8.3.5 ready in 2393 ms`; `/` 200 (71 350 B), `/poems` 200 (102 224 B), `/no-such-route` 404.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `npm run check:encoding`                            | Green (`no known corruption patterns found in live src/data JSON files`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `npm outdated` (2026-11-01)                         | **Two entries left, both declared majors this migration refuses**: `effect 3.22.4 -> 4.1.1` (v4 is an API rewrite of the `Schema` surface the whole editing layer is built on) and `typescript 5.9.3 -> 7.0.2` (v6 breaks effect-3 inference, see item 12). Everything else wants = latest, including the exact-pinned `aws-sdk 2.1693.0`, `mixpanel-browser 2.84.0`, `@testing-library/svelte 5.4.2`, `@testing-library/user-event 14.6.8`, `@types/qs 6.15.1`, `save 2.9.0`, `@fontsource/fira-mono 5.3.0`, `hamburgers 1.2.1`.                                                             |
-| `npm test` (Playwright e2e)                         | **Not a working gate in this repo, and it never was** - pre-existing, not caused by the 1.55 -> 1.64 bump. `playwright.config.ts` declares no `testMatch`/`testIgnore`, so Playwright globs `test/**` and loads Vitest files (`Vitest mocker was not initialized in this environment. vi.queueMock() is forbidden` at `test/lib/analytics-simple.test.ts:4`), while `test/` contains **0 `.spec.ts`** files (only `lib/` + `routes/`). Its `webServer.command` is `npm run build && npm run preview`, and `npm run build` is still the adapter-vercel Windows symlink EPERM blocker (item 2). |
-| Working tree                                        | Clean after each item commit; no scratch files (the `%TEMP%` prettier probe was deleted too).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Measurement                                            | Result                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npx svelte-kit sync`                                  | Zero warnings (re-run 2026-11-02 with `typescript@6.0.3` installed, exit 0). **Must be re-run after every `npm install`** - see the item-15 fact below. Peer-closure proof is now positive, not tolerated noise: `npm ls typescript` prints 12 `typescript` lines - 11 of them `typescript@6.0.3 deduped` (kit, svelte-check, typescript-eslint + parser + plugin + their sub-packages, ts-api-utils) plus the root install - and **not one `invalid` marker**, so the `typescript@5.9.3 deduped invalid: "^6.0.0" from node_modules/@sveltejs/kit` line this file used to treat as permanent is gone.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `npx tsc --noEmit -p tsconfig.json`                    | **0 errors** on `typescript@6.0.3` (it reads `node_modules/$app/tsconfig.json`) with `"strict": false` written into root `tsconfig.json` by item 17. Delete that single line and the same command prints **13** strict diagnostics; `svelte-check` on the identical probe prints **37** - item 19's inventory.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `npm run check`                                        | **0 errors, 0 warnings** (`svelte-check found 0 errors and 0 warnings`, 2026-11-02). The 13-versus-37 split that item 19 inherits is invisible to THIS gate - it only shows up when a strict probe is written.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `npm run lint` (= `prettier --check . && eslint .`)    | Green end to end. prettier now really parses all 48 `src/**/*.svelte` components (plugin 4.1.1) and they are canonical; `eslint .` = 0 problems on ESLint 10.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `npm run test:unit`                                    | **42 files / 409 tests** passed, **12.00 s** (re-measured 2026-11-02 in the item-17 tree; vitest 5 splits it as environment 53%, setup 34%, import 7%, tests 4%, worker 1%).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `npm run build` (re-measured 2026-11-02)               | Both bundles compiled by `vite build` (client `620 ms`, server `519 ms`), then adapter-vercel threw the item-2 Windows symlink EPERM on `![-]\catchall.func -> ..\functions\index.func` and exited 1. Fresh 2026-11-02 log line-for-line: `✓ built in 620ms`, `✓ built in 519ms`, `> Using @sveltejs/adapter-vercel`, `Error: EPERM: operation not permitted, symlink`, `at Object.symlinkSync (node:fs:1885:11)`, `@sveltejs/adapter-vercel/index.js:316:9`, `errno: -4048`, `syscall: 'symlink'` - the same fields as the `610d5ec` run under TypeScript 5.9.3, only the bundle times moved, so the TS major did not touch this gate. **Bundle gate GREEN, artifact gate BLOCKED**: `.vercel/output` holds `static/` (8 entries, no `index.html`) and a partial `functions/`, but `config.json` and `functions\index.func` are absent - the artifact gate is `.vercel/output/**`, there is no root `build/`. Local substitute gates are `npx vite build` + `npx vite preview --port 4173`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `npx vite preview` (re-measured 2026-11-02, port 4179) | `/` **200** (24 740 B, `<h1>` server-rendered), `/poems` **200** (40 891 B - the 42 449 B once recorded at `610d5ec` is superseded), `/the-quintuplapus/souljuicer` **200** (64 953 B), `/poems/` **308** with a 0 B body (Kit 3.1's trailing-slash redirect - visible only because every probe used `-MaximumRedirection 0` on `localhost`, never `127.0.0.1`), `/definitely-not-a-page` **404** (0 B body). All five probed 2026-11-02 against a preview started straight from `node_modules\vite\bin\vite.js` on port 4179. The Kit 3 preview tree `.svelte-kit/output/client` + `.svelte-kit/output/server` (no root `index.js`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `vite dev` smoke (re-measured 2026-11-01)              | `VITE v8.3.5 ready in 2393 ms`; `/` 200 (71 350 B), `/poems` 200 (102 224 B), `/no-such-route` 404.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `npm run check:encoding`                               | Green (`no known corruption patterns found in live src/data JSON files`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `npm outdated` (re-run 2026-11-02, exit 1)             | **Two rows** on 2026-11-02 - and `npm outdated` EXITS 1 whenever it prints any row, so a red exit code from it is not a gate failure: `typescript` Current `6.0.3` / Wanted `6.0.3` / Latest `7.0.2`, i.e. the `~6.0.3` band pin is what holds the Wanted column down, while 6.1.0 and 7.x stay unreachable because `@typescript-eslint` 8.72.1 prints peer `typescript: ">=4.8.4 <6.1.0"` on `parser`, `eslint-plugin`, `project-service`, `tsconfig-utils`, `type-utils`, `typescript-estree`, `utils` **and** the `typescript-eslint` umbrella (eight peer rows read out of `package-lock.json` with `Select-String -LiteralPath`), with `@sveltejs/acorn-typescript@1.0.13` wanting `"^6.0.0"`; exactly one installed copy, whose lockfile header line reads `node_modules/typescript` resolved to `typescript-6.0.3.tgz`, is what makes `npm ls` clean. And `effect` Current `4.1.1` / Wanted `4.1.2` / Latest `4.1.2` - a patch published AFTER item 16 installed `^4.1.1`, so this row's old "CLOSED by item 16" label is superseded: the caret already admits 4.1.2, and `npm update effect` would rewrite the lockfile only. `typescript@latest` must NEVER be the install command. Everything else wants = latest, including the exact-pinned `aws-sdk 2.1693.0`, `mixpanel-browser 2.84.0`, `@testing-library/svelte 5.4.2`, `@testing-library/user-event 14.6.8`, `@types/qs 6.15.1`, `save 2.9.0`, `@fontsource/fira-mono 5.3.0`, `hamburgers 1.2.1`. |
+| `npm test` (Playwright e2e)                            | **Not a working gate in this repo, and it never was** - pre-existing, not caused by the 1.55 -> 1.64 bump. `playwright.config.ts` declares no `testMatch`/`testIgnore`, so Playwright globs `test/**` and loads Vitest files (`Vitest mocker was not initialized in this environment. vi.queueMock() is forbidden` at `test/lib/analytics-simple.test.ts:4`), while `test/` contains **0 `.spec.ts`** files (only `lib/` + `routes/`). Its `webServer.command` is `npm run build && npm run preview`, and `npm run build` is still the adapter-vercel Windows symlink EPERM blocker (item 2).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Working tree                                           | Clean after each item commit; no scratch files (the `%TEMP%` prettier probe and the `.h.mjs` heading probe were each deleted the moment they were consumed, which protocol 1's no-scratch-files rule requires). Item 17's close-out commit carries four files, not one: `tsconfig.json` (1 insertion / 0 deletions), `package.json` (1/1), `package-lock.json` (5/25, npm's own rewrite - see the item-17 facts bullet below) and this checklist. `git status --short` lists exactly those four modified paths and zero untracked ones, which protocol 1's no-scratch-files rule requires - every probe written during item 17 (`tsconfig.nonull.json` in the repo root, the `%TEMP%` `--showConfig` probe, each captured gate log) was deleted the moment it was consumed, and a fresh `Get-Content`-based line count plus `git status` was re-run before this row was rewritten. The ignored `docs/` tracker cannot be staged, because `git add docs/` is a no-op                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 ## Hard-won facts added by items 11-15 (2026-11-01)
 
@@ -457,11 +653,15 @@ w/crlf attr/` for dozens of files, zero `i/crlf`). Caveat: `git diff --stat` swa
   time because its script is `svelte-kit sync && svelte-check`. `"postinstall": "svelte-kit sync"` IS wired
   into `package.json` and it still did not prevent this. One command clears it: `npx svelte-kit sync`.
   Never debug tsconfig/imports/sdk typings out of that symptom.
-- Kit 3 wants `typescript ^6.0.0`; `npm ls` prints `typescript@5.9.3 deduped invalid: "^6.0.0" from
+- Kit 3 wants `typescript ^6.0.0`; ~~`npm ls` prints `typescript@5.9.3 deduped invalid: "^6.0.0" from
 node_modules/@sveltejs/kit` - permanent, accepted noise. TS 6.0.3 gives 14 genuine `tsc` errors in
   `src/lib/editing/**` `Schema` inference, identical on effect 3.17.14 and 3.22.4, and TS 7.0.2 is now the
   registry latest, so **5.9.3 stays pinned until `effect` v3 -> v4 is migrated as its own item**. That
-  migration is the only remaining dependency work on this branch.
+  migration is the only remaining dependency work on this branch.~~ SUPERSEDED by item 17: `typescript@6.0.3`
+  is installed with the band pin `~6.0.3`, kit's `^6.0.0` peer is SATISFIED, `npm ls typescript` prints
+  **zero `invalid` markers** anywhere, and the 14 editing errors the bullet predicted had already vanished via
+  item 16. What replaced them were 13 strict-null sites (item 17), then 0 once `strict: false` was written
+  down explicitly - see item 17's entry and item 19 for the strict debt.
 - `prettier-plugin-svelte@3.5.2` declares peer `svelte ^4.2.7`; `4.1.1` declares `prettier ^3.0.0`,
   `svelte ^5.0.0`, node `>=20`. Under svelte 5, only 4.1.1 is the honest pairing. The two versions disagree
   about markup closing tags: **3.5.2 wants the `>` of `></textarea>` on its own line, 4.1.1 joins it to the
@@ -481,3 +681,63 @@ node_modules/@sveltejs/kit` - permanent, accepted noise. TS 6.0.3 gives 14 genui
 - ESLint 10 core `no-useless-assignment` lands inside `recommended`, so upgrading ESLint silently adds
   findings on code that linted clean before. Treat them as real dead code and fix the code (that is what
   item 13 did), do not switch the rule off.
+
+## Hard-won facts added by item 16 (2026-11-01, at `610d5ec`, branch `kit3-effect4`)
+
+- **`Schema.Codec<A, unknown>` is the reason item 12's 14 `editing/**` `tsc` errors existed.** A v4 `Codec`
+  is `unknown -> A`: the decoded value takes the TARGET type and the input side is `unknown`, while the old
+  3-generic `Schema.Schema<A, I, R>` under TS 5.9 + effect 3 collapsed `EditorDefinition`'s
+  `values` / `createDefault` / `initial` into `any` - which is why `values.id` was legal as a lie. Under the
+  v4 `Codec` the same lines become real `T`-shaped mismatches, so the effect rewrite and the TypeScript
+  major MUST land in that order (item 16 first, then 17) and never as one commit.
+- **A mock must stub the NEW name or it silently un-stubs the real one.** A `vi.mock` factory that spreads
+  `...actual` replaces only what it NAMES. A route test that kept stubbing the removed v3
+  `decodeUnknownEither: () => () => ({ _tag: "Right", right: {...} })` after the route itself moved to
+  `Schema.decodeUnknownResult` left the REAL decoder running against half-stubbed `Schema` machinery, and
+  the suite died far from the cause with `TypeError: Invalid value used as weak map key`. The v4 mock has
+  to name `decodeUnknownResult` and build its value with the REAL Result - `actual.Result.succeed({...})`
+  at `test/routes/poems-edit-page.server.test.ts:118,192` - because the caller narrows with
+  `Result.isFailure`, and a hand-rolled tag object is exactly the lie that narrowing catches.
+- **`Result` reads nothing like `Either`:** the success payload is the `.success` PROPERTY, failures narrow
+  via `Result.isFailure` / `Result.isSuccess`, `Result.getOrThrow` collapses a failure into a throw (the
+  `editing/core/store.server.ts` idiom), `Result.succeed` is the constructor, and the wrapper helper is
+  `Effect.result` where v3 had `Effect.either`.
+- **Four item-16 claims from the upstream write-up do not exist in this repo** (a second
+  `EditorDefinition<A, F extends ...>` generic, a `validate` returning `string | null`,
+  `values ?? createDefault()` -> `values as T`, `Schema.optionalFrom`). The zero-hit probes are spelled out
+  inside the item-16 entry so a later session can re-run them instead of re-litigating them, and
+  `Schema.optional` turns out to be valid v4 (10 live sites, untouched). Re-learned rule: record a fact only
+  after reading it off this repo's own `git show <sha>` - a changelog is a guess about YOUR tree.
+- **`docs/` is UNTRACKED - `git add docs/...` does nothing, and the "single source of truth" claim inside
+  `docs/SVELTEKIT_3_MIGRATION.md` is STALE.** `.gitignore` line 8 is `/docs` (probe:
+  `git check-ignore -v docs/SVELTEKIT_3_MIGRATION.md` prints `.gitignore:8:/docs`), and
+  `git ls-files "*.md"` lists only the five root files (`README`, `MIGRATION_SUMMARY`, `CONTENT_EDITING_PLAN`,
+  `ENV_EDITOR_FINDINGS`, `MIGRATION_KIT3_CHECKLIST`). That tracker's `## Ground truth (verified 2026-10-30)`
+  section still lists "two warnings the build prints now (must fix)" and "two hand-rolled files to delete",
+  both long since resolved by items 8 and 11, and it contains no mention of effect, TypeScript or Playwright
+  at all (measured: `Select-String -Pattern 'effect'` against it = 0 hits). A corrective banner was appended
+  to its header on 2026-11-01; it cannot be committed because the folder is ignored. This file is the live one.
+- **Items 17 and 18 had NO checklist entries until 2026-11-01.** The header had been writing "now item 17"
+  and "now item 18" for several sessions, and the item-16 entry referred to item 17, but no checkbox line
+  existed anywhere in the file - `Select-String -Pattern '\[ \]'` returned zero open items. A fresh session
+  therefore could not tell what those two items require. Both entries now exist above, written from
+  `npm view` peer data, the 10-line `playwright.config.ts`, `vitest.config.ts:10` and the empty
+  `git ls-files | Select-String '\.spec\.'` probe. Lesson: renaming items in the header without creating their
+  entries is a silent hole, and the fix is to grep for the checkbox, not trust the header.
+- **PowerShell console output re-renders this repo's valid UTF-8 as junk, and that caused a false corruption
+  alarm.** `Get-Content`, `Select-String` and `git grep` displayed the file's `U+00B7` and `U+2192` as a
+  capital-A-with-circumflex followed by punctuation noise, because the console decodes UTF-8 through a legacy
+  codepage. Byte evidence (2026-11-01, HEAD vs working tree, IDENTICAL multisets): `U+2713` x8, `U+2705` x3,
+  `U+00B7` x1, `U+2192` x1, `U+00C2` x0. So the checklist never had mojibake in it, and the only two
+  non-ASCII-punctuation sites are line 3 (the middot) and line 52 (the arrow in the status table, "403 when
+  ENABLE_CONTENT_EDITOR=false arrow 404 when true"). Verify with the Read tool, or set
+  `[Console]::OutputEncoding` to UTF-8 first, before ever "fixing" encoding.
+- **Every array item of one `run_commands` call is executed in its OWN shell, so a formatter and a commit in
+  the same batch race.** Measured on 2026-11-01: a batch that put `prettier --write` in one item and
+  `git add` plus `git commit` in another produced a commit that still carried the OLD table-cell padding of a
+  live-table row, while the canonical shortening landed only in the worktree, so the post-commit
+  `git status --short` reported that file modified and `git diff --numstat` showed 1 insertion plus 1 deletion.
+  The fix, and it is a protocol rule: formatter, `git add` and `git commit` must live in ONE command string
+  inside ONE array item so they share a single shell, and the commit is then verified with
+  `git diff --numstat HEAD` returning EMPTY. A `prettier --write` run that prints `(unchanged)` is the
+  convergence proof, and `git commit --amend --no-edit` is the correct repair for a private unpushed commit.

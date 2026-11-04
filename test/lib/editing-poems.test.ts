@@ -7,7 +7,7 @@ import {
   upsertPoemEditorValue,
   type PoemsFile,
 } from "../../src/lib/editing/resources/poems/poems";
-import { Schema, Either } from "effect";
+import { Result, Schema } from "effect";
 
 describe("poem editor adapter", () => {
   const baseFile: PoemsFile = {
@@ -52,9 +52,9 @@ describe("poem editor adapter", () => {
   };
 
   it("validates the existing poems file wrapper", () => {
-    const result = Schema.decodeEither(poemsFileC)(baseFile);
+    const result = Schema.decodeResult(poemsFileC)(baseFile);
 
-    expect(Either.isRight(result)).toBe(true);
+    expect(Result.isSuccess(result)).toBe(true);
   });
 
   it("maps strapi-shaped poems into canonical editor values", () => {

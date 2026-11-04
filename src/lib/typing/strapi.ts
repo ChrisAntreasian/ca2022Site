@@ -11,23 +11,23 @@ export const strapiMetaDataC = Schema.Struct({
   }),
 });
 
-export const withIdC = <A, I, R>(d: Schema.Schema<A, I, R>) =>
+export const withIdC = <A>(d: Schema.Codec<A, unknown>) =>
   Schema.Struct({
     id: Schema.Number,
     attributes: d,
   });
 
-export const strapiDataC = <A, I, R>(d: Schema.Schema<A, I, R>) =>
+export const strapiDataC = <A>(d: Schema.Codec<A, unknown>) =>
   Schema.Struct({
-    data: Schema.Union(withIdC(d), Schema.NullOr(withIdC(d))),
+    data: Schema.Union([withIdC(d), Schema.NullOr(withIdC(d))]),
   });
 
-export const strapiDataArrC = <A, I, R>(d: Schema.Schema<A, I, R>) =>
+export const strapiDataArrC = <A>(d: Schema.Codec<A, unknown>) =>
   Schema.Struct({
-    data: Schema.Union(
+    data: Schema.Union([
       Schema.Array(withIdC(d)),
       Schema.NullOr(Schema.Array(withIdC(d))),
-    ),
+    ]),
   });
 
 export const strapiUpdatedC = Schema.Struct({
@@ -35,9 +35,7 @@ export const strapiUpdatedC = Schema.Struct({
   updatedAt: Schema.String,
 });
 
-export const strapiBaseC = Schema.extend(
-  strapiUpdatedC,
-  Schema.Struct({
-    publishedAt: Schema.String,
-  }),
-);
+export const strapiBaseC = Schema.Struct({
+  ...strapiUpdatedC.fields,
+  publishedAt: Schema.String,
+});
