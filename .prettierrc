@@ -1,1 +1,4 @@
-{}
+{
+  "endOfLine": "auto",
+  "plugins": ["prettier-plugin-svelte"]
+}

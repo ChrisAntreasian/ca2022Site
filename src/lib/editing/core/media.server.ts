@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import * as path from "path";
 
-import { e500 } from "$lib/error";
+import { e500 } from "#lib/error";
 
 export type UploadedImageAsset = {
   name: string;

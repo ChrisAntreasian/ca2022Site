@@ -7,7 +7,9 @@ import {
 
 describe("media server helpers", () => {
   it("uploads files with the configured prefix and returns a normalized asset", async () => {
-    const uploadFile = vi.fn(async () => ({
+    const uploadFile = vi.fn<
+      (key: string, bytes: Buffer) => Promise<{ Location?: string }>
+    >(async () => ({
       Location: "https://cdn.example.com/uploads/test.png",
     }));
     const file = new File(["hello"], "photo.png", { type: "image/png" });

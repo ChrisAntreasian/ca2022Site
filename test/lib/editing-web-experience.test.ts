@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { Either, Schema } from "effect";
 
+import { imageC } from "#lib/typing/art";
+
 import {
   applyWebExperienceMediaPatch,
   toWebExperienceEditorValue,
@@ -16,6 +18,24 @@ import {
   selectWebExperienceTarget,
   webExperienceEditorPath,
 } from "../../src/lib/editing/resources/web-experience/web-experience-editor";
+
+/**
+ * `imageC` unions Strapi's minimal upload shape with the full record shape, and its `formats`
+ * may be null or empty for legacy data. `applyWebExperienceMediaPatch` always writes the full
+ * record arm with `small` + `thumbnail` populated, so these aliases narrow that once here and
+ * the assertions below read as plain property chains instead of re-casting at each access.
+ */
+type ImageAttributes = Schema.Schema.Type<typeof imageC>;
+type RecordedImageAttributes = Extract<ImageAttributes, { formats: unknown }>;
+type PopulatedFormats = Extract<
+  NonNullable<RecordedImageAttributes["formats"]>,
+  { small: unknown; thumbnail: unknown }
+>;
+
+const patchedImageAttributes = (
+  attributes: ImageAttributes | undefined,
+): RecordedImageAttributes & { formats: PopulatedFormats } =>
+  attributes as never;
 
 describe("web experience editor adapter", () => {
   const baseFile: WebExperienceFile = {
@@ -220,18 +240,24 @@ describe("web experience editor adapter", () => {
     );
 
     const entry = patched.data.data?.[0].attributes.rich_links?.data?.[0];
-    expect(entry?.attributes.logo.data?.attributes.url).toBe(
-      "/uploads/web-experience/new-logo.svg",
+    const logo = patchedImageAttributes(
+      entry?.attributes.logo.data?.attributes,
     );
-    expect(entry?.attributes.logo.data?.attributes.provider).toBe("local");
-    expect(entry?.attributes.image.data.length).toBe(3);
-    expect(entry?.attributes.image.data[0].attributes.url).toBe("/shot.jpg");
-    expect(entry?.attributes.image.data[1].attributes.formats.small.url).toBe(
+    const images =
+      entry?.attributes.image.data?.map((image) =>
+        patchedImageAttributes(image.attributes),
+      ) ?? [];
+
+    expect(logo.url).toBe("/uploads/web-experience/new-logo.svg");
+    expect(logo.provider).toBe("local");
+    expect(images).toHaveLength(3);
+    expect(images[0]?.url).toBe("/shot.jpg");
+    expect(images[1]?.formats.small.url).toBe(
       "/uploads/web-experience/shot-1.jpg",
     );
-    expect(
-      entry?.attributes.image.data[2].attributes.formats.thumbnail.url,
-    ).toBe("/uploads/web-experience/shot-2.jpg");
+    expect(images[2]?.formats.thumbnail.url).toBe(
+      "/uploads/web-experience/shot-2.jpg",
+    );
   });
 
   it("defines a reusable editor contract for the web experience page", () => {

@@ -1,4 +1,4 @@
-import { deleteS3File, initS3, uploadS3File } from "$lib/s3";
+import { deleteS3File, initS3, uploadS3File } from "#lib/s3";
 
 import {
   applySouljuicerImagePatch,

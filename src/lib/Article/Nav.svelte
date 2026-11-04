@@ -1,10 +1,10 @@
 <script lang="ts">
-  import Arrow from "$lib/arrow/Arrow.svelte";
-  import { mqBreakPoint, toRem } from "$lib/spacing";
-  import { captureBehavior } from "$lib/analytics";
+  import Arrow from "#lib/arrow/Arrow.svelte";
+  import { mqBreakPoint, toRem } from "#lib/spacing";
+  import { captureBehavior } from "#lib/analytics";
   import { type Snippet } from "svelte";
   import { afterNavigate } from "$app/navigation";
-  import { noScroll } from "$lib/body";
+  import { noScroll } from "#lib/body";
   import { fade } from "svelte/transition";
   type NavProps = {
     activeTitle: string;

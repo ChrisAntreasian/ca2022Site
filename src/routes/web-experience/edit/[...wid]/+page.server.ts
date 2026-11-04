@@ -3,14 +3,14 @@ import { error, fail, redirect } from "@sveltejs/kit";
 import {
   isEditorEnabled,
   requireEditorEnabled,
-} from "$lib/editing/core/auth.server";
+} from "#lib/editing/core/auth.server";
 import {
   applyWebExperienceMediaPatch,
   buildWebExperienceTarget,
   toWebExperienceEditorValue,
   webExperienceEditorDefinition,
   type WebExperienceEntry,
-} from "$lib/editing/resources/web-experience/web-experience";
+} from "#lib/editing/resources/web-experience/web-experience";
 import {
   deleteWebExperienceEntry,
   deleteWebExperienceMedia,
@@ -19,15 +19,15 @@ import {
   readWebExperienceFile,
   saveWebExperienceEditorValue,
   writeWebExperienceFile,
-} from "$lib/editing/resources/web-experience/web-experience.server";
+} from "#lib/editing/resources/web-experience/web-experience.server";
 import {
   mergeWebExperienceValue,
   parseWebExperienceEditorParam,
   parseWebExperienceForm,
   selectWebExperienceTarget,
   webExperienceEditorPath,
-} from "$lib/editing/resources/web-experience/web-experience-editor";
-import { getFormDataString } from "$lib/form-data";
+} from "#lib/editing/resources/web-experience/web-experience-editor";
+import { getFormDataString } from "#lib/form-data";
 
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -170,7 +170,7 @@ export const actions: Actions = {
         : undefined;
 
     let saved = await saveWebExperienceEditorValue(merged, new Date(), source);
-    let savedValue = toWebExperienceEditorValue(saved);
+    const savedValue = toWebExperienceEditorValue(saved);
     const requestedEntryId = parsedForm.kind === "entry" ? parsedForm.id : 0;
     const selectedEntry =
       parsedForm.kind === "entry"
@@ -215,7 +215,8 @@ export const actions: Actions = {
           deleteTargets.map((url) => deleteWebExperienceMedia(url)),
         );
 
-        savedValue = toWebExperienceEditorValue(saved);
+        // `saved` was already written above and nothing downstream re-reads
+        // `savedValue`, so there is no re-derivation to assign here.
       }
     }
 

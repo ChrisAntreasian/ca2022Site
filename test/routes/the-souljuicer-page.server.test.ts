@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { loadResult } from "./loadResult";
 
 describe("SoulJuicer page server load", () => {
   beforeEach(() => {
@@ -6,7 +7,7 @@ describe("SoulJuicer page server load", () => {
   });
 
   it("fills in missing display fields from stored entries", async () => {
-    vi.doMock("$data/the-souljuicer.json", () => ({
+    vi.doMock("#data/the-souljuicer.json", () => ({
       data: {
         data: [
           {
@@ -32,10 +33,9 @@ describe("SoulJuicer page server load", () => {
       },
     }));
 
-    const { load } = await import(
-      "../../src/routes/the-souljuicer/[...aid]/+page.server"
-    );
-    const result = await load({ params: {} } as never);
+    const { load } =
+      await import("../../src/routes/the-souljuicer/[...aid]/+page.server");
+    const result = loadResult(await load({ params: {} } as never));
 
     expect(result.categoryTitle).toBe("the SoulJuicer");
     expect(result.artPieces).toHaveLength(1);

@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { Mock } from "vitest";
+import { loadResult } from "./loadResult";
 
 const mockEntries = [
   {
@@ -43,29 +45,30 @@ describe("SoulJuicer edit page server", () => {
   });
 
   it("loads the selected entry and saved message", async () => {
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/resources/souljuicer/souljuicer", () => ({
+    vi.doMock("#lib/editing/resources/souljuicer/souljuicer", () => ({
       toSouljuicerEditorValue: vi.fn(() => ({ entries: mockEntries })),
     }));
 
-    vi.doMock("$lib/editing/resources/souljuicer/souljuicer.server", () => ({
+    vi.doMock("#lib/editing/resources/souljuicer/souljuicer.server", () => ({
       ensureSouljuicerBaselineSnapshot: vi.fn(),
       readSouljuicerFile: vi.fn(async () => mockFile),
       replaceSouljuicerEntryImage: vi.fn(),
       saveSouljuicerEditorValue: vi.fn(),
     }));
 
-    const { load } = await import(
-      "../../src/routes/the-souljuicer/edit/[...aid]/+page.server"
+    const { load } =
+      await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
+    const result = loadResult(
+      await load({
+        params: { aid: "4" },
+        url: new URL("http://localhost/the-souljuicer/edit/4?saved=1"),
+      } as never),
     );
-    const result = await load({
-      params: { aid: "4" },
-      url: new URL("http://localhost/the-souljuicer/edit/4?saved=1"),
-    } as never);
 
     expect(result.editorEnabled).toBe(true);
     expect(result.savedMessage).toBe("Souljuicer entry saved.");
@@ -86,18 +89,24 @@ describe("SoulJuicer edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    const saveSouljuicerEditorValue = vi.fn(async () => mockFile);
+    // The action is called with the merged editor value, and the test asserts on that argument
+    // below: the mock's parameter types are annotated instead of declared so `mock.calls` keeps
+    // them without leaving an unused implementation argument behind.
+    type SavedSouljuicerValue = { entries: typeof mockEntries };
+    const saveSouljuicerEditorValue: Mock<
+      (value: SavedSouljuicerValue) => Promise<typeof mockFile>
+    > = vi.fn(async () => mockFile);
 
-    vi.doMock("$lib/editing/resources/souljuicer/souljuicer", () => ({
+    vi.doMock("#lib/editing/resources/souljuicer/souljuicer", () => ({
       toSouljuicerEditorValue: vi.fn(() => ({ entries: mockEntries })),
     }));
 
-    vi.doMock("$lib/editing/resources/souljuicer/souljuicer.server", () => ({
+    vi.doMock("#lib/editing/resources/souljuicer/souljuicer.server", () => ({
       ensureSouljuicerBaselineSnapshot: vi.fn(),
       persistSouljuicerUpload: vi.fn(),
       readSouljuicerFile: vi.fn(async () => mockFile),
@@ -105,9 +114,8 @@ describe("SoulJuicer edit page server", () => {
       saveSouljuicerEditorValue,
     }));
 
-    const { actions } = await import(
-      "../../src/routes/the-souljuicer/edit/[...aid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
     const formData = new FormData();
     formData.set("id", "4");
     formData.set("title", "Updated Entry Four");
@@ -126,16 +134,16 @@ describe("SoulJuicer edit page server", () => {
     });
 
     expect(saveSouljuicerEditorValue).toHaveBeenCalledTimes(1);
-    expect(saveSouljuicerEditorValue.mock.calls[0][0].entries[1]).toMatchObject(
-      {
-        id: 4,
-        title: "Updated Entry Four",
-        createdDate: "2024-05-01",
-        medium: "watercolor",
-        description: "Updated fourth entry",
-        sortOrder: 15,
-      },
-    );
+    const savedEntry = saveSouljuicerEditorValue.mock.calls[0]?.[0].entries[1];
+
+    expect(savedEntry).toMatchObject({
+      id: 4,
+      title: "Updated Entry Four",
+      createdDate: "2024-05-01",
+      medium: "watercolor",
+      description: "Updated fourth entry",
+      sortOrder: 15,
+    });
   });
 
   it("deletes an entry and redirects to the next remaining entry", async () => {
@@ -150,7 +158,7 @@ describe("SoulJuicer edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
@@ -161,11 +169,11 @@ describe("SoulJuicer edit page server", () => {
       .mockReturnValueOnce({ entries: mockEntries })
       .mockReturnValueOnce({ entries: [mockEntries[0]] });
 
-    vi.doMock("$lib/editing/resources/souljuicer/souljuicer", () => ({
+    vi.doMock("#lib/editing/resources/souljuicer/souljuicer", () => ({
       toSouljuicerEditorValue,
     }));
 
-    vi.doMock("$lib/editing/resources/souljuicer/souljuicer.server", () => ({
+    vi.doMock("#lib/editing/resources/souljuicer/souljuicer.server", () => ({
       deleteSouljuicerEntry,
       ensureSouljuicerBaselineSnapshot: vi.fn(),
       persistSouljuicerUpload: vi.fn(),
@@ -174,9 +182,8 @@ describe("SoulJuicer edit page server", () => {
       saveSouljuicerEditorValue: vi.fn(async () => mockFile),
     }));
 
-    const { actions } = await import(
-      "../../src/routes/the-souljuicer/edit/[...aid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
     const formData = new FormData();
     formData.set("id", "4");
 
@@ -197,16 +204,16 @@ describe("SoulJuicer edit page server", () => {
   });
 
   it("blocks deleting the final remaining entry", async () => {
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/resources/souljuicer/souljuicer", () => ({
+    vi.doMock("#lib/editing/resources/souljuicer/souljuicer", () => ({
       toSouljuicerEditorValue: vi.fn(() => ({ entries: [mockEntries[0]] })),
     }));
 
-    vi.doMock("$lib/editing/resources/souljuicer/souljuicer.server", () => ({
+    vi.doMock("#lib/editing/resources/souljuicer/souljuicer.server", () => ({
       deleteSouljuicerEntry: vi.fn(),
       ensureSouljuicerBaselineSnapshot: vi.fn(),
       persistSouljuicerUpload: vi.fn(),
@@ -215,9 +222,8 @@ describe("SoulJuicer edit page server", () => {
       saveSouljuicerEditorValue: vi.fn(async () => mockFile),
     }));
 
-    const { actions } = await import(
-      "../../src/routes/the-souljuicer/edit/[...aid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
     const formData = new FormData();
     formData.set("id", "2");
 

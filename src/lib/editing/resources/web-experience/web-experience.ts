@@ -1,6 +1,6 @@
 import { Schema } from "effect";
 
-import { pageResC, type PageRes } from "$lib/typing/page";
+import { pageResC, type PageRes } from "#lib/typing/page";
 
 import type { EditorDefinition } from "../../core/definitions";
 
@@ -426,9 +426,7 @@ export const buildWebExperienceTarget = (
   file: WebExperienceFile,
   value: WebExperienceEditorValue,
   selection:
-    | { kind: "intro" }
-    | { kind: "new" }
-    | { kind: "entry"; id: number },
+    { kind: "intro" } | { kind: "new" } | { kind: "entry"; id: number },
 ): WebExperienceTarget | null => {
   if (selection.kind === "intro") {
     return {

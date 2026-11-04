@@ -1,6 +1,5 @@
 import { defineConfig } from "vitest/config";
 import { sveltekit } from "@sveltejs/kit/vite";
-import path from "path";
 
 export default defineConfig({
   plugins: [sveltekit()],
@@ -26,11 +25,8 @@ export default defineConfig({
       ],
     },
   },
-  resolve: {
-    alias: {
-      $lib: path.resolve(__dirname, "./src/lib"),
-      $data: path.resolve(__dirname, "./src/data"),
-      $app: path.resolve(__dirname, "./.svelte-kit/runtime/app"),
-    },
-  },
+  // No `resolve.alias` here any more: `#lib` / `#data` are Node subpath imports declared in
+  // package.json, and Vite, Vitest and TypeScript all resolve them natively
+  // (https://svelte.dev/e/kit/config_option_deprecated_alias). Kit's plugin still rewrites the
+  // generated `./$types` specifiers at build time, which is why `sveltekit()` stays in `plugins`.
 });

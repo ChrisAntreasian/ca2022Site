@@ -1,10 +1,10 @@
 <script lang="ts">
-  import Button from "$lib/form/Button.svelte";
-  import MarkdownEditor from "$lib/form/MarkdownEditor.svelte";
-  import NumberInput from "$lib/form/NumberInput.svelte";
-  import TextInput from "$lib/form/TextInput.svelte";
+  import Button from "#lib/form/Button.svelte";
+  import MarkdownEditor from "#lib/form/MarkdownEditor.svelte";
+  import NumberInput from "#lib/form/NumberInput.svelte";
+  import TextInput from "#lib/form/TextInput.svelte";
 
-  import type { PoemEditorValue } from "$lib/editing/resources/poems/poems";
+  import type { PoemEditorValue } from "#lib/editing/resources/poems/poems";
 
   interface Props {
     poem: PoemEditorValue;

@@ -1,5 +1,5 @@
-import { cleanUrlSlug } from "$lib/history";
-import { getFormDataString } from "$lib/form-data";
+import { cleanUrlSlug } from "#lib/history";
+import { getFormDataString } from "#lib/form-data";
 
 import type {
   WebExperienceEditorValue,
@@ -10,9 +10,7 @@ import type {
 const newWebExperienceParam = "new";
 
 export type WebExperienceSelection =
-  | { kind: "intro" }
-  | { kind: "new" }
-  | { kind: "entry"; id: number };
+  { kind: "intro" } | { kind: "new" } | { kind: "entry"; id: number };
 
 export const webExperienceEditorPath = (
   selection: WebExperienceSelection,

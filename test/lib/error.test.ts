@@ -35,16 +35,11 @@ describe("Error Handling Utilities", () => {
     });
 
     it("HttpErrTE type works with error cases", async () => {
-      let mockError:
-        | (Error & { status: number; body: { message: string } })
-        | undefined;
+      let mockError: HttpError | undefined;
       try {
         error(404, "Not found");
       } catch (err) {
-        mockError = err as Error & {
-          status: number;
-          body: { message: string };
-        };
+        mockError = err as HttpError;
       }
       const errorTask: HttpErrTE<string> = Effect.fail(mockError!);
       const result = await Effect.runPromise(Effect.either(errorTask));
@@ -65,16 +60,11 @@ describe("Error Handling Utilities", () => {
     });
 
     it("HttpErrE type works with error cases", () => {
-      let mockError:
-        | (Error & { status: number; body: { message: string } })
-        | undefined;
+      let mockError: HttpError | undefined;
       try {
         error(500, "Server error");
       } catch (err) {
-        mockError = err as Error & {
-          status: number;
-          body: { message: string };
-        };
+        mockError = err as HttpError;
       }
       const errorEither: HttpErrE<number> = Either.left(mockError!);
 
@@ -87,16 +77,11 @@ describe("Error Handling Utilities", () => {
 
   describe("throwErrIO function", () => {
     it("creates IO that can throw errors", () => {
-      let mockError:
-        | (Error & { status: number; body: { message: string } })
-        | undefined;
+      let mockError: HttpError | undefined;
       try {
         error(404, "Resource not found");
       } catch (err) {
-        mockError = err as Error & {
-          status: number;
-          body: { message: string };
-        };
+        mockError = err as HttpError;
       }
       const throwFn = throwErrIO;
 
@@ -104,16 +89,11 @@ describe("Error Handling Utilities", () => {
     });
 
     it("preserves error information when throwing", () => {
-      let mockError:
-        | (Error & { status: number; body: { message: string } })
-        | undefined;
+      let mockError: HttpError | undefined;
       try {
         error(403, "Forbidden access");
       } catch (err) {
-        mockError = err as Error & {
-          status: number;
-          body: { message: string };
-        };
+        mockError = err as HttpError;
       }
       const throwFn = throwErrIO;
 
@@ -126,9 +106,7 @@ describe("Error Handling Utilities", () => {
     });
 
     it("works with different error types", () => {
-      const errors: Array<
-        Error & { status: number; body: { message: string } }
-      > = [];
+      const errors: HttpError[] = [];
 
       // Create errors by catching thrown exceptions
       const errorData = [
@@ -141,9 +119,7 @@ describe("Error Handling Utilities", () => {
         try {
           error(status as number, message as string);
         } catch (err) {
-          errors.push(
-            err as Error & { status: number; body: { message: string } },
-          );
+          errors.push(err as HttpError);
         }
       });
 
@@ -155,22 +131,17 @@ describe("Error Handling Utilities", () => {
     });
 
     it("can be used in fp-ts patterns", () => {
-      let mockError:
-        | (Error & { status: number; body: { message: string } })
-        | undefined;
+      let mockError: HttpError | undefined;
       try {
         error(500, "Database connection failed");
       } catch (err) {
-        mockError = err as Error & {
-          status: number;
-          body: { message: string };
-        };
+        mockError = err as HttpError;
       }
       const throwFn = throwErrIO;
 
       // Test that it creates a proper IO function
       expect(typeof throwFn).toBe("function");
-      expect(() => throwFn(mockError)).toThrow();
+      expect(() => throwFn(mockError!)).toThrow();
     });
   });
 

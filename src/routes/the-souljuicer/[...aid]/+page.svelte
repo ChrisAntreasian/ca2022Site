@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { PageServerData } from "./$types";
-  import { souljuicerEditorPath } from "$lib/editing/resources/souljuicer/souljuicer-editor";
+  import { souljuicerEditorPath } from "#lib/editing/resources/souljuicer/souljuicer-editor";
 
-  import Gallary from "$lib/Gallary/index.svelte";
+  import Gallary from "#lib/Gallary/index.svelte";
   interface Props {
     data: PageServerData;
   }
@@ -11,7 +11,8 @@
 
   let parentRoute = "/the-souljuicer/";
   let analyticsKey = "the SoulJuicer";
-  const editHref = data.editorEnabled ? souljuicerEditorPath(data.artPiece.id) : null;
+  const editHref = (() =>
+    data.editorEnabled ? souljuicerEditorPath(data.artPiece.id) : null)();
 </script>
 
 <svelte:head>

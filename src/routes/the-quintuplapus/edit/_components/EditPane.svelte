@@ -1,11 +1,11 @@
 <script lang="ts">
-  import Button from "$lib/form/Button.svelte";
-  import ImageUploadSection from "$lib/form/ImageUploadSection.svelte";
-  import MarkdownEditor from "$lib/form/MarkdownEditor.svelte";
-  import NumberInput from "$lib/form/NumberInput.svelte";
-  import TextInput from "$lib/form/TextInput.svelte";
+  import Button from "#lib/form/Button.svelte";
+  import ImageUploadSection from "#lib/form/ImageUploadSection.svelte";
+  import MarkdownEditor from "#lib/form/MarkdownEditor.svelte";
+  import NumberInput from "#lib/form/NumberInput.svelte";
+  import TextInput from "#lib/form/TextInput.svelte";
 
-  import type { QuintuplapusEditorEntry } from "$lib/editing/resources/quintuplapus/quintuplapus";
+  import type { QuintuplapusEditorEntry } from "#lib/editing/resources/quintuplapus/quintuplapus";
 
   interface Props {
     categoryTitle: string;

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { loadResult } from "./loadResult";
 
 describe("Web Experience page server load", () => {
   beforeEach(() => {
@@ -6,7 +7,7 @@ describe("Web Experience page server load", () => {
   });
 
   it("does not crash when an entry is missing logo or image data", async () => {
-    vi.doMock("$data/web-experience.json", () => ({
+    vi.doMock("#data/web-experience.json", () => ({
       data: {
         data: [
           {
@@ -44,10 +45,9 @@ describe("Web Experience page server load", () => {
       },
     }));
 
-    const { load } = await import(
-      "../../src/routes/web-experience/[...eid]/+page.server"
-    );
-    const result = await load({ params: {} } as never);
+    const { load } =
+      await import("../../src/routes/web-experience/[...eid]/+page.server");
+    const result = loadResult(await load({ params: {} } as never));
 
     expect(result.items).toHaveLength(2);
     expect(result.item.id).toBe(-1);

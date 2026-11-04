@@ -39,10 +39,10 @@
     class:form-control--error={!!error}
   />
   {#if error}
-      <span id="{id}-error" class="form-field__error" role="alert">{error}</span>
+    <span id="{id}-error" class="form-field__error" role="alert">{error}</span>
   {/if}
 </label>
 
 <style>
-    @import "./field.css";
+  @import "./field.css";
 </style>

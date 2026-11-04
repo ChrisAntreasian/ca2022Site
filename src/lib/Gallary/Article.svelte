@@ -3,13 +3,13 @@
   import { fade } from "svelte/transition";
   import SvelteMarkdown from "svelte-exmarkdown";
 
-  import { rem } from "$lib/spacing";
-  import Arrow from "$lib/arrow/Arrow.svelte";
+  import { rem } from "#lib/spacing";
+  import Arrow from "#lib/arrow/Arrow.svelte";
   import FullScreen from "../Fullscreen/index.svelte";
 
-  import { contextHeightKey, mqBreakPoint } from "$lib/spacing";
+  import { contextHeightKey, mqBreakPoint } from "#lib/spacing";
   import { getContext } from "svelte";
-  import type { ArtWithId } from "$lib/typing/art";
+  import type { ArtWithId } from "#lib/typing/art";
 
   interface Props {
     artPiece: ArtWithId;

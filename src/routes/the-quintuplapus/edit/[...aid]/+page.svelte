@@ -1,8 +1,8 @@
 <script lang="ts">
-  import EditorShell from "$lib/editing/core/EditorShell.svelte";
-  import UnsavedChangesDialog from "$lib/form/UnsavedChangesDialog.svelte";
-  import { cleanUrlSlug } from "$lib/history";
-  import { quintuplapusEditorPath } from "$lib/editing/resources/quintuplapus/quintuplapus-editor";
+  import EditorShell from "#lib/editing/core/EditorShell.svelte";
+  import UnsavedChangesDialog from "#lib/form/UnsavedChangesDialog.svelte";
+  import { cleanUrlSlug } from "#lib/history";
+  import { quintuplapusEditorPath } from "#lib/editing/resources/quintuplapus/quintuplapus-editor";
 
   import EditPane from "../_components/EditPane.svelte";
 
@@ -31,8 +31,8 @@
         }
       : data.selectedEntry,
   );
-  let currentCategoryTitle = $state(data.categoryTitle);
-  let currentEntry = $state(data.selectedEntry);
+  let currentCategoryTitle = $state((() => data.categoryTitle)());
+  let currentEntry = $state((() => data.selectedEntry)());
 
   $effect(() => {
     currentCategoryTitle = incomingCategoryTitle;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EditorShell from "$lib/editing/core/EditorShell.svelte";
+  import EditorShell from "#lib/editing/core/EditorShell.svelte";
   import EditPane from "./_components/EditPane.svelte";
 
   import type { ActionData, PageData } from "./$types";

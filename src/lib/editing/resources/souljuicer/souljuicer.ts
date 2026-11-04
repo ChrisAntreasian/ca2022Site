@@ -1,7 +1,7 @@
 import { Schema } from "effect";
 
-import { strapiBaseC, strapiMetaDataC } from "$lib/typing/strapi";
-import { strapiImageDataC } from "$lib/typing/art";
+import { strapiBaseC, strapiMetaDataC } from "#lib/typing/strapi";
+import { strapiImageDataC } from "#lib/typing/art";
 
 import type { EditorDefinition } from "../../core/definitions";
 

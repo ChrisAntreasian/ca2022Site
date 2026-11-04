@@ -4,20 +4,20 @@ import { Either, Schema } from "effect";
 import {
   isEditorEnabled,
   requireEditorEnabled,
-} from "$lib/editing/core/auth.server";
+} from "#lib/editing/core/auth.server";
 import {
   termsOfServiceEditorDefinition,
   toTermsOfServiceEditorValue,
-} from "$lib/editing/resources/terms-of-service/terms-of-service";
+} from "#lib/editing/resources/terms-of-service/terms-of-service";
 import {
   termsOfServiceEditorPath,
   parseTermsOfServiceForm,
-} from "$lib/editing/resources/terms-of-service/terms-of-service-editor";
+} from "#lib/editing/resources/terms-of-service/terms-of-service-editor";
 import {
   ensureTermsOfServiceBaselineSnapshot,
   readTermsOfServiceFile,
   saveTermsOfServiceEditorValue,
-} from "$lib/editing/resources/terms-of-service/terms-of-service.server";
+} from "#lib/editing/resources/terms-of-service/terms-of-service.server";
 
 import type { Actions, PageServerLoad } from "./$types";
 

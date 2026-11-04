@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
 
-  import { noScroll } from "$lib/body";
+  import { noScroll } from "#lib/body";
   import Button from "./Button.svelte";
 
   interface Props {

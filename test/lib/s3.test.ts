@@ -11,11 +11,10 @@ const mockS3Instance = {
 };
 
 // Mock the entire s3 module to avoid import.meta.env issues
-vi.mock("$lib/s3", () => ({
+vi.mock("#lib/s3", () => ({
   initS3: vi.fn(() => {
     // Call the mocked AWS.S3 constructor to satisfy tests
-    const mockConstructor = AWS.S3 as unknown;
-    (mockConstructor as unknown)({
+    new AWS.S3({
       region: "us-east-1",
       accessKeyId: "test-access-key",
       secretAccessKey: "test-secret-key",
@@ -23,12 +22,12 @@ vi.mock("$lib/s3", () => ({
     return mockS3Instance;
   }),
   getS3File: vi.fn(
-    (s3: unknown) => (key: string) =>
-      (s3 as unknown).getObject({ Bucket: "test-bucket", Key: key }).promise(),
+    (s3: AWS.S3) => (key: string) =>
+      s3.getObject({ Bucket: "test-bucket", Key: key }).promise(),
   ),
-  uploadS3File: vi.fn((s3: unknown) => async (key: string, body: unknown) => {
+  uploadS3File: vi.fn((s3: AWS.S3) => async (key: string, body: unknown) => {
     try {
-      await (s3 as unknown)
+      await s3
         .upload({ Bucket: "test-bucket", Key: key, Body: body })
         .promise();
       return undefined; // Upload doesn't return a value
@@ -39,13 +38,20 @@ vi.mock("$lib/s3", () => ({
   }),
 }));
 
-// Mock AWS SDK
+// Mock AWS SDK. `initS3` builds the client with `new AWS.S3(...)`, so the mock must be a
+// constructable implementation: vitest constructs whatever implementation `vi.fn` was handed, and
+// an arrow function cannot be constructed. The spy is built inside the factory because vitest
+// hoists this call above the file's top-level variables.
 vi.mock("aws-sdk", () => {
+  const S3 = vi.fn(function () {
+    return mockS3Instance;
+  });
+
   return {
     default: {
-      S3: vi.fn(() => mockS3Instance),
+      S3,
     },
-    S3: vi.fn(() => mockS3Instance),
+    S3,
   };
 });
 
@@ -254,11 +260,9 @@ describe("S3 Utilities", () => {
   describe("S3 integration workflow", () => {
     it("can be used together for upload and retrieve workflow", async () => {
       // Setup upload mock
-      const uploadPromise = vi
-        .fn()
-        .mockResolvedValue({
-          Location: "https://bucket.s3.amazonaws.com/test-key",
-        });
+      const uploadPromise = vi.fn().mockResolvedValue({
+        Location: "https://bucket.s3.amazonaws.com/test-key",
+      });
       mockS3Instance.upload.mockReturnValue({ promise: uploadPromise });
 
       // Setup get mock

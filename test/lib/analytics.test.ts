@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-vi.unmock("$lib/analytics");
+vi.unmock("#lib/analytics");
 
 vi.mock("$app/environment", () => ({
   browser: true,
@@ -27,7 +27,7 @@ import {
   captureBehavior,
   captureClickThis,
   initMixpanel,
-} from "$lib/analytics";
+} from "#lib/analytics";
 
 // Get the mocked mixpanel
 const mockMixpanel = mixpanel as unknown as {

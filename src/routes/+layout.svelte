@@ -3,13 +3,13 @@
 
   import { onMount } from "svelte";
   import { setContext } from "svelte";
-  import { contextHeightKey } from "$lib/spacing";
+  import { contextHeightKey } from "#lib/spacing";
 
   import Header from "./_modules/Header.svelte";
   import Footer from "./_modules/Footer.svelte";
 
   import type { LayoutServerData } from "./$types";
-  import { initMixpanel } from "$lib/analytics";
+  import { initMixpanel } from "#lib/analytics";
 
   interface Props {
     headerHeight: number;

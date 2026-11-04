@@ -126,6 +126,8 @@ describe("Article Logic Tests", () => {
     it("tracks expanded state correctly", () => {
       let expanded = false;
 
+      expect(expanded).toBe(false);
+
       // Simulate expanding
       expanded = true;
       expect(expanded).toBe(true);
@@ -138,6 +140,9 @@ describe("Article Logic Tests", () => {
     it("resets states on navigation", () => {
       let expanded = true;
       let scrollLogged = true;
+
+      expect(expanded).toBe(true);
+      expect(scrollLogged).toBe(true);
 
       // Simulate navigation reset
       expanded = false;

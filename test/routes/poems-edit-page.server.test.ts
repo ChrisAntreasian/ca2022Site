@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { loadResult } from "./loadResult";
 
 const mockPoems = [
   { id: 2, title: "Cheese", bodyMarkdown: "Cheese body", sortOrder: 10 },
@@ -31,12 +32,12 @@ describe("poems edit page server", () => {
   });
 
   it("loads the selected poem and saved message", async () => {
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/resources/poems/poems", () => ({
+    vi.doMock("#lib/editing/resources/poems/poems", () => ({
       poemEditorDefinition: {
         key: "poems",
         label: "Poems",
@@ -52,20 +53,21 @@ describe("poems edit page server", () => {
       toPoemEditorValues: vi.fn(() => mockPoems),
     }));
 
-    vi.doMock("$lib/editing/resources/poems/poems.server", () => ({
+    vi.doMock("#lib/editing/resources/poems/poems.server", () => ({
       ensurePoemsBaselineSnapshot: vi.fn(),
       readPoemsFile: vi.fn(async () => ({ name: "poems" })),
       savePoemEditorValue: vi.fn(),
     }));
 
-    const { load } = await import(
-      "../../src/routes/poems/edit/[...pid]/+page.server"
-    );
+    const { load } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
 
-    const result = await load({
-      params: { pid: "4/the-carpal-tunnel" },
-      url: new URL("http://localhost/poems/edit/4/the-carpal-tunnel?saved=1"),
-    } as never);
+    const result = loadResult(
+      await load({
+        params: { pid: "4/the-carpal-tunnel" },
+        url: new URL("http://localhost/poems/edit/4/the-carpal-tunnel?saved=1"),
+      } as never),
+    );
 
     expect(result.editorEnabled).toBe(true);
     expect(result.savedMessage).toBe("Poem saved.");
@@ -85,12 +87,12 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/resources/poems/poems", () => ({
+    vi.doMock("#lib/editing/resources/poems/poems", () => ({
       poemEditorDefinition: {
         key: "poems",
         label: "Poems",
@@ -125,15 +127,14 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/resources/poems/poems.server", () => ({
+    vi.doMock("#lib/editing/resources/poems/poems.server", () => ({
       ensurePoemsBaselineSnapshot: vi.fn(),
       readPoemsFile: vi.fn(),
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
     }));
 
-    const { actions } = await import(
-      "../../src/routes/poems/edit/[...pid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
     const formData = new FormData();
     formData.set("id", "4");
     formData.set("title", "The Carpal Tunnel");
@@ -162,12 +163,12 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/resources/poems/poems", () => ({
+    vi.doMock("#lib/editing/resources/poems/poems", () => ({
       poemEditorDefinition: {
         key: "poems",
         label: "Poems",
@@ -202,15 +203,14 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/resources/poems/poems.server", () => ({
+    vi.doMock("#lib/editing/resources/poems/poems.server", () => ({
       ensurePoemsBaselineSnapshot: vi.fn(),
       readPoemsFile: vi.fn(),
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
     }));
 
-    const { actions } = await import(
-      "../../src/routes/poems/edit/[...pid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
     const formData = new FormData();
     formData.set("id", "4");
     formData.set("title", "The Carpal Tunnel");
@@ -240,7 +240,7 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
@@ -251,7 +251,7 @@ describe("poems edit page server", () => {
       .mockReturnValueOnce([mockPoems[1]]);
     const deletePoemEditorValue = vi.fn(async () => ({ name: "poems" }));
 
-    vi.doMock("$lib/editing/resources/poems/poems", () => ({
+    vi.doMock("#lib/editing/resources/poems/poems", () => ({
       poemEditorDefinition: {
         key: "poems",
         label: "Poems",
@@ -267,16 +267,15 @@ describe("poems edit page server", () => {
       toPoemEditorValues,
     }));
 
-    vi.doMock("$lib/editing/resources/poems/poems.server", () => ({
+    vi.doMock("#lib/editing/resources/poems/poems.server", () => ({
       deletePoemEditorValue,
       ensurePoemsBaselineSnapshot: vi.fn(),
       readPoemsFile: vi.fn(async () => ({ name: "poems" })),
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
     }));
 
-    const { actions } = await import(
-      "../../src/routes/poems/edit/[...pid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
     const formData = new FormData();
     formData.set("id", "2");
 
@@ -295,12 +294,12 @@ describe("poems edit page server", () => {
   });
 
   it("rejects poem delete for invalid id", async () => {
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
       requireEditorEnabled: vi.fn(),
     }));
 
-    vi.doMock("$lib/editing/resources/poems/poems", () => ({
+    vi.doMock("#lib/editing/resources/poems/poems", () => ({
       poemEditorDefinition: {
         key: "poems",
         label: "Poems",
@@ -316,16 +315,15 @@ describe("poems edit page server", () => {
       toPoemEditorValues: vi.fn(() => mockPoems),
     }));
 
-    vi.doMock("$lib/editing/resources/poems/poems.server", () => ({
+    vi.doMock("#lib/editing/resources/poems/poems.server", () => ({
       deletePoemEditorValue: vi.fn(),
       ensurePoemsBaselineSnapshot: vi.fn(),
       readPoemsFile: vi.fn(async () => ({ name: "poems" })),
       savePoemEditorValue: vi.fn(async () => mockSavedFile),
     }));
 
-    const { actions } = await import(
-      "../../src/routes/poems/edit/[...pid]/+page.server"
-    );
+    const { actions } =
+      await import("../../src/routes/poems/edit/[...pid]/+page.server");
     const formData = new FormData();
     formData.set("id", "0");
 

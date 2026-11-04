@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Button from "$lib/form/Button.svelte";
-  import MarkdownEditor from "$lib/form/MarkdownEditor.svelte";
-  import TextInput from "$lib/form/TextInput.svelte";
+  import Button from "#lib/form/Button.svelte";
+  import MarkdownEditor from "#lib/form/MarkdownEditor.svelte";
+  import TextInput from "#lib/form/TextInput.svelte";
 
-  import type { TermsOfServiceEditorValue } from "$lib/editing/resources/terms-of-service/terms-of-service";
+  import type { TermsOfServiceEditorValue } from "#lib/editing/resources/terms-of-service/terms-of-service";
 
   interface Props {
     terms: TermsOfServiceEditorValue;

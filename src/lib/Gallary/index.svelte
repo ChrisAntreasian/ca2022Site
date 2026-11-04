@@ -6,7 +6,7 @@
 
   import { afterNavigate } from "$app/navigation";
 
-  import { clientNavigate } from "$lib/history";
+  import { clientNavigate } from "#lib/history";
   import {
     contextHeightKey,
     rem,
@@ -14,14 +14,14 @@
     type LayoutElemH,
     fromRem,
     toRem,
-  } from "$lib/spacing";
+  } from "#lib/spacing";
 
-  import Article from "$lib/Gallary/Article.svelte";
-  import Nav from "$lib/Gallary/Nav.svelte";
+  import Article from "#lib/Gallary/Article.svelte";
+  import Nav from "#lib/Gallary/Nav.svelte";
 
-  import { captureDetails, captureBehavior } from "$lib/analytics";
+  import { captureDetails, captureBehavior } from "#lib/analytics";
 
-  import type { ArtWithId } from "$lib/typing/art";
+  import type { ArtWithId } from "#lib/typing/art";
   import { onMount } from "svelte";
   type GallaryProps = {
     artPieces: Array<ArtWithId>;
@@ -65,10 +65,15 @@
   const extraHeight = fromRem(2.5);
   const navHeight = fromRem(6);
 
-  let paginationDetails = $state({
-    length: artPieces.length,
-    position: 0,
-  });
+  let paginationDetails = $state(
+    (() => {
+      return {
+        length: artPieces.length,
+        position: 0,
+      };
+    })(),
+  );
+
   const setPaginationDetails = (id: number) => {
     paginationDetails = {
       length: paginationDetails.length,
@@ -91,9 +96,10 @@
   onMount(initGallery);
   afterNavigate(initGallery);
 
-  let preloadImages = artPieces
-    .map((p) => p.attributes.image.data?.attributes.url)
-    .filter((image): image is string => Boolean(image));
+  let preloadImages = (() =>
+    artPieces
+      .map((p) => p.attributes.image.data?.attributes.url)
+      .filter((image): image is string => Boolean(image)))();
 
   const transitionDetails = {
     easing: cubicOut,
@@ -114,7 +120,7 @@
     artPiece = artPieces.filter((p) => p.id === id)[0];
     clientNavigateS(
       `${parentRoute}${artPiece.id}`,
-      useUrlTitle ? artPiece.attributes.title : undefined
+      useUrlTitle ? artPiece.attributes.title : undefined,
     );
   };
 
@@ -140,7 +146,7 @@
     changeSelected(id);
     captureBehavior(
       `${analyticsKey} click thumbnail`,
-      captureDetails({ id: id, name: artPiece.attributes.title })
+      captureDetails({ id: id, name: artPiece.attributes.title }),
     );
   };
 
@@ -153,8 +159,8 @@
         `${k} click paginate`,
         captureDetails(
           { id: index + n, name: artPieces[index + n].attributes.title },
-          { direction: n > 0 ? "next" : "last" }
-        )
+          { direction: n > 0 ? "next" : "last" },
+        ),
       );
     }
   };
@@ -166,7 +172,7 @@
     showMore = s;
     captureBehavior(
       `${analyticsKey} click readmore`,
-      captureDetails({ id: artPiece.id, name: artPiece.attributes.title })
+      captureDetails({ id: artPiece.id, name: artPiece.attributes.title }),
     );
   };
 </script>

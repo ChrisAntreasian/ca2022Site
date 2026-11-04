@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { loadResult } from "./loadResult";
 
 describe("terms-of-service page server load", () => {
   beforeEach(() => {
@@ -6,12 +7,12 @@ describe("terms-of-service page server load", () => {
   });
 
   it("loads terms content and editor flag", async () => {
-    vi.doMock("$lib/editing/core/auth.server", () => ({
+    vi.doMock("#lib/editing/core/auth.server", () => ({
       isEditorEnabled: vi.fn(() => true),
     }));
 
     vi.doMock(
-      "$lib/editing/resources/terms-of-service/terms-of-service.server",
+      "#lib/editing/resources/terms-of-service/terms-of-service.server",
       () => ({
         readTermsOfServiceFile: vi.fn(async () => ({
           name: "terms-of-service",
@@ -24,10 +25,9 @@ describe("terms-of-service page server load", () => {
       }),
     );
 
-    const { load } = await import(
-      "../../src/routes/terms-of-service/+page.server"
-    );
-    const result = await load({} as never);
+    const { load } =
+      await import("../../src/routes/terms-of-service/+page.server");
+    const result = loadResult(await load({} as never));
 
     expect(result.editorEnabled).toBe(true);
     expect(result.terms.title).toBe("Terms");

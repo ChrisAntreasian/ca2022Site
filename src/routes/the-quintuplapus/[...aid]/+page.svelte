@@ -1,17 +1,24 @@
 <script lang="ts">
   import type { PageServerData } from "./$types";
-  import { quintuplapusEditorPath } from "$lib/editing/resources/quintuplapus/quintuplapus-editor";
+  import { quintuplapusEditorPath } from "#lib/editing/resources/quintuplapus/quintuplapus-editor";
 
-  import Gallary from "$lib/Gallary/index.svelte";
+  import Gallary from "#lib/Gallary/index.svelte";
   interface Props {
     data: PageServerData;
   }
 
   let { data }: Props = $props();
+
+  // Store references to nested data that will be used multiple times
+  const editorEnabled = (() => data.editorEnabled ?? false)();
+  const artPiece = (() => data.artPiece)();
+
   let parentRoute = "/the-quintuplapus/";
   let analyticsKey = "the Quintuplapus";
-  const editHref = data.editorEnabled
-    ? quintuplapusEditorPath(data.artPiece.id, data.artPiece.attributes.title)
+
+  // Now we can safely reference these stored values
+  const editHref = editorEnabled
+    ? quintuplapusEditorPath(artPiece.id, artPiece.attributes.title)
     : null;
 </script>
 

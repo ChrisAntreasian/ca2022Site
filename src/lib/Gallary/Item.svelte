@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { cleanUrlSlug } from "$lib/history";
-  import type { ArtWithId } from "$lib/typing/art";
+  import { cleanUrlSlug } from "#lib/history";
+  import type { ArtWithId } from "#lib/typing/art";
 
   interface Props {
     artPiece: ArtWithId;
