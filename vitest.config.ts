@@ -12,7 +12,7 @@ export default defineConfig({
       "test/**/Gallery.test.ts",
       "test/**/Article.test.ts",
       "test/**/*component*.{test,spec}.{js,ts}",
-    ], // Exclude component tests that require browser environment
+    ],
     coverage: {
       reporter: ["text", "json", "html"],
       exclude: [
@@ -25,8 +25,4 @@ export default defineConfig({
       ],
     },
   },
-  // No `resolve.alias` here any more: `#lib` / `#data` are Node subpath imports declared in
-  // package.json, and Vite, Vitest and TypeScript all resolve them natively
-  // (https://svelte.dev/e/kit/config_option_deprecated_alias). Kit's plugin still rewrites the
-  // generated `./$types` specifiers at build time, which is why `sveltekit()` stays in `plugins`.
 });
