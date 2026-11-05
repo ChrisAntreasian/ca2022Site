@@ -14,11 +14,11 @@ import {
   replaceEntryImageMedia,
 } from "../../core/media.server";
 import { createJsonEditorStore } from "../../core/store.server";
+import { fsDataStore } from "#lib/dataStore.server";
 
-const souljuicerFilePath = "./src/data/the-souljuicer.json";
 const souljuicerUploadKeyPrefix = "the-souljuicer";
 const souljuicerStore = createJsonEditorStore<SouljuicerFile>({
-  filePath: souljuicerFilePath,
+  store: fsDataStore,
   schema: souljuicerFileC,
   contentKey: "the-souljuicer",
   invalidDataMessage: "Invalid Souljuicer data file.",

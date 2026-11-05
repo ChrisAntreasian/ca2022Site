@@ -13,11 +13,11 @@ import {
   persistUploadedMedia,
 } from "../../core/media.server";
 import { createJsonEditorStore } from "../../core/store.server";
+import { fsDataStore } from "#lib/dataStore.server";
 
-const webExperienceFilePath = "./src/data/web-experience.json";
 const webExperienceUploadKeyPrefix = "web-experience";
 const webExperienceStore = createJsonEditorStore<WebExperienceFile>({
-  filePath: webExperienceFilePath,
+  store: fsDataStore,
   schema: webExperienceFileC,
   contentKey: "web-experience",
   invalidDataMessage: "Invalid web experience data file.",

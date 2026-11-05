@@ -1,14 +1,12 @@
-import * as fs from "fs";
-
 import { Result, Schema } from "effect";
 
 import { e500 } from "#lib/error";
-import { ensureDataBaselineSnapshot, writeVersionedDataFile } from "#lib/file";
+import type { DataStore } from "#lib/dataStore.server";
 
 type JsonEditorStoreOptions<
   FileValue extends { name: string; timestamp: number; data: unknown },
 > = {
-  filePath: string;
+  store: DataStore;
   schema: Schema.Codec<FileValue, unknown>;
   contentKey: string;
   invalidDataMessage: string;
@@ -17,13 +15,13 @@ type JsonEditorStoreOptions<
 export const createJsonEditorStore = <
   FileValue extends { name: string; timestamp: number; data: unknown },
 >({
-  filePath,
+  store,
   schema,
   contentKey,
   invalidDataMessage,
 }: JsonEditorStoreOptions<FileValue>) => {
   const readFile = async (): Promise<FileValue> => {
-    const source = await fs.promises.readFile(filePath, "utf8");
+    const source = await store.readFile(contentKey);
     const parsed = JSON.parse(source) as unknown;
     const decoded = Schema.decodeUnknownResult(schema)(parsed);
 
@@ -35,10 +33,10 @@ export const createJsonEditorStore = <
   };
 
   const ensureBaselineSnapshot = async (file?: FileValue) =>
-    ensureDataBaselineSnapshot(file?.name ?? contentKey);
+    store.ensureBaselineSnapshot(file?.name ?? contentKey);
 
   const writeFile = async (file: FileValue) => {
-    await writeVersionedDataFile(file);
+    await store.writeFile(file.name || contentKey, file);
   };
 
   return {

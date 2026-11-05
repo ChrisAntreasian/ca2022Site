@@ -5,10 +5,10 @@ import {
   type TermsOfServiceFile,
 } from "./terms-of-service";
 import { createJsonEditorStore } from "../../core/store.server";
+import { fsDataStore } from "#lib/dataStore.server";
 
-const termsOfServiceFilePath = "./src/data/terms-of-service.json";
 const termsOfServiceStore = createJsonEditorStore<TermsOfServiceFile>({
-  filePath: termsOfServiceFilePath,
+  store: fsDataStore,
   schema: termsOfServiceFileC,
   contentKey: "terms-of-service",
   invalidDataMessage: "Invalid terms-of-service data file.",

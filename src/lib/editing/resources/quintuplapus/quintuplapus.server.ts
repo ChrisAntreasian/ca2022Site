@@ -14,11 +14,11 @@ import {
   replaceEntryImageMedia,
 } from "../../core/media.server";
 import { createJsonEditorStore } from "../../core/store.server";
+import { fsDataStore } from "#lib/dataStore.server";
 
-const quintuplapusFilePath = "./src/data/the-quintuplapus.json";
 const quintuplapusUploadKeyPrefix = "the-quintuplapus";
 const quintuplapusStore = createJsonEditorStore<QuintuplapusFile>({
-  filePath: quintuplapusFilePath,
+  store: fsDataStore,
   schema: quintuplapusFileC,
   contentKey: "the-quintuplapus",
   invalidDataMessage: "Invalid Quintuplapus data file.",

@@ -6,10 +6,10 @@ import {
   type PoemsFile,
 } from "./poems";
 import { createJsonEditorStore } from "../../core/store.server";
+import { fsDataStore } from "#lib/dataStore.server";
 
-const poemsFilePath = "./src/data/poems.json";
 const poemsStore = createJsonEditorStore<PoemsFile>({
-  filePath: poemsFilePath,
+  store: fsDataStore,
   schema: poemsFileC,
   contentKey: "poems",
   invalidDataMessage: "Invalid poems data file.",
