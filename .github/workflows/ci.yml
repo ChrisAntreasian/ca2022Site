@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [master, feature/s3-json-data-store]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+# A second run on the same branch cancels the previous one so a fix pushed while CI is still
+# running does not queue a stale duplicate.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Typecheck, unit tests, lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # package.json declares engines.node 22.x / engines.npm 10.x. Node 22 is also what Vercel
+      # deploys on, so CI matches both the declared range and the production runtime.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` runs package.json's postinstall (svelte-kit sync), which generates the .svelte-kit
+      # directory that tsconfig.json and svelte-check depend on. Skipping it makes `npm run check`
+      # fail on missing #lib / #data subpath mappings. Plain `npm ci` is used deliberately: strict
+      # peer resolution succeeds here (`npm ci --dry-run` exits 0), so no --legacy-peer-deps flag is
+      # needed. Kit 3 declares typescript ^6 while the repo pins 5.9.3 for effect@3 Schema inference,
+      # which npm reports as an invalid peer but still installs - keep an eye on it if a future
+      # install starts refusing that peer.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run check
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Lint
+        run: npm run lint
+
+  # Separate job rather than a step in `quality`: this is the one gate that cannot pass on Windows,
+  # because @sveltejs/adapter-vercel maps dynamic routes with fs.symlinkSync and unprivileged Windows
+  # refuses it (EPERM). Running it only here documents that the blocker is platform-specific instead
+  # of hiding it - and ubuntu-latest is where Vercel itself builds, so this job mirrors production.
+  build:
+    name: Production build (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
