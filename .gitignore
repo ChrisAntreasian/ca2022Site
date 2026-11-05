@@ -3,8 +3,10 @@ node_modules
 /build
 /.svelte-kit
 /package
+# Local dev secrets - never commit. See .env.example for the required names.
 .env
 .env.*
+!.env.example
 /docs
 .vercel
 .output

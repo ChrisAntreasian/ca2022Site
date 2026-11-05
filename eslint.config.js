@@ -20,9 +20,14 @@ export default [
       ".output/",
       "coverage/",
       "test-results/",
-      ".env",
-      ".env.*",
+      // Local env files hold real credentials and must never be committed or linted. `.env.example`
+      // is the exception: it carries names only, so a new checkout knows what to fill in. The `**/`
+      // form matches nested copies too, which a bare pattern at the repo root does not.
+      "**/.env",
+      "**/.env.local",
+      "**/.env.*",
       "!.env.example",
+      "**/!.env.example",
       "pnpm-lock.yaml",
       "package-lock.json",
       "yarn.lock",
