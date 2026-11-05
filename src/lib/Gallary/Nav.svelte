@@ -109,7 +109,6 @@
     if (activeItemIndex !== 0 && apP < activeItemIndex) {
       paginate(-1);
     } else if (apP > activeItemIndex + (itemsPerPage - 1)) {
-      console.log("art piece changed else statement");
       paginate(1);
     }
   };

@@ -1,4 +1,4 @@
-import { pushState } from "$app/navigation";
+import { goto } from "$app/navigation";
 
 export const cleanUrlSlug = (slug: string) => {
   return slug
@@ -23,7 +23,7 @@ export const clientNavigate =
       }
     }
 
-    pushState(finalUrl, {});
+    goto(finalUrl, {});
     if (scroll) {
       window.scrollTo({ top: 0 });
     }

@@ -2,14 +2,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock $app/navigation before importing anything else
 vi.mock("$app/navigation", () => ({
-  pushState: vi.fn(),
+  goto: vi.fn(),
 }));
 
 // Un-mock #lib/history to test the real implementation
 vi.doUnmock("#lib/history");
 
 import { cleanUrlSlug, clientNavigate } from "../../src/lib/history";
-import { pushState } from "$app/navigation";
+import { goto } from "$app/navigation";
 
 describe("History Utilities", () => {
   describe("cleanUrlSlug", () => {
@@ -75,7 +75,7 @@ describe("History Utilities", () => {
 
   describe("clientNavigate", () => {
     beforeEach(() => {
-      vi.mocked(pushState).mockClear();
+      vi.mocked(goto).mockClear();
 
       // Mock window.scrollTo
       Object.defineProperty(window, "scrollTo", {
@@ -89,7 +89,7 @@ describe("History Utilities", () => {
       const navigate = clientNavigate(false);
       navigate("/test-path");
 
-      expect(pushState).toHaveBeenCalledWith("/test-path", {});
+      expect(goto).toHaveBeenCalledWith("/test-path", {});
       expect(window.scrollTo).not.toHaveBeenCalled();
     });
 
@@ -97,7 +97,7 @@ describe("History Utilities", () => {
       const navigate = clientNavigate(true);
       navigate("/test-path");
 
-      expect(pushState).toHaveBeenCalledWith("/test-path", {});
+      expect(goto).toHaveBeenCalledWith("/test-path", {});
       expect(window.scrollTo).toHaveBeenCalledWith({ top: 0 });
     });
 
@@ -105,7 +105,7 @@ describe("History Utilities", () => {
       const navigate = clientNavigate(false);
       navigate("/test-path", "Hello World!");
 
-      expect(pushState).toHaveBeenCalledWith("/test-path/hello-world", {});
+      expect(goto).toHaveBeenCalledWith("/test-path/hello-world", {});
       expect(window.scrollTo).not.toHaveBeenCalled();
     });
 
@@ -113,7 +113,7 @@ describe("History Utilities", () => {
       const navigate = clientNavigate(true);
       navigate("/test-path", "Hello World!");
 
-      expect(pushState).toHaveBeenCalledWith("/test-path/hello-world", {});
+      expect(goto).toHaveBeenCalledWith("/test-path/hello-world", {});
       expect(window.scrollTo).toHaveBeenCalledWith({ top: 0 });
     });
 
@@ -121,14 +121,14 @@ describe("History Utilities", () => {
       const navigate = clientNavigate(false);
       navigate("/test-path", "");
 
-      expect(pushState).toHaveBeenCalledWith("/test-path/", {});
+      expect(goto).toHaveBeenCalledWith("/test-path/", {});
     });
 
     it("handles complex slugs", () => {
       const navigate = clientNavigate(false);
       navigate("/articles", "The Quick Brown Fox!!! Jumps Over the Lazy Dog.");
 
-      expect(pushState).toHaveBeenCalledWith(
+      expect(goto).toHaveBeenCalledWith(
         "/articles/the-quick-brown-fox-jumps-over-the-lazy-dog",
         {},
       );
@@ -138,7 +138,7 @@ describe("History Utilities", () => {
       const navigate = clientNavigate(true);
       navigate("/", "test-slug");
 
-      expect(pushState).toHaveBeenCalledWith("/test-slug", {});
+      expect(goto).toHaveBeenCalledWith("/test-slug", {});
       expect(window.scrollTo).toHaveBeenCalledWith({ top: 0 });
     });
 
@@ -146,7 +146,7 @@ describe("History Utilities", () => {
       const navigate = clientNavigate(false);
       navigate("/category/subcategory", "article title");
 
-      expect(pushState).toHaveBeenCalledWith(
+      expect(goto).toHaveBeenCalledWith(
         "/category/subcategory/article-title",
         {},
       );
@@ -156,7 +156,7 @@ describe("History Utilities", () => {
       const navigate = clientNavigate(false);
       navigate("/path-with-hyphens", "slug with spaces");
 
-      expect(pushState).toHaveBeenCalledWith(
+      expect(goto).toHaveBeenCalledWith(
         "/path-with-hyphens/slug-with-spaces",
         {},
       );
@@ -169,7 +169,7 @@ describe("History Utilities", () => {
       scrollNavigate("/path1");
       expect(window.scrollTo).toHaveBeenCalledWith({ top: 0 });
 
-      vi.mocked(pushState).mockClear();
+      vi.mocked(goto).mockClear();
       vi.mocked(window.scrollTo).mockClear();
 
       noScrollNavigate("/path2");

@@ -4,8 +4,6 @@
   import { cubicOut } from "svelte/easing";
   import { fade } from "svelte/transition";
 
-  import { afterNavigate } from "$app/navigation";
-
   import { clientNavigate } from "#lib/history";
   import {
     contextHeightKey,
@@ -22,7 +20,7 @@
   import { captureDetails, captureBehavior } from "#lib/analytics";
 
   import type { ArtWithId } from "#lib/typing/art";
-  import { onMount } from "svelte";
+
   type GallaryProps = {
     artPieces: Array<ArtWithId>;
     artPiece: ArtWithId;
@@ -68,7 +66,7 @@
   let paginationDetails = $state(
     (() => {
       return {
-        length: artPieces.length,
+        length: Array.isArray(artPieces) ? artPieces.length : 0,
         position: 0,
       };
     })(),
@@ -76,12 +74,13 @@
 
   const setPaginationDetails = (id: number) => {
     paginationDetails = {
-      length: paginationDetails.length,
+      length: artPieces.length,
       position: artPieces.findIndex((p) => p.id === id),
     };
   };
 
   const initGallery = () => {
+    if (!Array.isArray(artPieces) || artPieces.length === 0) return;
     if (!artPiece || !windowWidth || windowWidth <= mqBreakPoint) return;
 
     const footerHeight = getFooterHeight();
@@ -93,13 +92,15 @@
     setPaginationDetails(artPiece.id);
   };
 
-  onMount(initGallery);
-  afterNavigate(initGallery);
+  $effect(() => {
+    initGallery();
+  });
 
-  let preloadImages = (() =>
-    artPieces
+  let preloadImages = $derived(
+    (Array.isArray(artPieces) ? artPieces : [])
       .map((p) => p.attributes.image.data?.attributes.url)
-      .filter((image): image is string => Boolean(image)))();
+      .filter((image): image is string => Boolean(image)),
+  );
 
   const transitionDetails = {
     easing: cubicOut,
@@ -117,10 +118,12 @@
     showMore = true;
   };
   const setArtPiece = (id: number) => {
-    artPiece = artPieces.filter((p) => p.id === id)[0];
+    const next = artPieces.find((p) => p.id === id);
+    if (!next) return;
+    artPiece = next;
     clientNavigateS(
-      `${parentRoute}${artPiece.id}`,
-      useUrlTitle ? artPiece.attributes.title : undefined,
+      `${parentRoute}${next.id}`,
+      useUrlTitle ? next.attributes.title : undefined,
     );
   };
 
@@ -142,7 +145,9 @@
 
   const navArtPieceClick = (id: number) => (e: Event) => {
     e.preventDefault();
-    if (id === artPiece.id) return;
+    // `artPiece` is a plain (non-bindable) prop: a navigation can hand us a list that no
+    // longer contains the piece we had selected, so check before dereferencing it.
+    if (!artPiece || id === artPiece.id) return;
     changeSelected(id);
     captureBehavior(
       `${analyticsKey} click thumbnail`,
@@ -151,14 +156,18 @@
   };
 
   const paginateItem = (k?: string) => (n: number) => {
+    if (!Array.isArray(artPieces) || !artPiece) return;
     const index = artPieces.findIndex((_) => _.id === artPiece.id);
-    changeSelected(artPieces[index + n].id);
-    shoudPageinateSlider(artPieces[index + n].id);
+    const nextIndex = index + n;
+    const next = artPieces[nextIndex];
+    if (index === -1 || !next) return;
+    changeSelected(next.id);
+    shoudPageinateSlider(next.id);
     if (k) {
       captureBehavior(
         `${k} click paginate`,
         captureDetails(
-          { id: index + n, name: artPieces[index + n].attributes.title },
+          { id: nextIndex, name: next.attributes.title },
           { direction: n > 0 ? "next" : "last" },
         ),
       );
@@ -170,6 +179,7 @@
     imageWidth.set(d.img);
     detailsWidth.set(d.details);
     showMore = s;
+    if (!artPiece) return;
     captureBehavior(
       `${analyticsKey} click readmore`,
       captureDetails({ id: artPiece.id, name: artPiece.attributes.title }),
@@ -177,11 +187,7 @@
   };
 </script>
 
-<svelte:window
-  bind:innerWidth={windowWidth}
-  bind:innerHeight={windowHeight}
-  onresize={initGallery}
-/>
+<svelte:window bind:innerWidth={windowWidth} bind:innerHeight={windowHeight} />
 
 <svelte:head>
   {#each preloadImages as image}

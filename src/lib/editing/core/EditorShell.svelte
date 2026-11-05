@@ -116,7 +116,8 @@
   };
 
   $effect(() => {
-    if (!formElement) {
+    const element = formElement;
+    if (!element) {
       return;
     }
 
@@ -124,10 +125,10 @@
       suppressUnloadPrompt();
     };
 
-    formElement.addEventListener("submit", onSubmit);
+    element.addEventListener("submit", onSubmit);
 
     return () => {
-      formElement.removeEventListener("submit", onSubmit);
+      element.removeEventListener("submit", onSubmit);
     };
   });
 

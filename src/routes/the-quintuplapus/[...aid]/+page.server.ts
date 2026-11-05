@@ -1,4 +1,5 @@
 import type { PageServerLoad } from "./$types";
+import { error } from "@sveltejs/kit";
 import * as D from "#data/the-quintuplapus.json";
 import { isEditorEnabled } from "#lib/editing/core/auth.server";
 
@@ -13,7 +14,10 @@ export const load: PageServerLoad = async ({ params }) => {
     .filter((p) => !omitIds.includes(p.id))
     .sort((a, b) => a.attributes.order - b.attributes.order);
 
-  const artPiece = artPieces.filter((p) => p.id === aid)[0];
+  const artPiece = artPieces.find((p) => p.id === aid);
+  if (!artPiece) {
+    error(404, `No art piece with id ${aid}`);
+  }
   const categoryTitle = att.title;
 
   return {
