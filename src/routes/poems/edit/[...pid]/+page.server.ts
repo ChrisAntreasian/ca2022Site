@@ -13,6 +13,7 @@ import {
   deletePoemEditorValue,
   ensurePoemsBaselineSnapshot,
   readPoemsFile,
+  releasePoemsFile,
   savePoemEditorValue,
 } from "#lib/editing/resources/poems/poems.server";
 import {
@@ -22,6 +23,7 @@ import {
   selectPoem,
 } from "#lib/editing/resources/poems/poems-editor";
 import { getFormDataString } from "#lib/form-data";
+import { isReleasable } from "#lib/content.server";
 
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -54,12 +56,20 @@ export const load: PageServerLoad = async ({ params, url }) => {
       ? ({ title: "Poem deleted", message: "Poem deleted." } as const)
       : url.searchParams.get("saved") === "1"
         ? ({ title: "Poem saved", message: "Poem saved." } as const)
-        : null;
+        : url.searchParams.get("released")
+          ? ({
+              title: "Poems released",
+              message: `The working draft was published to live (version ${url.searchParams.get("released")}).`,
+            } as const)
+          : null;
 
   return {
     editorEnabled: isEditorEnabled(),
     savedTitle: status?.title ?? null,
     savedMessage: status?.message ?? null,
+    // Drives whether the release control appears at all, so the UI cannot offer an action the guard on
+    // the server side would reject.
+    releaseAvailable: isReleasable("poems"),
     editor: {
       key: poemEditorDefinition.key,
       label: poemEditorDefinition.label,
@@ -130,5 +140,26 @@ export const actions: Actions = {
       : poemEditorPath("new");
 
     throw redirect(303, `${destination}?deleted=1`);
+  },
+  /**
+   * Publish the working draft to live. Availability is checked before attempting anything, so while live
+   * content is still on disk this reports that releases are not open yet instead of failing obscurely —
+   * the route is reachable any time `ENABLE_CONTENT_EDITOR` is on, and a release once live content lives
+   * in S3 mutates durable storage.
+   */
+  release: async () => {
+    requireEditorEnabled();
+
+    if (!isReleasable("poems")) {
+      return fail(400, {
+        action: "release",
+        message:
+          "Releases are not available yet: live content is still bundled. Set CONTENT_LIVE_SOURCE=s3 once the data has been seeded.",
+      });
+    }
+
+    const timestamp = await releasePoemsFile();
+
+    throw redirect(303, `/poems?released=${timestamp}`);
   },
 };

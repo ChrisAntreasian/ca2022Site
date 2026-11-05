@@ -14,6 +14,8 @@
     showDeleteButton?: boolean;
     onRequestDelete?: () => void;
     submitFailed?: boolean;
+    /** Whether a release control should appear. False while live content is still bundled. */
+    showReleaseButton?: boolean;
   }
 
   let {
@@ -24,6 +26,7 @@
     showDeleteButton = false,
     onRequestDelete,
     submitFailed = false,
+    showReleaseButton = false,
   }: Props = $props();
 
   const titleError = $derived(
@@ -92,11 +95,41 @@
   </div>
 </form>
 
+{#if showReleaseButton}
+  <!--
+    A release publishes the whole draft, not the poem being edited, so it is a separate form rather than
+    another formaction on the poem form. Nesting it inside would be invalid HTML and would submit the
+    poem's fields to an action that does not read them.
+  -->
+  <form class="release-form" method="POST" action="?/release">
+    <p class="release-note">
+      Publishing sends the entire working draft to the live site. The copy
+      visitors were seeing is kept in history so this release can be undone.
+    </p>
+    <Button type="submit" variant="action">Release poems to live</Button>
+  </form>
+{/if}
+
 <style>
   .poem-form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+  }
+
+  .release-form {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid currentColor;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .release-note {
+    font-family: "josefin-regular";
+    margin: 0;
   }
 
   .actions {

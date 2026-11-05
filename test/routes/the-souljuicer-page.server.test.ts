@@ -1,13 +1,27 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { loadResult } from "./loadResult";
 
+/**
+ * The page now reads through the content store rather than importing `#data/the-souljuicer.json`, so the
+ * payload is injected by mocking the resource module's public read. Mocking at that seam — instead of at
+ * the JSON file — mirrors how the page actually obtains data, and keeps this test independent of whether
+ * live content currently lives on disk or in S3.
+ */
+const mockSouljuicerPayload = (payload: unknown) => {
+  vi.doMock("#lib/editing/resources/souljuicer/souljuicer.server", () => ({
+    readPublicSouljuicerFile: async () => payload,
+  }));
+};
+
 describe("SoulJuicer page server load", () => {
   beforeEach(() => {
     vi.resetModules();
   });
 
   it("fills in missing display fields from stored entries", async () => {
-    vi.doMock("#data/the-souljuicer.json", () => ({
+    mockSouljuicerPayload({
+      name: "the-souljuicer",
+      timestamp: 1,
       data: {
         data: [
           {
@@ -31,7 +45,7 @@ describe("SoulJuicer page server load", () => {
           },
         },
       },
-    }));
+    });
 
     const { load } =
       await import("../../src/routes/the-souljuicer/[...aid]/+page.server");

@@ -11,8 +11,16 @@ import { getOptionalS3Bucket, getS3Client } from "#lib/s3";
  * `"live"` is what visitors see and is written only by `release`. Keeping the scope on the interface
  * rather than splitting it into two store instances means a resource module has one store and one
  * content key, and the draft/live distinction is a property of the operation, not of the wiring.
+ *
+ * `"bundled"` is read-only and belongs to the public read path (`#lib/content.server`): it resolves to
+ * the payload the build ships rather than to anything in storage, so content pinned to the bundle —
+ * `layout`, `landing` — cannot be moved by a write or broken by an outage. It is not a valid target for
+ * `writeFile`, `ensureBaselineSnapshot` or `release`.
  */
 export type DataScope = "draft" | "live";
+
+/** A read scope that also admits the build-shipped copy. Storage implementations resolve it. */
+export type ReadScope = DataScope | "bundled";
 
 /**
  * The storage seam for editor JSON.
@@ -24,7 +32,7 @@ export type DataScope = "draft" | "live";
  */
 export interface DataStore {
   /** Raw JSON text for a content key, as written by `writeFile`. Implementations decide where it lives. */
-  readFile(name: string, scope?: DataScope): Promise<string>;
+  readFile(name: string, scope?: ReadScope): Promise<string>;
   /** Serialize and persist a versioned file value for a content key. */
   writeFile(name: string, file: unknown, scope?: DataScope): Promise<void>;
   /**
@@ -55,6 +63,13 @@ const historyFilePath = (name: string, timestamp: number, scope: DataScope) =>
 const DEFAULT_SCOPE: DataScope = "draft";
 
 /**
+ * The flat pre-S3 file a page used to import directly (`./src/data/<name>.json`). A `"bundled"` read
+ * resolves here rather than to a draft or live copy so that bundled content keeps pointing at the payload
+ * the build actually ships, and never at an editor's working draft.
+ */
+const bundledFilePath = (name: string) => `./src/data/${name}.json`;
+
+/**
  * Filesystem-backed store. This is the pre-S3 behaviour moved out of `#lib/file` — same paths, same
  * snapshot-first ordering, same silent-failure semantics for the baseline step. The serializer lives
  * here rather than in the caller so an S3 store can produce byte-identical objects without either
@@ -62,7 +77,9 @@ const DEFAULT_SCOPE: DataScope = "draft";
  */
 export const fsDataStore: DataStore = {
   readFile: (name, scope = DEFAULT_SCOPE) =>
-    fs.promises.readFile(dataFilePath(name, scope), "utf8"),
+    scope === "bundled"
+      ? fs.promises.readFile(bundledFilePath(name), "utf8")
+      : fs.promises.readFile(dataFilePath(name, scope), "utf8"),
 
   writeFile: async (name, file, scope = DEFAULT_SCOPE) => {
     const json = `${JSON.stringify(file, null, 2)}\n`;
@@ -305,6 +322,20 @@ export const createS3DataStore = (
 
   return {
     readFile: async (name, scope = DEFAULT_SCOPE) => {
+      // A bundled read never touches the bucket. This is what makes content pinned to the bundle immune
+      // to an outage and to missing configuration — a page reads the payload the build ships, full stop.
+      if (scope === "bundled") {
+        const bundled = fallbacks[name];
+
+        if (bundled === undefined) {
+          throw e500(
+            `Cannot read ${name} as bundled data: no bundled payload is registered for it.`,
+          );
+        }
+
+        return bundled;
+      }
+
       try {
         return await get(keyFor(name, scope));
       } catch (err) {

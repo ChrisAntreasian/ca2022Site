@@ -2,11 +2,11 @@ import type { Item } from "#lib/Article/types";
 import { isEditorEnabled } from "#lib/editing/core/auth.server";
 
 import type { PageServerLoad } from "./$types";
-import * as D from "#data/web-experience.json";
+import { readPublicWebExperienceFile } from "#lib/editing/resources/web-experience/web-experience.server";
 
 export const load: PageServerLoad = async ({ params }) => {
-  const d = D.data;
-  const pageData = d.data[0];
+  const { data } = await readPublicWebExperienceFile();
+  const pageData = data.data[0];
   const pageDetails = pageData.attributes.page_details.data[0];
   const eid = params.eid ? parseInt(params.eid) : -1;
 
@@ -31,11 +31,19 @@ export const load: PageServerLoad = async ({ params }) => {
       secondLink: item.attributes.secondLink ?? undefined,
       images: (item.attributes.image.data ?? [])
         .filter((img): img is NonNullable<typeof img> => Boolean(img))
-        .map((img) => ({
-          id: img.id,
-          small: img.attributes.formats.small.url,
-          large: img.attributes.url,
-        })),
+        .map((img) => {
+          // `formats` is present on a Strapi image but the editor's own uploaded assets only carry
+          // `url`, so the small variant is read defensively exactly as the resource module reads it.
+          const attributes = img.attributes as typeof img.attributes & {
+            formats?: { small?: { url?: string } };
+          };
+
+          return {
+            id: img.id,
+            small: attributes.formats?.small?.url ?? attributes.url,
+            large: attributes.url,
+          };
+        }),
     }));
 
   return {

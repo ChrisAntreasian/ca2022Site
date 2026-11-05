@@ -6,6 +6,11 @@ export const variables = defineEnvVars({
       'Enables the content editor routes and the "Edit post" links when set to "true". Read at runtime.',
     schema: (value) => value?.trim(),
   },
+  CONTENT_LIVE_SOURCE: {
+    description:
+      "Set to 's3' once draft/live content has been seeded into the bucket. Until then public pages read the on-disk copies, and releases are refused. Read at runtime.",
+    schema: (value) => value?.trim() || undefined,
+  },
   AWS_ACCESS_KEY_ID: {
     description: "AWS access key ID for the S3 upload client.",
     schema: (value) => value?.trim() || undefined,

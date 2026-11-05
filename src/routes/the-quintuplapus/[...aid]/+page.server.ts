@@ -1,12 +1,12 @@
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
-import * as D from "#data/the-quintuplapus.json";
+import { readPublicQuintuplapusFile } from "#lib/editing/resources/quintuplapus/quintuplapus.server";
 import { isEditorEnabled } from "#lib/editing/core/auth.server";
 
 export const load: PageServerLoad = async ({ params }) => {
   const aid = parseInt(params.aid) || 2;
-  const d = D.data;
-  const att = d.data[0].attributes;
+  const { data } = await readPublicQuintuplapusFile();
+  const att = data.data[0].attributes;
 
   const omitIds = att.omit.data.map((d) => d.id);
 

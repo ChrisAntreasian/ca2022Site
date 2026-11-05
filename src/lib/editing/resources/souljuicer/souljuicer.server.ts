@@ -14,13 +14,19 @@ import {
   replaceEntryImageMedia,
 } from "../../core/media.server";
 import { createJsonEditorStore } from "../../core/store.server";
-import { fsDataStore } from "#lib/dataStore.server";
+import {
+  contentDataStore,
+  publicReadScope,
+  requireReleasable,
+  type ContentKey,
+} from "#lib/content.server";
 
+const souljuicerContentKey = "the-souljuicer" satisfies ContentKey;
 const souljuicerUploadKeyPrefix = "the-souljuicer";
 const souljuicerStore = createJsonEditorStore<SouljuicerFile>({
-  store: fsDataStore,
+  store: contentDataStore(),
   schema: souljuicerFileC,
-  contentKey: "the-souljuicer",
+  contentKey: souljuicerContentKey,
   invalidDataMessage: "Invalid Souljuicer data file.",
 });
 
@@ -28,6 +34,17 @@ const souljuicerS3 = initS3();
 
 export const readSouljuicerFile = async (): Promise<SouljuicerFile> =>
   souljuicerStore.readFile();
+
+/** What a public page reads: the tier `publicReadScope` selects for this key. */
+export const readPublicSouljuicerFile = async (): Promise<SouljuicerFile> =>
+  souljuicerStore.readFile(publicReadScope(souljuicerContentKey));
+
+/** Publish the draft. Guarded so a bundled-tier configuration cannot reach it. */
+export const releaseSouljuicerFile = async () => {
+  requireReleasable(souljuicerContentKey);
+
+  return souljuicerStore.release();
+};
 
 export const ensureSouljuicerBaselineSnapshot = async (file?: SouljuicerFile) =>
   souljuicerStore.ensureBaselineSnapshot(file);

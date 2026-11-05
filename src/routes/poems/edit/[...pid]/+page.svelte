@@ -90,6 +90,7 @@
       showDeleteButton={canDelete}
       onRequestDelete={openDeleteConfirm}
       submitFailed={form?.action === "save" && !!form?.message}
+      showReleaseButton={data.releaseAvailable}
     />
   {/snippet}
 

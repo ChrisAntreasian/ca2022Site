@@ -1,13 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { loadResult } from "./loadResult";
 
+/** See the note in `the-souljuicer-page.server.test.ts`: the payload is injected at the store seam now. */
+const mockWebExperiencePayload = (payload: unknown) => {
+  vi.doMock(
+    "#lib/editing/resources/web-experience/web-experience.server",
+    () => ({
+      readPublicWebExperienceFile: async () => payload,
+    }),
+  );
+};
+
 describe("Web Experience page server load", () => {
   beforeEach(() => {
     vi.resetModules();
   });
 
   it("does not crash when an entry is missing logo or image data", async () => {
-    vi.doMock("#data/web-experience.json", () => ({
+    mockWebExperiencePayload({
+      name: "web-experience",
+      timestamp: 1,
       data: {
         data: [
           {
@@ -43,7 +55,7 @@ describe("Web Experience page server load", () => {
           },
         ],
       },
-    }));
+    });
 
     const { load } =
       await import("../../src/routes/web-experience/[...eid]/+page.server");

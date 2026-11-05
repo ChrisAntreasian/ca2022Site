@@ -13,13 +13,19 @@ import {
   persistUploadedMedia,
 } from "../../core/media.server";
 import { createJsonEditorStore } from "../../core/store.server";
-import { fsDataStore } from "#lib/dataStore.server";
+import {
+  contentDataStore,
+  publicReadScope,
+  requireReleasable,
+  type ContentKey,
+} from "#lib/content.server";
 
+const webExperienceContentKey = "web-experience" satisfies ContentKey;
 const webExperienceUploadKeyPrefix = "web-experience";
 const webExperienceStore = createJsonEditorStore<WebExperienceFile>({
-  store: fsDataStore,
+  store: contentDataStore(),
   schema: webExperienceFileC,
-  contentKey: "web-experience",
+  contentKey: webExperienceContentKey,
   invalidDataMessage: "Invalid web experience data file.",
 });
 
@@ -44,6 +50,18 @@ export const deleteWebExperienceMedia = async (url?: string | null) => {
 
 export const readWebExperienceFile = async (): Promise<WebExperienceFile> =>
   webExperienceStore.readFile();
+
+/** What a public page reads: the tier `publicReadScope` selects for this key. */
+export const readPublicWebExperienceFile =
+  async (): Promise<WebExperienceFile> =>
+    webExperienceStore.readFile(publicReadScope(webExperienceContentKey));
+
+/** Publish the draft. Guarded so a bundled-tier configuration cannot reach it. */
+export const releaseWebExperienceFile = async () => {
+  requireReleasable(webExperienceContentKey);
+
+  return webExperienceStore.release();
+};
 
 export const ensureWebExperienceBaselineSnapshot = async (
   file?: WebExperienceFile,

@@ -1,7 +1,7 @@
 import { Result, Schema } from "effect";
 
 import { e500 } from "#lib/error";
-import type { DataScope, DataStore } from "#lib/dataStore.server";
+import type { DataScope, DataStore, ReadScope } from "#lib/dataStore.server";
 
 type JsonEditorStoreOptions<
   FileValue extends { name: string; timestamp: number; data: unknown },
@@ -23,9 +23,10 @@ export const createJsonEditorStore = <
   /**
    * The scope a read or write of this resource targets. `readFile`/`writeFile` default to draft, so
    * the editor path is unchanged; `liveReadFile` and `release` are what a public page and a release
-   * action call instead.
+   * action call instead. A read may also target `"bundled"`, which resolves to the payload the build
+   * ships — see `#lib/content.server`.
    */
-  const readFile = async (scope: DataScope = "draft"): Promise<FileValue> => {
+  const readFile = async (scope: ReadScope = "draft"): Promise<FileValue> => {
     const source = await store.readFile(contentKey, scope);
     const parsed = JSON.parse(source) as unknown;
     const decoded = Schema.decodeUnknownResult(schema)(parsed);

@@ -1,15 +1,16 @@
 import type { PageServerLoad } from "./$types";
-import * as D from "#data/the-souljuicer.json";
+import { readPublicSouljuicerFile } from "#lib/editing/resources/souljuicer/souljuicer.server";
 import { isEditorEnabled } from "#lib/editing/core/auth.server";
 
 const defaultTitle = "the SoulJuicer";
 const defaultMedium = "pencil";
 
 export const load: PageServerLoad = async ({ params }) => {
-  const d = D.data;
+  const { data: file } = await readPublicSouljuicerFile();
   const aid = parseInt(params.aid);
 
-  const artPieces = d.data
+  const artPieces = [...file.data]
+    // Copy before sorting so the store's own decoded array is never reordered in place.
     .sort((a, b) => a.attributes.order - b.attributes.order)
     .map((a) => {
       const attributes = a.attributes as typeof a.attributes & {

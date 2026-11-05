@@ -14,13 +14,19 @@ import {
   replaceEntryImageMedia,
 } from "../../core/media.server";
 import { createJsonEditorStore } from "../../core/store.server";
-import { fsDataStore } from "#lib/dataStore.server";
+import {
+  contentDataStore,
+  publicReadScope,
+  requireReleasable,
+  type ContentKey,
+} from "#lib/content.server";
 
+const quintuplapusContentKey = "the-quintuplapus" satisfies ContentKey;
 const quintuplapusUploadKeyPrefix = "the-quintuplapus";
 const quintuplapusStore = createJsonEditorStore<QuintuplapusFile>({
-  store: fsDataStore,
+  store: contentDataStore(),
   schema: quintuplapusFileC,
-  contentKey: "the-quintuplapus",
+  contentKey: quintuplapusContentKey,
   invalidDataMessage: "Invalid Quintuplapus data file.",
 });
 
@@ -28,6 +34,17 @@ const quintuplapusS3 = initS3();
 
 export const readQuintuplapusFile = async (): Promise<QuintuplapusFile> =>
   quintuplapusStore.readFile();
+
+/** What a public page reads: the tier `publicReadScope` selects for this key. */
+export const readPublicQuintuplapusFile = async (): Promise<QuintuplapusFile> =>
+  quintuplapusStore.readFile(publicReadScope(quintuplapusContentKey));
+
+/** Publish the draft. Guarded so a bundled-tier configuration cannot reach it. */
+export const releaseQuintuplapusFile = async () => {
+  requireReleasable(quintuplapusContentKey);
+
+  return quintuplapusStore.release();
+};
 
 export const ensureQuintuplapusBaselineSnapshot = async (
   file?: QuintuplapusFile,
