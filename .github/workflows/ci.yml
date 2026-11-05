@@ -46,6 +46,13 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # Mojibake guard over the data files the site actually serves. `check:encoding` walks src/data/*.json
+      # only - history snapshots under src/data/history/ are skipped by default and are gitignored anyway, so
+      # the 7 locally-corrupted snapshots in there can never reach a deploy or fail this gate. Use
+      # `npm run check:encoding:all` locally when you want those snapshots audited too.
+      - name: Encoding check
+        run: npm run check:encoding
+
   # Separate job rather than a step in `quality`: this is the one gate that cannot pass on Windows,
   # because @sveltejs/adapter-vercel maps dynamic routes with fs.symlinkSync and unprivileged Windows
   # refuses it (EPERM). Running it only here documents that the blocker is platform-specific instead
