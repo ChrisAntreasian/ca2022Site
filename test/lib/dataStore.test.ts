@@ -32,14 +32,26 @@ describe("fsDataStore", () => {
   });
 
   describe("readFile", () => {
-    it("reads the src/data path for a content key", async () => {
+    it("defaults to the draft scope", async () => {
       vi.mocked(fs.promises.readFile).mockResolvedValue("{}");
 
       const out = await fsDataStore.readFile("poems");
 
       expect(out).toBe("{}");
       expect(fs.promises.readFile).toHaveBeenCalledWith(
-        "./src/data/poems.json",
+        "./src/data/draft/poems.json",
+        "utf8",
+      );
+    });
+
+    it("reads the live scope when asked", async () => {
+      vi.mocked(fs.promises.readFile).mockResolvedValue("live");
+
+      const out = await fsDataStore.readFile("poems", "live");
+
+      expect(out).toBe("live");
+      expect(fs.promises.readFile).toHaveBeenCalledWith(
+        "./src/data/live/poems.json",
         "utf8",
       );
     });
@@ -52,9 +64,9 @@ describe("fsDataStore", () => {
       await fsDataStore.writeFile("poems", file);
 
       expect(writeCalls()[0]?.[0]).toMatch(
-        /^\.\/src\/data\/history\/poems\/111\.json$/,
+        /^\.\/src\/data\/history\/draft\/poems\/111\.json$/,
       );
-      expect(writeCalls()[1]?.[0]).toBe("./src/data/poems.json");
+      expect(writeCalls()[1]?.[0]).toBe("./src/data/draft/poems.json");
     });
 
     it("writes byte-identical JSON to both history and current file", async () => {
@@ -78,7 +90,7 @@ describe("fsDataStore", () => {
       });
 
       expect(fs.promises.mkdir).toHaveBeenCalledWith(
-        "./src/data/history/web-experience",
+        "./src/data/history/draft/web-experience",
         { recursive: true },
       );
     });
@@ -116,7 +128,7 @@ describe("fsDataStore", () => {
 
       expect(created).toBe(true);
       expect(fs.promises.writeFile).toHaveBeenCalledWith(
-        "./src/data/history/poems/123.json",
+        "./src/data/history/draft/poems/123.json",
         '{"name":"poems","timestamp":123,"data":{"old":true}}\n',
       );
     });
@@ -156,9 +168,66 @@ describe("fsDataStore", () => {
       await fsDataStore.ensureBaselineSnapshot("poems");
 
       expect(fs.promises.writeFile).toHaveBeenCalledWith(
-        "./src/data/history/poems/9.json",
+        "./src/data/history/draft/poems/9.json",
         '{"timestamp":9}\n',
       );
+    });
+  });
+
+  describe("release", () => {
+    const draftJson = JSON.stringify(
+      { name: "poems", timestamp: 300, data: { new: true } },
+      null,
+      2,
+    );
+
+    it("copies draft onto live after snapshotting the outgoing live version", async () => {
+      vi.mocked(fs.promises.readFile).mockImplementation(async (p) => {
+        const path = String(p);
+        if (path.includes("/live/")) {
+          return JSON.stringify({ name: "poems", timestamp: 100, data: {} });
+        }
+        return draftJson;
+      });
+
+      const releasedAt = await fsDataStore.release("poems");
+
+      expect(releasedAt).toBe(300);
+
+      // The snapshot of the version being replaced must be written before live itself is overwritten.
+      const writePaths = vi
+        .mocked(fs.promises.writeFile)
+        .mock.calls.map((c) => c[0]);
+      expect(writePaths[0]).toBe("./src/data/history/live/poems/100.json");
+      expect(writePaths[1]).toBe("./src/data/live/poems.json");
+
+      const livePayload = vi.mocked(fs.promises.writeFile).mock.calls[1]?.[1];
+      expect(JSON.parse(livePayload as string).timestamp).toBe(300);
+    });
+
+    it("writes live when no previous live version exists", async () => {
+      vi.mocked(fs.promises.readFile).mockImplementation(async (p) => {
+        if (String(p).includes("/live/")) {
+          throw Object.assign(new Error("missing"), { code: "ENOENT" });
+        }
+        return draftJson;
+      });
+
+      await expect(fsDataStore.release("poems")).resolves.toBe(300);
+
+      expect(vi.mocked(fs.promises.writeFile).mock.calls).toHaveLength(1);
+      expect(vi.mocked(fs.promises.writeFile).mock.calls[0]?.[0]).toBe(
+        "./src/data/live/poems.json",
+      );
+    });
+
+    it("refuses to release a draft with no numeric timestamp", async () => {
+      vi.mocked(fs.promises.readFile).mockResolvedValue(
+        JSON.stringify({ name: "poems", data: {} }),
+      );
+
+      await expect(() => fsDataStore.release("poems")).rejects.toThrow();
+      expect(fs.promises.writeFile).not.toHaveBeenCalled();
     });
   });
 });

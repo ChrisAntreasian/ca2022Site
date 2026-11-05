@@ -44,6 +44,33 @@ export const initS3 = () =>
     });
   })();
 
+/**
+ * A lazily-created, per-process singleton S3 client.
+ *
+ * `initS3` reads and validates the configuration the moment it is called, which is correct for the
+ * editor modules that call it at module scope — those only load on editor routes, where missing
+ * config genuinely should fail loudly. A data store has a different shape of problem: a read path
+ * wants to attempt S3, fall back if the bucket or credentials are absent, and still be able to talk
+ * to AWS when they are present. Constructing the client on first use makes both halves work without
+ * either call site knowing about the other.
+ */
+let lazyS3Client: AWS.S3 | undefined;
+
+export const getS3Client = () => {
+  if (!lazyS3Client) {
+    lazyS3Client = initS3();
+  }
+
+  return lazyS3Client;
+};
+
+/** The bucket name, or `undefined` when it is not configured. For callers that degrade instead of throwing. */
+export const getOptionalS3Bucket = () => {
+  const bucket = AWS_BUCKET ?? VITE_AWS_BUCKET;
+
+  return bucket?.trim() ? bucket : undefined;
+};
+
 export const getS3File = (s3: AWS.S3) => async (k: string) =>
   s3
     .getObject({

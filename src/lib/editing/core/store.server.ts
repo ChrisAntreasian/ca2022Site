@@ -1,7 +1,7 @@
 import { Result, Schema } from "effect";
 
 import { e500 } from "#lib/error";
-import type { DataStore } from "#lib/dataStore.server";
+import type { DataScope, DataStore } from "#lib/dataStore.server";
 
 type JsonEditorStoreOptions<
   FileValue extends { name: string; timestamp: number; data: unknown },
@@ -20,8 +20,13 @@ export const createJsonEditorStore = <
   contentKey,
   invalidDataMessage,
 }: JsonEditorStoreOptions<FileValue>) => {
-  const readFile = async (): Promise<FileValue> => {
-    const source = await store.readFile(contentKey);
+  /**
+   * The scope a read or write of this resource targets. `readFile`/`writeFile` default to draft, so
+   * the editor path is unchanged; `liveReadFile` and `release` are what a public page and a release
+   * action call instead.
+   */
+  const readFile = async (scope: DataScope = "draft"): Promise<FileValue> => {
+    const source = await store.readFile(contentKey, scope);
     const parsed = JSON.parse(source) as unknown;
     const decoded = Schema.decodeUnknownResult(schema)(parsed);
 
@@ -32,16 +37,25 @@ export const createJsonEditorStore = <
     return Result.getOrThrow(decoded);
   };
 
-  const ensureBaselineSnapshot = async (file?: FileValue) =>
-    store.ensureBaselineSnapshot(file?.name ?? contentKey);
+  const liveReadFile = () => readFile("live");
 
-  const writeFile = async (file: FileValue) => {
-    await store.writeFile(file.name || contentKey, file);
+  const ensureBaselineSnapshot = async (
+    file?: FileValue,
+    scope: DataScope = "draft",
+  ) => store.ensureBaselineSnapshot(file?.name ?? contentKey, scope);
+
+  const writeFile = async (file: FileValue, scope: DataScope = "draft") => {
+    await store.writeFile(file.name || contentKey, file, scope);
   };
+
+  /** Publish this resource's draft to live. Returns the timestamp the released version carries. */
+  const release = () => store.release(contentKey);
 
   return {
     readFile,
+    liveReadFile,
     ensureBaselineSnapshot,
     writeFile,
+    release,
   };
 };

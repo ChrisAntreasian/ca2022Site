@@ -18,6 +18,12 @@ const poemsStore = createJsonEditorStore<PoemsFile>({
 export const readPoemsFile = async (): Promise<PoemsFile> =>
   poemsStore.readFile();
 
+/** What a public page reads once poems live in S3: the released copy, never the working draft. */
+export const readLivePoemsFile = async (): Promise<PoemsFile> =>
+  poemsStore.liveReadFile();
+
+export const releasePoemsFile = () => poemsStore.release();
+
 export const ensurePoemsBaselineSnapshot = async (file?: PoemsFile) => {
   return poemsStore.ensureBaselineSnapshot(file);
 };
