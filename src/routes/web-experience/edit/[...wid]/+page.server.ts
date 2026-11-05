@@ -1,9 +1,9 @@
 import { error, fail, redirect } from "@sveltejs/kit";
 
 import {
-  isEditorEnabled,
-  requireEditorEnabled,
-} from "#lib/editing/core/auth.server";
+  isEditorUnlockedForRequest,
+  requireEditorAccess,
+} from "#lib/editing/core/session.server";
 import {
   applyWebExperienceMediaPatch,
   buildWebExperienceTarget,
@@ -39,8 +39,8 @@ const resolveSavedEntry = (
     ? (entries.find((entry) => entry.id === requestedEntryId) ?? null)
     : ([...entries].sort((left, right) => right.id - left.id)[0] ?? null);
 
-export const load: PageServerLoad = async ({ params, url }) => {
-  requireEditorEnabled();
+export const load: PageServerLoad = async ({ cookies, params, url }) => {
+  requireEditorAccess(cookies);
 
   const requestedSelection = params.wid
     ? parseWebExperienceEditorParam(params.wid)
@@ -78,7 +78,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
         : null;
 
   return {
-    editorEnabled: isEditorEnabled(),
+    editorEnabled: isEditorUnlockedForRequest(cookies),
     savedTitle: status?.title ?? null,
     savedMessage: status?.message ?? null,
     editor: {
@@ -94,8 +94,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 };
 
 export const actions: Actions = {
-  save: async ({ request }) => {
-    requireEditorEnabled();
+  save: async ({ cookies, request }) => {
+    requireEditorAccess(cookies);
 
     const source = await readWebExperienceFile();
     const formData = await request.formData();
@@ -239,8 +239,8 @@ export const actions: Actions = {
 
     throw redirect(303, `${targetPath}?saved=1`);
   },
-  delete: async ({ request }) => {
-    requireEditorEnabled();
+  delete: async ({ cookies, request }) => {
+    requireEditorAccess(cookies);
 
     const source = await readWebExperienceFile();
     const current = toWebExperienceEditorValue(source);

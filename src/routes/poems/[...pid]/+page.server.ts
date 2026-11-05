@@ -1,10 +1,10 @@
 import type { Item } from "#lib/Article/types";
-import { isEditorEnabled } from "#lib/editing/core/auth.server";
+import { isEditorUnlockedForRequest } from "#lib/editing/core/session.server";
 import { readPublicPoemsFile } from "#lib/editing/resources/poems/poems.server";
 
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ cookies, params }) => {
   // Phase 3: the payload comes from the content store at the tier `publicReadScope` selects, not from a
   // static `#data` import. With live content still on disk this resolves to the same file the old import
   // read; once poems are released into S3 it becomes the released copy with a bundled fallback.
@@ -31,5 +31,5 @@ export const load: PageServerLoad = async ({ params }) => {
 
   const item = items.filter((i: Item) => i.id === pid)[0];
 
-  return { items, item, editorEnabled: isEditorEnabled() };
+  return { items, item, editorEnabled: isEditorUnlockedForRequest(cookies) };
 };

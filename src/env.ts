@@ -11,6 +11,16 @@ export const variables = defineEnvVars({
       "Set to 's3' once draft/live content has been seeded into the bucket. Until then public pages read the on-disk copies, and releases are refused. Read at runtime.",
     schema: (value) => value?.trim() || undefined,
   },
+  EDITOR_EDIT_KEY: {
+    description:
+      "The secret a visitor posts to unlock the editor. Without it an enabled editor cannot be unlocked at all, so a misconfigured deploy exposes no edit routes. Read at runtime.",
+    schema: (value) => value?.trim() || undefined,
+  },
+  EDITOR_SESSION_SECRET: {
+    description:
+      "Signs editor session cookies. If unset, sessions are signed with an ephemeral key and every unlock ends at the next cold start - the editor still works, but must be unlocked again after each deploy or idle shutdown. Read at runtime.",
+    schema: (value) => value?.trim() || undefined,
+  },
   AWS_ACCESS_KEY_ID: {
     description: "AWS access key ID for the S3 upload client.",
     schema: (value) => value?.trim() || undefined,

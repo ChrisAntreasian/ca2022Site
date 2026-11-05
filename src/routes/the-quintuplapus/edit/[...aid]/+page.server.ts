@@ -1,9 +1,9 @@
 import { error, fail, redirect } from "@sveltejs/kit";
 
 import {
-  isEditorEnabled,
-  requireEditorEnabled,
-} from "#lib/editing/core/auth.server";
+  isEditorUnlockedForRequest,
+  requireEditorAccess,
+} from "#lib/editing/core/session.server";
 import { getFormDataString } from "#lib/form-data";
 import {
   mergeQuintuplapusEntry,
@@ -24,8 +24,8 @@ import {
 
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ params, url }) => {
-  requireEditorEnabled();
+export const load: PageServerLoad = async ({ cookies, params, url }) => {
+  requireEditorAccess(cookies);
 
   const file = await readQuintuplapusFile();
   await ensureQuintuplapusBaselineSnapshot(file);
@@ -53,7 +53,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
         : null;
 
   return {
-    editorEnabled: isEditorEnabled(),
+    editorEnabled: isEditorUnlockedForRequest(cookies),
     savedTitle: status?.title ?? null,
     savedMessage: status?.message ?? null,
     editor: {
@@ -67,8 +67,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 };
 
 export const actions: Actions = {
-  save: async ({ request }) => {
-    requireEditorEnabled();
+  save: async ({ cookies, request }) => {
+    requireEditorAccess(cookies);
 
     const file = await readQuintuplapusFile();
     const current = toQuintuplapusEditorValue(file);
@@ -119,8 +119,8 @@ export const actions: Actions = {
 
     throw redirect(303, `${destination}?saved=1`);
   },
-  delete: async ({ request }) => {
-    requireEditorEnabled();
+  delete: async ({ cookies, request }) => {
+    requireEditorAccess(cookies);
 
     const source = await readQuintuplapusFile();
     const current = toQuintuplapusEditorValue(source);

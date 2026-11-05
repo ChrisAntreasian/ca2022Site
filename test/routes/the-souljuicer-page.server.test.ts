@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fakeCookies } from "./fakeCookies";
 import { loadResult } from "./loadResult";
 
 /**
@@ -49,7 +50,9 @@ describe("SoulJuicer page server load", () => {
 
     const { load } =
       await import("../../src/routes/the-souljuicer/[...aid]/+page.server");
-    const result = loadResult(await load({ params: {} } as never));
+    const result = loadResult(
+      await load({ cookies: fakeCookies(), params: {} } as never),
+    );
 
     expect(result.categoryTitle).toBe("the SoulJuicer");
     expect(result.artPieces).toHaveLength(1);

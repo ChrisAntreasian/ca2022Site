@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fakeCookies } from "./fakeCookies";
 import { loadResult } from "./loadResult";
 
 const mockPoems = [
@@ -32,9 +33,11 @@ describe("poems edit page server", () => {
   });
 
   it("loads the selected poem and saved message", async () => {
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     vi.doMock("#lib/editing/resources/poems/poems", () => ({
@@ -64,6 +67,7 @@ describe("poems edit page server", () => {
 
     const result = loadResult(
       await load({
+        cookies: fakeCookies(),
         params: { pid: "4/the-carpal-tunnel" },
         url: new URL("http://localhost/poems/edit/4/the-carpal-tunnel?saved=1"),
       } as never),
@@ -87,9 +91,11 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     vi.doMock("#lib/editing/resources/poems/poems", () => ({
@@ -141,6 +147,7 @@ describe("poems edit page server", () => {
 
     await expect(
       actions.save({
+        cookies: fakeCookies(),
         request: { formData: async () => formData },
       } as never),
     ).rejects.toMatchObject({
@@ -161,9 +168,11 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     vi.doMock("#lib/editing/resources/poems/poems", () => ({
@@ -216,6 +225,7 @@ describe("poems edit page server", () => {
 
     await expect(
       actions.save({
+        cookies: fakeCookies(),
         request: { formData: async () => formData },
       } as never),
     ).rejects.toMatchObject({
@@ -236,9 +246,11 @@ describe("poems edit page server", () => {
       };
     });
 
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     const toPoemEditorValues = vi
@@ -277,6 +289,7 @@ describe("poems edit page server", () => {
 
     await expect(
       actions.delete({
+        cookies: fakeCookies(),
         request: { formData: async () => formData },
       } as never),
     ).rejects.toMatchObject({
@@ -290,9 +303,11 @@ describe("poems edit page server", () => {
   });
 
   it("rejects poem delete for invalid id", async () => {
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     vi.doMock("#lib/editing/resources/poems/poems", () => ({
@@ -324,6 +339,7 @@ describe("poems edit page server", () => {
     formData.set("id", "0");
 
     const result = await actions.delete({
+      cookies: fakeCookies(),
       request: { formData: async () => formData },
     } as never);
 

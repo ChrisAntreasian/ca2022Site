@@ -1,10 +1,10 @@
 import type { Item } from "#lib/Article/types";
-import { isEditorEnabled } from "#lib/editing/core/auth.server";
+import { isEditorUnlockedForRequest } from "#lib/editing/core/session.server";
 
 import type { PageServerLoad } from "./$types";
 import { readPublicWebExperienceFile } from "#lib/editing/resources/web-experience/web-experience.server";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ cookies, params }) => {
   const { data } = await readPublicWebExperienceFile();
   const pageData = data.data[0];
   const pageDetails = pageData.attributes.page_details.data[0];
@@ -49,6 +49,6 @@ export const load: PageServerLoad = async ({ params }) => {
   return {
     items: [pageItem, ...workExpItems],
     item: workExpItems.filter((item: Item) => item.id === eid)[0] || pageItem,
-    editorEnabled: isEditorEnabled(),
+    editorEnabled: isEditorUnlockedForRequest(cookies),
   };
 };

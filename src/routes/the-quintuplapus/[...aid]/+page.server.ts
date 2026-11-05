@@ -1,9 +1,9 @@
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 import { readPublicQuintuplapusFile } from "#lib/editing/resources/quintuplapus/quintuplapus.server";
-import { isEditorEnabled } from "#lib/editing/core/auth.server";
+import { isEditorUnlockedForRequest } from "#lib/editing/core/session.server";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ cookies, params }) => {
   const aid = parseInt(params.aid) || 2;
   const { data } = await readPublicQuintuplapusFile();
   const att = data.data[0].attributes;
@@ -24,6 +24,6 @@ export const load: PageServerLoad = async ({ params }) => {
     categoryTitle,
     artPieces,
     artPiece,
-    editorEnabled: isEditorEnabled(),
+    editorEnabled: isEditorUnlockedForRequest(cookies),
   };
 };

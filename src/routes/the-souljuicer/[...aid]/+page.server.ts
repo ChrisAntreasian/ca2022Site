@@ -1,11 +1,11 @@
 import type { PageServerLoad } from "./$types";
 import { readPublicSouljuicerFile } from "#lib/editing/resources/souljuicer/souljuicer.server";
-import { isEditorEnabled } from "#lib/editing/core/auth.server";
+import { isEditorUnlockedForRequest } from "#lib/editing/core/session.server";
 
 const defaultTitle = "the SoulJuicer";
 const defaultMedium = "pencil";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ cookies, params }) => {
   const { data: file } = await readPublicSouljuicerFile();
   const aid = parseInt(params.aid);
 
@@ -38,6 +38,6 @@ export const load: PageServerLoad = async ({ params }) => {
     categoryTitle: defaultTitle,
     artPieces,
     artPiece,
-    editorEnabled: isEditorEnabled(),
+    editorEnabled: isEditorUnlockedForRequest(cookies),
   };
 };

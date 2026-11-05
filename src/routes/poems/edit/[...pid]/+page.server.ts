@@ -2,9 +2,9 @@ import { error, fail, redirect } from "@sveltejs/kit";
 import { Result, Schema } from "effect";
 
 import {
-  isEditorEnabled,
-  requireEditorEnabled,
-} from "#lib/editing/core/auth.server";
+  isEditorUnlockedForRequest,
+  requireEditorAccess,
+} from "#lib/editing/core/session.server";
 import {
   poemEditorDefinition,
   toPoemEditorValues,
@@ -27,8 +27,8 @@ import { isReleasable } from "#lib/content.server";
 
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ params, url }) => {
-  requireEditorEnabled();
+export const load: PageServerLoad = async ({ cookies, params, url }) => {
+  requireEditorAccess(cookies);
 
   const poemsFile = await readPoemsFile();
   await ensurePoemsBaselineSnapshot(poemsFile);
@@ -64,7 +64,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
           : null;
 
   return {
-    editorEnabled: isEditorEnabled(),
+    editorEnabled: isEditorUnlockedForRequest(cookies),
     savedTitle: status?.title ?? null,
     savedMessage: status?.message ?? null,
     // Drives whether the release control appears at all, so the UI cannot offer an action the guard on
@@ -82,8 +82,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
 };
 
 export const actions: Actions = {
-  save: async ({ request }) => {
-    requireEditorEnabled();
+  save: async ({ cookies, request }) => {
+    requireEditorAccess(cookies);
 
     const formData = await request.formData();
     const candidate = parsePoemForm(formData);
@@ -112,8 +112,8 @@ export const actions: Actions = {
 
     throw redirect(303, `${destination}?saved=1`);
   },
-  delete: async ({ request }) => {
-    requireEditorEnabled();
+  delete: async ({ cookies, request }) => {
+    requireEditorAccess(cookies);
 
     const formData = await request.formData();
     const poemId = Number(getFormDataString(formData, "id") || "0");
@@ -147,8 +147,8 @@ export const actions: Actions = {
    * the route is reachable any time `ENABLE_CONTENT_EDITOR` is on, and a release once live content lives
    * in S3 mutates durable storage.
    */
-  release: async () => {
-    requireEditorEnabled();
+  release: async ({ cookies }) => {
+    requireEditorAccess(cookies);
 
     if (!isReleasable("poems")) {
       return fail(400, {

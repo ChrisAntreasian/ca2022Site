@@ -2,9 +2,9 @@ import { fail, redirect } from "@sveltejs/kit";
 import { Result, Schema } from "effect";
 
 import {
-  isEditorEnabled,
-  requireEditorEnabled,
-} from "#lib/editing/core/auth.server";
+  isEditorUnlockedForRequest,
+  requireEditorAccess,
+} from "#lib/editing/core/session.server";
 import {
   termsOfServiceEditorDefinition,
   toTermsOfServiceEditorValue,
@@ -21,8 +21,8 @@ import {
 
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ url }) => {
-  requireEditorEnabled();
+export const load: PageServerLoad = async ({ cookies, url }) => {
+  requireEditorAccess(cookies);
 
   const file = await readTermsOfServiceFile();
   await ensureTermsOfServiceBaselineSnapshot(file);
@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ url }) => {
       : null;
 
   return {
-    editorEnabled: isEditorEnabled(),
+    editorEnabled: isEditorUnlockedForRequest(cookies),
     savedTitle: status?.title ?? null,
     savedMessage: status?.message ?? null,
     editor: {
@@ -50,8 +50,8 @@ export const load: PageServerLoad = async ({ url }) => {
 };
 
 export const actions: Actions = {
-  save: async ({ request }) => {
-    requireEditorEnabled();
+  save: async ({ cookies, request }) => {
+    requireEditorAccess(cookies);
 
     const formData = await request.formData();
     const candidate = parseTermsOfServiceForm(formData);
