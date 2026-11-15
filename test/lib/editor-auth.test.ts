@@ -224,4 +224,19 @@ describe("editor session server", () => {
     expect(editorSessionDeleteOptions.httpOnly).toBe(true);
     expect(editorSessionDeleteOptions.path).toBe("/");
   });
+
+  /**
+   * `secure` is what silently breaks an unlock on a plain-http origin: the browser accepts the Set-Cookie,
+   * then refuses to store or resend it, so every later request comes back unlocked and no Edit link appears.
+   * Vitest runs with DEV true, so the expectation here is the dev/localhost exemption - matching the rule
+   * SvelteKit itself applies in cookie.js. A production deployment (non-local origin) is verified by the
+   * e2e script rather than a unit test, because `import.meta` cannot be faked per-origin in a unit run.
+   */
+  it("leaves the session cookie unsecured on a local http origin so an unlock can survive", async () => {
+    const { editorSessionCookieOptions, editorSessionDeleteOptions } =
+      await loadModule();
+
+    expect(editorSessionCookieOptions.secure).toBe(false);
+    expect(editorSessionDeleteOptions.secure).toBe(false);
+  });
 });

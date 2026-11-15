@@ -104,19 +104,42 @@ export const createEditorSession = () =>
     expiresAt: Date.now() + SESSION_TTL_SECONDS * 1000,
   });
 
+/**
+ * Mirror of the `secure` default SvelteKit applies to its own cookies: production marks a cookie Secure
+ * except for `http://localhost`, where browsers accept Secure-less cookies and no TLS exists.
+ *
+ * Marking the session Secure everywhere in production is what makes an unlock fail to stick on a plain-http
+ * origin - including `npm run preview` locally, and any deployment reached over plain http - because the
+ * browser silently drops the cookie rather than storing it, so every later request arrives unlocked and no
+ * Edit link appears. Keeping localhost exempt leaves real production behaviour unchanged (the deployed host
+ * is never localhost) while letting local prod-mode testing behave the way dev does.
+ */
+const isSecureRequestDefault = () => {
+  if (import.meta.env.DEV) {
+    return false;
+  }
+  const url = new URL(import.meta.url);
+  const isLocalHttp =
+    url.protocol === "http:" &&
+    (url.hostname === "localhost" || url.hostname === "127.0.0.1");
+  return !isLocalHttp;
+};
+
 /** Session cookie options. `sameSite: "lax"` is deliberate: the unlock form posts same-site, and lax keeps
  * it working on a top-level navigation while refusing cross-site POSTs. */
 export const editorSessionCookieOptions = {
   httpOnly: true,
-  secure: !import.meta.env.DEV,
+  secure: isSecureRequestDefault(),
   sameSite: "lax" as const,
   path: "/",
   maxAge: SESSION_TTL_SECONDS,
 };
 
+/** Session cookie delete options. Must carry the same attributes as the set options, or the browser keeps a
+ * copy it cannot overwrite. */
 export const editorSessionDeleteOptions = {
   httpOnly: true,
-  secure: !import.meta.env.DEV,
+  secure: isSecureRequestDefault(),
   sameSite: "lax" as const,
   path: "/",
   maxAge: undefined,
@@ -134,6 +157,33 @@ export const isEditorUnlocked = (cookies: {
   get: (name: string) => string | undefined;
 }) => readSession(cookies) !== null;
 
+/** Which gate closed the editor, for DEV diagnostics only - see `traceEditorGateClosed`. */
+type EditorGate = "flag-off" | "missing-edit-key" | "no-session";
+
+/**
+ * Why a page rendered no "Edit" link. Dev-only, and it names the gate rather than any value: never the edit
+ * key, never the cookie, not even its presence. Production logs nothing at all, so an operator's console
+ * cannot become a probe for which of the three conditions holds on a live deploy.
+ */
+const traceEditorGateClosed = (gate: EditorGate) => {
+  if (!import.meta.env.DEV) {
+    return;
+  }
+
+  const advice = {
+    "flag-off":
+      'ENABLE_CONTENT_EDITOR is not "true", so the editor does not exist in this environment.',
+    "missing-edit-key":
+      "The flag is on but no EDITOR_EDIT_KEY is configured. Vite reads .env files only at startup, so a " +
+      "dev server that was already running will not have picked up a new value - restart `npm run dev`.",
+    "no-session":
+      "The editor is enabled and configured, but this request carries no unlocked editor_session cookie. " +
+      "Visit /_editor/unlock and post the edit key to mint one.",
+  }[gate];
+
+  console.info(`[editor] Edit link hidden: ${gate}. ${advice}`);
+};
+
 /**
  * Whether public pages should offer an "Edit post" link. A locked editor must not advertise routes it will
  * refuse, so this is deliberately flag AND session rather than the flag alone - which is also why every page
@@ -141,7 +191,22 @@ export const isEditorUnlocked = (cookies: {
  */
 export const isEditorUnlockedForRequest = (cookies: {
   get: (name: string) => string | undefined;
-}) => isEditorUsable() && isEditorUnlocked(cookies);
+}) => {
+  if (!isEditorEnabled()) {
+    traceEditorGateClosed("flag-off");
+    return false;
+  }
+  if (!isEditorConfigured()) {
+    traceEditorGateClosed("missing-edit-key");
+    return false;
+  }
+  if (!isEditorUnlocked(cookies)) {
+    traceEditorGateClosed("no-session");
+    return false;
+  }
+
+  return true;
+};
 
 /**
  * The gate for every editor load and action. Order matters: a disabled feature flag should report "not
