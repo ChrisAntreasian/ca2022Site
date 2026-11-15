@@ -31,7 +31,8 @@
                   "link": null,
                   "image": {
                     "data": null
-                  }
+                  },
+                  "poems": { "data": [] }
                 }
               }
             ]
