@@ -14,3 +14,10 @@ node_modules
 /test-results
 .specstory
 src/data/history/
+# Editor working copies / published copies written by the local data store - never commit.
+src/data/draft/
+src/data/live/
+# Scratch scripts and logs used to probe the editor unlock flow locally - not part of the app.
+*.log
+e2e.ps1
+e2e-prod.ps1
