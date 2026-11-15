@@ -1,4 +1,4 @@
-import { ENABLE_CONTENT_EDITOR } from "$app/env/private";
+import { CONTENT_LIVE_SOURCE, ENABLE_CONTENT_EDITOR } from "$app/env/private";
 
 import bundledLanding from "#data/landing.json";
 import bundledLayout from "#data/layout.json";
@@ -30,8 +30,10 @@ import {
  *
  * Bundling `layout` and `landing` is not an oversight. `layout.json` feeds nav, logo and `mobileTitle`
  * on every page, so serving it from S3 would turn a bucket outage into a broken shell rather than one
- * degraded page. `landing` is the entry point and earns the same treatment. Both are deliberately kept
- * out of `S3_CONTENT_KEYS` so no code path can accidentally serve them from the network.
+ * degraded page. `landing` is the entry point and earns the same treatment. Both are kept out of
+ * `S3_CONTENT_KEYS` (no editor releases them yet) but when `CONTENT_LIVE_SOURCE=s3` they read the live
+ * copy from S3 with their bundled payload as fallback - see `publicReadScope`. Without the flag they stay
+ * pinned to bundle, so no code path serves them from the network.
  */
 export type ContentTier = "bundled" | "live";
 
@@ -96,9 +98,14 @@ const fallbacksFor = (): Record<string, string> =>
  * Whether live content lives in S3. Opt-in rather than inferred from `ENABLE_CONTENT_EDITOR`: an editor
  * being enabled locally does not mean released content has been seeded into a bucket yet, and a page
  * that silently started reading drafts would serve unpublished work.
+ *
+ * The value comes from `$app/env/private`, not `process.env`. Kit 3 publishes private variables through
+ * the env module and no longer mirrors them onto `process.env`, so a `process.env` read resolved to
+ * `undefined` even when `.env.local` set the flag - the switch was silently off and every read stayed on
+ * the filesystem store. Reading the same module the rest of the app reads keeps the two in step.
  */
 export const isLiveContentFromS3 = () =>
-  process.env.CONTENT_LIVE_SOURCE?.trim() === "s3";
+  (CONTENT_LIVE_SOURCE ?? "").trim() === "s3";
 
 /** True when a key's public read is allowed to touch S3. */
 const isInScope = (name: ContentKey, list: ReadonlyArray<ContentKey>) =>
@@ -122,14 +129,29 @@ export const contentDataStore = (): DataStore =>
  *
  * Bundled keys report `"bundled"` so a resource module can pass it straight to `readFile` and get the
  * repo copy without S3 being configured at all. Live keys resolve to `"live"` once live content is in
- * S3, and to `"draft"` while it is still on disk — pre-S3, the draft copy was the only copy.
+ * S3, and to `"bundled"` while it is not — that is, to the payload the build actually ships.
+ *
+ * The non-S3 branch used to report `"draft"`, on the pre-S3 premise that the draft copy was the only
+ * copy. That no longer holds: live-tier content now lives in the flat `src/data/<name>.json` files, and
+ * `src/data/draft/` exists only once an editor has saved something or a seed has run. Resolving to
+ * `"draft"` therefore made every live-tier page 500 with ENOENT on a fresh checkout, while bundled
+ * pages kept rendering — the failure was inconsistent precisely because the tiers diverged here.
+ *
+ * `"bundled"` is also the honest answer for a public read: an unpublished draft must never be what a
+ * visitor sees, and this keeps that true whether or not S3 is configured. Drafts remain reachable only
+ * through the editor's own explicit `readFile()` call.
  */
 export const publicReadScope = (name: ContentKey): ContentScope => {
-  if (isInScope(name, BUNDLED_CONTENT_KEYS)) return "bundled";
+  if (isInScope(name, BUNDLED_CONTENT_KEYS)) {
+    // With live content in S3, layout and landing read the released copy too - createS3DataStore falls
+    // back to their bundled payload on any bucket failure, so a failed read still renders the shell from
+    // git. Without the flag they stay pinned to bundle exactly as before: no code path touches S3.
+    return isLiveContentFromS3() ? "live" : "bundled";
+  }
 
   return isLiveContentFromS3() && isInScope(name, S3_CONTENT_KEYS)
     ? "live"
-    : "draft";
+    : "bundled";
 };
 
 /** Whether a release can be offered for this key. Bundled content has no live copy to overwrite. */
@@ -160,3 +182,19 @@ export const requireReleasable = (name: ContentKey): void => {
 
 /** The serialized repo copy for a key, for callers that need it directly (tests, seeding). */
 export const bundledContentJson = bundledJson;
+
+/**
+ * Read a public page's data for any content key through the store.
+ *
+ * `readPublicFile` returns the raw parsed JSON without an editor schema because layout and landing have
+ * no editor resource yet - their shape is whatever the Strapi snapshot or seeded copy holds. The scope is
+ * chosen by `publicReadScope`, so a bundled read never touches S3 and a live read falls back to the
+ * bundled payload when the bucket cannot serve. This is the seam that lets a page switch from git-hosted
+ * JSON to S3-driven content without changing what the page sees.
+ */
+export const readPublicFile = async <T>(name: ContentKey): Promise<T> => {
+  const scope = publicReadScope(name);
+  const source = await contentDataStore().readFile(name, scope);
+
+  return JSON.parse(source) as T;
+};

@@ -16,6 +16,24 @@ const BUCKET = "test-bucket";
 let s3Failure: string | "" = "not configured";
 let s3Objects = new Map<string, string>();
 let s3Calls: string[] = [];
+let liveSourceValue: string | undefined;
+
+/**
+ * `CONTENT_LIVE_SOURCE` is read from `$app/env/private` (Kit 3), not from `process.env`. Vitest loads
+ * `.env.local` the way any other Vite run does, so the real env module would hand these tests whatever the
+ * author happens to have set locally and every tier assertion would drift with it. Mocking the module with
+ * live getters puts the value under each test's control.
+ */
+vi.mock("$app/env/private", () => ({
+  get CONTENT_LIVE_SOURCE() {
+    return liveSourceValue;
+  },
+  get ENABLE_CONTENT_EDITOR() {
+    return undefined;
+  },
+}));
+
+/** An S3 double whose every call fails, standing in for an outage or an unconfigured bucket. */
 
 const makeFakeS3 = () => ({
   putObject: ({ Key }: { Key: string }) => {
@@ -53,15 +71,15 @@ vi.mock("#lib/s3", () => ({
   getS3File: vi.fn(),
   uploadS3File: vi.fn(),
   deleteS3File: vi.fn(),
+  // The store hands every object body to this helper. A string-shaped stand-in is enough for a suite that
+  // only asks which tier a read resolves to, and the shapes a real client produces are asserted where the
+  // module is real - in `s3.test.ts` and `dataStore.s3.test.ts`.
+  s3BodyToString: async (body: unknown) => String(body),
 }));
 
 /** Load `#lib/content.server` fresh, with an optional CONTENT_LIVE_SOURCE value. */
 const loadContent = async (liveSource?: string) => {
-  if (liveSource === undefined) {
-    delete process.env.CONTENT_LIVE_SOURCE;
-  } else {
-    process.env.CONTENT_LIVE_SOURCE = liveSource;
-  }
+  liveSourceValue = liveSource;
 
   vi.resetModules();
 
@@ -75,7 +93,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  delete process.env.CONTENT_LIVE_SOURCE;
+  liveSourceValue = undefined;
 });
 
 describe("content server tiers", () => {
@@ -87,11 +105,14 @@ describe("content server tiers", () => {
       expect(content.publicReadScope("landing")).toBe("bundled");
     });
 
-    it("reads the four S3-eligible keys from draft until they are released", async () => {
+    it("reads the four S3-eligible keys from the bundle until they are released", async () => {
       const content = await loadContent();
 
+      // A public read must never resolve to a draft: `src/data/draft/` only exists once an editor has
+      // saved or a seed has run, so resolving here would ENOENT on a fresh checkout. The bundle is the
+      // payload the build actually ships, and it is what a visitor sees until a release lands in S3.
       for (const key of content.S3_CONTENT_KEYS) {
-        expect(content.publicReadScope(key)).toBe("draft");
+        expect(content.publicReadScope(key)).toBe("bundled");
       }
     });
 
@@ -118,13 +139,15 @@ describe("content server tiers", () => {
       }
     });
 
-    it("never switches layout or landing, even with S3 enabled", async () => {
+    it("switches layout and landing to live too, so the shell can be S3-driven", async () => {
       const content = await loadContent("s3");
 
-      // The point of the bundled tier: a site-wide shell must not become reachable from the network just
-      // because the content tier moved.
-      expect(content.publicReadScope("layout")).toBe("bundled");
-      expect(content.publicReadScope("landing")).toBe("bundled");
+      // The CMS goal: a non-dev should be able to publish nav/home changes into S3 without a git push.
+      // With the flag on, layout and landing resolve to the live tier like every other key. They stay out
+      // of S3_CONTENT_KEYS (no editor releases them), but publicReadScope still routes them to "live" -
+      // createS3DataStore then falls back to their bundled payload on any bucket failure (see content-outage).
+      expect(content.publicReadScope("layout")).toBe("live");
+      expect(content.publicReadScope("landing")).toBe("live");
     });
   });
 
