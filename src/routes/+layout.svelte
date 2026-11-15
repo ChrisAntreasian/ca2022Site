@@ -39,6 +39,7 @@
   logo={data.logo}
   title={data.title}
   mobileTitle={data.mobileTitle}
+  editorEnabled={data.editorEnabled}
   bind:headerHeight
 />
 

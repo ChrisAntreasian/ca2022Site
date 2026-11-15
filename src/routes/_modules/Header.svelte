@@ -11,6 +11,7 @@
     logo: any;
     title: string;
     mobileTitle: string;
+    editorEnabled: boolean;
     headerHeight: number;
   }
 
@@ -18,6 +19,7 @@
     logo,
     title,
     mobileTitle,
+    editorEnabled,
     headerHeight = $bindable(),
   }: Props = $props();
 
@@ -114,6 +116,13 @@
         <li class:active={page.url.pathname === "/poems"}>
           <a onclick={() => clickNav("Poems")} href="/poems">Poems</a>
         </li>
+        {#if editorEnabled}
+          <li class:active={page.url.pathname.startsWith("/layout/edit")}>
+            <a onclick={() => clickNav("Edit layout")} href="/layout/edit"
+              >Edit layout</a
+            >
+          </li>
+        {/if}
       </ul>
     </nav>
   </div>

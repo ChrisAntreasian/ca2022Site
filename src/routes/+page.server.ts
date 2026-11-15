@@ -1,14 +1,32 @@
 import type { PageServerLoad } from "./$types";
 import type { StrapiPageDetails } from "#lib/typing/page";
-import * as D from "#data/landing.json";
+import { readPublicFile } from "#lib/content.server";
+import { landingEditorPath } from "#lib/editing/resources/landing/landing-editor";
+import { isEditorUnlockedForRequest } from "#lib/editing/core/session.server";
 
 const introIds = [5];
 
-export const load: PageServerLoad = async () => {
-  const d = D.data;
-  const attrs = d.data[0].attributes;
+/** The home page's landing intro section, whose editor route is `/landing/edit/<id>`. */
+const landingEditorSectionId = 5;
+
+/** The shape of `landing.json` / its S3 copy: the outer store envelope wraps the Strapi payload. */
+type LandingFile = {
+  name: string;
+  timestamp: number;
+  data: {
+    data: { id: number; attributes: Record<string, unknown> }[];
+  };
+};
+
+export const load: PageServerLoad = async ({ cookies }) => {
+  const file = await readPublicFile<LandingFile>("landing");
+  const attrs = file.data.data[0].attributes as {
+    page_details: { data: StrapiPageDetails[0][] };
+  };
 
   return {
+    editorEnabled: isEditorUnlockedForRequest(cookies),
+    landingEditorHref: landingEditorPath(landingEditorSectionId),
     ...attrs.page_details.data.reduce(
       (
         acc: {
