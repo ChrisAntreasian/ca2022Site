@@ -1,8 +1,16 @@
 import * as fs from "fs";
 import path from "path";
 
+import {
+  GetObjectCommand,
+  HeadObjectCommand,
+  NoSuchKey,
+  NotFound,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
+
 import { e500 } from "#lib/error";
-import { getOptionalS3Bucket, getS3Client } from "#lib/s3";
+import { getOptionalS3Bucket, getS3Client, s3BodyToString } from "#lib/s3";
 
 /**
  * Which copy of a content key a read or write targets.
@@ -275,18 +283,21 @@ export const createS3DataStore = (
   const historyKeyFor = (name: string, timestamp: number, scope: DataScope) =>
     `${prefix}/history/${scope}/${name}/${timestamp}.json`;
 
-  const bodyToString = (body: unknown) => {
-    if (typeof body === "string") return body;
-    if (Buffer.isBuffer(body)) return body.toString("utf8");
+  const put = (key: string, body: string) => {
+    const bucket = getOptionalS3Bucket();
 
-    // aws-sdk v2 hands back a Buffer for `Body`, but a mocked or typed client can hand back anything.
-    throw e500("Unexpected S3 object body while reading content data.");
+    if (!bucket) {
+      throw e500("Cannot write content data: S3 bucket is not configured.");
+    }
+
+    return getS3Client().send(
+      new PutObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        Body: body,
+      }),
+    );
   };
-
-  const put = (key: string, body: string) =>
-    getS3Client()
-      .putObject({ Bucket: getOptionalS3Bucket()!, Key: key, Body: body })
-      .promise();
 
   const get = async (key: string) => {
     const bucket = getOptionalS3Bucket();
@@ -295,11 +306,17 @@ export const createS3DataStore = (
       throw e500("Cannot read content data: S3 bucket is not configured.");
     }
 
-    const result = await getS3Client()
-      .getObject({ Bucket: bucket, Key: key })
-      .promise();
+    const result = await getS3Client().send(
+      new GetObjectCommand({ Bucket: bucket, Key: key }),
+    );
 
-    return bodyToString(result.Body);
+    // The store deliberately does not guess at body shapes, because aws-sdk hands over a different one per
+    // runtime and per operation: `s3BodyToString` reads the accessors the SDK actually provides, and a body
+    // it cannot turn into text fails loudly instead of yielding an empty string. That distinction matters:
+    // `readFile`'s bundled fallback is gated on a *miss* (`isNotFound`), so an object that exists but reads
+    // wrong must surface rather than be answered with a stale bundled payload an editor could then write
+    // back over the real one.
+    return s3BodyToString(result.Body);
   };
 
   /** True when the object does not exist. Any other failure propagates rather than reading as "missing". */
@@ -309,9 +326,17 @@ export const createS3DataStore = (
     if (!bucket) return false;
 
     try {
-      await getS3Client().headObject({ Bucket: bucket, Key: key }).promise();
+      await getS3Client().send(
+        new HeadObjectCommand({ Bucket: bucket, Key: key }),
+      );
       return true;
     } catch (err) {
+      // v2 duck-typed the failure as `err.code === "NoSuchKey"`. v3 exports the shapes as real
+      // classes, and a HEAD on a missing key reports 404 rather than NoSuchKey — so both are checked
+      // by identity instead of by string sniffing. Any other failure must still propagate: reading a
+      // transient outage as "this object is absent" would let a release overwrite content blind.
+      if (err instanceof NoSuchKey || err instanceof NotFound) return false;
+
       const code = (err as { code?: string }).code;
 
       if (code === "NoSuchKey" || code === "NotFound") return false;

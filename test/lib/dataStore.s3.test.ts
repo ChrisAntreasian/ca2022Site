@@ -16,37 +16,67 @@ import {
 
 const BUCKET = "test-bucket";
 
-const makeFakeS3 = (seed: Record<string, string>) => {
+/**
+ * v3 client double. aws-sdk v2 exposed `getObject`/`putObject`/`headObject` returning a `{ promise }`
+ * envelope; v3 has one entry point, `send(command)`, returning a promise directly and carrying the
+ * request on `command.input`. The double dispatches on command type so the call/order assertions below
+ * still describe which key each operation targeted — those ordering guarantees are what a draft/live
+ * migration can get wrong while every payload still looks correct.
+ */
+const makeFakeS3 = (
+  seed: Record<string, string>,
+  options: { streamBodies?: boolean } = {},
+) => {
   const calls: Array<{ op: string; key: string; body?: unknown }> = [];
   const store = new Map(Object.entries(seed));
 
   const fake = {
-    putObject: ({ Key, Body }: { Key: string; Body?: unknown }) => {
-      calls.push({ op: "put", key: Key, body: Body });
-      store.set(Key, String(Body));
-      return { promise: async () => ({}) };
-    },
-    getObject: ({ Key }: { Key: string }) => {
-      calls.push({ op: "get", key: Key });
-      if (!store.has(Key)) {
+    send: async (command: {
+      input: { Key?: string; Bucket?: string; Body?: unknown };
+      constructor: { name: string };
+    }) => {
+      const Key = command.input.Key ?? "";
+      const name = command.constructor.name;
+
+      if (name === "PutObjectCommand") {
+        calls.push({ op: "put", key: Key, body: command.input.Body });
+        store.set(Key, String(command.input.Body));
+        return {};
+      }
+
+      if (name === "GetObjectCommand") {
+        calls.push({ op: "get", key: Key });
+        if (!store.has(Key)) {
+          // Mirror the v3 error surface the store classifies on: real `NoSuchKey` carries both a `name`
+          // and a `code`, so the fake must too rather than relying on one channel.
+          throw Object.assign(new Error("NotFound"), {
+            name: "NoSuchKey",
+            code: "NoSuchKey",
+            $metadata: { httpStatusCode: 404 },
+          });
+        }
         return {
-          promise: async () => {
-            throw Object.assign(new Error("NotFound"), { code: "NoSuchKey" });
-          },
+          Body: options.streamBodies
+            ? checksumStreamBody(store.get(Key) ?? "")
+            : store.get(Key),
         };
       }
-      return { promise: async () => ({ Body: store.get(Key) }) };
-    },
-    headObject: ({ Key }: { Key: string }) => {
-      calls.push({ op: "head", key: Key });
-      if (!store.has(Key)) {
-        return {
-          promise: async () => {
-            throw Object.assign(new Error("NotFound"), { code: "NotFound" });
-          },
-        };
+
+      if (name === "HeadObjectCommand") {
+        calls.push({ op: "head", key: Key });
+        if (!store.has(Key)) {
+          // A HEAD on a missing key reports 404/NotFound in v3, not `NoSuchKey` — the fake reflects that
+          // so the store's identity-based classification is exercised through both channels.
+          throw Object.assign(new Error("NotFound"), {
+            name: "NotFound",
+            code: "NotFound",
+            $metadata: { httpStatusCode: 404 },
+          });
+        }
+        return {};
       }
-      return { promise: async () => ({}) };
+
+      throw new Error(`Unexpected command sent by the data store: ${name}`);
     },
   };
 
@@ -56,14 +86,53 @@ const makeFakeS3 = (seed: Record<string, string>) => {
 // Rebuilt per test so a release can be read back as an ordered sequence of key writes.
 let harness = makeFakeS3({});
 
-vi.mock("#lib/s3", () => ({
-  initS3: vi.fn(),
-  getS3Client: () => harness.fake,
-  getOptionalS3Bucket: () => BUCKET,
-  getS3File: vi.fn(),
-  uploadS3File: vi.fn(),
-  deleteS3File: vi.fn(),
-}));
+/**
+ * The body aws-sdk v3 actually hands a Node client for `GetObject`: a `ChecksumStream`, which the SDK's
+ * stream mixin gives `transformToString` and which inherits its async iterator from `Readable`. It is
+ * nothing string-shaped - no `toString`, no `valueOf`, no `Symbol.toStringTag` that a coercion would use.
+ *
+ * Every other double in this file hands back a plain string, which is exactly how a store whose body
+ * normalizer accepted only strings and Buffers passed here while throwing "Unexpected S3 object body" on
+ * every read against a real bucket. The accessor is the one the store must prefer: the SDK verifies the
+ * object's checksum as it reads through `transformToString`, which a bare iteration loop skips.
+ *
+ * Built by hand because `node:stream` is unusable in this runner: `resolve.conditions: ["browser"]` makes
+ * it resolve to a browser stream polyfill with no `Readable.toReadable`.
+ */
+class FakeChecksumStream {
+  private readonly payload: string;
+
+  constructor(payload: string) {
+    this.payload = payload;
+  }
+
+  async transformToString() {
+    return this.payload;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    yield Buffer.from(this.payload, "utf8");
+  }
+}
+
+const checksumStreamBody = (text: string) => new FakeChecksumStream(text);
+
+vi.mock("#lib/s3", async () => {
+  // Spread the real module and override only the client accessors. `s3BodyToString` in particular must stay
+  // real: the store delegates body-to-text conversion to it, and replacing it here is what would let a
+  // store that rejects streamed bodies keep passing this file.
+  const actual = await vi.importActual<typeof import("#lib/s3")>("#lib/s3");
+
+  return {
+    ...actual,
+    initS3: vi.fn(),
+    getS3Client: () => harness.fake,
+    getOptionalS3Bucket: () => BUCKET,
+    getS3File: vi.fn(),
+    uploadS3File: vi.fn(),
+    deleteS3File: vi.fn(),
+  };
+});
 
 const makeStore = (options?: {
   prefix?: string;
@@ -153,6 +222,24 @@ describe("s3DataStore", () => {
 
     it("throws rather than falling back when no fallback is registered", async () => {
       await expect(makeStore().readFile("poems", "live")).rejects.toThrow();
+    });
+
+    it("reads a body shaped the way aws-sdk hands one in Node", async () => {
+      // The gap this closes: every other double in this file hands back a plain string, so a store whose
+      // body-to-text step accepted only strings and Buffers could pass here while failing on every read
+      // against a real bucket - which is exactly what happened when the S3 flag finally turned on.
+      harness = makeFakeS3(
+        { "data/draft/poems.json": '{"name":"poems","timestamp":1,"data":[]}' },
+        { streamBodies: true },
+      );
+
+      const out = await makeStore().readFile("poems", "draft");
+
+      expect(JSON.parse(out)).toEqual({
+        name: "poems",
+        timestamp: 1,
+        data: [],
+      });
     });
   });
 
