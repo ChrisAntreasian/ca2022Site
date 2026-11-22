@@ -19,7 +19,10 @@ being true.
    `data/live/<name>.json`, `data/history/<scope>/<name>/<ts>.json`). `CONTENT_S3_PREFIX` (private env var,
    landed in `7698f07`) overrides that root for the app so a dev run can be pointed at `dev-data`; it must be
    one lowercase path segment. `scripts/seed-s3.mjs` reads the same variable, so a seed cannot disagree with
-   the app. The bucket holds only the `data` root today, and `.env.local` sets no prefix.
+   the app. The bucket now holds two roots: `data/` (21 objects, production's, and 0 of them touched by the
+   dev seed) and `dev-data/` (14 objects: draft + live for all seven keys, seeded 2026-11-22). `.env.local`
+   sets `CONTENT_S3_PREFIX=dev-data`, so a dev-server edit lands under `dev-data/`; a deploy that sets nothing
+   keeps reading `data/`. Neither root holds any `history/live/` object.
 4. Bucket `ca2022s3` inventory (read-only probe, 2026-11-22): 21 objects under `data/` = 7 draft,
    7 live, 7 history (all `data/history/draft/…`), **zero** `data/history/live/…`.
    `GetBucketVersioning` → `AccessDenied` with this key; LIST/GET/PUT work. Prefix listing works
