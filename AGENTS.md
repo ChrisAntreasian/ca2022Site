@@ -15,8 +15,11 @@ being true.
    var on a running server does nothing — a module-level call captured the choice.
 2. `CONTENT_LIVE_SOURCE` gates reads **and** writes. In S3 mode nothing is written under
    `src/data/draft/`, `src/data/live/`, `src/data/history/`. Those directories are git-ignored.
-3. `createS3DataStore` hard-codes prefix `data` (`data/draft/<name>.json`, `data/live/<name>.json`,
-   `data/history/<scope>/<name>/<ts>.json`). `S3_DATA_PREFIX` exists only in `scripts/seed-s3.mjs`.
+3. `createS3DataStore` builds every key off one root: `DEFAULT_S3_PREFIX` is `data` (`data/draft/<name>.json`,
+   `data/live/<name>.json`, `data/history/<scope>/<name>/<ts>.json`). `CONTENT_S3_PREFIX` (private env var,
+   landed in `7698f07`) overrides that root for the app so a dev run can be pointed at `dev-data`; it must be
+   one lowercase path segment. `scripts/seed-s3.mjs` reads the same variable, so a seed cannot disagree with
+   the app. The bucket holds only the `data` root today, and `.env.local` sets no prefix.
 4. Bucket `ca2022s3` inventory (read-only probe, 2026-11-22): 21 objects under `data/` = 7 draft,
    7 live, 7 history (all `data/history/draft/…`), **zero** `data/history/live/…`.
    `GetBucketVersioning` → `AccessDenied` with this key; LIST/GET/PUT work. Prefix listing works
