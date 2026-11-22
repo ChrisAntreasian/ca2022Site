@@ -1,4 +1,8 @@
-import { CONTENT_LIVE_SOURCE, ENABLE_CONTENT_EDITOR } from "$app/env/private";
+import {
+  CONTENT_LIVE_SOURCE,
+  CONTENT_S3_PREFIX,
+  ENABLE_CONTENT_EDITOR,
+} from "$app/env/private";
 
 import bundledLanding from "#data/landing.json";
 import bundledLayout from "#data/layout.json";
@@ -9,6 +13,7 @@ import bundledSouljuicer from "#data/the-souljuicer.json";
 import bundledWebExperience from "#data/web-experience.json";
 import {
   createS3DataStore,
+  DEFAULT_S3_PREFIX,
   fsDataStore,
   type DataScope,
   type DataStore,
@@ -107,6 +112,19 @@ const fallbacksFor = (): Record<string, string> =>
 export const isLiveContentFromS3 = () =>
   (CONTENT_LIVE_SOURCE ?? "").trim() === "s3";
 
+/**
+ * The bucket prefix every content object is read from and written to.
+ *
+ * `CONTENT_LIVE_SOURCE=s3` says *which store* a page uses; this says *which objects in that bucket*. A dev
+ * server with the editor switched on and the same bucket as production shares `data/` with the site, so its
+ * drafts, history snapshots and releases land on the objects visitors are reading. A separate prefix is the
+ * only thing standing between the two, and it has to be one configuration item rather than a habit: the
+ * store's own default stays `data` so a deploy that sets nothing keeps reading what `npm run seed:s3` put
+ * there.
+ */
+export const contentS3Prefix = (): string =>
+  (CONTENT_S3_PREFIX ?? "").trim() || DEFAULT_S3_PREFIX;
+
 /** True when a key's public read is allowed to touch S3. */
 const isInScope = (name: ContentKey, list: ReadonlyArray<ContentKey>) =>
   list.some((key) => key === name);
@@ -121,7 +139,10 @@ const isInScope = (name: ContentKey, list: ReadonlyArray<ContentKey>) =>
  */
 export const contentDataStore = (): DataStore =>
   isLiveContentFromS3()
-    ? createS3DataStore({ fallbacks: fallbacksFor() })
+    ? createS3DataStore({
+        prefix: contentS3Prefix(),
+        fallbacks: fallbacksFor(),
+      })
     : fsDataStore;
 
 /**

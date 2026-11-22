@@ -5,9 +5,14 @@
  * Run outside the Vite/SvelteKit runtime on purpose: this is a one-off ops step, not part of the app. It
  * talks to S3 directly with @aws-sdk/client-s3 and reads the repo JSON from disk, so it needs none of the
  * `#lib` / `$app/env` aliases that only Vite resolves. The keys it writes match createS3DataStore exactly:
- *   data/draft/<name>.json
- *   data/live/<name>.json
- * which is what a public page reads when CONTENT_LIVE_SOURCE=s3 (live, with the bundled copy as fallback).
+ *   <prefix>/draft/<name>.json
+ *   <prefix>/live/<name>.json
+ * where <prefix> is CONTENT_S3_PREFIX, or "data" when the app configures no prefix - which is what a public
+ * page reads when CONTENT_LIVE_SOURCE=s3 (live, with the bundled copy as fallback).
+ *
+ * A dev-only prefix must be seeded on its own: nothing else in the bucket holds a draft for a prefix that
+ * production never wrote, so an editor pointed at "dev-data" before this script has run against "dev-data"
+ * has no draft to open.
  *
  * Idempotent per key/scope: an existing object is left alone unless --overwrite is set, so re-running does
  * not clobber edits already made in the bucket. layout.json and landing.json are included - without this,
@@ -17,6 +22,8 @@
  *   node --env-file=.env.local scripts/seed-s3.mjs
  *   node --env-file=.env.local scripts/seed-s3.mjs --overwrite
  *   node --env-file=.env.local scripts/seed-s3.mjs poems web-experience   # only these keys
+ *   # seeding a dev-only prefix: put CONTENT_S3_PREFIX=dev-data in the env file being read, then
+ *   node --env-file=.env.local scripts/seed-s3.mjs
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -37,7 +44,14 @@ const CONTENT_KEYS = [
   "web-experience",
 ];
 
-const PREFIX = process.env.S3_DATA_PREFIX?.trim() || "data";
+// The same prefix the app writes under, or the app and this seed would disagree: a seed into "data" leaves
+// an editor reading "dev-data", and a seed into "dev-data" writes objects no public page will ever open.
+// S3_DATA_PREFIX is this script's older name from before the app had a prefix of its own, kept so an
+// existing run command keeps working.
+const PREFIX =
+  process.env.CONTENT_S3_PREFIX?.trim() ||
+  process.env.S3_DATA_PREFIX?.trim() ||
+  "data";
 
 const requireEnv = (name) => {
   const value = process.env[name]?.trim();

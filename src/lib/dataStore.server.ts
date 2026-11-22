@@ -360,8 +360,16 @@ export const fsDataStore: DataStore = {
  * §15, and `prefix` is only the root they hang off. A per-resource prefix would fork the tier
  * structure and make a cross-key release impossible.
  */
+/**
+ * The prefix every bucket object hangs off when nothing is configured. `npm run seed:s3` writes this
+ * layout and production reads it, so a deploy that configures nothing keeps serving the objects it
+ * already has. A dev-only prefix is a decision about where writes land, not a second default: nothing
+ * here may quietly move the app off `data`.
+ */
+export const DEFAULT_S3_PREFIX = "data";
+
 export type S3DataStoreOptions = {
-  /** Defaults to `data`, giving keys like `data/live/poems.json`. */
+  /** Defaults to `DEFAULT_S3_PREFIX`, giving keys like `data/live/poems.json`. */
   prefix?: string;
   /**
    * Bundled fallback payloads used when S3 cannot serve a live read, keyed by content key. The repo
@@ -443,7 +451,7 @@ export const seedFromBundledData = async (
 export const createS3DataStore = (
   options: S3DataStoreOptions = {},
 ): DataStore => {
-  const prefix = options.prefix ?? "data";
+  const prefix = options.prefix ?? DEFAULT_S3_PREFIX;
   const fallbacks = options.fallbacks ?? {};
 
   const keyFor = (name: string, scope: DataScope) =>

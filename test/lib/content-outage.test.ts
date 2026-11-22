@@ -10,6 +10,7 @@ let s3Failure: string | "" = "not configured";
 let s3Objects = new Map<string, string>();
 let s3Calls: string[] = [];
 let liveSourceValue: string | undefined;
+let livePrefixValue: string | undefined;
 
 /**
  * Same reason as in `content-tiers.test.ts`: the flag arrives through `$app/env/private`, whose values Kit
@@ -23,6 +24,9 @@ vi.mock("$app/env/private", () => ({
   },
   get ENABLE_CONTENT_EDITOR() {
     return undefined;
+  },
+  get CONTENT_S3_PREFIX() {
+    return livePrefixValue;
   },
 }));
 
@@ -79,8 +83,9 @@ vi.mock("#lib/s3", () => ({
   s3BodyToString: async (body: unknown) => String(body),
 }));
 
-const loadContent = async (liveSource?: string) => {
+const loadContent = async (liveSource?: string, prefix?: string) => {
   liveSourceValue = liveSource;
+  livePrefixValue = prefix;
 
   vi.resetModules();
 
@@ -95,6 +100,7 @@ beforeEach(() => {
 
 afterEach(() => {
   liveSourceValue = undefined;
+  livePrefixValue = undefined;
 });
 
 describe("content read path under an S3 outage", () => {
@@ -161,6 +167,63 @@ describe("content read path under an S3 outage", () => {
 
       expect(parsed.name).toBe(key);
     }
+  });
+
+  describe("the prefix content is read and written under", () => {
+    it("names data when nothing is configured, because production has never had a prefix", async () => {
+      const content = await loadContent("s3");
+
+      // `npm run seed:s3` writes `data/...` and production has never set a prefix. If this default moved,
+      // every object already in the bucket would become a read the app no longer makes, and the site would
+      // serve bundled payloads while a bucket full of releases sat unused.
+      expect(content.contentS3Prefix()).toBe("data");
+    });
+
+    it("asks only its own key when a different prefix is configured", async () => {
+      const content = await loadContent("s3", "dev-data");
+
+      expect(content.contentS3Prefix()).toBe("dev-data");
+    });
+
+    it("answers a dev-prefix miss from the repo copy, not from the object one prefix away", async () => {
+      const content = await loadContent("s3", "dev-data");
+      const store = content.contentDataStore();
+
+      s3Failure = "";
+      s3Objects.set(
+        "data/live/poems.json",
+        '{"name":"poems","timestamp":9,"data":[{"id":"prod-only-object"}]}',
+      );
+
+      const parsed = JSON.parse(await store.readFile("poems", "live"));
+
+      // The two halves of the same guard: the dev run asks for its own key and nothing else, and the miss it
+      // comes back with is answered from the repo copy. Serving production's copy to a dev server is how a
+      // dev edit ends up saved back over the site's own released content.
+      expect(s3Calls).toEqual(["get:dev-data/live/poems.json"]);
+      expect(JSON.stringify(parsed)).not.toContain("prod-only-object");
+      expect(parsed.name).toBe("poems");
+    });
+
+    it("reads the dev copy when the dev prefix is the one that holds a release", async () => {
+      const content = await loadContent("s3", "dev-data");
+      const store = content.contentDataStore();
+
+      s3Failure = "";
+      s3Objects.set(
+        "dev-data/live/poems.json",
+        '{"name":"poems","timestamp":7,"data":[]}',
+      );
+      s3Objects.set(
+        "data/live/poems.json",
+        '{"name":"poems","timestamp":9,"data":[]}',
+      );
+
+      const poems = JSON.parse(await store.readFile("poems", "live"));
+
+      expect(poems.timestamp).toBe(7);
+      expect(s3Calls).toEqual(["get:dev-data/live/poems.json"]);
+    });
   });
 
   it("turns the tier on through the private env module rather than process.env", async () => {

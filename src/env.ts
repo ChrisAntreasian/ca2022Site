@@ -1,5 +1,15 @@
 import { defineEnvVars } from "@sveltejs/kit/env";
 
+/**
+ * What a bucket prefix is allowed to look like: one path segment, lowercase.
+ *
+ * A prefix is the root every draft, live and history key hangs off, so a value containing a slash, a space
+ * or `..` would let a store reach objects outside the prefix it was configured for - straight into the
+ * objects another run of the app is writing. Rejecting that is cheaper than discovering it in a bucket
+ * where two prefixes have been writing over each other.
+ */
+const S3_PREFIX_RX = /^[a-z0-9][a-z0-9-]*$/;
+
 export const variables = defineEnvVars({
   ENABLE_CONTENT_EDITOR: {
     description:
@@ -10,6 +20,23 @@ export const variables = defineEnvVars({
     description:
       "Set to 's3' once draft/live content has been seeded into the bucket. Until then public pages read the on-disk copies, and releases are refused. Read at runtime.",
     schema: (value) => value?.trim() || undefined,
+  },
+  CONTENT_S3_PREFIX: {
+    description:
+      'The bucket prefix every draft, live and history object is read from and written to. Left unset it is "data", which is where npm run seed:s3 puts the objects production reads. Set it to a single lowercase segment such as "dev-data" whenever the editor runs against a bucket that production also serves, so a dev draft, history snapshot or release cannot land on the objects a visitor is reading. A value must be one path segment because a prefix is the root of every key the store writes. Read at runtime.',
+    schema: (value) => {
+      const prefix = value?.trim();
+
+      if (!prefix) return undefined;
+
+      if (!S3_PREFIX_RX.test(prefix)) {
+        throw new Error(
+          `CONTENT_S3_PREFIX must be a single path segment of lowercase letters, digits and dashes, such as "dev-data"; got "${prefix}".`,
+        );
+      }
+
+      return prefix;
+    },
   },
   EDITOR_EDIT_KEY: {
     description:

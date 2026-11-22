@@ -240,6 +240,113 @@ describe("s3DataStore", () => {
     });
   });
 
+  describe("prefix isolation", () => {
+    it("keeps every tier it writes inside the prefix it was given", async () => {
+      const store = makeStore({ prefix: "dev-data" });
+
+      await store.writeFile("poems", {
+        name: "poems",
+        timestamp: 111,
+        data: [],
+      });
+      await store.release("poems");
+      await store.listHistory("poems");
+
+      expect(
+        harness.calls
+          .filter((call) => call.op === "put")
+          .map((call) => call.key),
+      ).toEqual([
+        "dev-data/history/draft/poems/111.json",
+        "dev-data/draft/poems.json",
+        "dev-data/live/poems.json",
+      ]);
+      // A saved-versions listing has to stay inside its own prefix as much as a write does. A list that
+      // reached across into production's history would put those versions on a dev screen and offer to
+      // restore one of them onto a dev draft.
+      expect(
+        harness.calls
+          .filter((call) => call.op === "list")
+          .map((call) => call.key),
+      ).toEqual(["dev-data/history/"]);
+    });
+
+    it("does not read what a different prefix wrote, and does not leave an edit inside production's keys", async () => {
+      harness = makeFakeS3({
+        "data/draft/poems.json": '{"name":"poems","data":["production"]}',
+      });
+
+      const dev = makeStore({ prefix: "dev-data" });
+
+      // The dev server has no draft of its own yet, so it gets nothing - not the copy sitting under the
+      // prefix it was told not to use.
+      await expect(dev.readFile("poems", "draft")).rejects.toThrow();
+
+      await dev.writeFile("poems", {
+        name: "poems",
+        timestamp: 222,
+        data: ["dev edit"],
+      });
+
+      const prod = makeStore();
+
+      await expect(prod.readFile("poems", "draft")).resolves.toBe(
+        '{"name":"poems","data":["production"]}',
+      );
+
+      const writes = harness.calls
+        .filter((call) => call.op === "put")
+        .map((call) => call.key);
+
+      // Every write the dev store made is under dev-data. Had the prefix not existed, this is the test whose
+      // absence would mean a dev edit had quietly replaced what the site is serving.
+      expect(writes).toEqual([
+        "dev-data/history/draft/poems/222.json",
+        "dev-data/draft/poems.json",
+      ]);
+    });
+
+    it("still answers a real miss with the bundled copy under a prefix the fallbacks never name", async () => {
+      harness = makeFakeS3({
+        "data/live/poems.json": '{"production":true}',
+      });
+
+      const store = makeStore({
+        prefix: "dev-data",
+        fallbacks: { poems: '{"bundled":true}' },
+      });
+
+      // `fallbacksFor()` is keyed by content key, never by bucket key, so changing the prefix changes which
+      // object is missing and nothing about which payload answers the miss. The dev prefix asked for its own
+      // live object, found it absent, and was answered from the repo copy - not from the production object
+      // that is sitting in the same bucket one prefix over.
+      await expect(store.readFile("poems", "live")).resolves.toBe(
+        '{"bundled":true}',
+      );
+      expect(harness.calls.map((call) => call.key)).toEqual([
+        "dev-data/live/poems.json",
+      ]);
+    });
+
+    it("leaves the default prefix alone for a store that was told nothing", async () => {
+      const store = makeStore();
+
+      await store.writeFile("poems", {
+        name: "poems",
+        timestamp: 111,
+        data: [],
+      });
+
+      // Production has never configured a prefix. If this default moved, every object `npm run seed:s3`
+      // already put in the bucket would become a read the app no longer makes.
+      expect(
+        harness.calls
+          .filter((call) => call.op === "put")
+          .map((call) => call.key),
+      ).toEqual(["data/history/draft/poems/111.json", "data/draft/poems.json"]);
+    });
+  });
+
   describe("readFile", () => {
     it("reads the scoped key", async () => {
       harness = makeFakeS3({ "data/live/poems.json": '{"name":"poems"}' });

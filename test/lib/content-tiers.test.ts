@@ -28,6 +28,13 @@ vi.mock("$app/env/private", () => ({
   get CONTENT_LIVE_SOURCE() {
     return liveSourceValue;
   },
+  get CONTENT_S3_PREFIX() {
+    // Left unset here on purpose: these tests assert which *tier* a read resolves to, and the prefix that
+    // tier hangs under is asserted where a bucket is actually reached - `content-outage.test.ts`. Returning
+    // undefined is what a production deploy that configures no prefix reports, so these tests keep using the
+    // layout `npm run seed:s3` writes.
+    return undefined;
+  },
   get ENABLE_CONTENT_EDITOR() {
     return undefined;
   },
