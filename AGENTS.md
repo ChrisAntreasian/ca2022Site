@@ -2,8 +2,9 @@
 
 Branch `feature/s3-json-data-store`. The durability/restore work is split into cards `T0`–`T10`
 (`.pi/prompts/ca-t*.md`, run them as `/ca-t5` etc). **Do one card per session.** Read
-`docs/handoffs/PROGRESS.md` before starting and append a short entry when you finish.
-Verified 2026-11-22; refresh this file if a fact below stops being true.
+`docs/handoffs/PROGRESS.md` before starting and append a short entry when you finish — cards already
+listed there as done must not be re-run. Verified 2026-11-22; refresh this file if a fact below stops
+being true.
 
 ## Verified facts
 
@@ -28,10 +29,12 @@ Verified 2026-11-22; refresh this file if a fact below stops being true.
    `status` and `body` only — **no `message` property**. The text lives in `body.message`. Assert
    with `isHttpError`/`status`, or a bare `.rejects.toThrow()`; never
    `rejects.toThrow("substring")` for `e500` text (that is what `test/lib/content.test.ts` does).
-7. `listHistory` / `readHistory` exist on both stores (uncommitted at time of writing). The fs store
+7. `listHistory` / `readHistory` exist on both stores (committed in `383297c`). The fs store
    also reads the legacy layout; the S3 store has no legacy tier and returns `[]` for
    `scope: "legacy"`. `readHistory(name, ts, scope)` defaults `scope` to `draft`, so a `legacy` or
-   `live` entry must be read with its scope passed explicitly.
+   `live` entry must be read with its scope passed explicitly. The default limit is 100
+   (`DEFAULT_HISTORY_LIMIT`), so a UI that shows 5 asks for `{ limit: 5 }` — it does not get 5 by
+   default, and the S3 store pages the whole history before cutting.
 8. In the S3 store the bundled fallback is `options.fallbacks`, a name-keyed map built by
    `fallbacksFor()` in `src/lib/content.server.ts` from `BUNDLED`. It is consulted **only** on the
    `isNotFound` branch of `liveReadFile` (a real miss), never on a network failure or a wrong-shape
