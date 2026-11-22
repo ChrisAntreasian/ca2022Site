@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fsDataStore } from "../../src/lib/dataStore.server";
+import type { Mock } from "vitest";
+
+import { isHttpError } from "@sveltejs/kit";
+
+import { fsDataStore, isMissingSnapshot } from "../../src/lib/dataStore.server";
 
 // Mock fs module
 vi.mock("fs", () => ({
@@ -8,6 +12,9 @@ vi.mock("fs", () => ({
     readFile: vi.fn(),
     mkdir: vi.fn(),
     access: vi.fn(),
+    // The history reads list a directory, so this double has to be able to hand back a listing. A
+    // store's list of saved versions is only as good as the listing it gets back.
+    readdir: vi.fn(),
   },
   constants: {
     F_OK: 0,
@@ -29,7 +36,19 @@ describe("fsDataStore", () => {
       new Error("missing snapshot"),
     );
     vi.mocked(fs.promises.writeFile).mockResolvedValue(undefined);
+    // A key that has never been written has no history directories at all, which is the ordinary state
+    // a fresh clone lands in. Tests that want a listing install their own.
+    readdirMock().mockRejectedValue(
+      Object.assign(new Error("no such directory"), { code: "ENOENT" }),
+    );
   });
+
+  /**
+   * `readdir` is Node's overloaded signature, which the mock helper cannot describe well enough for a
+   * test that dispatches on which directory it was given. The cast goes through `unknown` so the
+   * double's own arguments stay typed at the call sites below.
+   */
+  const readdirMock = () => fs.promises.readdir as unknown as Mock;
 
   describe("readFile", () => {
     it("defaults to the draft scope", async () => {
@@ -225,9 +244,237 @@ describe("fsDataStore", () => {
       vi.mocked(fs.promises.readFile).mockResolvedValue(
         JSON.stringify({ name: "poems", data: {} }),
       );
-
       await expect(() => fsDataStore.release("poems")).rejects.toThrow();
       expect(fs.promises.writeFile).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("saved versions", () => {
+    const draftDir = "./src/data/history/draft/poems";
+    const liveDir = "./src/data/history/live/poems";
+    // The flat layout `#lib/file` wrote before draft/live tiers existed, and the only place most of
+    // this site's real saved versions have ever lived.
+    const flatDir = "./src/data/history/poems";
+
+    /** Install a listing keyed by the exact directory the store asked for. */
+    const listDirs = (dirs: Record<string, string[]>) => {
+      readdirMock().mockImplementation((dir: string) => {
+        if (dir in dirs) return Promise.resolve(dirs[dir]);
+
+        return Promise.reject(
+          Object.assign(new Error("no such directory"), { code: "ENOENT" }),
+        );
+      });
+    };
+
+    const listedDirs = () =>
+      readdirMock().mock.calls.map((call) => String(call[0]));
+
+    it("lists the tiers it holds, newest first", async () => {
+      listDirs({
+        [draftDir]: ["1000.json", "3000.json"],
+        [liveDir]: ["2000.json"],
+        [flatDir]: [],
+      });
+      const listed = await fsDataStore.listHistory("poems");
+      expect(listed).toEqual([
+        { timestamp: 3000, scope: "draft" },
+        { timestamp: 2000, scope: "live" },
+        { timestamp: 1000, scope: "draft" },
+      ]);
+    });
+
+    it("orders by the number, not by the filename a listing returns", async () => {
+      listDirs({
+        [draftDir]: ["999999999999.json", "1000000000000.json"],
+        [liveDir]: [],
+        [flatDir]: [],
+      });
+      const listed = await fsDataStore.listHistory("poems");
+
+      // Both names are from 2001, and a filename sort puts the 12-digit one after the 13-digit one.
+      // Sorting by name would hand a screen the oldest saved versions and label them the newest.
+      expect(listed.map((entry) => entry.timestamp)).toEqual([
+        1000000000000, 999999999999,
+      ]);
+    });
+
+    it("reads the flat history a heavily edited key actually has", async () => {
+      listDirs({
+        [draftDir]: [],
+        [liveDir]: [],
+        [flatDir]: ["1686461727106.json"],
+      });
+      const entries = await fsDataStore.listHistory("poems");
+
+      expect(entries).toEqual([{ timestamp: 1686461727106, scope: "legacy" }]);
+      // Not merely tolerated: the directory is opened, so what sits in it is found.
+      expect(listedDirs()).toContain(flatDir);
+    });
+
+    it("reports no versions for a key whose tiers were never written", async () => {
+      await expect(
+        fsDataStore.listHistory("terms-of-service"),
+      ).resolves.toEqual([]);
+      expect(writeCalls()).toHaveLength(0);
+    });
+
+    it("does not read a closed directory as a key with no history", async () => {
+      readdirMock().mockRejectedValue(
+        Object.assign(new Error("EACCES"), { code: "EACCES" }),
+      );
+      await expect(() => fsDataStore.listHistory("poems")).rejects.toThrow(
+        "EACCES",
+      );
+    });
+
+    it("keeps the newest versions when the list is capped", async () => {
+      listDirs({
+        [draftDir]: [
+          "5.json",
+          "6.json",
+          "7.json",
+          "8.json",
+          "9.json",
+          "4.json",
+        ],
+        [liveDir]: [],
+        [flatDir]: [],
+      });
+      const entries = await fsDataStore.listHistory("poems", { limit: 5 });
+
+      expect(entries.map((entry) => entry.timestamp)).toEqual([9, 8, 7, 6, 5]);
+    });
+
+    it("reads one tier when the caller names one", async () => {
+      listDirs({
+        [draftDir]: ["1000.json"],
+        [liveDir]: ["2000.json"],
+        [flatDir]: ["3000.json"],
+      });
+      const entries = await fsDataStore.listHistory("poems", { scope: "live" });
+
+      expect(entries).toEqual([{ timestamp: 2000, scope: "live" }]);
+      expect(listedDirs()).toEqual([liveDir]);
+    });
+
+    it("ignores names that are not canonical snapshots", async () => {
+      listDirs({
+        [draftDir]: [
+          "notes.txt",
+          "draft.json",
+          "01000.json",
+          "0.json",
+          "2000.json",
+        ],
+        [liveDir]: [],
+        [flatDir]: [],
+      });
+      const entries = await fsDataStore.listHistory("poems");
+
+      // `01000.json` and `0.json` are excluded on purpose. A listing that reported them would name a
+      // version the store then could not read back, because it would look for a differently spelled file.
+      expect(entries).toEqual([{ timestamp: 2000, scope: "draft" }]);
+    });
+
+    it("lists saved versions without writing anything at all", async () => {
+      listDirs({
+        [draftDir]: ["1000.json"],
+        [liveDir]: [],
+        [flatDir]: [],
+      });
+      // The listing is only half of this test: `readHistory` then reads the file it listed, and the
+      // beforeEach default mock rejects every read, which is what the other tests lean on.
+      vi.mocked(fs.promises.readFile).mockResolvedValue("1000 snapshot");
+
+      await fsDataStore.listHistory("poems");
+      await fsDataStore.readHistory("poems", 1000, "draft");
+
+      expect(writeCalls()).toHaveLength(0);
+      expect(fs.promises.mkdir).not.toHaveBeenCalled();
+    });
+
+    it("reads a snapshot out of the tier it was listed in", async () => {
+      vi.mocked(fs.promises.readFile).mockResolvedValue("snapshot 2000");
+
+      const text = await fsDataStore.readHistory("poems", 2000, "live");
+
+      expect(text).toBe("snapshot 2000");
+      expect(fs.promises.readFile).toHaveBeenCalledWith(
+        "./src/data/history/live/poems/2000.json",
+        "utf8",
+      );
+    });
+
+    it("reads a legacy snapshot out of the flat layout it was listed in", async () => {
+      vi.mocked(fs.promises.readFile).mockResolvedValue("flat snapshot");
+
+      await fsDataStore.readHistory("poems", 1686461727106, "legacy");
+
+      expect(fs.promises.readFile).toHaveBeenCalledWith(
+        "./src/data/history/poems/1686461727106.json",
+        "utf8",
+      );
+    });
+
+    it("refuses a missing snapshot instead of answering an empty read", async () => {
+      // An empty string is the shape that would let a restore overwrite a real file with nothing, so a
+      // snapshot the disk does not have has to surface as a refusal.
+      vi.mocked(fs.promises.readFile).mockRejectedValue(
+        Object.assign(new Error("ENOENT"), { code: "ENOENT" }),
+      );
+      await expect(() =>
+        fsDataStore.readHistory("poems", 3000, "draft"),
+      ).rejects.toThrow(
+        "No draft snapshot of poems at version 3000 is held in history.",
+      );
+    });
+
+    it("names a missing snapshot the way the other store would", async () => {
+      vi.mocked(fs.promises.readFile).mockRejectedValue(
+        Object.assign(new Error("ENOENT"), { code: "ENOENT" }),
+      );
+      const cause = await fsDataStore
+        .readHistory("poems", 3000, "draft")
+        .then(() => undefined)
+        .catch((e: unknown) => e);
+
+      expect(isMissingSnapshot(cause)).toBe(true);
+    });
+
+    it("does not report an unreadable snapshot as a version that is not there", async () => {
+      // A permission failure is not "this version was deleted". Reading it as missing would tell an
+      // editor the version is gone while the file is still sitting there unread.
+      vi.mocked(fs.promises.readFile).mockRejectedValue(
+        Object.assign(new Error("EACCES"), { code: "EACCES" }),
+      );
+      const cause = await fsDataStore
+        .readHistory("poems", 3000, "draft")
+        .then(() => undefined)
+        .catch((e: unknown) => e);
+
+      expect(isMissingSnapshot(cause)).toBe(false);
+    });
+
+    it("refuses a version number that is not a real timestamp", async () => {
+      const cause = await fsDataStore.readHistory("poems", 0).then(
+        () => undefined,
+        (e: unknown) => e,
+      );
+
+      // `e500` throws Kit's HttpError, which carries its text in `body` and has no `message` at all, so
+      // the assertion is on the status an editor action can turn into a message plus the text a caller
+      // would read out of the body.
+      expect(isHttpError(cause, 500)).toBe(true);
+
+      if (isHttpError(cause)) {
+        expect(cause.body.message).toContain(
+          "Cannot read a poems version without a valid numeric timestamp.",
+        );
+      }
+      // Without the guard, `0` reached the path builder and the store went looking for a file named
+      // `0.json` that no listing would ever have admitted to reading.
+      expect(fs.promises.readFile).not.toHaveBeenCalled();
     });
   });
 });

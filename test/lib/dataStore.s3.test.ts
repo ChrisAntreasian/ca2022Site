@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { isHttpError } from "@sveltejs/kit";
 
 import {
   createS3DataStore,
+  isMissingSnapshot,
   seedFromBundledData,
   type DataStore,
 } from "#lib/dataStore.server";
@@ -25,14 +27,30 @@ const BUCKET = "test-bucket";
  */
 const makeFakeS3 = (
   seed: Record<string, string>,
-  options: { streamBodies?: boolean } = {},
+  options: {
+    streamBodies?: boolean;
+    /**
+     * Pages a listing hands back one at a time, so a test can prove the store follows the listing's own
+     * pagination instead of treating the first thousand keys as the whole of a history.
+     */
+    listPages?: string[][];
+    /** An outage double: every read fails this way, whatever the key.
+     */
+    getObjectError?: Error;
+  } = {},
 ) => {
   const calls: Array<{ op: string; key: string; body?: unknown }> = [];
   const store = new Map(Object.entries(seed));
 
   const fake = {
     send: async (command: {
-      input: { Key?: string; Bucket?: string; Body?: unknown };
+      input: {
+        Key?: string;
+        Bucket?: string;
+        Body?: unknown;
+        Prefix?: string;
+        ContinuationToken?: string;
+      };
       constructor: { name: string };
     }) => {
       const Key = command.input.Key ?? "";
@@ -46,6 +64,10 @@ const makeFakeS3 = (
 
       if (name === "GetObjectCommand") {
         calls.push({ op: "get", key: Key });
+
+        if (options.getObjectError) {
+          throw options.getObjectError;
+        }
         if (!store.has(Key)) {
           // Mirror the v3 error surface the store classifies on: real `NoSuchKey` carries both a `name`
           // and a `code`, so the fake must too rather than relying on one channel.
@@ -74,6 +96,31 @@ const makeFakeS3 = (
           });
         }
         return {};
+      }
+
+      if (name === "ListObjectsV2Command") {
+        const Prefix = command.input.Prefix ?? "";
+        calls.push({ op: "list", key: Prefix });
+
+        const pages = options.listPages;
+
+        if (pages) {
+          const page = Number(command.input.ContinuationToken ?? 0);
+          const more = page + 1 < pages.length;
+
+          return {
+            Contents: (pages[page] ?? []).map((key) => ({ Key: key })),
+            IsTruncated: more,
+            NextContinuationToken: more ? String(page + 1) : undefined,
+          };
+        }
+
+        return {
+          Contents: [...store.keys()]
+            .filter((key) => key.startsWith(Prefix))
+            .map((Key) => ({ Key })),
+          IsTruncated: false,
+        };
       }
 
       throw new Error(`Unexpected command sent by the data store: ${name}`);
@@ -240,6 +287,209 @@ describe("s3DataStore", () => {
         timestamp: 1,
         data: [],
       });
+    });
+  });
+
+  describe("saved versions", () => {
+    it("lists every tier the bucket holds, newest first", async () => {
+      harness = makeFakeS3({
+        "data/draft/poems.json": '{"name":"poems"}',
+        "data/history/draft/poems/1000.json": "older",
+        "data/history/draft/poems/3000.json": "newest",
+        "data/history/live/poems/2000.json": "released",
+      });
+
+      const entries = await makeStore().listHistory("poems");
+
+      expect(entries).toEqual([
+        { timestamp: 3000, scope: "draft" },
+        { timestamp: 2000, scope: "live" },
+        { timestamp: 1000, scope: "draft" },
+      ]);
+      // A listing is only a listing. The current draft object sits in the same bucket and does not belong
+      // on a screen that offers to restore a version.
+      expect(harness.calls.map((call) => call.op)).toEqual(["list"]);
+      expect(harness.calls[0]?.key).toBe("data/history/");
+    });
+
+    it("orders by the number, not by the key a listing returns", async () => {
+      harness = makeFakeS3({
+        "data/history/draft/poems/999999999999.json": "a",
+        "data/history/draft/poems/1000000000000.json": "b",
+      });
+
+      const entries = await makeStore().listHistory("poems");
+
+      // A key sort puts the 13-digit timestamp behind the 12-digit one, which would hand a screen the
+      // oldest versions this key has and label them the newest.
+      expect(entries.map((entry) => entry.timestamp)).toEqual([
+        1000000000000, 999999999999,
+      ]);
+    });
+
+    it("reports no versions for the legacy tier the bucket never had", async () => {
+      harness = makeFakeS3({ "data/history/draft/poems/1000.json": "x" });
+
+      const entries = await makeStore().listHistory("poems", {
+        scope: "legacy",
+      });
+
+      expect(entries).toEqual([]);
+      // Not even a listing, because "there is no legacy prefix in a bucket to list" is the honest answer,
+      // and inventing a failure there would look like an outage to a screen that only needed a list.
+      expect(harness.calls).toEqual([]);
+    });
+
+    it("follows the listing's own pagination instead of trusting one page", async () => {
+      harness = makeFakeS3(
+        {},
+        {
+          listPages: [
+            [
+              "data/history/draft/poems/1.json",
+              "data/history/draft/poems/2.json",
+            ],
+            [
+              "data/history/draft/poems/3.json",
+              "data/history/live/poems/4.json",
+            ],
+            ["data/history/draft/poems/5.json"],
+          ],
+        },
+      );
+
+      const entries = await makeStore().listHistory("poems");
+
+      expect(entries.map((entry) => entry.timestamp)).toEqual([5, 4, 3, 2, 1]);
+      expect(harness.calls.filter((call) => call.op === "list")).toHaveLength(
+        3,
+      );
+    });
+
+    it("cuts the list only after it has paged through the whole history", async () => {
+      harness = makeFakeS3(
+        {},
+        {
+          listPages: [
+            [
+              "data/history/draft/poems/1.json",
+              "data/history/draft/poems/2.json",
+            ],
+            [
+              "data/history/draft/poems/9.json",
+              "data/history/draft/poems/8.json",
+            ],
+          ],
+        },
+      );
+
+      const entries = await makeStore().listHistory("poems", { limit: 2 });
+
+      // The newest two versions live on the second page. Cutting at the first page instead of after the
+      // sort would report 1 and 2 as what this key most recently saved.
+      expect(entries.map((entry) => entry.timestamp)).toEqual([9, 8]);
+      expect(harness.calls.filter((call) => call.op === "list")).toHaveLength(
+        2,
+      );
+    });
+
+    it("ignores keys that are not this key's snapshots", async () => {
+      harness = makeFakeS3({
+        "data/history/draft/poems/notes.txt": "a stray note",
+        "data/history/draft/poems/01000.json": "padded name",
+        "data/history/draft/landing/5.json": "some other key's version",
+        "data/history/legacy/poems/7.json": "the flat layout",
+        "data/history/draft/poems/2000.json": "a real version",
+      });
+
+      const entries = await makeStore().listHistory("poems");
+
+      // The padded name is excluded on purpose: the store reads a version back by rebuilding the key from
+      // the number it listed, and a `01000` it cannot rebuild becomes a phantom version on screen.
+      expect(entries).toEqual([{ timestamp: 2000, scope: "draft" }]);
+    });
+
+    it("reads a draft snapshot back when the caller names no tier", async () => {
+      harness = makeFakeS3({
+        "data/history/draft/poems/1500.json": "snapshot 1500",
+      });
+
+      const text = await makeStore().readHistory("poems", 1500);
+
+      // The editor seam leans on this: a version listed as draft comes back as draft with nothing else for
+      // the caller to remember.
+      expect(text).toBe("snapshot 1500");
+      expect(harness.calls.map((call) => call.key)).toEqual([
+        "data/history/draft/poems/1500.json",
+      ]);
+    });
+
+    it("refuses a missing snapshot instead of answering an empty read", async () => {
+      await expect(() =>
+        makeStore().readHistory("poems", 3000, "draft"),
+      ).rejects.toThrow(
+        "No draft snapshot of poems at version 3000 is held in history.",
+      );
+    });
+
+    it("names a missing snapshot the way the other store would", async () => {
+      const cause = await makeStore()
+        .readHistory("poems", 3000, "draft")
+        .then(
+          () => undefined,
+          (e: unknown) => e,
+        );
+
+      expect(isMissingSnapshot(cause)).toBe(true);
+    });
+
+    it("does not report an unreachable bucket as a version that is not there", async () => {
+      harness = makeFakeS3(
+        {},
+        { getObjectError: new Error("the bucket is unreachable") },
+      );
+
+      const cause = await makeStore()
+        .readHistory("poems", 3000, "draft")
+        .then(
+          () => undefined,
+          (e: unknown) => e,
+        );
+
+      // An editor told "that version is gone" while the object still exists and the bucket is merely down
+      // is an editor who gives up on a version they could have had back a minute later.
+      expect(isMissingSnapshot(cause)).toBe(false);
+      expect((cause as Error).message).toBe("the bucket is unreachable");
+    });
+
+    it("refuses a legacy version rather than inventing one", async () => {
+      harness = makeFakeS3({
+        "data/history/draft/poems/1500.json": "a draft copy",
+      });
+
+      const cause = await makeStore()
+        .readHistory("poems", 1500, "legacy")
+        .then(
+          () => undefined,
+          (e: unknown) => e,
+        );
+
+      expect(isMissingSnapshot(cause)).toBe(true);
+      // A legacy entry is a local file, never a bucket object. Reading it out of a tier the bucket does
+      // hold would answer the caller with a draft copy and call it the old version they asked for.
+      expect(harness.calls).toEqual([]);
+    });
+
+    it("refuses a version number that is not a real timestamp", async () => {
+      const cause = await makeStore()
+        .readHistory("poems", 1.5)
+        .then(
+          () => undefined,
+          (e: unknown) => e,
+        );
+
+      expect(isHttpError(cause, 500)).toBe(true);
+      expect(harness.calls).toEqual([]);
     });
   });
 
