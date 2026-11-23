@@ -28,6 +28,12 @@ vi.mock("$app/env/private", () => ({
   get CONTENT_S3_PREFIX() {
     return livePrefixValue;
   },
+  get CONTENT_LOCAL_MIRROR() {
+    // Left unset on purpose: every assertion in this file is about which copy a *read* resolves to, and a
+    // write mirror is not in a read path at all. Introducing a value here would let a test that never
+    // writes pretend to be testing the mirror.
+    return undefined;
+  },
 }));
 
 /**

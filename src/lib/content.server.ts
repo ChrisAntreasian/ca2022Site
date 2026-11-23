@@ -1,5 +1,6 @@
 import {
   CONTENT_LIVE_SOURCE,
+  CONTENT_LOCAL_MIRROR,
   CONTENT_S3_PREFIX,
   ENABLE_CONTENT_EDITOR,
 } from "$app/env/private";
@@ -12,6 +13,7 @@ import bundledQuintuplapus from "#data/the-quintuplapus.json";
 import bundledSouljuicer from "#data/the-souljuicer.json";
 import bundledWebExperience from "#data/web-experience.json";
 import {
+  createMirroringDataStore,
   createS3DataStore,
   DEFAULT_S3_PREFIX,
   fsDataStore,
@@ -125,6 +127,20 @@ export const isLiveContentFromS3 = () =>
 export const contentS3Prefix = (): string =>
   (CONTENT_S3_PREFIX ?? "").trim() || DEFAULT_S3_PREFIX;
 
+/**
+ * Whether the local write mirror is on.
+ *
+ * Default on, and the only value that switches it off is `"false"`: a durability feature that needed to be
+ * remembered would be the same as no feature at all, since the case it protects against - losing access to
+ * the bucket - is the one case where nobody is configuring anything.
+ *
+ * Turning it off is allowed because the mirror is not free: a Vercel server has no durable disk, so the
+ * local half of every write is an attempt to write a filesystem that will be wiped at the next cold start.
+ * It is harmless rather than useful there, and a deploy that wants to say so out loud should be able to.
+ */
+export const isLocalMirrorEnabled = (): boolean =>
+  (CONTENT_LOCAL_MIRROR ?? "").trim().toLowerCase() !== "false";
+
 /** True when a key's public read is allowed to touch S3. */
 const isInScope = (name: ContentKey, list: ReadonlyArray<ContentKey>) =>
   list.some((key) => key === name);
@@ -133,17 +149,25 @@ const isInScope = (name: ContentKey, list: ReadonlyArray<ContentKey>) =>
  * The store a resource module reads and writes through.
  *
  * - Live content in S3 → the S3 store, with every bundled payload registered as a live fallback. Drafts
- *   land in durable storage.
+ *   land in durable storage. Unless `CONTENT_LOCAL_MIRROR=false`, the store is the mirroring wrapper, so
+ *   every draft, history snapshot and release also lands under `src/data/` - reads still come from the
+ *   bucket alone, because the copy exists to survive a lost bucket, not to be read as a second choice.
  * - Live content still bundled → the filesystem store, exactly as Phase 1 left it. A page's behaviour
- *   does not change; only which tier its read resolves to does.
+ *   does not change; only which tier its read resolves to does. It already writes local copies itself, so
+ *   there is nothing here to mirror.
  */
-export const contentDataStore = (): DataStore =>
-  isLiveContentFromS3()
-    ? createS3DataStore({
-        prefix: contentS3Prefix(),
-        fallbacks: fallbacksFor(),
-      })
-    : fsDataStore;
+export const contentDataStore = (): DataStore => {
+  if (!isLiveContentFromS3()) return fsDataStore;
+
+  const s3 = createS3DataStore({
+    prefix: contentS3Prefix(),
+    fallbacks: fallbacksFor(),
+  });
+
+  return isLocalMirrorEnabled()
+    ? createMirroringDataStore({ primary: s3, mirror: fsDataStore })
+    : s3;
+};
 
 /**
  * The scope a content key's public read should use.

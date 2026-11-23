@@ -728,3 +728,94 @@ export const createS3DataStore = (
     },
   };
 };
+
+export type MirroringDataStoreOptions = {
+  /** The store every read resolves against, and the store every write is sent to first. */
+  primary: DataStore;
+  /** The store that only ever receives copies. It is never read, and never asked for history. */
+  mirror: DataStore;
+};
+
+/**
+ * A `DataStore` that performs every mutation twice: once against the primary, once against the mirror.
+ *
+ * Built for one problem. In S3 mode nothing lands under `src/data/`, so the bucket holds the only copy of
+ * a draft, and losing bucket access loses the editing work with it. Mirroring `fsDataStore` means every
+ * save, every history snapshot and every release also exists as a file a laptop and a commit can reach.
+ *
+ * The mirror is write-only by design: reads and queries resolve to the primary alone. A store that read
+ * the mirror as a second choice would end up answering an editor with a stale local copy, and an editor
+ * holding a stale copy is what saves it back over the newer real one - which is precisely the failure this
+ * wrapper exists to prevent. The only read fallback permitted anywhere in this seam is the bundled live
+ * fallback `createS3DataStore` already gates on a genuine miss.
+ *
+ * Each mutation is mirrored after its primary counterpart completes. The reason is ordering: mirroring
+ * `ensureBaselineSnapshot` late would snapshot what the primary had already replaced, and mirroring
+ * `writeFile` late is what makes the two stores agree about which versions each one holds.
+ *
+ * A mirror failure is logged, never surfaced. The write the user asked for already succeeded against the
+ * primary, so reporting a copy that failed to land as a failed save would make a writer give up on a write
+ * that worked. A primary failure propagates unchanged, because that is the write the app cares about.
+ */
+export const createMirroringDataStore = ({
+  primary,
+  mirror,
+}: MirroringDataStoreOptions): DataStore => {
+  /**
+   * Run one mirrored write and report, rather than surface, whatever it does to itself. A mirror that was
+   * never seeded has no draft to baseline-snapshot, so `ensureBaselineSnapshot` failing on the mirror is
+   * the expected shape of a key's first S3-mode save rather than a symptom of anything wrong.
+   */
+  const mirrorAfter = async (
+    operation: string,
+    name: string,
+    scope: DataScope,
+    write: () => Promise<unknown>,
+  ) => {
+    try {
+      await write();
+    } catch (err) {
+      console.error(
+        `[dataStore] local mirror ${operation} ${name} (${scope}) failed - the primary accepted the write, the local copy did not:`,
+        err,
+      );
+    }
+  };
+
+  return {
+    // Straight delegates, so no mirror sits in a read path and nothing here answers with the copy.
+    readFile: (name, scope) => primary.readFile(name, scope),
+    listHistory: (name, options) => primary.listHistory(name, options),
+    readHistory: (name, timestamp, scope) =>
+      primary.readHistory(name, timestamp, scope),
+
+    writeFile: async (name, file, scope = DEFAULT_SCOPE) => {
+      await primary.writeFile(name, file, scope);
+
+      await mirrorAfter("writeFile", name, scope, () =>
+        mirror.writeFile(name, file, scope),
+      );
+    },
+
+    ensureBaselineSnapshot: async (name, scope = DEFAULT_SCOPE) => {
+      const snapshotted = await primary.ensureBaselineSnapshot(name, scope);
+
+      // Mirrored here rather than deferred: on both stores this step has to copy the version that was
+      // current before the save that is about to overwrite it, and a mirror whose copy has already been
+      // written has nothing left to snapshot.
+      await mirrorAfter("ensureBaselineSnapshot", name, scope, () =>
+        mirror.ensureBaselineSnapshot(name, scope),
+      );
+
+      return snapshotted;
+    },
+
+    release: async (name) => {
+      const timestamp = await primary.release(name);
+
+      await mirrorAfter("release", name, "live", () => mirror.release(name));
+
+      return timestamp;
+    },
+  };
+};

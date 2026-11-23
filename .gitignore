@@ -14,9 +14,11 @@ node_modules
 /test-results
 .specstory
 src/data/history/
-# Editor working copies / published copies written by the local data store - never commit.
+# Editor working copies, never commit. In S3 mode the write mirror puts a draft here, and a draft is
+# somebody's unfinished work rather than a version worth keeping.
 src/data/draft/
-src/data/live/
+# src/data/live/ is deliberately NOT ignored. In S3 mode the bucket is the only copy of a release, and the
+# mirror writes the local one that git can protect; the decision and the reasoning live in AGENTS.md.
 # Scratch scripts and logs used to probe the editor unlock flow locally - not part of the app.
 *.log
 e2e.ps1

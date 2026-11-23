@@ -35,6 +35,11 @@ vi.mock("$app/env/private", () => ({
     // layout `npm run seed:s3` writes.
     return undefined;
   },
+  get CONTENT_LOCAL_MIRROR() {
+    // Left unset on purpose: these tests assert which tier a read resolves to, and the write mirror only
+    // exists on the write side of the seam. `dataStore.mirror.test.ts` is where that switch is asserted.
+    return undefined;
+  },
   get ENABLE_CONTENT_EDITOR() {
     return undefined;
   },

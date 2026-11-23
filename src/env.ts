@@ -38,6 +38,11 @@ export const variables = defineEnvVars({
       return prefix;
     },
   },
+  CONTENT_LOCAL_MIRROR: {
+    description:
+      'In S3 mode, also write a local copy of every draft, live and history object under src/data/. Left unset the mirror is on; "false" is the only value that switches it off. The copies are written, never read: while live content is in S3 every read still resolves to the bucket, so a stale local draft cannot be served to an editor and saved back over the newer real one. Read at runtime.',
+    schema: (value) => value?.trim() || undefined,
+  },
   EDITOR_EDIT_KEY: {
     description:
       "The secret a visitor posts to unlock the editor. Without it an enabled editor cannot be unlocked at all, so a misconfigured deploy exposes no edit routes. Read at runtime.",
