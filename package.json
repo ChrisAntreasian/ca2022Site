@@ -8,6 +8,7 @@
     "check:encoding": "node scripts/check-mojibake.mjs",
     "check:encoding:all": "node scripts/check-mojibake.mjs --include-history",
     "seed:s3": "node --env-file=.env.local scripts/seed-s3.mjs",
+    "upload:history": "node --env-file=.env.local scripts/upload-history.mjs",
     "test": "playwright test",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
