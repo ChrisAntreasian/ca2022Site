@@ -10,11 +10,17 @@ being true.
 
 1. **Store choice is a one-liner and is captured at import time.** Every
    `src/lib/editing/resources/*/*.server.ts` builds
-   `createJsonEditorStore({ store: contentDataStore(), … })`. `src/lib/content.server.ts:124`
-   returns the S3 store when `CONTENT_LIVE_SOURCE === "s3"`, else `fsDataStore`. Changing the env
-   var on a running server does nothing — a module-level call captured the choice.
-2. `CONTENT_LIVE_SOURCE` gates reads **and** writes. In S3 mode nothing is written under
-   `src/data/draft/`, `src/data/live/`, `src/data/history/`. Those directories are git-ignored.
+   `createJsonEditorStore({ store: contentDataStore(), … })`. `src/lib/content.server.ts:159`
+   returns the S3 store when `CONTENT_LIVE_SOURCE === "s3"`, else `fsDataStore` — and, since `ee06acd`, the
+   S3 branch returns it wrapped in `createMirroringDataStore` unless `CONTENT_LOCAL_MIRROR` is `false`.
+   Changing the env var on a running server does nothing — a module-level call captured the choice.
+2. `CONTENT_LIVE_SOURCE` gates reads **and** writes. The S3 store is wrapped in `createMirroringDataStore`
+   (`src/lib/dataStore.server.ts`, since `ee06acd`) unless `CONTENT_LOCAL_MIRROR=false`, so in S3 mode every
+   `writeFile`, `ensureBaselineSnapshot` and `release` lands in the bucket **and** under `src/data/draft/`,
+   `src/data/live/` or `src/data/history/`. The mirror is write-only by design: every read and query resolves
+   to the primary alone, and a mirror failure is logged (`console.error`) without failing a save the primary
+   already accepted. `src/data/draft/` and `src/data/history/` stay git-ignored; `src/data/live/` is no
+   longer ignored, so a mirrored release shows up in `git status` and a mirrored draft does not.
 3. `createS3DataStore` builds every key off one root: `DEFAULT_S3_PREFIX` is `data` (`data/draft/<name>.json`,
    `data/live/<name>.json`, `data/history/<scope>/<name>/<ts>.json`). `CONTENT_S3_PREFIX` (private env var,
    landed in `7698f07`) overrides that root for the app so a dev run can be pointed at `dev-data`; it must be
@@ -45,7 +51,7 @@ being true.
    `fallbacksFor()` in `src/lib/content.server.ts` from `BUNDLED`. It is consulted **only** on the
    `isNotFound` branch of `liveReadFile` (a real miss), never on a network failure or a wrong-shape
    body (`src/lib/dataStore.server.ts:484`). Because it is keyed by content name it is already
-   prefix-agnostic. `src/lib/content.server.ts:169` throws
+   prefix-agnostic. `src/lib/content.server.ts:214` throws
    `Content key "<name>" has no live copy to release.` when `requireReleasable` is asked about
    bundled content.
 9. **Restore does not exist yet.** No `restore*` in `src/lib/editing/core/store.server.ts` (62 lines:
@@ -57,10 +63,11 @@ being true.
 10. Resource shapes — per-entry resources have `upsert*` **and** `remove*` helpers you can reuse:
     poems, web-experience, `the-quintuplapus`, `the-souljuicer`. Whole-record resources (one editor
     value, no entry id): landing, layout, terms-of-service.
-11. Repo size when you want scale, not reading: 123 source TS/Svelte files / 13,356 lines; 75 test
-    files / 12,876 lines; 563 tracked files / 80,344 lines total. Big files you must not fully read:
-    `src/lib/dataStore.server.ts` (722 lines), `test/lib/typing-page.test.ts` (934),
-    `docs/S3_JSON_DATA_STORE_PLAN.md` (~600). Editor `+page.svelte` files are 73–191 lines.
+11. Repo size when you want scale, not reading (`git ls-files`, measured 2026-11-22): 123 source
+    TS/Svelte files; 67 test files / 14,422 lines; 252 tracked files / 49,987 lines. Big files you must not
+    fully read: `test/lib/dataStore.mirror.test.ts` (1,030), `src/lib/dataStore.server.ts` (821),
+    `test/lib/typing-page.test.ts` (934), `docs/S3_JSON_DATA_STORE_PLAN.md` (~600). Editor
+    `+page.svelte` files are 73–191 lines.
 
 ## Decisions already made — do not relitigate
 
@@ -69,7 +76,9 @@ being true.
   editor simply fails when S3 reads fail. Local files are read only when the app is configured local
   (`CONTENT_LIVE_SOURCE` unset). The only permitted fallback is the existing bundled-payload live
   fallback, gated on a real miss.
-- **Local copies tracked in git: `src/data/live/` only.** Draft and history stay ignored.
+- **Local copies tracked in git: `src/data/live/` only.** Draft and history stay ignored. Landed in **T2**
+  (`ee06acd`): `src/data/live/` has come out of `.gitignore`, and `src/data/draft/` and `src/data/history/`
+  have not.
 - **Restore is per-entry** for the four entry-list resources (restore one entry from a snapshot into
   the current draft, leaving every other current entry alone) and **whole-record** for the three
   single-value resources. Restore writes draft only, never live; it ensures a baseline snapshot of
