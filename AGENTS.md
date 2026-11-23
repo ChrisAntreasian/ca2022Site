@@ -25,18 +25,24 @@ being true.
    `data/live/<name>.json`, `data/history/<scope>/<name>/<ts>.json`). `CONTENT_S3_PREFIX` (private env var,
    landed in `7698f07`) overrides that root for the app so a dev run can be pointed at `dev-data`; it must be
    one lowercase path segment. `scripts/seed-s3.mjs` reads the same variable, so a seed cannot disagree with
-   the app. The bucket now holds two roots: `data/` (21 objects, production's, and 0 of them touched by the
+   the app, and `scripts/upload-history.mjs` (T3, `1923d8e`) reads it too - with `--prefix=<root>` as an
+   override - so a backfill cannot quietly pick a root the app would not use. The bucket now holds two roots: `data/` (21 objects, production's, and 0 of them touched by the
    dev seed) and `dev-data/` (14 objects: draft + live for all seven keys, seeded 2026-11-22). `.env.local`
    sets `CONTENT_S3_PREFIX=dev-data`, so a dev-server edit lands under `dev-data/`; a deploy that sets nothing
    keeps reading `data/`. Neither root holds any `history/live/` object.
 4. Bucket `ca2022s3` inventory (read-only probe, 2026-11-22): 21 objects under `data/` = 7 draft,
    7 live, 7 history (all `data/history/draft/…`), **zero** `data/history/live/…`.
    `GetBucketVersioning` → `AccessDenied` with this key; LIST/GET/PUT work. Prefix listing works
-   (`data/history/draft/poems/` returns exactly poems).
+   (`data/history/draft/poems/` returns exactly poems). Measured 2026-11-23 with the backfill script's own
+   read-only LIST: `dev-data/history/` holds **0** objects, so nothing in the dev root is restorable yet.
 5. Local disk holds 72 snapshot files in **two layouts**: 61 in the legacy flat layout
    `src/data/history/<name>/<ts>.json` (poems 31, web-experience 24, five singles), 11 in the tiered
    layout `src/data/history/<scope>/<name>/<ts>.json`. The 61 legacy ones exist **only** on this
-   laptop; the bucket holds only the 7 tiered draft copies.
+   laptop; the bucket holds only the 7 tiered draft copies. The backfill's dry run (2026-11-23, no
+   `--apply`, `npm run upload:history`) walks all 72 files and plans 71 uploads - 60 legacy, 10 draft,
+   1 live - and reports 1 file it refuses: `src/data/history/about/1668876785081.json`, because `about`
+   is not one of the seven content keys. Against the production root only 4 of the 71 are already in the
+   bucket, so 67 would be new; against `dev-data/` all 71 would be new.
 6. `e500(msg)` is `error(500, msg)` from `@sveltejs/kit` 3.1.1. The thrown `HttpError` has keys
    `status` and `body` only — **no `message` property**. The text lives in `body.message`. Assert
    with `isHttpError`/`status`, or a bare `.rejects.toThrow()`; never
@@ -47,6 +53,12 @@ being true.
    `live` entry must be read with its scope passed explicitly. The default limit is 100
    (`DEFAULT_HISTORY_LIMIT`), so a UI that shows 5 asks for `{ limit: 5 }` — it does not get 5 by
    default, and the S3 store pages the whole history before cutting.
+   **Consequence recorded in T3:** the card's claim that a `data/history/legacy/...` object "shows up as a
+   `legacy` entry" is false today - `createS3DataStore.listHistory` drops every key whose tier is not
+   `draft`/`live`, and `readHistory(..., "legacy")` rejects with `MissingSnapshotError`. Uploading the 60
+   legacy copies therefore puts objects in the bucket that nothing in the app can list or read, until a
+   restore card teaches the store that tier. `test/lib/upload-history.test.ts` pins the gap (its test
+   "does NOT list a backfilled legacy snapshot") and is meant to be updated when that card lands.
 8. In the S3 store the bundled fallback is `options.fallbacks`, a name-keyed map built by
    `fallbacksFor()` in `src/lib/content.server.ts` from `BUNDLED`. It is consulted **only** on the
    `isNotFound` branch of `liveReadFile` (a real miss), never on a network failure or a wrong-shape
@@ -63,11 +75,12 @@ being true.
 10. Resource shapes — per-entry resources have `upsert*` **and** `remove*` helpers you can reuse:
     poems, web-experience, `the-quintuplapus`, `the-souljuicer`. Whole-record resources (one editor
     value, no entry id): landing, layout, terms-of-service.
-11. Repo size when you want scale, not reading (`git ls-files`, measured 2026-11-22): 123 source
-    TS/Svelte files; 67 test files / 14,422 lines; 252 tracked files / 49,987 lines. Big files you must not
+11. Repo size when you want scale, not reading (`git ls-files`, measured 2026-11-23): 123 source
+    TS/Svelte files; 68 test files / 15,009 lines; 254 tracked files / 51,112 lines. Big files you must not
     fully read: `test/lib/dataStore.mirror.test.ts` (1,030), `src/lib/dataStore.server.ts` (821),
-    `test/lib/typing-page.test.ts` (934), `docs/S3_JSON_DATA_STORE_PLAN.md` (~600). Editor
-    `+page.svelte` files are 73–191 lines.
+    `test/lib/typing-page.test.ts` (934), `test/lib/upload-history.test.ts` (587),
+    `scripts/upload-history.mjs` (528), `docs/S3_JSON_DATA_STORE_PLAN.md` (~600). Editor
+    `+page.svelte` files are 73-191 lines.
 
 ## Decisions already made — do not relitigate
 
@@ -85,7 +98,10 @@ being true.
   the current draft first, and stamps the new file with a fresh timestamp.
 - History UI shows the 5 newest versions; nothing is pruned by the app.
 - `CONTENT_S3_PREFIX` (default `data`) isolates dev from prod writes.
-- Backfill the 61 legacy local snapshots into the bucket as `data/history/legacy/<name>/<ts>.json`.
+- Backfill the 61 legacy local snapshots into the bucket as `data/history/legacy/<name>/<ts>.json` —
+  **scripted, not run** (T3, `1923d8e`): `npm run upload:history` is the dry run, `--apply` writes, and no
+  `--apply` has been executed against either root. Running it before a restore card can read the legacy tier
+  puts objects in a bucket that nothing in the app can list (fact 7).
 - No new npm dependencies. If forced to install: `npm install --legacy-peer-deps` and add an
   `overrides` entry. Never `npm install` bare (it rewrites `package-lock.json` and dies).
 
