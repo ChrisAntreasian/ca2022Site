@@ -74,7 +74,14 @@ vi.mock("#lib/s3", () => ({
         const body = s3Objects.get(key);
 
         if (body === undefined) {
-          throw Object.assign(new Error("NoSuchKey"), { name: "NoSuchKey" });
+          // aws-sdk v3 shape, carried on both channels the store classifies on (`name` and `code`), the way
+          // `test/lib/dataStore.s3.test.ts` hands it. A double that only carries `name` silently stops
+          // classifying a real miss as a miss once a store reaches the client instead of refusing earlier.
+          throw Object.assign(new Error("NoSuchKey"), {
+            name: "NoSuchKey",
+            code: "NoSuchKey",
+            $metadata: { httpStatusCode: 404 },
+          });
         }
 
         return { Body: body };
@@ -408,20 +415,31 @@ describe("historyUploadPlan", () => {
       expect(await store.readHistory("poems", 111, "draft")).toBe(body);
     });
 
-    it("does NOT list a backfilled legacy snapshot — and this is the hole the card leaves open", async () => {
+    it("lists and reads back a backfilled legacy snapshot, which is the hole the card left open", async () => {
       const store = feedThroughStore([
         snapshot("src/data/history/poems/1712345678901.json", LEGACY_BODY),
       ]);
 
-      // Characterization test, not an approval. src/lib/dataStore.server.ts refuses the legacy tier outright
-      // (listHistory returns [] for scope "legacy" and drops any key whose tier is not draft or live), so
-      // the 61 objects this script uploads would land in the bucket invisible to a version screen. The
-      // restore cards (T5/T6) have to teach the store that tier before the backfill is worth running --
-      // update this test when they do.
-      expect(await store.listHistory("poems")).toEqual([]);
-      expect(await store.listHistory("poems", { scope: "legacy" })).toEqual([]);
+      // Update the T5 legacy tier landed: `createS3DataStore` now lists a `history/legacy/<name>/<ts>.json`
+      // key as a legacy entry and reads it back under that scope, so the 61 objects this script uploads are
+      // no longer invisible to a version screen. This test used to pin the gap - it pinned it correctly, and
+      // the store is what changed.
+      const legacy = await store.listHistory("poems", {
+        scope: "legacy",
+      });
+
+      expect(legacy).toEqual([{ timestamp: 1712345678901, scope: "legacy" }]);
+      // A merged list carries the scope through, which is what lets a restore ask for a legacy version by
+      // name instead of guessing a tier it was never filed under.
+      expect(await store.listHistory("poems")).toEqual(legacy);
+      expect(await store.readHistory("poems", 1712345678901, "legacy")).toBe(
+        LEGACY_BODY,
+      );
+
+      // The tier being readable does not make a version that is not there come back: an upload that never
+      // ran, or a timestamp mis-typed on a restore screen, must still fail rather than read as "nothing".
       await expect(
-        store.readHistory("poems", 1712345678901, "legacy"),
+        store.readHistory("poems", 999999999999, "legacy"),
       ).rejects.toBeInstanceOf(MissingSnapshotError);
     });
   });

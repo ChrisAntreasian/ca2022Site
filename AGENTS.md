@@ -50,18 +50,22 @@ being true.
    `status` and `body` only — **no `message` property**. The text lives in `body.message`. Assert
    with `isHttpError`/`status`, or a bare `.rejects.toThrow()`; never
    `rejects.toThrow("substring")` for `e500` text (that is what `test/lib/content.test.ts` does).
-7. `listHistory` / `readHistory` exist on both stores (committed in `383297c`). The fs store
-   also reads the legacy layout; the S3 store has no legacy tier and returns `[]` for
-   `scope: "legacy"`. `readHistory(name, ts, scope)` defaults `scope` to `draft`, so a `legacy` or
-   `live` entry must be read with its scope passed explicitly. The default limit is 100
+7. `listHistory` / `readHistory` exist on both stores (committed in `383297c`), and both read all three
+   tiers. The fs store reads the local flat layout (`src/data/history/<name>/<ts>.json`); the S3 store reads
+   the bucket's `data/history/legacy/<name>/<ts>.json` as `scope: "legacy"` entries and
+   `readHistory(..., "legacy")` reads it back - that tier stopped being refused in the T5 store commit, which
+   replaced the T3 consequence below. Nothing in either store can _write_ a legacy snapshot:
+   `writeFile`, `ensureBaselineSnapshot` and `release` all take a `DataScope`, so a save cannot create or
+   replace one. A bucket key with **no** tier segment (`data/history/poems/7.json`) is still not a version -
+   the bucket's legacy tier is the three-segment shape, and `pull-content.mjs` maps it onto the flat local
+   layout instead of 1:1 (fact 12). `readHistory(name, ts, scope)` defaults `scope` to `draft`, so a `legacy`
+   or `live` entry must be read with its scope passed explicitly. The default limit is 100
    (`DEFAULT_HISTORY_LIMIT`), so a UI that shows 5 asks for `{ limit: 5 }` — it does not get 5 by
    default, and the S3 store pages the whole history before cutting.
-   **Consequence recorded in T3:** the card's claim that a `data/history/legacy/...` object "shows up as a
-   `legacy` entry" is false today - `createS3DataStore.listHistory` drops every key whose tier is not
-   `draft`/`live`, and `readHistory(..., "legacy")` rejects with `MissingSnapshotError`. Uploading the 60
-   legacy copies therefore puts objects in the bucket that nothing in the app can list or read, until a
-   restore card teaches the store that tier. `test/lib/upload-history.test.ts` pins the gap (its test
-   "does NOT list a backfilled legacy snapshot") and is meant to be updated when that card lands.
+   **T3's consequence is closed:** the gap where 61 uploaded legacy objects could be neither listed nor read
+   is gone, and `test/lib/upload-history.test.ts` now reads a backfilled legacy snapshot straight back. Its S3
+   double also had to grow the `code` and `$metadata` the real v3 `NoSuchKey` carries - it used to pass only
+   because the store refused a legacy read before it ever reached the client.
 8. In the S3 store the bundled fallback is `options.fallbacks`, a name-keyed map built by
    `fallbacksFor()` in `src/lib/content.server.ts` from `BUNDLED`. It is consulted **only** on the
    `isNotFound` branch of `liveReadFile` (a real miss), never on a network failure or a wrong-shape
@@ -113,8 +117,9 @@ being true.
 - `CONTENT_S3_PREFIX` (default `data`) isolates dev from prod writes.
 - Backfill the 61 legacy local snapshots into the bucket as `data/history/legacy/<name>/<ts>.json` —
   **scripted, not run** (T3, `1923d8e`): `npm run upload:history` is the dry run, `--apply` writes, and no
-  `--apply` has been executed against either root. Running it before a restore card can read the legacy tier
-  puts objects in a bucket that nothing in the app can list (fact 7).
+  `--apply` has been executed against either root. The reason it was blocked - that nothing in the app could
+  list or read the tier it uploads (fact 7) - was closed by the T5 store commit. `--apply` still needs the
+  user's authorization of bucket writes, which is not an agent call to make.
 - The pull script maps the bucket's legacy tier onto the flat local legacy dir instead of 1:1, and says so
   (fact 12). Pulling 7 live objects out of `data/` into git-tracked `src/data/live/` is a content change to
   review as a diff, and so is your call to make — not something a script decides for you.

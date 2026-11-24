@@ -37,8 +37,12 @@ export type ReadScope = DataScope | "bundled";
  * `"legacy"` names the flat, pre-S3 history that `#lib/file` still writes on the dev-only Strapi import
  * path: `src/data/history/<name>/<timestamp>.json`, with no draft/live distinction. Most of the site's
  * genuinely edited versions are in that layout, so a history reader that ignored it would report that
- * `poems` and `web-experience` — the most-edited keys — have no history at all. S3 has no legacy tier:
- * the flat layout only ever existed on a laptop.
+ * `poems` and `web-experience` — the most-edited keys — have no history at all.
+ *
+ * The bucket's copy of that tier is `data/history/legacy/<name>/<timestamp>.json`, which
+ * `scripts/upload-history.mjs` writes and both stores read back. It is a tier a restore can read and no
+ * store write can target: `writeFile`, `ensureBaselineSnapshot` and `release` all take a `DataScope`, so
+ * nothing an editor does can create a legacy snapshot or overwrite one.
  */
 export type SnapshotScope = DataScope | "legacy";
 
@@ -443,6 +447,8 @@ export const seedFromBundledData = async (
  *
  * Key layout mirrors the filesystem layout so the two stores are visually comparable during the
  * migration: `data/draft/<name>.json`, `data/live/<name>.json`, and `data/history/<scope>/<name>/<timestamp>.json`.
+ * The `legacy` scope of that third shape is the bucket's copy of the flat pre-tier history, and only
+ * `scripts/upload-history.mjs` ever writes one - the store reads that tier and never writes it.
  *
  * Reads never silently fall through from live to draft. If a live read fails and no fallback is
  * registered, it throws - a public page must not be able to render unpublished content because the
@@ -456,8 +462,11 @@ export const createS3DataStore = (
 
   const keyFor = (name: string, scope: DataScope) =>
     `${prefix}/${scope}/${name}.json`;
-  const historyKeyFor = (name: string, timestamp: number, scope: DataScope) =>
-    `${prefix}/history/${scope}/${name}/${timestamp}.json`;
+  const historyKeyFor = (
+    name: string,
+    timestamp: number,
+    scope: SnapshotScope,
+  ) => `${prefix}/history/${scope}/${name}/${timestamp}.json`;
 
   const put = (key: string, body: string) => {
     const bucket = getOptionalS3Bucket();
@@ -663,11 +672,6 @@ export const createS3DataStore = (
       const scope = options.scope ?? "all";
       const limit = options.limit ?? DEFAULT_HISTORY_LIMIT;
 
-      // The flat tier never existed in the bucket. Asking for it returns an empty list rather than an
-      // error, because "no versions are held in the legacy tier of S3" is the honest answer, and
-      // inventing a failure there would look like an outage to a screen that only needed a list.
-      if (scope === "legacy") return [];
-
       // A narrower prefix is cheaper, but the parsing is identical either way, so the list stays
       // honest about which tier each key belongs to instead of trusting the prefix it was handed.
       const keys = await listKeys(
@@ -687,7 +691,7 @@ export const createS3DataStore = (
         if (
           !match ||
           keyName !== name ||
-          (tier !== "draft" && tier !== "live") ||
+          (tier !== "draft" && tier !== "live" && tier !== "legacy") ||
           (scope !== "all" && scope !== tier)
         ) {
           // Not a version this key owns. A tier name nothing wrote is somebody else's object, and
@@ -710,10 +714,6 @@ export const createS3DataStore = (
         throw e500(
           `Cannot read a ${name} version without a valid numeric timestamp.`,
         );
-      }
-
-      if (scope === "legacy") {
-        throw new MissingSnapshotError(name, timestamp, scope);
       }
 
       try {

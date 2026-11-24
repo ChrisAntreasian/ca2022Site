@@ -434,17 +434,44 @@ describe("s3DataStore", () => {
       ]);
     });
 
-    it("reports no versions for the legacy tier the bucket never had", async () => {
-      harness = makeFakeS3({ "data/history/draft/poems/1000.json": "x" });
+    it("lists the legacy tier a backfill wrote, under the scope its key names", async () => {
+      harness = makeFakeS3({
+        "data/history/legacy/poems/1712345678901.json":
+          "a flat copy the backfill uploaded",
+        "data/history/legacy/landing/9.json": "some other key's legacy copy",
+        "data/history/draft/poems/3000.json": "a draft copy",
+      });
 
       const entries = await makeStore().listHistory("poems", {
         scope: "legacy",
       });
 
-      expect(entries).toEqual([]);
-      // Not even a listing, because "there is no legacy prefix in a bucket to list" is the honest answer,
-      // and inventing a failure there would look like an outage to a screen that only needed a list.
-      expect(harness.calls).toEqual([]);
+      expect(entries).toEqual([{ timestamp: 1712345678901, scope: "legacy" }]);
+      // A listing, not a hand-written empty answer: `history/legacy/<name>/` is a prefix a script really
+      // puts objects under now, so refusing to look there would hide the versions a backfill exists to save.
+      expect(harness.calls.map((call) => call.op)).toEqual(["list"]);
+      expect(harness.calls[0]?.key).toBe("data/history/legacy/poems/");
+    });
+
+    it("merges the legacy copies into one newest-first history, each entry carrying its real scope", async () => {
+      harness = makeFakeS3({
+        "data/history/legacy/poems/1712345678901.json":
+          "oldest edit but newest number",
+        "data/history/draft/poems/3000.json": "a draft copy",
+        "data/history/live/poems/2000.json": "a released copy",
+        "data/history/legacy/poems/1000.json": "the oldest copy on the laptop",
+      });
+
+      const entries = await makeStore().listHistory("poems");
+
+      // Each entry has to carry the scope it was listed under, because `readHistory` defaults to draft:
+      // a screen that shows a legacy version and then asks for it with the default scope is guaranteed a miss.
+      expect(entries).toEqual([
+        { timestamp: 1712345678901, scope: "legacy" },
+        { timestamp: 3000, scope: "draft" },
+        { timestamp: 2000, scope: "live" },
+        { timestamp: 1000, scope: "legacy" },
+      ]);
     });
 
     it("follows the listing's own pagination instead of trusting one page", async () => {
@@ -505,7 +532,7 @@ describe("s3DataStore", () => {
         "data/history/draft/poems/notes.txt": "a stray note",
         "data/history/draft/poems/01000.json": "padded name",
         "data/history/draft/landing/5.json": "some other key's version",
-        "data/history/legacy/poems/7.json": "the flat layout",
+        "data/history/archive/poems/7.json": "a tier name no script writes",
         "data/history/draft/poems/2000.json": "a real version",
       });
 
@@ -514,6 +541,20 @@ describe("s3DataStore", () => {
       // The padded name is excluded on purpose: the store reads a version back by rebuilding the key from
       // the number it listed, and a `01000` it cannot rebuild becomes a phantom version on screen.
       expect(entries).toEqual([{ timestamp: 2000, scope: "draft" }]);
+    });
+
+    it("keeps a bucket key with no tier segment out of the legacy tier", async () => {
+      harness = makeFakeS3({
+        "data/history/poems/7.json": "the flat layout, with no tier segment",
+        "data/history/legacy/poems/9.json": "the tier a backfill writes",
+      });
+
+      const entries = await makeStore().listHistory("poems");
+
+      expect(entries).toEqual([{ timestamp: 9, scope: "legacy" }]);
+      // The flat layout with no tier segment is what `src/data/history/poems/7.json` is on disk, and
+      // `pull-content.mjs` deliberately maps the bucket's legacy tier onto it instead of 1:1. Read here as
+      // a tier named "poems", it would be listed as a version and then be unread under any scope.
     });
 
     it("reads a draft snapshot back when the caller names no tier", async () => {
@@ -569,7 +610,27 @@ describe("s3DataStore", () => {
       expect((cause as Error).message).toBe("the bucket is unreachable");
     });
 
-    it("refuses a legacy version rather than inventing one", async () => {
+    it("reads a legacy snapshot back out of the legacy key", async () => {
+      harness = makeFakeS3({
+        "data/history/draft/poems/1500.json":
+          "a draft copy holding the same number",
+        "data/history/legacy/poems/1712345678901.json":
+          "the flat copy the backfill uploaded",
+      });
+
+      const text = await makeStore().readHistory(
+        "poems",
+        1712345678901,
+        "legacy",
+      );
+
+      expect(text).toBe("the flat copy the backfill uploaded");
+      expect(harness.calls.map((call) => call.key)).toEqual([
+        "data/history/legacy/poems/1712345678901.json",
+      ]);
+    });
+
+    it("keeps a legacy miss a miss instead of answering with a same-numbered draft copy", async () => {
       harness = makeFakeS3({
         "data/history/draft/poems/1500.json": "a draft copy",
       });
@@ -581,10 +642,42 @@ describe("s3DataStore", () => {
           (e: unknown) => e,
         );
 
+      // The two tiers hold numbers, not identities, so a draft version can wear the timestamp of a legacy
+      // one. Answering a legacy read from the draft key would call a draft copy "the old version you asked
+      // for", which is the accident `readHistory`'s own refusal-to-return-an-empty-read rule exists to stop.
       expect(isMissingSnapshot(cause)).toBe(true);
-      // A legacy entry is a local file, never a bucket object. Reading it out of a tier the bucket does
-      // hold would answer the caller with a draft copy and call it the old version they asked for.
-      expect(harness.calls).toEqual([]);
+      expect(harness.calls.map((call) => call.key)).toEqual([
+        "data/history/legacy/poems/1500.json",
+      ]);
+    });
+
+    it("writes draft and live keys only, even where the bucket already holds a legacy copy", async () => {
+      harness = makeFakeS3({
+        "data/draft/poems.json": '{"name":"poems","timestamp":1000}',
+        "data/history/legacy/poems/1000.json": "a legacy copy",
+      });
+
+      const store = makeStore();
+      await store.ensureBaselineSnapshot("poems");
+      await store.writeFile(
+        "poems",
+        { name: "poems", timestamp: 2000 },
+        "draft",
+      );
+
+      expect(
+        harness.calls
+          .filter((call) => call.op === "put")
+          .map((call) => call.key),
+      ).toEqual([
+        "data/history/draft/poems/1000.json",
+        "data/history/draft/poems/2000.json",
+        "data/draft/poems.json",
+      ]);
+      // The legacy tier is a tier a restore can read and no write can target. `writeFile`,
+      // `ensureBaselineSnapshot` and `release` all take a `DataScope`, so a save cannot create or replace a
+      // legacy snapshot - which is what keeps the 61 oldest versions of this site from being rewritten by a
+      // save that never meant to touch them.
     });
 
     it("refuses a version number that is not a real timestamp", async () => {
