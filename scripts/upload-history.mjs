@@ -60,8 +60,9 @@ export const HISTORY_TIERS = ["draft", "live", "legacy"];
 export const DEFAULT_BACKFILL_PREFIX = "data";
 
 const HISTORY_ROOT = "src/data/history";
-const TIMESTAMP_RX = /^[1-9]\d*$/u;
-const PREFIX_RX = /^[a-z0-9][a-z0-9-]*$/u;
+export const TIMESTAMP_RX = /^[1-9]\d*$/u;
+// Exported so `scripts/pull-content.mjs` reuses the same rules instead of writing its own.
+export const PREFIX_RX = /^[a-z0-9][a-z0-9-]*$/u;
 
 /**
  * Turn a walked path into the part under `src/data/history/`, with separators normalized. A plan that
