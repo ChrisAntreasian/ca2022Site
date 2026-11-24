@@ -1,11 +1,14 @@
 import {
   poemsFileC,
   removePoemEditorValue,
+  restorePoemEntryFromSnapshot,
+  toPoemEditorValues,
   upsertPoemEditorValue,
   type PoemEditorValue,
   type PoemsFile,
 } from "./poems";
 import { createJsonEditorStore } from "../../core/store.server";
+import type { SnapshotScope } from "#lib/dataStore.server";
 import {
   contentDataStore,
   publicReadScope,
@@ -80,3 +83,57 @@ export const deletePoemEditorValue = async (
 
   return updated;
 };
+
+/**
+ * The saved versions a poems restore screen offers, newest first, each carrying the tier it was found in -
+ * `draft`, `live`, or the `legacy` copies the backfill uploads. The scope travels with the entry because
+ * `readHistory` defaults to `draft`, and a legacy version asked for with the default scope is a miss.
+ */
+export const listPoemEditorHistoryVersions = (limit?: number) =>
+  poemsStore.listHistoryVersions(limit);
+
+/**
+ * One saved version's poems, in the editor's own entry shape: what a picker lists when the version it was
+ * reached from is a snapshot rather than the current draft.
+ */
+export const readPoemEditorSnapshotEntries = async (
+  scope: SnapshotScope,
+  timestamp: number,
+): Promise<ReadonlyArray<PoemEditorValue>> =>
+  toPoemEditorValues(await poemsStore.readSnapshot(scope, timestamp));
+
+export type RestorePoemEditorEntryParams = {
+  /** The tier the version was found in, exactly as `listPoemEditorHistoryVersions` reported it. */
+  scope: SnapshotScope;
+  /** Which saved version to read, out of that tier. */
+  timestamp: number;
+  /** Which poem to put back. Every other current poem is left where it is. */
+  poemId: number;
+  now?: Date;
+};
+
+/**
+ * Put one poem back into the current draft out of one saved version.
+ *
+ * A new draft, never a live release: what a restore protects is the working copy, and publishing it stays an
+ * explicit release the editor has to ask for.
+ */
+export const restorePoemEditorEntryFromSnapshot = async ({
+  scope,
+  timestamp,
+  poemId,
+  now = new Date(),
+}: RestorePoemEditorEntryParams) =>
+  poemsStore.restoreEntry(
+    scope,
+    timestamp,
+    poemId,
+    ({ snapshotFile, currentFile, entryId }) =>
+      restorePoemEntryFromSnapshot({
+        snapshotFile,
+        currentFile,
+        poemId: entryId,
+        now,
+      }),
+    now,
+  );
