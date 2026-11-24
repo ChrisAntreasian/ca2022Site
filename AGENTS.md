@@ -35,6 +35,9 @@ being true.
    `GetBucketVersioning` → `AccessDenied` with this key; LIST/GET/PUT work. Prefix listing works
    (`data/history/draft/poems/` returns exactly poems). Measured 2026-11-23 with the backfill script's own
    read-only LIST: `dev-data/history/` holds **0** objects, so nothing in the dev root is restorable yet.
+   The pull script's own read-only dry run (2026-11-24) agrees: `dev-data/` = 14 objects, all 14 planned for
+   download (467.5 kB, 7 of them live); `data/` = 21 objects, 17 planned + 4 skipped because a byte-identical
+   copy is already on disk (550.0 kB).
 5. Local disk holds 72 snapshot files in **two layouts**: 61 in the legacy flat layout
    `src/data/history/<name>/<ts>.json` (poems 31, web-experience 24, five singles), 11 in the tiered
    layout `src/data/history/<scope>/<name>/<ts>.json`. The 61 legacy ones exist **only** on this
@@ -75,12 +78,22 @@ being true.
 10. Resource shapes — per-entry resources have `upsert*` **and** `remove*` helpers you can reuse:
     poems, web-experience, `the-quintuplapus`, `the-souljuicer`. Whole-record resources (one editor
     value, no entry id): landing, layout, terms-of-service.
-11. Repo size when you want scale, not reading (`git ls-files`, measured 2026-11-23): 123 source
-    TS/Svelte files; 68 test files / 15,009 lines; 254 tracked files / 51,112 lines. Big files you must not
+11. Repo size when you want scale, not reading (`git ls-files`, measured 2026-11-24): 123 source
+    TS/Svelte files; 69 test files / 15,580 lines; 256 tracked files / 52,576 lines. Big files you must not
     fully read: `test/lib/dataStore.mirror.test.ts` (1,030), `src/lib/dataStore.server.ts` (821),
-    `test/lib/typing-page.test.ts` (934), `test/lib/upload-history.test.ts` (587),
-    `scripts/upload-history.mjs` (528), `docs/S3_JSON_DATA_STORE_PLAN.md` (~600). Editor
+    `test/lib/typing-page.test.ts` (934), `scripts/pull-content.mjs` (875),
+    `test/lib/upload-history.test.ts` (587), `test/lib/pull-content.test.ts` (571),
+    `scripts/upload-history.mjs` (529), `docs/S3_JSON_DATA_STORE_PLAN.md` (~600). Editor
     `+page.svelte` files are 73-191 lines.
+12. **Both copy directions exist now, and they do not share one history layout.** `scripts/upload-history.mjs`
+    (disk → bucket) and `scripts/pull-content.mjs` (bucket → disk, `42158cf`, npm `pull:s3`) are both
+    dry-run-by-default, write only with `--apply`, and take `--prefix=<root>` to override `CONTENT_S3_PREFIX`.
+    The pull deliberately does **not** map the legacy tier 1:1: a bucket `history/legacy/<name>/<ts>.json`
+    lands in the **flat** `src/data/history/<name>/<ts>.json`, because `fsDataStore` names its own legacy tier
+    flat, so a 1:1 copy would park those snapshots behind a local content key called `legacy`. Two tests pin
+    both halves (remap readable by `fsDataStore`, 1:1 not). Every `live` row warns that `src/data/live/` is
+    git-tracked; `--overwrite` replaces an existing local file only when named, and is refused without
+    `--apply`. Neither script has ever been run with `--apply`.
 
 ## Decisions already made — do not relitigate
 
@@ -102,6 +115,9 @@ being true.
   **scripted, not run** (T3, `1923d8e`): `npm run upload:history` is the dry run, `--apply` writes, and no
   `--apply` has been executed against either root. Running it before a restore card can read the legacy tier
   puts objects in a bucket that nothing in the app can list (fact 7).
+- The pull script maps the bucket's legacy tier onto the flat local legacy dir instead of 1:1, and says so
+  (fact 12). Pulling 7 live objects out of `data/` into git-tracked `src/data/live/` is a content change to
+  review as a diff, and so is your call to make — not something a script decides for you.
 - No new npm dependencies. If forced to install: `npm install --legacy-peer-deps` and add an
   `overrides` entry. Never `npm install` bare (it rewrites `package-lock.json` and dies).
 
