@@ -73,21 +73,29 @@ being true.
    prefix-agnostic. `src/lib/content.server.ts:214` throws
    `Content key "<name>" has no live copy to release.` when `requireReleasable` is asked about
    bundled content.
-9. **Restore does not exist yet.** No `restore*` in `src/lib/editing/core/store.server.ts` (62 lines:
-   `readFile`, `liveReadFile`, `ensureBaselineSnapshot`, `writeFile`, `release`), no `restore` action
-   in any `+page.server.ts`, no children/slot in `src/lib/form/UnsavedChangesDialog.svelte` (it
-   renders `<p>{message}</p>`). Four delete dialogs (poems, quintuplapus, souljuicer,
-   web-experience `+page.svelte`) already claim snapshots can be restored — that claim is fiction
-   until a card implements it.
+9. **The restore seam exists; the restore UI does not.** `src/lib/editing/core/store.server.ts` (230 lines,
+   since `d9e3413`) has `listHistoryVersions(limit = 5)` (asks `{ scope: "all" }`, so a legacy version is
+   visible), `readSnapshot(scope, timestamp)`, `restoreWholeRecord(scope, timestamp)` and
+   `restoreEntry(scope, timestamp, entryId, merge)`. Both write **draft only**, and both snapshot what is
+   current before they write - which `test/lib/editor-restore.test.ts` proves as a recorded call order against a
+   fake `DataStore`, not as a comment. `poems.server.ts` wires them
+   (`listPoemEditorHistoryVersions`, `readPoemEditorSnapshotEntries`,
+   `restorePoemEditorEntryFromSnapshot`) and `poems.ts` owns the poems rule
+   (`restorePoemEntryFromSnapshot`, `poemItemId`). Still missing, and this is what **T6** is for: no `restore`
+   action in any `+page.server.ts`, no children/slot in `src/lib/form/UnsavedChangesDialog.svelte` (it renders
+   `<p>{message}</p>`), and no version list or entry picker. Four delete dialogs (poems, quintuplapus,
+   souljuicer, web-experience `+page.svelte`) already claim snapshots can be restored - that claim is still
+   fiction until a UI calls this seam.
 10. Resource shapes — per-entry resources have `upsert*` **and** `remove*` helpers you can reuse:
     poems, web-experience, `the-quintuplapus`, `the-souljuicer`. Whole-record resources (one editor
     value, no entry id): landing, layout, terms-of-service.
-11. Repo size when you want scale, not reading (`git ls-files`, measured 2026-11-24): 123 source
-    TS/Svelte files; 69 test files / 15,580 lines; 256 tracked files / 52,576 lines. Big files you must not
+11. Repo size when you want scale, not reading (`git ls-files`, measured 2026-11-24): 125 source
+    TS/Svelte files; 71 test files / 16,743 lines; 258 tracked files / ~54,000 lines. Big files you must not
     fully read: `test/lib/dataStore.mirror.test.ts` (1,030), `src/lib/dataStore.server.ts` (821),
     `test/lib/typing-page.test.ts` (934), `scripts/pull-content.mjs` (875),
-    `test/lib/upload-history.test.ts` (587), `test/lib/pull-content.test.ts` (571),
-    `scripts/upload-history.mjs` (529), `docs/S3_JSON_DATA_STORE_PLAN.md` (~600). Editor
+    `test/lib/dataStore.s3.test.ts` (851), `test/lib/upload-history.test.ts` (605),
+    `test/lib/pull-content.test.ts` (571), `scripts/upload-history.mjs` (529),
+    `test/lib/editor-restore.test.ts` (721), `docs/S3_JSON_DATA_STORE_PLAN.md` (~600). Editor
     `+page.svelte` files are 73-191 lines.
 12. **Both copy directions exist now, and they do not share one history layout.** `scripts/upload-history.mjs`
     (disk → bucket) and `scripts/pull-content.mjs` (bucket → disk, `42158cf`, npm `pull:s3`) are both
