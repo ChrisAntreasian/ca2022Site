@@ -1,13 +1,21 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
 
+  import type { Snippet } from "svelte";
+
   import { noScroll } from "#lib/body";
   import Button from "./Button.svelte";
 
   interface Props {
     open: boolean;
     title?: string;
+    /**
+     * The line the dialog shows under its title. `children` replaces it when one is passed, so a dialog that
+     * renders its own body (a version list, a picker) does not have to fork this one - and every call site
+     * that only passes `message` keeps getting exactly the paragraph it got before.
+     */
     message?: string;
+    children?: Snippet;
     stayLabel?: string;
     leaveLabel?: string;
     saveAndContinueLabel?: string;
@@ -23,6 +31,7 @@
     open = $bindable(false),
     title = "Unsaved changes",
     message = "You have unsaved changes. You can stay on this poem, leave and discard them, or save first and continue to the next poem.",
+    children,
     stayLabel = "Stay",
     leaveLabel = "Leave",
     saveAndContinueLabel = "Save and continue",
@@ -65,7 +74,11 @@
   <div class="dialog-wrap">
     <div class="dialog-card">
       <h2>{title}</h2>
-      <p>{message}</p>
+      {#if children}
+        {@render children?.()}
+      {:else}
+        <p>{message}</p>
+      {/if}
       <div class="actions">
         {#if onStay}
           <Button type="button" variant="action" onclick={onStay}

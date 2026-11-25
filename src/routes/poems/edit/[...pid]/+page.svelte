@@ -1,5 +1,6 @@
 <script lang="ts">
   import EditorShell from "#lib/editing/core/EditorShell.svelte";
+  import HistoryDialog from "#lib/editing/HistoryDialog.svelte";
   import UnsavedChangesDialog from "#lib/form/UnsavedChangesDialog.svelte";
   import { cleanUrlSlug } from "#lib/history";
   import EditPane from "../_components/EditPane.svelte";
@@ -108,6 +109,19 @@
       </a>
     </li>
 
+    <li class="nav-action-item">
+      <a
+        class="sidebar-link"
+        href={data.restore.href}
+        onclick={(event) => {
+          event.preventDefault();
+          requestNavigation(data.restore.href);
+        }}
+      >
+        Restore a saved version
+      </a>
+    </li>
+
     {#each data.poems as poem}
       <li class:active={poem.id === currentPoem.id} class="poem-list-item">
         <a
@@ -133,6 +147,17 @@
   leaveLabel="Delete"
   onStay={cancelDelete}
   onLeave={confirmDelete}
+/>
+
+<HistoryDialog
+  open={data.restore.open}
+  versions={data.restore.versions}
+  target={data.restore.target}
+  note={data.restore.note}
+  actionHref={data.restore.actionHref}
+  versionsHref={data.restore.versionsHref}
+  closeHref={data.restore.closeHref}
+  draftVersion={data.restore.draftVersion}
 />
 
 <style>
