@@ -53,6 +53,13 @@
     closeHref: string;
     /** The draft this restore would replace, carried through untouched: the restore action ignores it. */
     draftVersion: number;
+    /**
+     * What the thing being restored is called, so the picker reads in the resource's own words. It is a prop
+     * and not a fixed "poem" because this dialog now serves four resources, and a picker that says "poem" on
+     * the SoulJuicer screen is a lie about what is inside it. It defaults to the word the poems editor has
+     * always used, so that screen reads exactly as it did before.
+     */
+    entryNoun?: string;
   }
 
   let {
@@ -64,13 +71,14 @@
     versionsHref,
     closeHref,
     draftVersion,
+    entryNoun = "poem",
   }: Props = $props();
 </script>
 
 <UnsavedChangesDialog
   {open}
   title={target
-    ? `Restore one poem from the version saved ${target.dateLabel} ${target.tierLabel}`
+    ? `Restore one ${entryNoun} from the version saved ${target.dateLabel} ${target.tierLabel}`
     : "Restore a saved version"}
 >
   {#snippet children()}
@@ -80,8 +88,8 @@
 
     {#if target}
       <p class="restore-lead">
-        Pick the poem to put back. Everything else in the current draft stays as
-        it is, and the draft this restore replaces is filed in history before it
+        Pick the {entryNoun} to put back. Everything else in the current draft stays
+        as it is, and the draft this restore replaces is filed in history before it
         is written over.
       </p>
 
@@ -124,7 +132,7 @@
       </div>
     {:else}
       <p class="restore-lead">
-        Pick the version to restore one poem from. Five are listed, newest
+        Pick the version to restore one {entryNoun} from. Five are listed, newest
         first; each one is labelled with the tier it was found in.
       </p>
 
