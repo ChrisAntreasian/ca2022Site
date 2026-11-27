@@ -14,6 +14,8 @@
   const { getHeaderHeight, getFooterHeight }: LayoutElemH =
     getContext(contextHeightKey);
   let windowHeight: number = $state();
+
+  const editHref = $derived(data.editorEnabled ? data.landingEditorHref : null);
 </script>
 
 <svelte:head>
@@ -28,7 +30,13 @@
   >
     {#each data.intro as sec}
       <div class="intro-segment">
-        <div>
+        <div class="home-wrap">
+          {#if editHref}
+            <div class="home-actions">
+              <a class="post-action-link" href={editHref}>Edit home</a>
+            </div>
+          {/if}
+
           <h2>{sec.attributes.title}</h2>
           <p>{sec.attributes.description}</p>
         </div>
@@ -67,6 +75,34 @@
     flex-direction: column;
     justify-content: space-between;
   }
+  .home-wrap {
+    position: relative;
+  }
+  .home-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .post-action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--bg-dk);
+    text-decoration: none;
+    font-family: var(--font-jsf);
+    font-size: 1.15rem;
+    line-height: 1.5rem;
+  }
+
+  .post-action-link:hover {
+    color: var(--bg-lt);
+  }
   img {
     width: 100%;
     justify-self: flex-end;
@@ -96,6 +132,10 @@
       order: 2;
       padding: 0.5rem 0;
       border-bottom: var(--space-md) solid var(--y-md);
+    }
+    .home-actions {
+      position: static;
+      margin: 1.5rem 0 1rem;
     }
   }
 </style>

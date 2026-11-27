@@ -486,3 +486,195 @@ export const buildWebExperienceTarget = (
       }),
   };
 };
+
+// --- Restoring one saved entry into the current draft --------------------------------
+//
+// Everything below belongs to `restoreWebExperienceEntryFromSnapshot` alone, the one place that
+// puts a saved version's copy of one web experience entry into a current draft, and it exists
+// because a restore is a merge of two files rather than a write of one editor value.
+//
+// `upsertWebExperienceEditorValue` is still reused, because it is the function that decides which
+// ids are decided, where a new entry lands in position order, and what a page-level save stamps.
+// The draft the page reads and the draft the restore writes are built by one function, and a
+// second one carrying the same rules is one more place to keep in step. Reusing it turned out not
+// to be enough, and what it could not express is what the rest of this block closes.
+
+// One item of a version's `rich_links` array: the shape a version held for one web experience
+// entry, and the only shape a restore can carry. `WebExperienceEntry` is the same entry through
+// the editor's own fields, and those fields carry no logo, no screenshots and no ordering key of
+// their own.
+type WebExperiencePageItem = NonNullable<
+  WebExperienceFile["data"]["data"]
+>[number];
+
+type WebExperienceRichLinkItem = NonNullable<
+  NonNullable<WebExperiencePageItem["attributes"]["rich_links"]>["data"]
+>[number];
+
+/**
+ * `rich_links[].id` is typed a number, and every web experience file this repo holds has one. But
+ * a version is untrusted JSON whatever the codec promised, and the entry a restore names comes out
+ * of a URL, where an entry id is only as trustworthy as its own shape. A version whose id does not
+ * read as a positive integer has nothing this restore can match it by, and an id read as zero can
+ * be matched against nothing at all.
+ */
+const webExperienceItemId = (item: WebExperienceRichLinkItem): number => {
+  const raw: unknown = item.id;
+  const id = typeof raw === "string" && raw.trim() !== "" ? Number(raw) : raw;
+
+  return typeof id === "number" && Number.isInteger(id) && id > 0 ? id : 0;
+};
+
+const webExperienceRichLinks = (
+  file: WebExperienceFile,
+): ReadonlyArray<WebExperienceRichLinkItem> =>
+  file.data?.data?.[0]?.attributes?.rich_links?.data ?? [];
+
+/**
+ * Find one entry in one file. `id` is the only key a web experience entry can be matched by;
+ * `title` is free text a save rewrites, and a restore that matched on it would put the entry the
+ * current draft calls by that name into a version it never held.
+ */
+const findWebExperienceRichLink = (
+  file: WebExperienceFile,
+  entryId: number,
+): WebExperienceRichLinkItem | null =>
+  webExperienceRichLinks(file).find(
+    (item) => item.id === entryId || webExperienceItemId(item) === entryId,
+  ) ?? null;
+
+/** The entry as an editor value: the version's own title, body, links and saved position. */
+const toWebExperienceRestoreEntry = (
+  item: WebExperienceRichLinkItem,
+): WebExperienceEntry => ({
+  id: webExperienceItemId(item),
+  title: item.attributes.title,
+  bodyMarkdown: item.attributes.body,
+  primaryLink: item.attributes.link,
+  secondaryLink: item.attributes.secondLink,
+  sortOrder: item.attributes.position,
+});
+
+/**
+ * The parameters `restoreWebExperienceEntryFromSnapshot` takes. They are spelled out here because
+ * each one is how the route hands something over in the same order every time, and `now` is the
+ * optional one: a restore files a baseline stamped with the moment it read, so a test that pins
+ * that moment passes its own clock in instead of leaving `restore*` to read `new Date()`.
+ */
+export type RestoreWebExperienceEntryInput = {
+  snapshotFile: WebExperienceFile;
+  currentFile: WebExperienceFile;
+  entryId: number;
+  now?: Date;
+};
+
+/**
+ * Put one saved version's copy of one web experience entry into a current draft.
+ *
+ * This is a pure function over two files and a moment. Every rule below holds for every web
+ * experience entry, and none of it is a judgement call about which version to read or which tier
+ * to write: `web-experience.server.ts` decides that, and this function knows neither a tier nor a
+ * store nor a clock.
+ */
+export const restoreWebExperienceEntryFromSnapshot = ({
+  snapshotFile,
+  currentFile,
+  entryId,
+  now = new Date(),
+}: RestoreWebExperienceEntryInput): WebExperienceFile => {
+  const snapshotEntry = findWebExperienceRichLink(snapshotFile, entryId);
+
+  if (!snapshotEntry) {
+    throw new Error(
+      `Version ${snapshotFile.timestamp} of ${snapshotFile.name} holds no web experience entry ${entryId} to restore.`,
+    );
+  }
+
+  if (webExperienceItemId(snapshotEntry) <= 0) {
+    throw new Error(
+      `Cannot restore web experience entry ${entryId}: the saved copy carries no id this restore can trust.`,
+    );
+  }
+
+  const currentPage = currentFile.data?.data?.[0];
+
+  if (!currentPage) {
+    throw new Error(
+      `The draft being restored into holds no web experience page to restore entry ${entryId} into.`,
+    );
+  }
+
+  const current = toWebExperienceEditorValue(currentFile);
+  const holdsEntry = current.entries.some((entry) => entry.id === entryId);
+  const restoredEntry = toWebExperienceRestoreEntry(snapshotEntry);
+
+  // Reuse the editor's own upsert for whatever it can express. `value.entries` is the whole entry
+  // list, so this hands it the current list with the restored entry substituted in place, or
+  // appended whole when the current draft never held it, which is a deleted entry put back.
+  const merged = upsertWebExperienceEditorValue(
+    currentFile,
+    {
+      ...current,
+      entries: holdsEntry
+        ? current.entries.map((entry) =>
+            entry.id === entryId ? restoredEntry : entry,
+          )
+        : [...current.entries, restoredEntry],
+    },
+    now,
+  );
+
+  const heldById = new Map(
+    webExperienceRichLinks(currentFile).map((item) => [item.id, item]),
+  );
+  const restoredItem = {
+    id: entryId,
+    // A copy, so writing the version's own item into the draft's own array never touches the
+    // version's file or the draft's item the version was copied out of.
+    attributes: { ...snapshotEntry.attributes },
+  } satisfies WebExperienceRichLinkItem;
+
+  const richLinks = (
+    merged.data?.data?.[0]?.attributes?.rich_links?.data ?? []
+  ).map((item) =>
+    item.id === entryId ? restoredItem : (heldById.get(item.id) ?? item),
+  ) as Array<WebExperienceRichLinkItem>;
+
+  if (!richLinks.some((item) => item.id === entryId)) {
+    // The upsert writes the entry list in position order, so an entry the upsert could not write
+    // lands where its saved position puts it, which is where an ordinary save would have put it.
+    const positionOf = (item: WebExperienceRichLinkItem) =>
+      item.attributes?.position ?? 0;
+    const restoredPosition = positionOf(restoredItem);
+    const before = richLinks.findIndex(
+      (item) => positionOf(item) > restoredPosition,
+    );
+
+    if (before === -1) richLinks.push(restoredItem);
+    else richLinks.splice(before, 0, restoredItem);
+  }
+
+  return {
+    ...merged,
+    data: {
+      ...merged.data,
+      data: [
+        {
+          ...currentPage,
+          attributes: {
+            ...currentPage.attributes,
+            // The page's own attributes and its intro are handed back from the draft. The upsert
+            // re-stamped the page and re-wrote the intro from the editor's projection of it, and a
+            // restore that left them stamped and re-written would read to the next save exactly as
+            // though the intro and the page title had been edited.
+            page_details: currentPage.attributes.page_details,
+            rich_links: {
+              ...currentPage.attributes.rich_links,
+              data: richLinks,
+            },
+          },
+        },
+      ],
+    },
+  };
+};

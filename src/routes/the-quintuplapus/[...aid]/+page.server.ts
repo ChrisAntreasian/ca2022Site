@@ -1,12 +1,12 @@
 import type { PageServerLoad } from "./$types";
 import { error } from "@sveltejs/kit";
-import * as D from "#data/the-quintuplapus.json";
-import { isEditorEnabled } from "#lib/editing/core/auth.server";
+import { readPublicQuintuplapusFile } from "#lib/editing/resources/quintuplapus/quintuplapus.server";
+import { isEditorUnlockedForRequest } from "#lib/editing/core/session.server";
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ cookies, params }) => {
   const aid = parseInt(params.aid) || 2;
-  const d = D.data;
-  const att = d.data[0].attributes;
+  const { data } = await readPublicQuintuplapusFile();
+  const att = data.data[0].attributes;
 
   const omitIds = att.omit.data.map((d) => d.id);
 
@@ -24,6 +24,6 @@ export const load: PageServerLoad = async ({ params }) => {
     categoryTitle,
     artPieces,
     artPiece,
-    editorEnabled: isEditorEnabled(),
+    editorEnabled: isEditorUnlockedForRequest(cookies),
   };
 };

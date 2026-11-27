@@ -1,5 +1,6 @@
 <script lang="ts">
   import EditorShell from "#lib/editing/core/EditorShell.svelte";
+  import HistoryDialog from "#lib/editing/HistoryDialog.svelte";
   import UnsavedChangesDialog from "#lib/form/UnsavedChangesDialog.svelte";
   import { cleanUrlSlug } from "#lib/history";
   import { quintuplapusEditorPath } from "#lib/editing/resources/quintuplapus/quintuplapus-editor";
@@ -115,6 +116,19 @@
   {/snippet}
 
   {#snippet navigationPane(requestNavigation)}
+    <li class="nav-action-item">
+      <a
+        class="sidebar-link"
+        href={data.restore.href}
+        onclick={(event) => {
+          event.preventDefault();
+          requestNavigation(data.restore.href);
+        }}
+      >
+        Restore a saved version
+      </a>
+    </li>
+
     {#each data.entries as entry}
       <li class:active={entry.id === currentEntry.id} class="entry-list-item">
         <a
@@ -142,20 +156,39 @@
   onLeave={confirmDelete}
 />
 
+<HistoryDialog
+  open={data.restore.open}
+  versions={data.restore.versions}
+  target={data.restore.target}
+  note={data.restore.note}
+  actionHref={data.restore.actionHref}
+  versionsHref={data.restore.versionsHref}
+  closeHref={data.restore.closeHref}
+  draftVersion={data.restore.draftVersion}
+  entryNoun="entry"
+/>
+
 <style>
-  .entry-list-item {
+  .entry-list-item,
+  .nav-action-item {
     list-style: none;
     margin-bottom: 1rem;
     font-family: "josefin-bold";
   }
 
-  .entry-list-item a {
+  .entry-list-item a,
+  .nav-action-item a {
     display: inline-flex;
   }
 
   @media (max-width: 767.98px) {
-    .entry-list-item {
+    .entry-list-item,
+    .nav-action-item {
       padding: 0 1.5rem;
+    }
+
+    .nav-action-item:first-of-type {
+      padding-top: 1rem;
     }
 
     .entry-list-item:first-of-type {

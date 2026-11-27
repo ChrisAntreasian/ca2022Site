@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fakeCookies } from "./fakeCookies";
 
 describe("web experience edit page server delete action", () => {
   beforeEach(() => {
@@ -17,9 +18,11 @@ describe("web experience edit page server delete action", () => {
       };
     });
 
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     const baseValue = {
@@ -116,6 +119,7 @@ describe("web experience edit page server delete action", () => {
 
     await expect(
       actions.delete({
+        cookies: fakeCookies(),
         request: { formData: async () => formData },
       } as never),
     ).rejects.toMatchObject({
@@ -130,9 +134,11 @@ describe("web experience edit page server delete action", () => {
   });
 
   it("rejects delete for intro target", async () => {
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     vi.doMock("#lib/editing/resources/web-experience/web-experience", () => ({
@@ -183,6 +189,7 @@ describe("web experience edit page server delete action", () => {
     formData.set("kind", "intro");
 
     const result = await actions.delete({
+      cookies: fakeCookies(),
       request: { formData: async () => formData },
     } as never);
 

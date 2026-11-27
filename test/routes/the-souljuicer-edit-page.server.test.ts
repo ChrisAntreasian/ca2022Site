@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fakeCookies } from "./fakeCookies";
 import type { Mock } from "vitest";
 import { loadResult } from "./loadResult";
 
@@ -45,9 +46,11 @@ describe("SoulJuicer edit page server", () => {
   });
 
   it("loads the selected entry and saved message", async () => {
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     vi.doMock("#lib/editing/resources/souljuicer/souljuicer", () => ({
@@ -65,6 +68,7 @@ describe("SoulJuicer edit page server", () => {
       await import("../../src/routes/the-souljuicer/edit/[...aid]/+page.server");
     const result = loadResult(
       await load({
+        cookies: fakeCookies(),
         params: { aid: "4" },
         url: new URL("http://localhost/the-souljuicer/edit/4?saved=1"),
       } as never),
@@ -89,9 +93,11 @@ describe("SoulJuicer edit page server", () => {
       };
     });
 
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     // The action is called with the merged editor value, and the test asserts on that argument
@@ -126,6 +132,7 @@ describe("SoulJuicer edit page server", () => {
 
     await expect(
       actions.save({
+        cookies: fakeCookies(),
         request: { formData: async () => formData },
       } as never),
     ).rejects.toMatchObject({
@@ -158,9 +165,11 @@ describe("SoulJuicer edit page server", () => {
       };
     });
 
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     const deleteSouljuicerEntry = vi.fn(async () => mockFile);
@@ -189,6 +198,7 @@ describe("SoulJuicer edit page server", () => {
 
     await expect(
       actions.delete({
+        cookies: fakeCookies(),
         request: { formData: async () => formData },
       } as never),
     ).rejects.toMatchObject({
@@ -204,9 +214,11 @@ describe("SoulJuicer edit page server", () => {
   });
 
   it("blocks deleting the final remaining entry", async () => {
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     vi.doMock("#lib/editing/resources/souljuicer/souljuicer", () => ({
@@ -228,6 +240,7 @@ describe("SoulJuicer edit page server", () => {
     formData.set("id", "2");
 
     const result = await actions.delete({
+      cookies: fakeCookies(),
       request: { formData: async () => formData },
     } as never);
 

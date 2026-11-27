@@ -1,5 +1,6 @@
 <script lang="ts">
   import EditorShell from "#lib/editing/core/EditorShell.svelte";
+  import HistoryDialog from "#lib/editing/HistoryDialog.svelte";
   import EditPane from "./_components/EditPane.svelte";
 
   import type { ActionData, PageData } from "./$types";
@@ -38,7 +39,7 @@
   defaultHeadline="terms"
   wrapBasis={70}
   editorTitle="Terms of Service Editor"
-  editorDescription="Edit the title and markdown body used on the terms-of-service page."
+  editorDescription="Edit the title and markdown body used on the terms-of-service page. Restoring a saved version replaces title and body at once - see Restore the whole terms of service."
   actionHref="/terms-of-service"
   actionLabel="View post"
   formMessage={form?.message}
@@ -56,12 +57,47 @@
     />
   {/snippet}
 
-  {#snippet navigationPane()}
+  {#snippet navigationPane(requestNavigation)}
+    <li class="terms-nav-item">
+      <a
+        class="sidebar-link"
+        href={data.restore.href}
+        onclick={(event) => {
+          event.preventDefault();
+          requestNavigation(data.restore.href);
+        }}
+      >
+        Restore the whole terms of service
+      </a>
+    </li>
+
     <li class="terms-nav-item active">
-      <a class="sidebar-link" href="/terms-of-service/edit">Terms of Service</a>
+      <a
+        class="sidebar-link"
+        href="/terms-of-service/edit"
+        onclick={(event) => {
+          event.preventDefault();
+          requestNavigation("/terms-of-service/edit");
+        }}
+      >
+        Terms of Service
+      </a>
     </li>
   {/snippet}
 </EditorShell>
+
+<HistoryDialog
+  open={data.restore.open}
+  versions={data.restore.versions}
+  target={null}
+  record={data.restore.record}
+  wholeRecordNoun="terms of service"
+  note={data.restore.note}
+  actionHref={data.restore.actionHref}
+  versionsHref={data.restore.versionsHref}
+  closeHref={data.restore.closeHref}
+  draftVersion={data.restore.draftVersion}
+/>
 
 <style>
   .terms-nav-item {

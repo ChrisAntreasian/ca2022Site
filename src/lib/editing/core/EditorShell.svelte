@@ -206,6 +206,12 @@
 
   {#snippet navContent()}
     {@render navigationPane?.(requestNavigation)}
+
+    <form class="editor-logout" method="POST" action="/_editor/logout">
+      <button class="editor-logout__button" type="submit"
+        >Log out of editor</button
+      >
+    </form>
   {/snippet}
 </Shell>
 
@@ -243,6 +249,29 @@
   .message {
     margin: 0 0 1rem;
     color: var(--o-dk);
+  }
+
+  /* Sits under the editor navigation rather than beside it, so it never competes with entry links. */
+  .editor-logout {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--bg-dk);
+  }
+
+  .editor-logout__button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--bg-dk);
+    font-family: var(--font-jsf);
+    font-size: 1.15rem;
+    line-height: 1.5rem;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .editor-logout__button:hover {
+    color: var(--bg-lt);
   }
 
   .post-action-link {

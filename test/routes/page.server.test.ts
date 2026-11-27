@@ -1,8 +1,31 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fakeCookies } from "./fakeCookies";
 import { loadResult } from "./loadResult";
 
-// Simple mock event object
-const mockLoadEvent = {};
+// Simple mock event object. The loader now reads the editor session cookie to decide whether to offer an
+// "Edit home" link, so the event must carry a cookies bag; `editorEnabled` itself is asserted in
+// `home-page-edit-link.test.ts`, which drives the real gate instead of this stubbed one.
+const mockLoadEvent = { cookies: fakeCookies() };
+
+/**
+ * The landing loader now reads through `readPublicFile("landing")` in `#lib/content.server` rather than a
+ * static `#data/landing.json` import - that is the seam that lets home-page content come from S3. These
+ * tests stub that seam so each one supplies its own payload without touching the filesystem or S3.
+ */
+let landingFile: unknown;
+
+vi.doMock("#lib/content.server", () => ({
+  readPublicFile: async () => landingFile,
+}));
+
+/** Build a landing envelope matching what readPublicFile returns: { data: { data: [entry] } }. */
+const landingWith = (pageDetails: { id: number; attributes: unknown }[]) => ({
+  name: "landing",
+  timestamp: 1,
+  data: {
+    data: [{ id: 1, attributes: { page_details: { data: pageDetails } } }],
+  },
+});
 
 describe("Main Page Server Logic", () => {
   beforeEach(() => {
@@ -11,23 +34,10 @@ describe("Main Page Server Logic", () => {
 
   describe("Landing Page Load Function", () => {
     it("should process landing data correctly", async () => {
-      // Mock the landing data import
-      vi.doMock("#data/landing.json", () => ({
-        data: {
-          data: [
-            {
-              attributes: {
-                page_details: {
-                  data: [
-                    { id: 5, attributes: { title: "Intro Section" } },
-                    { id: 6, attributes: { title: "Links Section" } },
-                  ],
-                },
-              },
-            },
-          ],
-        },
-      }));
+      landingFile = landingWith([
+        { id: 5, attributes: { title: "Intro Section" } },
+        { id: 6, attributes: { title: "Links Section" } },
+      ]);
 
       // Import the load function after mocking
       const { load } = await import("../../src/routes/+page.server.ts");
@@ -42,22 +52,10 @@ describe("Main Page Server Logic", () => {
 
     it("should categorize intro and links correctly", async () => {
       // Mock with known data structure
-      vi.doMock("#data/landing.json", () => ({
-        data: {
-          data: [
-            {
-              attributes: {
-                page_details: {
-                  data: [
-                    { id: 5, attributes: { title: "Intro Item" } },
-                    { id: 10, attributes: { title: "Links Item" } },
-                  ],
-                },
-              },
-            },
-          ],
-        },
-      }));
+      landingFile = landingWith([
+        { id: 5, attributes: { title: "Intro Item" } },
+        { id: 10, attributes: { title: "Links Item" } },
+      ]);
 
       const { load } = await import("../../src/routes/+page.server.ts");
       const result = loadResult(await load(mockLoadEvent as never));
@@ -73,19 +71,7 @@ describe("Main Page Server Logic", () => {
     });
 
     it("should handle empty data gracefully", async () => {
-      vi.doMock("#data/landing.json", () => ({
-        data: {
-          data: [
-            {
-              attributes: {
-                page_details: {
-                  data: [],
-                },
-              },
-            },
-          ],
-        },
-      }));
+      landingFile = landingWith([]);
 
       const { load } = await import("../../src/routes/+page.server.ts");
       const result = loadResult(await load(mockLoadEvent as never));
@@ -97,19 +83,7 @@ describe("Main Page Server Logic", () => {
 
   describe("Data Structure Validation", () => {
     it("should return the expected structure", async () => {
-      vi.doMock("#data/landing.json", () => ({
-        data: {
-          data: [
-            {
-              attributes: {
-                page_details: {
-                  data: [{ id: 5, attributes: { title: "Test" } }],
-                },
-              },
-            },
-          ],
-        },
-      }));
+      landingFile = landingWith([{ id: 5, attributes: { title: "Test" } }]);
 
       const { load } = await import("../../src/routes/+page.server.ts");
       const result = loadResult(await load(mockLoadEvent as never));
@@ -120,23 +94,11 @@ describe("Main Page Server Logic", () => {
     });
 
     it("should handle multiple intro items", async () => {
-      vi.doMock("#data/landing.json", () => ({
-        data: {
-          data: [
-            {
-              attributes: {
-                page_details: {
-                  data: [
-                    { id: 5, attributes: { title: "Intro 1" } },
-                    { id: 5, attributes: { title: "Intro 2" } },
-                    { id: 7, attributes: { title: "Link 1" } },
-                  ],
-                },
-              },
-            },
-          ],
-        },
-      }));
+      landingFile = landingWith([
+        { id: 5, attributes: { title: "Intro 1" } },
+        { id: 5, attributes: { title: "Intro 2" } },
+        { id: 7, attributes: { title: "Link 1" } },
+      ]);
 
       const { load } = await import("../../src/routes/+page.server.ts");
       const result = loadResult(await load(mockLoadEvent as never));

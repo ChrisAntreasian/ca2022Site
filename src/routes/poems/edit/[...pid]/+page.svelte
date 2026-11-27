@@ -1,5 +1,6 @@
 <script lang="ts">
   import EditorShell from "#lib/editing/core/EditorShell.svelte";
+  import HistoryDialog from "#lib/editing/HistoryDialog.svelte";
   import UnsavedChangesDialog from "#lib/form/UnsavedChangesDialog.svelte";
   import { cleanUrlSlug } from "#lib/history";
   import EditPane from "../_components/EditPane.svelte";
@@ -90,6 +91,7 @@
       showDeleteButton={canDelete}
       onRequestDelete={openDeleteConfirm}
       submitFailed={form?.action === "save" && !!form?.message}
+      showReleaseButton={data.releaseAvailable}
     />
   {/snippet}
 
@@ -104,6 +106,19 @@
         }}
       >
         + New poem
+      </a>
+    </li>
+
+    <li class="nav-action-item">
+      <a
+        class="sidebar-link"
+        href={data.restore.href}
+        onclick={(event) => {
+          event.preventDefault();
+          requestNavigation(data.restore.href);
+        }}
+      >
+        Restore a saved version
       </a>
     </li>
 
@@ -132,6 +147,17 @@
   leaveLabel="Delete"
   onStay={cancelDelete}
   onLeave={confirmDelete}
+/>
+
+<HistoryDialog
+  open={data.restore.open}
+  versions={data.restore.versions}
+  target={data.restore.target}
+  note={data.restore.note}
+  actionHref={data.restore.actionHref}
+  versionsHref={data.restore.versionsHref}
+  closeHref={data.restore.closeHref}
+  draftVersion={data.restore.draftVersion}
 />
 
 <style>

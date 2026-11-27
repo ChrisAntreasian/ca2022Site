@@ -3,8 +3,10 @@ node_modules
 /build
 /.svelte-kit
 /package
+# Local dev secrets - never commit. See .env.example for the required names.
 .env
 .env.*
+!.env.example
 /docs
 .vercel
 .output
@@ -12,3 +14,16 @@ node_modules
 /test-results
 .specstory
 src/data/history/
+# Editor working copies, never commit. In S3 mode the write mirror puts a draft here, and a draft is
+# somebody's unfinished work rather than a version worth keeping.
+src/data/draft/
+# src/data/live/ is deliberately NOT ignored. In S3 mode the bucket is the only copy of a release, and the
+# mirror writes the local one that git can protect; the decision and the reasoning live in AGENTS.md.
+# Scratch scripts and logs used to probe the editor unlock flow locally - not part of the app.
+# Scratch probes and run artifacts a card makes while it is working. AGENTS.md's scratch-directory rule says
+# the scratch directory is gitignored; this file was missing that entry, so a scratch probe showed up as an untracked
+# change at every commit.
+/scratch/
+*.log
+e2e.ps1
+e2e-prod.ps1

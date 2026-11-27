@@ -1,5 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fakeCookies } from "./fakeCookies";
 import { loadResult } from "./loadResult";
+
+/** See the note in `the-souljuicer-page.server.test.ts`: the payload is injected at the store seam now. */
+const mockWebExperiencePayload = (payload: unknown) => {
+  vi.doMock(
+    "#lib/editing/resources/web-experience/web-experience.server",
+    () => ({
+      readPublicWebExperienceFile: async () => payload,
+    }),
+  );
+};
 
 describe("Web Experience page server load", () => {
   beforeEach(() => {
@@ -7,7 +18,9 @@ describe("Web Experience page server load", () => {
   });
 
   it("does not crash when an entry is missing logo or image data", async () => {
-    vi.doMock("#data/web-experience.json", () => ({
+    mockWebExperiencePayload({
+      name: "web-experience",
+      timestamp: 1,
       data: {
         data: [
           {
@@ -43,11 +56,13 @@ describe("Web Experience page server load", () => {
           },
         ],
       },
-    }));
+    });
 
     const { load } =
       await import("../../src/routes/web-experience/[...eid]/+page.server");
-    const result = loadResult(await load({ params: {} } as never));
+    const result = loadResult(
+      await load({ cookies: fakeCookies(), params: {} } as never),
+    );
 
     expect(result.items).toHaveLength(2);
     expect(result.item.id).toBe(-1);

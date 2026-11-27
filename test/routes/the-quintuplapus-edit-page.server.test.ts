@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fakeCookies } from "./fakeCookies";
 
 const mockEntries = [
   {
@@ -54,9 +55,11 @@ describe("Quintuplapus edit page server delete", () => {
       };
     });
 
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     const deleteQuintuplapusEntry = vi.fn(async () => mockFile);
@@ -88,6 +91,7 @@ describe("Quintuplapus edit page server delete", () => {
 
     await expect(
       actions.delete({
+        cookies: fakeCookies(),
         request: { formData: async () => formData },
       } as never),
     ).rejects.toMatchObject({
@@ -103,9 +107,11 @@ describe("Quintuplapus edit page server delete", () => {
   });
 
   it("blocks deleting the final remaining entry", async () => {
-    vi.doMock("#lib/editing/core/auth.server", () => ({
-      isEditorEnabled: vi.fn(() => true),
-      requireEditorEnabled: vi.fn(),
+    vi.doMock("#lib/editing/core/session.server", () => ({
+      // Editor auth is mocked wholesale here: these suites exercise load and action behaviour, and the gate
+      // itself is covered by test/lib/editor-auth.test.ts rather than repeated in every page suite.
+      requireEditorAccess: vi.fn(),
+      isEditorUnlockedForRequest: vi.fn(() => true),
     }));
 
     vi.doMock("#lib/editing/resources/quintuplapus/quintuplapus", () => ({
@@ -133,6 +139,7 @@ describe("Quintuplapus edit page server delete", () => {
     formData.set("id", "3");
 
     const result = await actions.delete({
+      cookies: fakeCookies(),
       request: { formData: async () => formData },
     } as never);
 
