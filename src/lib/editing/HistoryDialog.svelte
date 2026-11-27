@@ -3,13 +3,14 @@
   import Button from "#lib/form/Button.svelte";
 
   /**
-   * The saved-version picker an editor restores one entry out of.
+   * The saved-version picker an editor restores out of - one entry at a time, or a whole record at a time.
    *
    * It is two steps in one dialog, and both steps are server data behind server forms and links: step one
-   * lists the versions the seam can offer, step two - reached by clicking one version's link - lists that
-   * version's entries, each row carrying its own restore form. Nothing here decides what a restore does: the
-   * route's `restore` action and the restore seam do, and this component only names them in a form the
-   * browser can post.
+   * lists the versions the seam can offer, step two - reached by clicking one version's link - lists what that
+   * version held. On an entry-list screen that is the version's entries, each row carrying its own restore
+   * form. On a whole-record screen it is the version's own record, shown with a plain-language warning of what
+   * it replaces and one restore form. Nothing here decides what a restore does: the route's `restore` action
+   * and the restore seam do, and this component only names them in a form the browser can post.
    *
    * `open` comes from the URL, not from local state. A picker whose open state is a query parameter is a
    * picker the back button leaves working, and one that survives a reload of the page - which is the whole
@@ -39,15 +40,48 @@
     entries: RestoreEntryItem[];
   }
 
+  /** One row of what a whole-record version holds, named and counted by the resource that owns it. */
+  interface RestoreRecordLineItem {
+    label: string;
+    value: string;
+  }
+
+  /**
+   * The version a whole-record screen is about to restore.
+   *
+   * There is no list of entries to pick one out of: a whole-record version is one record, and what the route
+   * worked out on the server - this version's own contents, and how they compare with what the editor is
+   * holding now - is what the confirm step shows.
+   */
+  interface RestoreRecordItem {
+    timestamp: number;
+    scope: string;
+    dateLabel: string;
+    tierLabel: string;
+    /** What this version's record holds, listed in its own order. */
+    items: RestoreRecordLineItem[];
+    /** Plain-language sentence naming what is about to be replaced, with both counts measured. */
+    comparison: string;
+  }
+
   interface Props {
     open: boolean;
     /** The versions step 1 offers, newest first. */
     versions: RestoreVersionItem[];
-    /** The version whose entries step 2 lists, or `null` while the picker is on step 1. */
+    /**
+     * The version whose entries step 2 lists, or `null` while the picker is on step 1.
+     *
+     * A whole-record screen passes `null` on every step: it has no entry to single out, and `record` is what
+     * its step 2 holds instead.
+     */
     target: RestoreTargetItem | null;
+    /** The whole record step 2 offers a restore of, on a screen that restores records rather than entries. */
+    record?: RestoreRecordItem | null;
+    /** What a whole-record screen calls its own record: "home page", "site layout", "terms of service". */
+    wholeRecordNoun?: string | null;
     /** Set when a version was named but could not be read, so the picker is back on step 1. */
     note?: string | null;
-    /** Where every entry row posts: the route's `restore` action. */
+    /** Where a restore is posted to: the route's `restore` action. */
     actionHref: string;
     versionsHref: string;
     closeHref: string;
@@ -66,6 +100,8 @@
     open,
     versions,
     target,
+    record = null,
+    wholeRecordNoun = null,
     note = null,
     actionHref,
     versionsHref,
@@ -73,13 +109,25 @@
     draftVersion,
     entryNoun = "poem",
   }: Props = $props();
+
+  /**
+   * Which kind of screen called this dialog: one that restores one entry out of a list, or one that restores a
+   * record whole.
+   *
+   * It is decided by the prop and not by `target == null`, because a whole-record screen leaves `target` empty
+   * on purpose - and a component that read the difference from what was left out would have its wording change
+   * on a screen it was never meant for.
+   */
+  const isWholeRecord = $derived(wholeRecordNoun !== null);
 </script>
 
 <UnsavedChangesDialog
   {open}
   title={target
     ? `Restore one ${entryNoun} from the version saved ${target.dateLabel} ${target.tierLabel}`
-    : "Restore a saved version"}
+    : record
+      ? `Restore the whole ${wholeRecordNoun} saved ${record.dateLabel} ${record.tierLabel}?`
+      : "Restore a saved version"}
 >
   {#snippet children()}
     {#if note}
@@ -130,11 +178,70 @@
         >
         <Button href={closeHref} variant="action">Close</Button>
       </div>
+    {:else if record}
+      <p class="restore-lead">{record.comparison}</p>
+
+      {#if record.items.length === 0}
+        <p class="restore-empty">
+          This version held no part of the {wholeRecordNoun} this editor writes.
+        </p>
+      {:else}
+        <ul class="restore-list">
+          {#each record.items as item (item.label)}
+            <li class="restore-item">
+              <span class="restore-item__id">{item.label}</span>
+              <span class="restore-item__title">{item.value}</span>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+
+      <p class="restore-lead">
+        The whole {wholeRecordNoun} is restored at once: there is no part of it to
+        pick out of the version, because a version of a whole record is one record.
+      </p>
+
+      <p class="restore-lead">
+        A restore writes a new working draft, never a published copy. The {wholeRecordNoun}
+        you are editing now is filed in history as it stands before the new draft
+        is written, so the copy you are about to replace stays one click away.
+      </p>
+
+      <form class="restore-form" method="POST" action={actionHref}>
+        <input type="hidden" name="scope" value={record.scope} />
+        <input type="hidden" name="timestamp" value={record.timestamp} />
+        <input type="hidden" name="draftVersion" value={draftVersion} />
+        <Button type="submit" variant="submit"
+          >{`Restore the whole ${wholeRecordNoun}`}</Button
+        >
+      </form>
+
+      <div class="restore-foot">
+        <a class="restore-link" href={versionsHref}
+          >Choose a different version</a
+        >
+        <Button href={closeHref} variant="action">Close</Button>
+      </div>
     {:else}
       <p class="restore-lead">
-        Pick the version to restore one {entryNoun} from. Five are listed, newest
-        first; each one is labelled with the tier it was found in.
+        {#if isWholeRecord}
+          Pick the version to put the whole {wholeRecordNoun} back into your draft
+          from. Five are listed, newest first; each one is labelled with the tier
+          it was found in.
+        {:else}
+          Pick the version to restore one {entryNoun} from. Five are listed, newest
+          first; each one is labelled with the tier it was found in.
+        {/if}
       </p>
+
+      {#if isWholeRecord}
+        <p class="restore-warn">
+          Restoring one of these versions replaces the {wholeRecordNoun} you are editing
+          now, whole - every section and field it holds - with the version you pick.
+          Nothing published is touched, and the copy you are replacing is filed in
+          history first.
+        </p>
+      {/if}
 
       {#if versions.length === 0}
         <p class="restore-empty">
@@ -170,6 +277,12 @@
   .restore-note {
     /* The same colour the editor uses for a `formMessage`, so a refusal reads like one. */
     color: var(--o-dk);
+    font-weight: 700;
+  }
+
+  .restore-warn {
+    /* A whole-record screen warns about what a restore replaces before the editor clicks anything. */
+    margin-top: 0.75rem;
     font-weight: 700;
   }
 

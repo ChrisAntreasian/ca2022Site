@@ -11,6 +11,7 @@ import {
   publicReadScope,
   type ContentKey,
 } from "#lib/content.server";
+import type { SnapshotScope } from "#lib/dataStore.server";
 
 const landingContentKey = "landing" satisfies ContentKey;
 const landingStore = createJsonEditorStore<LandingFile>({
@@ -75,3 +76,45 @@ export const saveLandingSectionEditorValue = async (
 
   return updated;
 };
+
+/**
+ * The saved versions a landing restore screen offers, newest first, each carrying the tier it was found in.
+ *
+ * `landing` is a whole-record key: it has no entry id to name, so every version it offers is a whole copy of
+ * the home page record, and the picker has nothing to list out of one but the record itself.
+ */
+export const listLandingEditorHistoryVersions = (limit?: number) =>
+  landingStore.listHistoryVersions(limit);
+
+/**
+ * One saved version read as a whole landing record.
+ *
+ * This is the seam's `readSnapshot`, which decodes the saved copy through `landingFileC` — the same projection
+ * an ordinary draft read goes through. What that projection holds is what a landing restore can put back; the
+ * fields a saved copy carries that the schema does not name never reach the draft.
+ */
+export const readLandingEditorSnapshotRecord = async (
+  scope: SnapshotScope,
+  timestamp: number,
+): Promise<LandingFile> => landingStore.readSnapshot(scope, timestamp);
+
+export type RestoreLandingRecordParams = {
+  /** The tier the version was found in, exactly as `listLandingEditorHistoryVersions` reported it. */
+  scope: SnapshotScope;
+  /** Which saved version of the whole home page record to read out of that tier. */
+  timestamp: number;
+  now?: Date;
+};
+
+/**
+ * Put one saved version of the home page record back as the current draft.
+ *
+ * A new draft, never a live release: `restoreWholeRecord` is the seam's whole-record path, so this resource
+ * adds no merge rule of its own — there is no entry to pick a copy of, only a record to replace.
+ */
+export const restoreLandingRecordFromSnapshot = async ({
+  scope,
+  timestamp,
+  now = new Date(),
+}: RestoreLandingRecordParams) =>
+  landingStore.restoreWholeRecord(scope, timestamp, now);

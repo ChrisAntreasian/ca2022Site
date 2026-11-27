@@ -1,5 +1,6 @@
 <script lang="ts">
   import EditorShell from "#lib/editing/core/EditorShell.svelte";
+  import HistoryDialog from "#lib/editing/HistoryDialog.svelte";
   import EditPane from "../_components/EditPane.svelte";
   import { landingEditorPath } from "#lib/editing/resources/landing/landing-editor";
 
@@ -40,7 +41,7 @@
   defaultHeadline="home"
   wrapBasis={70}
   editorTitle="Home Page Editor"
-  editorDescription="Edit each home page section. Sections keep their images; only the title, body and link change."
+  editorDescription="Edit each home page section. Only the title, body and link change. Restoring a saved version replaces every section at once - see Restore a saved version."
   actionHref="/"
   actionLabel="View site"
   formMessage={form?.message}
@@ -59,6 +60,19 @@
   {/snippet}
 
   {#snippet navigationPane(requestNavigation)}
+    <li class="nav-action-item">
+      <a
+        class="sidebar-link"
+        href={data.restore.href}
+        onclick={(event) => {
+          event.preventDefault();
+          requestNavigation(data.restore.href);
+        }}
+      >
+        Restore the whole home page
+      </a>
+    </li>
+
     {#each data.landing.sections as section}
       <li
         class:active={section.id === currentSection.id}
@@ -79,19 +93,35 @@
   {/snippet}
 </EditorShell>
 
+<HistoryDialog
+  open={data.restore.open}
+  versions={data.restore.versions}
+  target={null}
+  record={data.restore.record}
+  wholeRecordNoun="home page"
+  note={data.restore.note}
+  actionHref={data.restore.actionHref}
+  versionsHref={data.restore.versionsHref}
+  closeHref={data.restore.closeHref}
+  draftVersion={data.restore.draftVersion}
+/>
+
 <style>
-  .section-list-item {
+  .section-list-item,
+  .nav-action-item {
     list-style: none;
     margin-bottom: 1rem;
     font-family: "josefin-bold";
   }
 
-  .section-list-item a {
+  .section-list-item a,
+  .nav-action-item a {
     display: inline-flex;
   }
 
   @media (max-width: 767.98px) {
-    .section-list-item {
+    .section-list-item,
+    .nav-action-item {
       padding: 0 1.5rem;
     }
   }

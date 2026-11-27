@@ -1,5 +1,6 @@
 <script lang="ts">
   import EditorShell from "#lib/editing/core/EditorShell.svelte";
+  import HistoryDialog from "#lib/editing/HistoryDialog.svelte";
   import EditPane from "./_components/EditPane.svelte";
 
   import type { ActionData, PageData } from "./$types";
@@ -39,7 +40,7 @@
   defaultHeadline="layout"
   wrapBasis={70}
   editorTitle="Site Layout Editor"
-  editorDescription="Edit the header title and logo used across every page."
+  editorDescription="Edit the header title and logo used across every page. Restoring a saved version replaces both at once - see Restore the whole site layout."
   actionHref="/"
   actionLabel="View site"
   formMessage={form?.message}
@@ -57,12 +58,47 @@
     />
   {/snippet}
 
-  {#snippet navigationPane()}
+  {#snippet navigationPane(requestNavigation)}
+    <li class="layout-nav-item">
+      <a
+        class="sidebar-link"
+        href={data.restore.href}
+        onclick={(event) => {
+          event.preventDefault();
+          requestNavigation(data.restore.href);
+        }}
+      >
+        Restore the whole site layout
+      </a>
+    </li>
+
     <li class="layout-nav-item active">
-      <a class="sidebar-link" href="/layout/edit">Site Layout</a>
+      <a
+        class="sidebar-link"
+        href="/layout/edit"
+        onclick={(event) => {
+          event.preventDefault();
+          requestNavigation("/layout/edit");
+        }}
+      >
+        Site Layout
+      </a>
     </li>
   {/snippet}
 </EditorShell>
+
+<HistoryDialog
+  open={data.restore.open}
+  versions={data.restore.versions}
+  target={null}
+  record={data.restore.record}
+  wholeRecordNoun="site layout"
+  note={data.restore.note}
+  actionHref={data.restore.actionHref}
+  versionsHref={data.restore.versionsHref}
+  closeHref={data.restore.closeHref}
+  draftVersion={data.restore.draftVersion}
+/>
 
 <style>
   .layout-nav-item {
